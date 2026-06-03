@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สรุปรายงานวิเคราะห์ความคิดเห็นผู้เล่น</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Sarabun", "Segoe UI", Tahoma, sans-serif;
+    background: #f4f7fb;
+    color: #1f2d3d;
+    margin: 0;
+    padding: 32px 16px;
+    line-height: 1.7;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto 28px auto;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 2px 14px rgba(30,60,120,0.08);
+    padding: 40px 48px;
+  }
+  .doc-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: #2952c8;
+    margin: 0 0 6px 0;
+  }
+  .doc-sub {
+    text-align: center;
+    color: #7a8aa0;
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  h2.section {
+    background: linear-gradient(90deg, #dbe7fb 0%, #eef4fd 100%);
+    border-left: 6px solid #3b6fe0;
+    color: #2952c8;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin: 30px 0 16px 0;
+  }
+  ul { margin: 0 0 10px 0; padding-left: 22px; }
+  li { margin-bottom: 10px; }
+  .neg { color: #d63a3a; font-weight: 700; }
+  .pos { color: #1f9d57; font-weight: 700; }
+  .mid { color: #2952c8; font-weight: 700; }
+  strong { color: #1f2d3d; }
+  .tag {
+    display: inline-block;
+    background: #eef1f6;
+    color: #5a6678;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .footer {
+    text-align: center;
+    color: #9aa7b8;
+    font-size: 13px;
+    border-top: 1px solid #e6ebf2;
+    padding-top: 16px;
+    margin-top: 32px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="doc-title">🎮 สรุปรายงานวิเคราะห์ความคิดเห็นผู้เล่น</div>
+  <div class="doc-sub">ข้อมูล 300 ความคิดเห็น | เดือนพฤษภาคม 2026 | เวอร์ชัน v1.8.0 – v1.9.1</div>
+
+  <h2 class="section">1. สรุปความคิดเห็นผู้เล่น</h2>
+  <ul>
+    <li>ความคิดเห็นโดยรวมอยู่ในระดับ <span class="neg">น่าเป็นห่วง</span> โดย <strong>71%</strong> ของผู้เล่น (213 คน) มีความคิดเห็นเชิงลบ</li>
+    <li>ผู้เล่นไม่พอใจหลัก ๆ ใน 3 เรื่อง คือ <strong>กิจกรรม (Event)</strong>, <strong>ความสมดุลของเกม (Balance)</strong> และ <strong>ระบบเติมเงิน (Monetization)</strong></li>
+    <li>ทั้ง 3 เรื่องนี้รวมกันคิดเป็นกว่า <strong>61%</strong> ของความคิดเห็นทั้งหมด</li>
+    <li>มีความคิดเห็นที่ต้องรีบแก้ด่วน (High + Critical) รวม <strong>57 รายการ</strong> หรือราว 19%</li>
+    <li>ควรเร่งปรับปรุง เพื่อลดความเสี่ยงที่ผู้เล่นจะเลิกเล่นหรือใช้จ่ายน้อยลงในอนาคต</li>
+  </ul>
+
+  <h2 class="section">2. ภาพรวมความคิดเห็น</h2>
+  <ul>
+    <li><strong>ด้านความรู้สึก:</strong> เชิงลบ 213 คน (71%) · เฉย ๆ 54 คน (18%) · เชิงบวก 33 คน (11%)</li>
+    <li><strong>หมวดที่ถูกพูดถึงมากสุด:</strong> กิจกรรม 80 · ความสมดุลเกม 61 · ระบบเติมเงิน 43 · หน้าจอ/การใช้งาน 36</li>
+    <li><strong>ความเร่งด่วน:</strong> ต้องแก้ทันที 4 · เร่งด่วน 53 · ปานกลาง 137 · รอได้ 106</li>
+    <li><strong>ช่องทางที่ผู้เล่นแจ้งมากสุด:</strong> รีวิว Play Store และ App Store, Discord และ Customer Support</li>
+  </ul>
+
+  <h2 class="section">3. ปัญหาสำคัญ 5 อันดับ</h2>
+  <ul>
+    <li><strong>1. กิจกรรม (Event) การกิจกรรมซ้ำเยอะ / อันดับแข่งขันยาก</strong> — มากที่สุด 80 รายการ กระทบผู้เล่นใหม่และสายฟรี (F2P) ทำให้คนเล่นน้อยลงช่วงจัดกิจกรรม <span class="tag">ทีม Live Operations</span></li>
+    <li><strong>2. บอสออกสกิล One-Shot / AI ตีเองไม่ฉลาด</strong> — 61 รายการ กระทบกลุ่มผู้เล่นที่ลงทุนสูง (หัวกิลด์, สายเติมเงิน) ทำให้รู้สึกไม่แฟร์ <span class="tag">ทีม Game Design</span></li>
+    <li><strong>3. รู้สึกเกมต้องจ่ายเงินถึงจะเก่ง / แจกของน้อย</strong> — 43 รายการ กระทบความเชื่อใจในระบบเติมเงิน เสี่ยงผู้เล่นสายฟรีลบเกมทิ้ง <span class="tag">ทีม Product</span></li>
+    <li><strong>4. เกมแลค / เฟรมตก ในด่านบอสใหม่</strong> — 14 รายการ กระทบคุณภาพการเล่นทุกแพลตฟอร์ม โดยเฉพาะมือถือ Android <span class="tag">ทีม Development</span></li>
+    <li><strong>5. ตัวหนังสือเล็ก / หน้าจอ UI ใช้งานยาก</strong> — 36 รายการ กระทบผู้เล่นใหม่และผู้เล่นทั่วไปเป็นพิเศษ <span class="tag">ทีม Development</span></li>
+  </ul>
+
+  <h2 class="section">4. สรุปความรู้สึกผู้เล่น</h2>
+  <ul>
+    <li><span class="pos">เชิงบวก (33 รายการ):</span> ชื่นชมกราฟิกและฉากต่อสู้ที่สวยขึ้น, UI ใหม่ดูสะอาดเข้าใจง่าย และธีมบางกิจกรรมน่ารัก</li>
+    <li><span class="mid">เฉย ๆ (54 รายการ):</span> ส่วนใหญ่เป็นการขอฟีเจอร์เพิ่ม เช่น ระบบดูรีเพลย์ย้อนหลัง, บอสกิลด์, และข้อเสนอแนะปรับปรุง</li>
+    <li><span class="neg">เชิงลบ (213 รายการ):</span> กระจุกที่เรื่องกิจกรรมซ้ำ, บอสไม่สมดุล, การเติมเงิน, ตัวหนังสือเล็ก, บั๊ก และอาการแลค</li>
+    <li><strong>อารมณ์โดยรวม:</strong> ผู้เล่นยัง <strong>รักเกมอยู่</strong> (ดูจากการส่ง feedback ต่อเนื่อง) แต่เริ่มหงุดหงิดกับสมดุลเกมและกิจกรรม หากไม่รีบแก้อาจเห็นคนเลิกเล่นในไตรมาส 2/2026</li>
+  </ul>
+
+  <h2 class="section">5. แนวทางดำเนินการที่แนะนำ</h2>
+  <ul>
+    <li><span class="neg">เร่งด่วน (1–2 สัปดาห์):</span> แก้สกิล One-Shot ของบอส, รีบ Hotfix บั๊กร้ายแรง (ล็อกอินไม่ได้ / ของหาย), และแก้อาการเกมแลคในด่านบอส</li>
+    <li><strong>ระยะสั้น (2–4 สัปดาห์):</strong> ออกแบบกิจกรรมและระบบอันดับใหม่ให้หลากหลายขึ้น, เพิ่มระบบ Pity หรือแจกทรัพยากรให้มากขึ้น, ขยายขนาดตัวอักษรและปรับตัวกรองในกระเป๋าของ</li>
+    <li><strong>ระยะยาว (1–3 เดือน):</strong> ปรับโมเดลการเติมเงินให้แฟร์ขึ้น, เพิ่มเนื้อหาใหม่นอกจากแพตช์ balance, สร้างกิจกรรมชุมชน และวางระบบเพิ่มประสิทธิภาพเกมสำหรับอัปเดตหน้า</li>
+  </ul>
+
+  <h2 class="section">6. สรุปปัญหาตามทีม</h2>
+  <ul>
+    <li><strong>Live Operations</strong> — 80 รายการ (26.7%) เรื่องกิจกรรมและระบบอันดับ → ออกแบบกิจกรรมใหม่</li>
+    <li><strong>Game Design</strong> — 71 รายการ (23.7%) เรื่องสมดุลบอสและ AI ตีเอง → แก้กลึบอสด่วน</li>
+    <li><strong>Development</strong> — 70 รายการ (23.3%) เรื่องแลค บั๊ก ตัวหนังสือเล็ก → Hotfix และเพิ่มประสิทธิภาพ</li>
+    <li><strong>Product Team</strong> — 43 รายการ (14.3%) เรื่องกาชาและการเติมเงิน → ทบทวนโมเดล เพิ่มระบบ Pity</li>
+    <li><strong>Community</strong> — 18 รายการ (6.0%) เรื่องฟีเจอร์และช่องทางสื่อสาร</li>
+    <li><strong>Customer Support</strong> — 2 รายการ (0.7%) เรื่องเวลาตอบกลับ → เฝ้าดูจำนวน ticket หลัง Hotfix</li>
+  </ul>
+
+  <h2 class="section">7. ความเสี่ยงที่ต้องจับตา</h2>
+  <ul>
+    <li><span class="neg">เสี่ยงผู้เล่นเลิกเล่น:</span> สายฟรี (41 คน) และสายเติมน้อย รู้สึกตามคนอื่นไม่ทัน → อาจเลิกเล่นเดือนหน้า</li>
+    <li><span class="neg">เสี่ยงด้านความเชื่อใจการเติมเงิน:</span> เรตกาชาต่ำสะสม อาจทำให้ผู้เล่นสายจ่ายหนัก (Whale) ลดการเติม</li>
+    <li><span class="neg">เสี่ยงด้านชุมชน:</span> ถ้าปัญหาสมดุลยังไม่แก้ อาจโดนรีวิวถล่ม (review bomb) บน Store</li>
+    <li><span class="neg">เสี่ยงด้านเทคนิค:</span> บั๊กร้ายแรง 4 รายการ ถ้าไม่รีบแก้อาจลามเป็นเรื่องร้องเรียนบน Store</li>
+  </ul>
+
+  <h2 class="section">8. หมายเหตุการวิเคราะห์</h2>
+  <ul>
+    <li>วิเคราะห์จากข้อมูล 300 รายการ โดยนับความถี่ตามหมวด ความรู้สึก ความเร่งด่วน และทีมที่รับผิดชอบ</li>
+    <li>ความมั่นใจสูงสำหรับ: การกระจายความรู้สึก, หมวดหมู่, ความเร่งด่วน และการจับคู่ทีม</li>
+    <li>ความมั่นใจปานกลาง–ต่ำสำหรับ: การระบุสาเหตุย่อยในแต่ละหมวด และการประเมินผลกระทบเป็นตัวเลข (เช่น % churn) เพราะไม่มีข้อมูล DAU/รายได้ประกอบ</li>
+    <li>ข้อความ feedback เป็นภาษาไทย การจัดหมวดทำโดย AI อาจมี edge case ที่ประโยคสุภาพหรือประชดถูกจัดผิดบ้างเล็กน้อย</li>
+  </ul>
+
+  <div class="footer">จัดทำจากข้อมูล Sheet "INSIGHT REPORT" · วันที่วิเคราะห์ 3 มิถุนายน 2026</div>
+</div>
+
+</body>
+</html>
