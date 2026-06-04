@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Asok Buffet Finder — รายงานร้านบุฟเฟ่ต์ อโศก</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F6;--surface:#ffffff;--border:#e0dbd0;
+  --text:#1F2937;--muted:#6B7280;--sub:#6B7280;
+  --primary:#556B2F;--primary2:#3d4d22;--accent:#D4A373;
+  --green:#556B2F;--blue:#2563eb;--red:#dc2626;--yellow:#D4A373;
+  --purple:#556B2F;--orange:#D4A373;
+}
+body{font-family:'Inter','Poppins','Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 16px 24px;font-size:15px;line-height:1.6}
+.container{max-width:1200px;margin:0 auto}
+
+/* LANG TOGGLE */
+.lang-toggle{display:flex;background:#FAF9F6;border:1.5px solid #e0dbd0;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.lang-btn{padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#6B7280;transition:all .2s;letter-spacing:.5px}
+.lang-btn.active{background:#556B2F;color:#fff}
+.lang-btn:hover:not(.active){color:#1F2937;background:#f0ede6}
+
+/* HEADER (legacy — replaced by .hero) */
+.header{display:none}
+.badge{display:none}
+.meta-row{display:none}
+.chip{display:none}
+
+/* SECTION */
+.section{margin-bottom:40px}
+.section-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#556B2F;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:#e0dbd0}
+
+/* MAP */
+.map-layout{display:grid;grid-template-columns:340px 1fr;gap:16px;height:520px}
+@media(max-width:800px){.map-layout{grid-template-columns:1fr;height:auto}}
+#map{border-radius:12px;border:1.5px solid #e0dbd0;overflow:hidden;height:520px;box-shadow:0 2px 16px rgba(0,0,0,0.08)}
+@media(max-width:800px){#map{height:320px}}
+.map-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;padding-right:4px}
+.map-list::-webkit-scrollbar{width:4px}
+.map-list::-webkit-scrollbar-thumb{background:#e0dbd0;border-radius:4px}
+.map-item{background:#fff;border:1.5px solid #e0dbd0;border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.map-item:hover,.map-item.active{border-color:#556B2F;background:#f0f4e8}
+.map-item .rank-dot{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.map-item .info{flex:1;min-width:0}
+.map-item .name{font-size:13px;font-weight:600;color:#556B2F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-item .name:hover{color:#1F2937}
+.map-item .meta{font-size:12px;color:#6B7280;margin-top:2px}
+.map-item .score{font-size:15px;font-weight:800;color:#556B2F;flex-shrink:0}
+
+/* TABLE */
+.table-wrap{border-radius:12px;border:1.5px solid #e0dbd0;overflow:hidden;overflow-x:auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,0.05)}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead tr{background:#FAF9F6}
+thead th{padding:13px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#6B7280;white-space:nowrap;border-bottom:1.5px solid #e0dbd0}
+tbody tr{border-top:1px solid #f0ede6;transition:background .15s;cursor:pointer}
+tbody tr:hover{background:#f0f4e8}
+tbody td{padding:13px 16px;font-size:14px;color:#1F2937;vertical-align:middle}
+.rank-badge{width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.rank-1{background:#556B2F;color:#ffffff;box-shadow:0 2px 8px rgba(85,107,47,0.35)}
+.rank-2{background:#6b7280;color:#fff}
+.rank-3{background:#92400e;color:#fff}
+.rank-n{background:#f0ede6;color:#6B7280}
+.score-bar-wrap{display:flex;align-items:center;gap:7px}
+.score-bar{height:5px;border-radius:999px;background:#556B2F}
+.score-val{font-weight:700;color:#1F2937;font-size:13px}
+.stars{color:#D4A373;font-size:13px;letter-spacing:.5px}
+.stars-row{display:flex;align-items:center;gap:5px}
+.rating-num{font-weight:700;color:#1F2937;font-size:13px}
+.price-tag{display:inline-block;background:#f4f7ee;border:1.5px solid #A3B18A;color:#556B2F;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:600}
+
+/* MAPS BTN */
+.maps-btn{display:inline-flex;align-items:center;gap:5px;background:#556B2F;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:all .2s;letter-spacing:.3px}
+.maps-btn:hover{background:#3d4d22;transform:translateY(-1px)}
+.maps-btn svg{width:11px;height:11px;fill:#fff;flex-shrink:0}
+
+/* TOP 3 CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:800px){.cards-grid{grid-template-columns:1fr}}
+.rec-card{background:#fff;border:1.5px solid #e0dbd0;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.rec-card.gold{border-color:#D4A373}
+.rec-card.silver{border-color:#9ca3af}
+.rec-card.bronze{border-color:#b45309}
+.card-top{padding:20px 20px 16px;border-bottom:1px solid #f0ede6;background:#FAFAFA}
+.card-medal{font-size:24px;margin-bottom:8px}
+.card-name{font-size:17px;font-weight:700;color:#1F2937;margin-bottom:4px;line-height:1.3}
+.card-score-big{font-size:30px;font-weight:900;color:#556B2F;line-height:1}
+.card-score-label{font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.card-body{padding:16px 20px}
+.card-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0ede6;font-size:13px;gap:8px}
+.card-row:last-child{border-bottom:none}
+.card-row .lbl{color:#6B7280;font-weight:600;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;flex-shrink:0;font-size:11px}
+.card-row .val{color:#1F2937;text-align:right;line-height:1.45;font-size:13px}
+.card-row .val.accent{color:#556B2F;font-weight:700}
+.why-box{background:#f4f7ee;border:1.5px solid #A3B18A;border-radius:7px;padding:10px 13px;margin:10px 0;font-size:13px;color:#3d4d22;line-height:1.65}
+.pro-con-item{display:flex;align-items:flex-start;gap:5px;font-size:12px;line-height:1.5;margin-bottom:3px}
+.dot-g{color:#556B2F}.dot-r{color:#dc2626}
+.card-footer{padding:13px 20px;border-top:1px solid #f0ede6;background:#FAFAFA}
+
+/* COMPARISON */
+.pill{display:inline-block;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600}
+.pill-green{background:#f4f7ee;color:#556B2F;border:1.5px solid #A3B18A}
+.pill-orange{background:#fff7ed;color:#c2410c;border:1.5px solid #fdba74}
+.pill-blue{background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd}
+
+/* REVIEW CARDS */
+.review-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:800px){.review-cards{grid-template-columns:1fr}}
+.review-card{background:#fff;border:1.5px solid #e0dbd0;border-radius:10px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.review-card h4{font-size:14px;font-weight:700;color:#1F2937;margin-bottom:10px}
+.review-card p{font-size:13px;color:#6B7280;line-height:1.65;font-style:italic}
+.review-card p::before{content:'\201C';font-size:20px;color:#A3B18A;line-height:0;vertical-align:-4px;margin-right:1px}
+.review-card p::after{content:'\201D';font-size:20px;color:#A3B18A;line-height:0;vertical-align:-4px;margin-left:1px}
+
+/* API STATUS */
+.api-status{background:#fff;border:1.5px solid #e0dbd0;border-radius:10px;padding:13px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.api-status .label{font-size:13px;color:#6B7280;display:flex;align-items:center;gap:6px}
+.api-status .dot{width:8px;height:8px;border-radius:50%;background:#e0dbd0}
+.api-status .dot.live{background:#556B2F;box-shadow:0 0 6px rgba(85,107,47,0.4)}
+.api-pills{display:flex;gap:6px;flex-wrap:wrap}
+
+/* GOOGLE INFO WINDOW */
+.gm-style .gm-style-iw-c{background:#fff!important;border:1.5px solid #e0dbd0!important;border-radius:10px!important;padding:0!important;box-shadow:0 4px 24px rgba(0,0,0,0.12)!important}
+.gm-style .gm-style-iw-d{overflow:hidden!important}
+.gm-style .gm-style-iw-tc::after{background:#fff!important}
+.gm-style-iw-chr button svg{fill:#9a9485!important}
+.iw-body{padding:14px 16px;min-width:200px}
+.iw-body .iw-name{font-size:14px;font-weight:800;color:#1c1a14;margin-bottom:6px}
+.iw-body .iw-rating{font-size:12px;color:#ca8a04;margin-bottom:4px}
+.iw-body .iw-price{font-size:11px;color:#5a7a00;font-weight:700;margin-bottom:8px}
+.iw-body .iw-btn{display:block;text-align:center;background:#1c1a14;color:#fff;border-radius:6px;padding:7px 12px;font-size:11px;font-weight:700;text-decoration:none;margin-top:8px;letter-spacing:.3px}
+
+.source-note{text-align:center;margin-top:28px;padding:14px;background:#fff;border:1.5px solid #e0dbd0;border-radius:9px;font-size:13px;color:#6B7280}
+.source-note a{color:#556B2F;text-decoration:none}
+
+/* REVIEW PANEL */
+.review-panel{background:#fff;border:1.5px solid #e0dbd0;border-radius:12px;min-height:160px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.review-panel-empty{text-align:center;padding:44px;color:#6B7280;font-size:14px}
+.name-link{color:#556B2F;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.name-link:hover{color:#1F2937}
+.rp-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1.5px solid #f0ede6;flex-wrap:wrap;background:#FAFAFA}
+.rp-name{font-size:18px;font-weight:700;color:#1F2937;margin-bottom:5px}
+.rp-meta{font-size:13px;color:#6B7280}
+.rp-body{padding:0}
+.rp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:#1e293b;border:1px solid #334155;border-radius:18px;width:100%;max-width:680px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{padding:22px 24px 18px;border-bottom:1.5px solid #f0ede6;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;background:#FAFAFA}
+.modal-title{font-size:19px;font-weight:700;color:#1F2937;line-height:1.3}
+.modal-meta{font-size:13px;color:#6B7280;margin-top:4px}
+.modal-close{background:#f0ede6;border:1.5px solid #e0dbd0;border-radius:7px;color:#9a9485;font-size:14px;cursor:pointer;padding:6px 10px;flex-shrink:0;transition:all .2s}
+.modal-close:hover{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.modal-body{overflow-y:auto;padding:16px 22px;flex:1;background:#fff}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:#e0dbd0;border-radius:4px}
+.review-item{padding:16px 22px;border-bottom:1px solid #f0ede6;border-right:1px solid #f0ede6}
+.review-item:last-child{border-bottom:none}
+.review-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:#556B2F;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#ffffff;flex-shrink:0}
+.review-author{font-size:14px;font-weight:700;color:#1F2937}
+.review-time{font-size:12px;color:#6B7280;margin-top:1px}
+.review-stars{color:#D4A373;font-size:13px;margin-left:auto;flex-shrink:0}
+.review-text{font-size:13.5px;color:#374151;line-height:1.7}
+.review-loading{text-align:center;padding:40px;color:#9a9485;font-size:13px}
+.modal-footer{padding:14px 22px;border-top:1.5px solid #f0ede6;flex-shrink:0;background:#fafaf7}
+
+/* ── RESTAURANT INSIGHTS WIDGET ─────────────── */
+.insights-card{background:#fff;border:1.5px solid #e0dbd0;border-radius:14px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06)}
+.ins-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px;background:#FAF9F6;border-bottom:1.5px solid #e0dbd0;flex-wrap:wrap}
+.ins-title-block{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.ins-rank-badge{width:48px;height:48px;border-radius:10px;background:#556B2F;color:#ffffff;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ins-name{font-size:22px;font-weight:800;color:#1F2937;line-height:1.2}
+.ins-type{font-size:13px;color:#6B7280;margin-top:3px}
+.ins-score-block{text-align:right;flex-shrink:0}
+.ins-total{font-size:44px;font-weight:900;color:#556B2F;line-height:1}
+.ins-total-label{font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.ins-stars{color:#D4A373;font-size:15px;margin-top:4px}
+.ins-body{padding:24px 28px;display:flex;flex-direction:column;gap:22px}
+.ins-section-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#6B7280;margin-bottom:10px}
+.ins-section-label.ins-green{color:#556B2F}
+.ins-section-label.ins-red{color:#b91c1c}
+.ins-summary{font-size:14px;color:#374151;line-height:1.75;background:#f4f7ee;border-left:3px solid #A3B18A;padding:14px 18px;border-radius:0 8px 8px 0}
+.ins-breakdown{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ins-bar-row{display:flex;flex-direction:column;gap:5px}
+.ins-bar-label{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.ins-bar-name{color:#374151;font-weight:600}
+.ins-bar-val{font-weight:700;color:#1F2937;font-size:13px}
+.ins-bar-weight{color:#6B7280;font-size:11px}
+.ins-bar-track{height:7px;background:#f0ede6;border-radius:999px;overflow:hidden}
+.ins-bar-fill{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.34,1.2,.64,1)}
+.ins-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.ins-two-col{grid-template-columns:1fr}}
+.ins-list{list-style:none;display:flex;flex-direction:column;gap:7px;padding:0}
+.ins-list li{font-size:13.5px;line-height:1.5;display:flex;align-items:flex-start;gap:7px}
+.ins-list-green li::before{content:"✔";color:#556B2F;font-size:12px;margin-top:1px;flex-shrink:0}
+.ins-list-red li::before{content:"✗";color:#b91c1c;font-size:12px;margin-top:1px;flex-shrink:0}
+.ins-list-green li{color:#2d4020}
+.ins-list-red li{color:#7f1d1d}
+.ins-rec{display:flex;flex-wrap:wrap;gap:7px}
+.ins-rec-tag{background:#f4f7ee;border:1.5px solid #A3B18A;color:#556B2F;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:600}
+@media(max-width:640px){.ins-header{flex-direction:column;align-items:flex-start}.ins-score-block{text-align:left}}
+
+/* Fade animation on lang switch */
+.fade-swap{animation:fadeSwap .25s ease}
+@keyframes fadeSwap{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NAVBAR ─────────────────────────────────────── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:#fff;border-bottom:1px solid #e0dbd0;
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-logo{width:40px;height:40px;border-radius:50%;background:#556B2F;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.nav-title-group{display:flex;flex-direction:column}
+.nav-title{font-size:15px;font-weight:700;color:#1F2937;line-height:1.3}
+.nav-sub-text{font-size:11px;color:#6B7280}
+.nav-right{display:flex;align-items:center;gap:20px}
+.nav-live{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.nav-live-row{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#1F2937}
+.nav-live-dot{width:8px;height:8px;border-radius:50%;background:#556B2F;box-shadow:0 0 6px rgba(85,107,47,0.5);animation:blink 2s ease infinite}
+.nav-live-time{font-size:11px;color:#9ca3af}
+@media(max-width:600px){.nav-sub-text,.nav-live-time{display:none}}
+
+/* ── HERO ─────────────────────────────────────────── */
+body{padding-top:60px}
+.hero{
+  background:#FAF9F6;padding:44px 0 36px;margin-bottom:32px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;min-height:180px;
+}
+.hero-text{flex:1;z-index:1;position:relative;padding-right:360px}
+.hero-text h1{font-size:36px;font-weight:800;color:#1F2937;line-height:1.2;margin-bottom:8px}
+.hero-text p{font-size:15px;color:#6B7280;margin-bottom:20px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px}
+.hero-chip{background:#fff;border:1.5px solid #e0dbd0;border-radius:999px;padding:5px 14px;font-size:12px;color:#1F2937;font-weight:500;display:flex;align-items:center;gap:5px}
+.hero-illustration{position:absolute;right:0;bottom:0;top:0;width:360px;display:flex;align-items:flex-end;justify-content:flex-end;pointer-events:none}
+@media(max-width:900px){.hero-illustration{display:none}.hero-text{padding-right:0}}
+
+/* ── TOP 3 SECTION ──────────────────────────────── */
+.top3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:800px){.top3-grid{grid-template-columns:1fr}}
+.top3-card{
+  background:#fff;border:1.5px solid #e0dbd0;border-radius:14px;
+  padding:20px 22px;display:flex;align-items:center;gap:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  transition:transform .2s,box-shadow .2s;cursor:pointer;
+}
+.top3-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.1)}
+.top3-card.gold{border-color:#D4A373}
+.top3-card.silver{border-color:#9ca3af}
+.top3-card.bronze{border-color:#b45309}
+.top3-rank{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;flex-shrink:0}
+.top3-rank.gold{background:#D4A373;color:#fff}
+.top3-rank.silver{background:#9ca3af;color:#fff}
+.top3-rank.bronze{background:#b45309;color:#fff}
+.top3-info{flex:1;min-width:0}
+.top3-name{font-size:15px;font-weight:700;color:#1F2937;line-height:1.3;margin-bottom:5px}
+.top3-rating{font-size:12px;color:#6B7280;margin-bottom:7px}
+.top3-score-block{text-align:right;flex-shrink:0}
+.top3-score-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6B7280;margin-bottom:2px}
+.top3-score-num{font-size:30px;font-weight:900;color:#1F2937;line-height:1}
+.top3-score-denom{font-size:12px;color:#9ca3af;margin-top:2px}
+
+/* ── MAP SIDEBAR REDESIGN ───────────────────────── */
+#map{border-radius:12px;border:1.5px solid #e0dbd0;overflow:hidden;height:520px;box-shadow:0 2px 16px rgba(0,0,0,0.08)}
+@media(max-width:800px){#map{height:320px}}
+.map-sidebar{display:flex;flex-direction:column;height:520px}
+@media(max-width:800px){.map-sidebar{height:auto}}
+.map-sidebar-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6B7280;padding-bottom:10px;border-bottom:1px solid #e0dbd0;margin-bottom:8px;flex-shrink:0}
+.map-list-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.map-list-scroll::-webkit-scrollbar{width:4px}
+.map-list-scroll::-webkit-scrollbar-thumb{background:#e0dbd0;border-radius:4px}
+.view-all-btn{margin-top:8px;width:100%;background:#FAF9F6;border:1.5px solid #e0dbd0;border-radius:8px;padding:10px;font-size:13px;font-weight:600;color:#556B2F;cursor:pointer;transition:all .2s;flex-shrink:0}
+.view-all-btn:hover{background:#f4f7ee;border-color:#A3B18A}
+
+/* ── COMPARISON / REVIEWS FOOTER BUTTONS ────────── */
+.section-footer{text-align:center;padding:14px 0 0}
+.outline-btn{background:#fff;border:1.5px solid #e0dbd0;border-radius:8px;padding:10px 28px;font-size:13px;font-weight:600;color:#556B2F;cursor:pointer;transition:all .2s}
+.outline-btn:hover{background:#f4f7ee;border-color:#A3B18A}
+
+/* ── MAP LAYOUT OVERRIDE (map left, sidebar right) ── */
+.map-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;height:520px}
+@media(max-width:800px){.map-layout{grid-template-columns:1fr;height:auto}}
+
+/* ── INSIGHTS AI BADGE ──────────────────────────── */
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:#556B2F;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px;vertical-align:middle}
+
+/* ── COMPARISON TABLE # COLUMN ──────────────────── */
+.col-num{width:40px;text-align:center;font-weight:700;color:#6B7280;font-size:13px}
+
+/* ── REVIEW POPUP TOAST ─────────────────────── */
+#reviewToast{
+  position:fixed;bottom:24px;left:24px;z-index:3000;
+  max-width:340px;width:calc(100% - 48px);
+  background:#fff;
+  border:1.5px solid #e0dbd0;border-radius:14px;
+  padding:18px 20px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.15);
+  transform:translateY(120%);opacity:0;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;
+  pointer-events:none;
+}
+#reviewToast.show{transform:translateY(0);opacity:1;pointer-events:auto}
+.rt-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rt-avatar{width:36px;height:36px;border-radius:50%;background:#556B2F;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ffffff;flex-shrink:0}
+.rt-info{flex:1;min-width:0}
+.rt-author{font-size:13px;font-weight:700;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-rest{font-size:11px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-stars{font-size:12px;color:#D4A373;flex-shrink:0}
+.rt-text{font-size:12.5px;color:#374151;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rt-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#556B2F;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.rt-label::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#A3B18A;animation:blink 1.5s ease infinite}
+.rt-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#9a9485;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:color .2s}
+.rt-close:hover{color:#dc2626}
+.rt-progress{height:2px;background:#f0ede6;border-radius:2px;margin-top:12px;overflow:hidden}
+.rt-progress-bar{height:100%;background:#1c1a14;border-radius:2px;width:100%;transition:width linear}
+@media(max-width:480px){#reviewToast{left:12px;right:12px;bottom:12px;max-width:none;width:auto}}
+
+/* ── NEW RESTAURANT TODAY ───────────────────── */
+#newRestaurantSection{display:none}
+.new-rest-card{
+  background:#fff;
+  border:1.5px solid #A3B18A;
+  border-radius:14px;
+  padding:24px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(85,107,47,0.1);
+}
+.new-rest-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(163,177,138,0.08),transparent 60%);
+  pointer-events:none;
+}
+.new-rest-left{display:flex;align-items:center;gap:18px;flex:1;min-width:0}
+.new-rest-icon{font-size:48px;flex-shrink:0;filter:drop-shadow(0 0 12px rgba(249,115,22,0.6));animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.new-rest-info{min-width:0}
+.new-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#556B2F;
+  color:#ffffff;font-size:11px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;padding:5px 14px;border-radius:4px;
+  margin-bottom:10px;
+}
+.new-rest-name{font-size:24px;font-weight:800;color:#1F2937;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.new-rest-sub{font-size:13px;color:#6B7280;margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.new-rest-sub .dot{width:4px;height:4px;border-radius:50%;background:#9a9485}
+.new-rest-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+.refresh-info{font-size:10px;color:#9a9485;text-align:right}
+.refresh-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5a8a00;margin-right:4px;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+@media(max-width:640px){
+  .new-rest-card{padding:18px;flex-direction:column;align-items:flex-start}
+  .new-rest-right{align-items:flex-start}
+  .new-rest-name{font-size:18px;white-space:normal}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">🍽️</div>
+    <div class="nav-title-group">
+      <div class="nav-title" id="hTitle">Asok Buffet Finder</div>
+      <div class="nav-sub-text" id="hSub">Powered by Google Maps Places API</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-live">
+      <div class="nav-live-row">
+        <span class="nav-live-dot"></span>
+        <span id="apiLabel">Live Data</span>
+      </div>
+      <div class="nav-live-time">Last updated: <span id="fetchTime">—</span></div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button>
+    </div>
+    <div style="width:32px;height:32px;border-radius:50%;border:1.5px solid #e0dbd0;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:#6B7280">⚙</div>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-text">
+    <h1 id="heroTitle">Find the Best Buffets in Asok</h1>
+    <p id="heroSub">Top buffet restaurants for team gatherings</p>
+    <div class="hero-chips">
+      <div class="hero-chip" id="chip1">📍 Asok, Bangkok</div>
+      <div class="hero-chip" id="chip2">👥 Team of 10</div>
+      <div class="hero-chip" id="chip3">🍽️ Buffet Only</div>
+      <div class="hero-chip" id="chip4">💰 Budget-Friendly Focus</div>
+      <div class="hero-chip" id="chip5">🚇 BTS/MRT Accessible</div>
+    </div>
+  </div>
+  <div class="hero-illustration">
+    <svg viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" width="360" height="220">
+      <!-- Sky gradient -->
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f4f7ee"/>
+          <stop offset="100%" stop-color="#FAF9F6"/>
+        </linearGradient>
+      </defs>
+      <rect width="360" height="220" fill="url(#skyGrad)"/>
+      <!-- Background buildings -->
+      <rect x="20" y="80" width="35" height="140" rx="3" fill="#A3B18A" opacity=".4"/>
+      <rect x="30" y="60" width="15" height="20" rx="2" fill="#A3B18A" opacity=".3"/>
+      <rect x="60" y="70" width="45" height="150" rx="3" fill="#A3B18A" opacity=".35"/>
+      <rect x="70" y="50" width="25" height="22" rx="2" fill="#A3B18A" opacity=".3"/>
+      <!-- Modern tower -->
+      <rect x="115" y="30" width="50" height="190" rx="4" fill="#8a9e6a" opacity=".5"/>
+      <rect x="125" y="10" width="30" height="22" rx="3" fill="#8a9e6a" opacity=".4"/>
+      <rect x="135" y="0" width="10" height="12" rx="1" fill="#6b7f4f" opacity=".5"/>
+      <!-- Windows on tower -->
+      <rect x="120" y="40" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="133" y="40" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="146" y="40" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="120" y="55" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="133" y="55" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="146" y="55" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="120" y="70" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="133" y="70" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <rect x="146" y="70" width="8" height="6" rx="1" fill="#fff" opacity=".5"/>
+      <!-- Temple / Wat -->
+      <rect x="200" y="120" width="80" height="100" rx="3" fill="#c8b560" opacity=".6"/>
+      <polygon points="240,70 200,120 280,120" fill="#D4A373" opacity=".8"/>
+      <polygon points="240,45 218,90 262,90" fill="#D4A373" opacity=".9"/>
+      <polygon points="240,25 228,62 252,62" fill="#c8922a" opacity=".9"/>
+      <rect x="236" y="10" width="8" height="16" rx="2" fill="#c8922a" opacity=".9"/>
+      <rect x="237" y="6" width="6" height="6" rx="3" fill="#D4A373"/>
+      <!-- Temple details -->
+      <rect x="215" y="145" width="20" height="75" rx="2" fill="#b8a450" opacity=".7"/>
+      <rect x="245" y="145" width="20" height="75" rx="2" fill="#b8a450" opacity=".7"/>
+      <!-- Right buildings -->
+      <rect x="295" y="90" width="40" height="130" rx="3" fill="#A3B18A" opacity=".4"/>
+      <rect x="303" y="75" width="24" height="17" rx="2" fill="#A3B18A" opacity=".3"/>
+      <rect x="305" y="60" width="20" height="17" rx="2" fill="#A3B18A" opacity=".25"/>
+      <!-- Trees -->
+      <ellipse cx="190" cy="190" rx="18" ry="28" fill="#556B2F" opacity=".5"/>
+      <rect x="187" y="200" width="6" height="20" fill="#4a5c28" opacity=".4"/>
+      <ellipse cx="310" cy="185" rx="15" ry="22" fill="#556B2F" opacity=".45"/>
+      <rect x="307" y="195" width="6" height="25" fill="#4a5c28" opacity=".4"/>
+      <ellipse cx="50" cy="195" rx="20" ry="25" fill="#6b8040" opacity=".35"/>
+      <!-- Ground -->
+      <rect x="0" y="210" width="360" height="10" fill="#A3B18A" opacity=".2"/>
+    </svg>
+  </div>
+</div>
+
+<!-- NEW RESTAURANT TODAY (n8n API) -->
+<div id="newRestaurantSection" class="section">
+  <div class="section-title" id="secNewRest">🔥 New Restaurant TODAY!!!</div>
+  <div class="new-rest-card">
+    <div class="new-rest-left">
+      <div class="new-rest-icon">🍽️</div>
+      <div class="new-rest-info">
+        <div class="new-badge">✨ NEW &nbsp;·&nbsp; TODAY</div>
+        <div class="new-rest-name" id="newRestName">Loading…</div>
+        <div class="new-rest-sub" id="newRestSub">
+          <span>📍 Asok, Bangkok</span>
+          <span class="dot"></span>
+          <span id="newRestTime">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="new-rest-right">
+      <div class="refresh-info">
+        <span class="refresh-dot"></span>
+        <span id="newRestRefreshLabel">Auto-refresh every 1 hour</span>
+      </div>
+      <div style="font-size:11px;color:#92400e" id="newRestFetched">Last fetched: —</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP 3 HIGHEST SCORES -->
+<div class="section" id="top3Section">
+  <div class="section-title">🏆 TOP 3 HIGHEST SCORES</div>
+  <div class="top3-grid" id="top3Grid">
+    <!-- filled by buildTop3() -->
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="section">
+  <div class="section-title" id="secMap">📍 LIVE MAP · CLICK A RESTAURANT TO EXPLORE</div>
+  <div class="map-layout">
+    <div id="map"></div>
+    <div class="map-sidebar">
+      <div class="map-sidebar-title">NEARBY TOP RESTAURANTS</div>
+      <div class="map-list-scroll" id="mapList"></div>
+      <button class="view-all-btn" id="viewAllBtn" onclick="document.querySelector('#compBody').closest('.section').scrollIntoView({behavior:'smooth'})">View All 20+ Restaurants ↓</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESTAURANT INSIGHTS WIDGET -->
+<div class="section" id="insightsSection" style="display:none">
+  <div class="section-title" id="secInsights">🔍 RESTAURANT INSIGHTS <span class="ai-badge">AI</span></div>
+  <div class="insights-card" id="insightsCard">
+
+    <!-- Header row -->
+    <div class="ins-header">
+      <div class="ins-title-block">
+        <div class="ins-rank-badge" id="insRank">—</div>
+        <div>
+          <div class="ins-name" id="insName">—</div>
+          <div class="ins-type" id="insType">—</div>
+        </div>
+      </div>
+      <div class="ins-score-block">
+        <div class="ins-total" id="insTotal">—</div>
+        <div class="ins-total-label" id="insTotalLabel">Overall Score / 100</div>
+        <div class="ins-stars" id="insStars"></div>
+      </div>
+    </div>
+
+    <!-- Body grid -->
+    <div class="ins-body">
+
+      <!-- AI Summary -->
+      <div class="ins-section">
+        <div class="ins-section-label" id="insLblSummary">📝 AI Summary</div>
+        <div class="ins-summary" id="insSummary">—</div>
+      </div>
+
+      <!-- Score Breakdown -->
+      <div class="ins-section">
+        <div class="ins-section-label" id="insLblBreakdown">📊 Score Breakdown</div>
+        <div class="ins-breakdown" id="insBreakdown"></div>
+      </div>
+
+      <!-- Strengths & Concerns -->
+      <div class="ins-two-col">
+        <div class="ins-section">
+          <div class="ins-section-label ins-green" id="insLblStrengths">✅ Key Strengths</div>
+          <ul class="ins-list ins-list-green" id="insStrengths"></ul>
+        </div>
+        <div class="ins-section">
+          <div class="ins-section-label ins-red" id="insLblConcerns">⚠️ Key Concerns</div>
+          <ul class="ins-list ins-list-red" id="insConcerns"></ul>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div class="ins-section">
+        <div class="ins-section-label" id="insLblRec">🎯 Recommended For</div>
+        <div class="ins-rec" id="insRec">—</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON -->
+<div class="section">
+  <div class="section-title" id="secComp">📊 RESTAURANT COMPARISON</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-num">#</th>
+          <th id="cthName">Restaurant</th>
+          <th style="text-align:center" id="cthRating">Rating</th>
+          <th style="text-align:center" id="cthPrice">Price/Person</th>
+          <th style="text-align:center" id="cthGroup">Group Suit.</th>
+          <th style="text-align:center" id="cthAccess">Accessibility</th>
+          <th style="text-align:center" id="cthPhoto">Photo-Friendly</th>
+          <th style="text-align:center" id="cthFinal">Score</th>
+        </tr>
+      </thead>
+      <tbody id="compBody"></tbody>
+    </table>
+    <div style="text-align:center;padding:14px;border-top:1px solid #f0ede6;background:#FAFAFA">
+      <button class="outline-btn" onclick="document.getElementById('compBody').parentElement.parentElement.querySelector('tbody').style.display=document.getElementById('compBody').parentElement.parentElement.querySelector('tbody').style.display===''?'':''; this.textContent=this.textContent.includes('Full')?'Hide Full Table':'View Full Comparison Table'">View Full Comparison Table</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE REVIEWS PANEL -->
+<div class="section">
+  <div class="section-title" id="secReview">💬 GOOGLE REVIEWS · CLICK A RESTAURANT NAME TO VIEW</div>
+  <div id="reviewPanel" class="review-panel">
+    <div class="review-panel-empty" id="reviewEmpty">
+      <div style="font-size:36px;margin-bottom:12px">👆</div>
+      <div id="reviewEmptyText">Click any restaurant name in the ranking table to load live Google reviews.</div>
+    </div>
+  </div>
+  <div class="section-footer" id="reviewFooter" style="display:none">
+    <button class="outline-btn" id="viewAllReviewsBtn">View All Reviews</button>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalName"></div>
+        <div class="modal-meta" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <a class="maps-btn" id="modalMapsBtn" href="#" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        <span id="modalMapsBtnText">Open in Google Maps</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="source-note" id="sourceNote">
+  📌 Live data from <strong>Google Maps Places API</strong>. Ratings and review counts update in real-time. Scores computed on-page.
+</div>
+
+</div>
+
+<!-- REVIEW TOAST POPUP -->
+<div id="reviewToast">
+  <button class="rt-close" onclick="dismissToast()">✕</button>
+  <div class="rt-label" id="rtLabel">Google Review</div>
+  <div class="rt-header">
+    <div class="rt-avatar" id="rtAvatar">?</div>
+    <div class="rt-info">
+      <div class="rt-author" id="rtAuthor">—</div>
+      <div class="rt-rest" id="rtRest">—</div>
+    </div>
+    <div class="rt-stars" id="rtStars"></div>
+  </div>
+  <div class="rt-text" id="rtText"></div>
+  <div class="rt-progress"><div class="rt-progress-bar" id="rtBar"></div></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// TRANSLATIONS
+// ═══════════════════════════════════════════════
+const TR = {
+  en: {
+    badge: '🏆 Live Restaurant Report · Google Maps API',
+    title: 'Asok Buffet Finder',
+    sub: 'Top buffet restaurants for team gatherings · Powered by Google Maps Places API',
+    chip1: '📍 Asok, Bangkok', chip2: '👥 Team of 10', chip3: '🍽️ Buffet Only',
+    chip4: '💰 Budget-Friendly Focus', chip5: '🚇 BTS/MRT Accessible',
+    apiConnecting: 'Connecting to Google Maps API…',
+    apiConnected: 'Google Maps API connected ✓',
+    secMap: '🗺️ Live Map · Click a Restaurant to Explore',
+    secRank: '📊 Top 10 Ranking Table',
+    thRank:'Rank', thName:'Restaurant Name', thScore:'Score', thRating:'Rating',
+    thReviews:'Reviews', thPrice:'Price/Person', thMap:'Map',
+    scoreNote: '* Score = Rating×40% + Budget×20% + BTS Proximity×20% + Photo Appeal×10% + Group Suitability×10%',
+    secComp: '⚖️ Restaurant Comparison',
+    cthName:'Restaurant', cthRating:'Rating', cthPrice:'Price/Person',
+    cthGroup:'Group Suit.', cthAccess:'Accessibility', cthPhoto:'Photo-Friendly', cthFinal:'Score',
+    secReview: '💬 Google Reviews · Click a Restaurant Name to View',
+    sourceNote: '📌 Live data from <strong>Google Maps Places API</strong>. Ratings and review counts update in real-time. Scores computed on-page. Last fetched: <span id="fetchTime">—</span>',
+    lblCategory:'Category', lblPrice:'Est. Price', lblPros:'Pros', lblCons:'Cons', lblBestFor:'Best For',
+    lblScoreLabel:'Total Score / 10',
+    lbl10pax:'×10 people',
+    mapsBtnShort:'Maps', mapsBtnFull:'View on Google Maps',
+    loading:'Loading…',
+    iwOpenMaps:'📍 Open in Google Maps',
+    metaRating:'Loading…',
+  },
+  th: {
+    badge: '🏆 รายงานร้านอาหารสด · Google Maps API',
+    title: 'ค้นหาบุฟเฟ่ต์ อโศก',
+    sub: 'ร้านบุฟเฟ่ต์ที่ดีที่สุดสำหรับทีม · ขับเคลื่อนโดย Google Maps Places API',
+    chip1: '📍 อโศก กรุงเทพฯ', chip2: '👥 ทีม 10 คน', chip3: '🍽️ บุฟเฟ่ต์เท่านั้น',
+    chip4: '💰 เน้นราคาคุ้มค่า', chip5: '🚇 ใกล้ BTS/MRT',
+    apiConnecting: 'กำลังเชื่อมต่อ Google Maps API…',
+    apiConnected: 'เชื่อมต่อ Google Maps API สำเร็จ ✓',
+    secMap: '🗺️ แผนที่สด · คลิกร้านเพื่อดูรายละเอียด',
+    secRank: '📊 ตารางจัดอันดับ 10 อันดับแรก',
+    thRank:'อันดับ', thName:'ชื่อร้าน', thScore:'คะแนน', thRating:'เรตติ้ง',
+    thReviews:'รีวิว', thPrice:'ราคา/คน', thMap:'แผนที่',
+    scoreNote: '* คะแนน = เรตติ้ง×40% + ราคา×20% + ระยะBTS×20% + ความสวยงาม×10% + ขนาดกลุ่ม×10%',
+    secComp: '⚖️ เปรียบเทียบร้านอาหาร',
+    cthName:'ร้านอาหาร', cthRating:'เรตติ้ง', cthPrice:'ราคา/คน',
+    cthGroup:'รองรับกลุ่ม', cthAccess:'การเดินทาง', cthPhoto:'ถ่ายภาพสวย', cthFinal:'คะแนน',
+    secReview: '💬 Google รีวิว · คลิกชื่อร้านเพื่อดูรีวิว',
+    sourceNote: '📌 ข้อมูลสดจาก <strong>Google Maps Places API</strong> เรตติ้งและจำนวนรีวิวอัปเดตแบบเรียลไทม์ คำนวณคะแนนบนหน้าเว็บ ดึงข้อมูลล่าสุด: <span id="fetchTime">—</span>',
+    lblCategory:'ประเภท', lblPrice:'ราคาโดยประมาณ', lblPros:'ข้อดี', lblCons:'ข้อเสีย', lblBestFor:'เหมาะสำหรับ',
+    lblScoreLabel:'คะแนนรวม / 10',
+    lbl10pax:'×10 คน',
+    mapsBtnShort:'แผนที่', mapsBtnFull:'เปิดใน Google Maps',
+    loading:'กำลังโหลด…',
+    iwOpenMaps:'📍 เปิดใน Google Maps',
+    metaRating:'กำลังโหลด…',
+  }
+};
+
+let LANG = 'en';
+
+function T(key) { return TR[LANG][key] || TR.en[key] || key; }
+
+const RESTAURANTS = [
+  {
+    id:1, name:"Thong Kee Restaurant", nameTH:"ท่องกี่ภัตตาคาร",
+    query:"Thong Kee Restaurant Sukhumvit 14 Bangkok",
+    address:"Sukhumvit 14, Khlong Toei, Bangkok", addressTH:"สุขุมวิท 14, คลองเตย, กรุงเทพฯ",
+    lat:13.7317, lng:100.5611, type:"Chinese / Dim Sum", typeTH:"อาหารจีน / ติ่มซำ",
+    price:"฿100–200", priceNum:150, baseScore:8.79, totalScore:87.9,
+    scores:{rr:74,gs:72,ps:100,tc:100,dc:100,un:100},
+    group:"High", groupTH:"สูง", access:"BTS Steps", accessTH:"ติด BTS", photo:"Traditional", photoTH:"บรรยากาศดั้งเดิม",
+    why:"A beloved heritage Chinese eatery (since 1872) in Sukhumvit serving wok dishes, dim sum and roast duck. Scores highest on unbeatable value, central location and rich, authentic experience.",
+    whyTH:"ร้านอาหารจีนมรดกที่รักแห่งสุขุมวิท (ตั้งแต่ปี 2415) เสิร์ฟอาหารผัดกระทะ ติ่มซำ และเป็ดย่าง โดดเด่นด้านความคุ้มค่าสูงสุด ทำเลศูนย์กลาง และประสบการณ์แท้จริง",
+    pros:["Authentic wok flavor praised","Very affordable, generous portions","Historic family-run charm"],
+    prosTH:["รสชาติผัดกระทะแท้ได้รับคำชม","ราคาถูกมาก ปริมาณเยอะ","เสน่ห์ครอบครัวดั้งเดิม"],
+    cons:["Roast duck seen as just okay","Very crowded at lunchtime","No-frills, basic setup"],
+    consTH:["เป็ดย่างบางคนบอกธรรมดา","แน่นมากช่วงมื้อกลางวัน","ตกแต่งเรียบง่าย"],
+    bestFor:"Family, Budget-Friendly Dining, Casual Local Experience", bestForTH:"ครอบครัว, กินประหยัด, ประสบการณ์ท้องถิ่น",
+    review:"A beloved heritage Chinese eatery since 1872. Authentic wok flavor, affordable prices, and friendly family service are consistent highlights.",
+    reviewTH:"ร้านอาหารจีนมรดกตั้งแต่ปี 2415 รสชาติผัดกระทะแท้ ราคาประหยัด และบริการครอบครัวอบอุ่น"
+  },
+  {
+    id:2, name:"The Glasshouse — S31 Hotel", nameTH:"เดอะ กลาสเฮ้าส์ โรงแรม S31",
+    query:"The Glasshouse S31 Hotel Sukhumvit 31 Bangkok buffet",
+    address:"S31 Sukhumvit Hotel, 8F, Sukhumvit 31, Bangkok", addressTH:"โรงแรม S31 สุขุมวิท ชั้น 8 สุขุมวิท 31 กรุงเทพฯ",
+    lat:13.7358, lng:100.5680, type:"Hotel Buffet / Afternoon Tea", typeTH:"บุฟเฟ่ต์โรงแรม / อาฟเตอร์นูนที",
+    price:"฿550+", priceNum:600, baseScore:8.40, totalScore:83.95,
+    scores:{rr:99,gs:90,ps:80,tc:60,dc:100,un:52},
+    group:"High", groupTH:"สูง", access:"15 min walk BTS", accessTH:"เดิน 15 นาที BTS", photo:"Hotel Quality", photoTH:"คุณภาพโรงแรม",
+    why:"A stylish 8th-floor hotel spot known for relaxing ambience, excellent afternoon/dessert tea sets and great service. Experience scores well, but limited reviews lower its data score.",
+    whyTH:"สถานที่ชั้น 8 สไตล์ในโรงแรม บรรยากาศผ่อนคลาย ชุดอาฟเตอร์นูนทีและของหวานยอดเยี่ยม บริการดีเยี่ยม แต่รีวิวน้อยลดคะแนน",
+    pros:["Stylish, tranquil ambience","Excellent afternoon tea & dessert sets","Attentive, excellent service"],
+    prosTH:["บรรยากาศสไตล์ผ่อนคลาย","ชุดอาฟเตอร์นูนทีและของหวานยอดเยี่ยม","บริการดูแลยอดเยี่ยม"],
+    cons:["Interior less impressive than photos","Very few reviews (17)","Niche menu (tea/dessert focus)"],
+    consTH:["ภายในน้อยกว่าในรูป","รีวิวน้อยมาก (17)","เมนูเฉพาะกลุ่ม (ชา/ของหวาน)"],
+    bestFor:"Date Night, Afternoon Tea, Relaxed Catch-ups", bestForTH:"ออกเดต, อาฟเตอร์นูนที, นัดพบผ่อนคลาย",
+    review:"Rated 4.4 with only 17 reviews. Customers appreciate the tranquil atmosphere and attentive service. Interior may be less impressive than photos suggest.",
+    reviewTH:"เรตติ้ง 4.4 แต่รีวิวน้อยมาก (17 รายการ) ลูกค้าชอบบรรยากาศผ่อนคลายและบริการดูแลดี"
+  },
+  {
+    id:3, name:"Chaebol Korean BBQ Buffet", nameTH:"แชบอล เกาหลีบาร์บีคิวบุฟเฟ่ต์",
+    query:"Chaebol Korean BBQ Buffet Ngamwongwan Nonthaburi Bangkok",
+    address:"Nonthaburi, Bangkok Metropolitan Area", addressTH:"นนทบุรี เขตกรุงเทพมหานคร",
+    lat:13.8600, lng:100.5200, type:"Korean BBQ Buffet", typeTH:"บุฟเฟ่ต์บาร์บีคิวเกาหลี",
+    price:"~฿469", priceNum:469, baseScore:8.34, totalScore:83.35,
+    scores:{rr:87,gs:72,ps:80,tc:100,dc:100,un:52},
+    group:"High", groupTH:"สูง", access:"Nonthaburi", accessTH:"นนทบุรี", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A well-rated Korean BBQ buffet (~469 THB) in Nonthaburi with wide variety and hot pot, though meats are kitchen-grilled. Strong ratings offset its less central location.",
+    whyTH:"บุฟเฟ่ต์เกาหลีบาร์บีคิวเรตติ้งดี (~469 บาท) ในนนทบุรี หลากหลายรวมหม้อไฟ เนื้อย่างในครัว เรตติ้งสูงชดเชยทำเลที่ไม่กลาง",
+    pros:["Wide variety incl. hot pot","Highly rated, delicious food","Good buffet value (~469 THB)"],
+    prosTH:["หลากหลายรวมหม้อไฟ","เรตติ้งสูง อาหารอร่อย","คุ้มค่าบุฟเฟ่ต์ (~469 บาท)"],
+    cons:["Meats grilled in kitchen (less DIY)","Some dishes very spicy","Outside central Bangkok"],
+    consTH:["เนื้อย่างในครัว ไม่ DIY","บางเมนูเผ็ดมาก","นอกกรุงเทพชั้นใน"],
+    bestFor:"Friends Gathering, Family, Group Dinner", bestForTH:"สังสรรค์เพื่อน, ครอบครัว, ดินเนอร์กลุ่ม",
+    review:"Rated 4.7 in Nonthaburi. Highly rated for delicious food and good value at ~469 THB. Meats are kitchen-grilled rather than at table.",
+    reviewTH:"เรตติ้ง 4.7 ในนนทบุรี อาหารอร่อยและคุ้มค่า ~469 บาท เนื้อย่างในครัวไม่ใช่ที่โต๊ะ"
+  },
+  {
+    id:4, name:"The Annyeong Barbecue", nameTH:"เดอะ อันยอง บาร์บีคิว",
+    query:"Annyeong Barbecue Century Movie Plaza Sukhumvit Bangkok",
+    address:"Century The Movie Plaza, Sukhumvit, Bangkok", addressTH:"เซ็นจูรี่ เดอะ มูฟวี่ พลาซ่า สุขุมวิท กรุงเทพฯ",
+    lat:13.7470, lng:100.5592, type:"Korean BBQ Buffet (AYCE)", typeTH:"บุฟเฟ่ต์บาร์บีคิวเกาหลี (ไม่จำกัด)",
+    price:"฿300–400", priceNum:350, baseScore:8.33, totalScore:83.25,
+    scores:{rr:77,gs:78,ps:80,tc:100,dc:100,un:64},
+    group:"High", groupTH:"สูง", access:"Sukhumvit", accessTH:"สุขุมวิท", photo:"Medium", photoTH:"ปานกลาง",
+    why:"An all-you-can-eat Korean BBQ in Sukhumvit with no time limit and notably friendly staff. Great-value, family-friendly appeal lifts its score despite only adequate food.",
+    whyTH:"บาร์บีคิวเกาหลีแบบไม่จำกัดในสุขุมวิท ไม่จำกัดเวลา พนักงานเป็นมิตรมาก คุ้มค่าและเหมาะครอบครัวแม้อาหารจะพอใช้",
+    pros:["Unlimited time AYCE, good value","Very friendly, helpful staff","Family-friendly, kids enjoyed it"],
+    prosTH:["AYCE ไม่จำกัดเวลา คุ้มค่า","พนักงานเป็นมิตรดีมาก","เหมาะครอบครัว เด็กชอบ"],
+    cons:["Food quality only okay for some","Smaller review sample"],
+    consTH:["คุณภาพอาหารบางคนว่าธรรมดา","กลุ่มตัวอย่างรีวิวเล็ก"],
+    bestFor:"Family, Friends Gathering, Budget-Friendly Dining", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, กินประหยัด",
+    review:"Rated 4.9. AYCE with no time limit and very friendly staff. Food quality is adequate rather than exceptional.",
+    reviewTH:"เรตติ้ง 4.9 AYCE ไม่จำกัดเวลา พนักงานเป็นมิตร คุณภาพอาหารพอใช้"
+  },
+  {
+    id:5, name:"Tohkai Japanese Restaurant", nameTH:"โทไก เรสเตอรองต์ญี่ปุ่น",
+    query:"Tohkai Japanese Restaurant Chon Buri buffet",
+    address:"Chon Buri (out of town)", addressTH:"ชลบุรี (ต่างจังหวัด)",
+    lat:13.3600, lng:100.9800, type:"Japanese Buffet", typeTH:"บุฟเฟ่ต์ญี่ปุ่น",
+    price:"฿350–500", priceNum:425, baseScore:8.33, totalScore:83.25,
+    scores:{rr:89,gs:78,ps:80,tc:100,dc:80,un:64},
+    group:"High", groupTH:"สูง", access:"Chon Buri", accessTH:"ชลบุรี", photo:"Japanese Style", photoTH:"สไตล์ญี่ปุ่น",
+    why:"A Japanese restaurant near Chon Buri with a good-value buffet, large curry-rice portions and fresh sashimi, plus free parking. Decent food, but the distant location lowers its score.",
+    whyTH:"ร้านอาหารญี่ปุ่นใกล้ชลบุรี บุฟเฟ่ต์คุ้มค่า ข้าวแกงกะหรี่ปริมาณมาก ซาชิมิสด จอดรถฟรี อาหารพอใช้แต่ทำเลไกลลดคะแนน",
+    pros:["Good buffet & fresh sashimi","Large curry-rice portions","Free parking"],
+    prosTH:["บุฟเฟ่ต์ดีและซาชิมิสด","ข้าวแกงกะหรี่ปริมาณมาก","จอดรถฟรี"],
+    cons:["Located in Chon Buri (far from Bangkok)","Mid-tier ratings (4.0)"],
+    consTH:["อยู่ในชลบุรี (ไกลจากกรุงเทพ)","เรตติ้งระดับกลาง (4.0)"],
+    bestFor:"Family, Road-Trip Dining, Japanese Food Lovers", bestForTH:"ครอบครัว, กินระหว่างเดินทาง, คนรักอาหารญี่ปุ่น",
+    review:"Rated 4.0 with free parking. Fresh sashimi and large curry-rice portions are highlights. Best for road trips or visits to the Chon Buri area.",
+    reviewTH:"เรตติ้ง 4.0 จอดรถฟรี ซาชิมิสดและข้าวแกงกะหรี่ปริมาณมากเป็นไฮไลต์ เหมาะสำหรับเดินทางหรืออยู่ในชลบุรี"
+  },
+  {
+    id:6, name:"Kwang Han Roo", nameTH:"กวังฮันรู",
+    query:"Kwang Han Roo Korean BBQ Bangkok Korea Town",
+    address:"Korea Town, Sukhumvit 12, Bangkok", addressTH:"โคเรียทาวน์ สุขุมวิท 12 กรุงเทพฯ",
+    lat:13.7380, lng:100.5535, type:"Korean BBQ Buffet", typeTH:"บุฟเฟ่ต์ปิ้งย่างเกาหลี",
+    price:"~฿329", priceNum:329, baseScore:8.23, totalScore:82.25,
+    scores:{rr:73,gs:84,ps:80,tc:100,dc:100,un:52},
+    group:"High", groupTH:"สูง", access:"Sukhumvit 12", accessTH:"สุขุมวิท 12", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A cozy Koreatown KBBQ buffet (~329 THB) with warm service and exceptional side dishes. Good value and central location lift its score, though one hygiene complaint stands out.",
+    whyTH:"บุฟเฟ่ต์เกาหลีบาร์บีคิวในโคเรียทาวน์ราคา ~329 บาท บริการอบอุ่น เครื่องเคียงยอดเยี่ยม คุ้มค่าและทำเลดี มีรายงานด้านสุขอนามัยหนึ่งรายการ",
+    pros:["Good-value pork BBQ buffet (~329 THB)","Exceptional side dishes","Warm, welcoming service"],
+    prosTH:["บุฟเฟ่ต์หมูบาร์บีคิวคุ้มค่า (~329 บาท)","เครื่องเคียงยอดเยี่ยม","บริการอบอุ่น"],
+    cons:["A reviewer reported insects/cockroach","Meat quality only okay for the price"],
+    consTH:["มีรีวิวรายงานพบแมลง/แมลงสาบ","คุณภาพเนื้อพอใช้ในราคานั้น"],
+    bestFor:"Friends Gathering, Budget-Friendly Dining, Group Dinner", bestForTH:"สังสรรค์เพื่อน, กินประหยัด, ดินเนอร์กลุ่ม",
+    review:"Cozy KBBQ at ~329 THB with warm service and exceptional side dishes. Note: one reviewer reported a hygiene issue (insects).",
+    reviewTH:"บุฟเฟ่ต์เกาหลีบาร์บีคิว ~329 บาท บริการอบอุ่น เครื่องเคียงยอดเยี่ยม หมายเหตุ: มีรีวิวรายงานพบแมลง ควรพิจารณาก่อนไป"
+  },
+  {
+    id:7, name:"Doo Rae Korean BBQ", nameTH:"ดูเร เกาหลีบาร์บีคิว",
+    query:"Doo Rae Korean BBQ Sukhumvit Bangkok",
+    address:"Korea Town, Sukhumvit, Bangkok", addressTH:"โคเรียทาวน์ สุขุมวิท กรุงเทพฯ",
+    lat:13.7378, lng:100.5538, type:"Korean BBQ", typeTH:"บาร์บีคิวเกาหลี",
+    price:"฿350–600", priceNum:480, baseScore:8.19, totalScore:81.9,
+    scores:{rr:86,gs:66,ps:80,tc:100,dc:100,un:52},
+    group:"High", groupTH:"สูง", access:"BTS Asoke", accessTH:"BTS อโศก", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A standout Korean BBQ in Sukhumvit praised for outstanding marinated prime rib, short ribs and delicious side dishes. High ratings and prime location drive its strong score.",
+    whyTH:"บาร์บีคิวเกาหลีโดดเด่นในสุขุมวิท ได้รับคำชมเรื่องซี่โครงหมักพรีเมียมและเครื่องเคียงอร่อย เรตติ้งสูงและทำเลดีเยี่ยม",
+    pros:["Excellent marinated meats & prime rib","Tasty, authentic Korean side dishes","Highly rated (4.6, 1.7k reviews)"],
+    prosTH:["เนื้อหมักและซี่โครงพรีเมียมอร่อยมาก","เครื่องเคียงเกาหลีแท้ รสชาติดี","เรตติ้งสูง (4.6, 1.7k รีวิว)"],
+    cons:["Popular spot, can be busy","Premium cuts add to cost"],
+    consTH:["ร้านดัง อาจรอคิว","เนื้อพรีเมียมราคาสูงขึ้น"],
+    bestFor:"Friends Gathering, Date Night, Korean BBQ Lovers", bestForTH:"สังสรรค์เพื่อน, ออกเดต, คนรักบาร์บีคิวเกาหลี",
+    review:"Rated 4.6 with 1,700+ reviews. Excellent marinated meats and authentic Korean side dishes. Can get busy due to its popularity.",
+    reviewTH:"เรตติ้ง 4.6 จากรีวิวกว่า 1,700 รายการ ยกย่องเนื้อหมักและเครื่องเคียงเกาหลีแท้ๆ อาจต้องรอคิว"
+  },
+  {
+    id:8, name:"Jin Sung Korean Restaurant", nameTH:"จินซ็อง เกาหลีเรสเตอรองต์ (진성)",
+    query:"Jin Sung Korean Restaurant Pattaya",
+    address:"Pattaya, Chonburi (out of town)", addressTH:"พัทยา ชลบุรี (ต่างจังหวัด)",
+    lat:12.9236, lng:100.8825, type:"Korean BBQ Buffet", typeTH:"บุฟเฟ่ต์บาร์บีคิวเกาหลี",
+    price:"~฿359", priceNum:359, baseScore:8.08, totalScore:80.75,
+    scores:{rr:97,gs:78,ps:70,tc:80,dc:80,un:64},
+    group:"High", groupTH:"สูง", access:"Pattaya", accessTH:"พัทยา", photo:"Traditional", photoTH:"ดั้งเดิม",
+    why:"An authentic Korean BBQ in Pattaya run by Koreans, with a generous ~359 THB pork buffet, plentiful side dishes and easy parking. Authentic appeal offsets its out-of-town location.",
+    whyTH:"บาร์บีคิวเกาหลีแท้ในพัทยาดำเนินการโดยชาวเกาหลี บุฟเฟ่ต์หมู ~359 บาท เครื่องเคียงเยอะ จอดรถสะดวก เสน่ห์แท้ชดเชยทำเลต่างจังหวัด",
+    pros:["Authentic Korean BBQ, run by Koreans","Generous side dishes & fresh food","Good value (~359 THB), easy parking"],
+    prosTH:["บาร์บีคิวเกาหลีแท้ โดยชาวเกาหลี","เครื่องเคียงเยอะ อาหารสด","คุ้มค่า (~359 บาท) จอดรถสะดวก"],
+    cons:["Located in Pattaya (out of town)","Some find it just good, not exceptional"],
+    consTH:["อยู่ในพัทยา (ต่างจังหวัด)","บางคนบอกดีแต่ไม่ยอดเยี่ยม"],
+    bestFor:"Family, Friends Gathering, Korean BBQ Lovers", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, คนรักบาร์บีคิวเกาหลี",
+    review:"Authentic Korean BBQ in Pattaya run by Koreans. Rated 4.3. Known for authentic flavors, generous side dishes and easy parking.",
+    reviewTH:"บาร์บีคิวเกาหลีแท้ในพัทยาโดยชาวเกาหลี เรตติ้ง 4.3 เสน่ห์แท้ เครื่องเคียงเยอะ จอดรถสะดวก"
+  },
+  {
+    id:9, name:"Goji Kitchen & Bar", nameTH:"โกจิ คิทเชน แอนด์ บาร์",
+    query:"Goji Kitchen Bar Marriott Marquis Queens Park Bangkok",
+    address:"Bangkok Marriott Marquis Queen Park, Sukhumvit 22", addressTH:"แบงค็อก แมริออท มาร์คีส์ ควีนส์ปาร์ค สุขุมวิท 22",
+    lat:13.7297, lng:100.5651, type:"International Buffet", typeTH:"บุฟเฟ่ต์นานาชาติ",
+    price:"฿950–1,200", priceNum:1075, baseScore:8.04, totalScore:80.35,
+    scores:{rr:90,gs:72,ps:55,tc:100,dc:100,un:52},
+    group:"Very High", groupTH:"สูงมาก", access:"Sukhumvit 22", accessTH:"สุขุมวิท 22", photo:"Premium Hotel", photoTH:"โรงแรมพรีเมียม",
+    why:"An upscale international buffet at Bangkok Marriott Marquis with a gorgeous, spacious setting and wide spread. Premium experience scores well but at a higher price point.",
+    whyTH:"บุฟเฟ่ต์นานาชาติระดับสูงที่แมริออท มาร์คีส์ สถานที่กว้างขวางสวยงาม ประสบการณ์พรีเมียม แต่ราคาสูง",
+    pros:["Beautiful, spacious hotel setting","Wide, high-quality international spread","One of the best buffet experiences"],
+    prosTH:["บรรยากาศโรงแรมกว้างขวางสวยงาม","อาหารนานาชาติคุณภาพสูงหลากหลาย","หนึ่งในประสบการณ์บุฟเฟ่ต์ที่ดีที่สุด"],
+    cons:["Premium price (Price Level 3)","Upscale, less casual"],
+    consTH:["ราคาพรีเมียม (ระดับราคา 3)","บรรยากาศสูงระดับ ไม่ลำลอง"],
+    bestFor:"Date Night, Special Occasions, Team Dinner", bestForTH:"ออกเดต, โอกาสพิเศษ, ดินเนอร์ทีม",
+    review:"Rated 4.6. Beautiful hotel setting, wide international spread. One of the best buffet experiences in Bangkok. The premium price is the main consideration.",
+    reviewTH:"เรตติ้ง 4.6 บรรยากาศโรงแรมสวยงาม อาหารหลากหลาย หนึ่งในประสบการณ์บุฟเฟ่ต์ที่ดีที่สุดในกรุงเทพ จุดพิจารณาหลักคือราคา"
+  },
+  {
+    id:10, name:"Mungkorn Seafood Buffet & Fish Market", nameTH:"มังกรซีฟู้ดส์ บุฟเฟ่ต์ & ตลาดปลา",
+    query:"Mungkorn Seafood Buffet Fish Market Bangkok",
+    address:"Sukhumvit Road, Bangkok", addressTH:"ถนนสุขุมวิท กรุงเทพฯ",
+    lat:13.7350, lng:100.5625, type:"Seafood Buffet (AYCE)", typeTH:"บุฟเฟ่ต์อาหารทะเล (ไม่อั้น)",
+    price:"~฿500", priceNum:500, baseScore:7.92, totalScore:79.15,
+    scores:{rr:75,gs:66,ps:80,tc:100,dc:100,un:52},
+    group:"Very High", groupTH:"สูงมาก", access:"Sukhumvit", accessTH:"สุขุมวิท", photo:"Market Style", photoTH:"สไตล์ตลาด",
+    why:"Bangkok's most famous AYCE seafood buffet, offering fresh live shellfish with no time limit at an affordable ~500 THB. Top scores for reviews, group appeal and value.",
+    whyTH:"บุฟเฟ่ต์อาหารทะเลแบบไม่จำกัดที่โด่งดังที่สุดในกรุงเทพ เปลือกหอยสดมีชีวิต ไม่จำกัดเวลา ราคา ~500 บาท คะแนนสูงสุดด้านรีวิว กลุ่มใหญ่ และความคุ้มค่า",
+    pros:["Huge fresh seafood variety","Excellent value, no time limit","Hugely popular (20k+ reviews)"],
+    prosTH:["อาหารทะเลสดหลากหลาย","คุ้มค่ามาก ไม่จำกัดเวลา","ยอดนิยมมาก (รีวิวกว่า 20,000)"],
+    cons:["Can get very busy/crowded","Self-cook style not for everyone"],
+    consTH:["แน่นและพลุกพล่านมาก","รูปแบบปรุงเองไม่เหมาะกับทุกคน"],
+    bestFor:"Friends Gathering, Family, Seafood Lovers", bestForTH:"สังสรรค์เพื่อน, ครอบครัว, คนรักอาหารทะเล",
+    review:"Bangkok's most famous AYCE seafood buffet. 20k+ reviews, rated 4.9. Customers love the huge fresh seafood variety and excellent value.",
+    reviewTH:"บุฟเฟ่ต์อาหารทะเลโด่งดังที่สุดในกรุงเทพ รีวิวกว่า 20,000 เรตติ้ง 4.9 ลูกค้าชอบความหลากหลายและคุ้มค่า"
+  },
+  {
+    id:11, name:"Kunshine Hotpot Buffet", nameTH:"คุณชายชาบูบุฟเฟ่ต์",
+    query:"Kunshine Hotpot Buffet Sukhumvit Bangkok",
+    address:"233 Sukhumvit Soi 17, Khlong Toei Nuea, Bangkok", addressTH:"233 สุขุมวิท ซอย 17, คลองเตยเหนือ, กรุงเทพฯ",
+    lat:13.7388, lng:100.5632, type:"Hotpot / Mala Buffet", typeTH:"บุฟเฟ่ต์ชาบู / หม้อไฟหม่าล่า",
+    price:"฿399–599", priceNum:499, baseScore:7.71, totalScore:77.05,
+    scores:{rr:81,gs:72,ps:80,tc:60,dc:100,un:64},
+    group:"High", groupTH:"สูง", access:"BTS Asoke", accessTH:"BTS อโศก", photo:"Modern", photoTH:"ทันสมัย",
+    why:"A lively Sukhumvit hotpot buffet with plentiful premium meats and flavorful mala broths. Strong ratings, fun group setup and good value earn it a high score.",
+    whyTH:"บุฟเฟ่ต์หม้อไฟในสุขุมวิทบรรยากาศคึกคัก เนื้อพรีเมียมเยอะ น้ำซุปหม่าล่าอร่อย เรตติ้งสูง บรรยากาศกลุ่มสนุก คุ้มค่า",
+    pros:["Premium meat selection","Flavorful mala & customizable broths","Lively atmosphere, attentive service"],
+    prosTH:["เนื้อพรีเมียมหลากหลาย","น้ำซุปหม่าล่าและปรับแต่งได้","บรรยากาศคึกคัก บริการดี"],
+    cons:["Premium tier (599++) pushes price up","Gets busy/lively (can be loud)"],
+    consTH:["ระดับพรีเมียม (599++) ราคาสูงขึ้น","แน่นและคึกคัก อาจเสียงดัง"],
+    bestFor:"Friends Gathering, Team Dinner, Hotpot Lovers", bestForTH:"สังสรรค์เพื่อน, ดินเนอร์ทีม, คนรักหม้อไฟ",
+    review:"Lively Sukhumvit hotpot buffet. Rated 4.8. Customers love the premium meat selection and customizable broths. Gets loud at peak times.",
+    reviewTH:"บุฟเฟ่ต์หม้อไฟในสุขุมวิทบรรยากาศคึกคัก เรตติ้ง 4.8 ลูกค้าชอบเนื้อพรีเมียมและน้ำซุปที่ปรับได้"
+  },
+  {
+    id:12, name:"Bar-B-Q Plaza", nameTH:"บาร์บีคิวพลาซ่า",
+    query:"Bar-B-Q Plaza Asok Terminal 21 Bangkok",
+    address:"Terminal 21 Asoke, Sukhumvit, Bangkok", addressTH:"เทอร์มินอล 21 อโศก สุขุมวิท กรุงเทพฯ",
+    lat:13.7371, lng:100.5605, type:"Thai BBQ Chain Buffet", typeTH:"บุฟเฟ่ต์ปิ้งย่างไทยเชน",
+    price:"฿299–399", priceNum:350, baseScore:7.66, totalScore:76.6,
+    scores:{rr:84,gs:78,ps:80,tc:80,dc:80,un:40},
+    group:"High", groupTH:"สูง", access:"Terminal 21 BTS", accessTH:"BTS Terminal 21", photo:"Mall Setting", photoTH:"บรรยากาศห้าง",
+    why:"A fun, familiar grill-and-hotpot chain in Sukhumvit with signature pork and free cabbage/soup. Central location and group friendliness score well despite mixed value opinions.",
+    whyTH:"เชนปิ้งย่างและหม้อไฟสนุกคุ้นเคยในสุขุมวิท หมูเด็ดและกะหล่ำปลี/ซุปฟรี ทำเลกลางและเหมาะกลุ่มแม้ความคุ้มค่าจะคละกัน",
+    pros:["Fun DIY grill, great for groups","Signature pork & dipping sauce loved","Free cabbage & soup"],
+    prosTH:["ปิ้งย่างสนุก DIY เหมาะกลุ่ม","หมูเด็ดและน้ำจิ้มยอดนิยม","กะหล่ำปลีและซุปฟรี"],
+    cons:["One reviewer found it overpriced","Quality can feel inconsistent"],
+    consTH:["บางรีวิวบอกแพงเกิน","คุณภาพอาจไม่สม่ำเสมอ"],
+    bestFor:"Family, Friends Gathering, Team Dinner", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, ดินเนอร์ทีม",
+    review:"Rated 4.0. Customers enjoy the DIY grill experience and group atmosphere. Some reviewers feel it can be overpriced for the quality.",
+    reviewTH:"เรตติ้ง 4.0 ลูกค้าชอบปิ้งย่าง DIY และบรรยากาศกลุ่ม บางรีวิวรู้สึกว่าแพงเกินสำหรับคุณภาพที่ได้รับ"
+  },
+  {
+    id:13, name:"MK Restaurant", nameTH:"MK สุกี้",
+    query:"MK Restaurant Sukhumvit Bangkok",
+    address:"Sukhumvit, Bangkok", addressTH:"สุขุมวิท กรุงเทพฯ",
+    lat:13.7362, lng:100.5618, type:"Thai Suki / Shabu Chain", typeTH:"สุกี้ / ชาบูเชนไทย",
+    price:"฿299–499", priceNum:399, baseScore:7.60, totalScore:75.95,
+    scores:{rr:82,gs:84,ps:80,tc:55,dc:80,un:64},
+    group:"Very High", groupTH:"สูงมาก", access:"BTS Asoke", accessTH:"BTS อโศก", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A reliable nationwide shabu/suki chain in Sukhumvit with consistent, fresh ingredients. Dependability and location score well, though service and tablet ordering draw gripes.",
+    whyTH:"เชนชาบู/สุกี้ทั่วประเทศที่เชื่อถือได้ในสุขุมวิท วัตถุดิบสดสม่ำเสมอ ความน่าเชื่อถือและทำเลดี แต่บริการและการสั่งผ่านแท็บเล็ตมีคำติ",
+    pros:["Consistent, reliable quality","Fresh ingredients, familiar menu","Convenient, widely available"],
+    prosTH:["คุณภาพสม่ำเสมอเชื่อถือได้","วัตถุดิบสด เมนูคุ้นเคย","สะดวก มีหลายสาขา"],
+    cons:["Service can be slow","Tablet-only ordering frustrates some"],
+    consTH:["บริการอาจช้า","สั่งผ่านแท็บเล็ตเท่านั้น บางคนรำคาญ"],
+    bestFor:"Family, Casual Dining, Group Dinner", bestForTH:"ครอบครัว, กินลำลอง, ดินเนอร์กลุ่ม",
+    review:"Rated 4.1. Consistent quality and convenient locations are appreciated. Service can be slow and tablet-only ordering frustrates some diners.",
+    reviewTH:"เรตติ้ง 4.1 ลูกค้าชอบคุณภาพสม่ำเสมอและทำเลสะดวก บริการอาจช้าและการสั่งแท็บเล็ตทำให้บางคนรำคาญ"
+  },
+  {
+    id:14, name:"Shabushi Terminal 21 Rama 3", nameTH:"ชาบูชิ เทอร์มินอล 21 พระราม 3",
+    query:"Shabushi Terminal 21 Rama 3 Bangkok",
+    address:"Terminal 21 Rama 3, Bangkok", addressTH:"เทอร์มินอล 21 พระราม 3 กรุงเทพฯ",
+    lat:13.6916, lng:100.5242, type:"Shabu / Sushi Conveyor Buffet", typeTH:"บุฟเฟ่ต์ชาบู / สายพานซูชิ",
+    price:"฿399–599", priceNum:499, baseScore:7.58, totalScore:75.8,
+    scores:{rr:70,gs:66,ps:70,tc:100,dc:80,un:76},
+    group:"High", groupTH:"สูง", access:"Rama 3", accessTH:"พระราม 3", photo:"Mall Setting", photoTH:"บรรยากาศห้าง",
+    why:"A conveyor-belt shabu/sushi buffet at Terminal 21 with flexible price tiers, but quiet periods leave belts sparse and quality inconsistent. Low ratings and small sample weigh on its score.",
+    whyTH:"บุฟเฟ่ต์ชาบู/ซูชิสายพานที่ Terminal 21 ราคาแบบ Tier ยืดหยุ่น แต่ช่วงเงียบสายพานบาง คุณภาพไม่สม่ำเสมอ",
+    pros:["Flexible price tiers (399–599 THB)","Scan-to-order rated excellent","Mall location, wide variety"],
+    prosTH:["ราคาแบบ Tier ยืดหยุ่น (399–599 บาท)","ระบบสแกนสั่งอาหารได้รับคำชม","ทำเลห้าง หลากหลาย"],
+    cons:["Sparse food on belt when quiet","Inconsistent quality","Lowest rating in set (3.6)"],
+    consTH:["สายพานบาง/อาหารแห้งช่วงเงียบ","คุณภาพไม่สม่ำเสมอ","เรตติ้งต่ำสุดในกลุ่ม (3.6)"],
+    bestFor:"Family, Casual Mall Dining, Budget-Friendly Dining", bestForTH:"ครอบครัว, กินลำลองในห้าง, กินประหยัด",
+    review:"Rated 3.6 — lowest in this set. Scan-to-order system is praised, but food on the belt can be sparse during quiet periods.",
+    reviewTH:"เรตติ้ง 3.6 ต่ำสุดในกลุ่ม ระบบสแกนสั่งได้รับคำชม แต่ช่วงเงียบสายพานบางและอาหารแห้ง"
+  },
+  {
+    id:15, name:"Akase Shabu (Suan Siam)", nameTH:"อาคาเสะ ชาบู (สาขาสวนสยาม)",
+    query:"Akase Shabu Suan Siam Bangkok",
+    address:"Suan Siam, Outer Bangkok", addressTH:"สวนสยาม ชานเมืองกรุงเทพฯ",
+    lat:13.7800, lng:100.6900, type:"Japanese Shabu Buffet", typeTH:"บุฟเฟ่ต์ชาบูญี่ปุ่น",
+    price:"฿499–899", priceNum:699, baseScore:7.55, totalScore:75.45,
+    scores:{rr:80,gs:78,ps:80,tc:35,dc:100,un:76},
+    group:"High", groupTH:"สูง", access:"Outer Bangkok", accessTH:"ชานเมือง", photo:"Modern", photoTH:"ทันสมัย",
+    why:"A shabu-shabu spot with genuinely excellent ingredients, well recommended by reviewers. Solid ratings are offset by an outer-Bangkok location and a smaller review base.",
+    whyTH:"ชาบูชาบูที่วัตถุดิบดีเยี่ยมแท้จริง แนะนำโดยผู้รีวิว เรตติ้งดีแต่ทำเลชานเมืองและฐานรีวิวเล็กกว่า",
+    pros:["Truly excellent ingredient quality","Highly recommended by diners","Unique shabu experience"],
+    prosTH:["วัตถุดิบคุณภาพดีเยี่ยมแท้จริง","ได้รับการแนะนำสูง","ประสบการณ์ชาบูพิเศษ"],
+    cons:["Located in outer Bangkok (Suan Siam)","Limited reviews / less data"],
+    consTH:["อยู่ชานเมือง (สวนสยาม)","รีวิวน้อย / ข้อมูลจำกัด"],
+    bestFor:"Family, Friends Gathering, Shabu Lovers", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, คนรักชาบู",
+    review:"Excellent ingredient quality, highly recommended. Rated 4.3. Located in Suan Siam, outer Bangkok — the distance is the main drawback.",
+    reviewTH:"วัตถุดิบดีเยี่ยม เรตติ้ง 4.3 อยู่ที่สวนสยาม ชานเมือง ระยะทางคือข้อเสียหลัก"
+  },
+  {
+    id:16, name:"Bang-Fa Shabu", nameTH:"บังฝา ชาบู",
+    query:"Bang-Fa Shabu buffet Bangkok Halal",
+    address:"Lam Luk Ka, Pathum Thani (outer Bangkok)", addressTH:"ลำลูกกา ปทุมธานี (ชานเมือง)",
+    lat:13.9400, lng:100.7200, type:"Halal Shabu Buffet", typeTH:"บุฟเฟ่ต์ชาบูฮาลาล",
+    price:"฿229+", priceNum:300, baseScore:7.52, totalScore:75.15,
+    scores:{rr:89,gs:84,ps:80,tc:30,dc:80,un:76},
+    group:"High", groupTH:"สูง", access:"Outer Bangkok", accessTH:"ชานเมือง", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A Halal shabu-shabu buffet (from ~229 THB) praised for fresh large river prawns, tender ribeye and gelato dessert. Strong value and ratings offset its outer location.",
+    whyTH:"บุฟเฟ่ต์ชาบูชาบูฮาลาล (เริ่ม ~229 บาท) ได้รับคำชมเรื่องกุ้งแม่น้ำสดตัวใหญ่ เนื้อริบอายนุ่ม และเจลาโต้ คุณภาพและเรตติ้งดีชดเชยทำเลชานเมือง",
+    pros:["Fresh large river prawns & tender beef","Great value (from ~229 THB), Halal","Tasty gelato/desserts included"],
+    prosTH:["กุ้งแม่น้ำสดตัวใหญ่และเนื้อนุ่ม","คุ้มค่ามาก (เริ่ม ~229 บาท) ฮาลาล","เจลาโต้/ของหวานอร่อย"],
+    cons:["Located in outer Bangkok (Lam Luk Ka)","Smaller review base"],
+    consTH:["อยู่ชานเมือง (ลำลูกกา)","ฐานรีวิวเล็กกว่า"],
+    bestFor:"Family, Friends Gathering, Halal Diners, Budget-Friendly", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, ผู้บริโภคฮาลาล, กินประหยัด",
+    review:"Halal shabu from ~229 THB with fresh river prawns and gelato. Rated 4.6. Located in Lam Luk Ka — plan travel time.",
+    reviewTH:"ชาบูฮาลาลเริ่ม ~229 บาท กุ้งแม่น้ำสดและเจลาโต้ เรตติ้ง 4.6 อยู่ลำลูกกา ควรวางแผนเวลาเดินทาง"
+  },
+  {
+    id:17, name:"Gyuma Japanese BBQ Thong Lo", nameTH:"กิวมะ ยากินิกุ ทองหล่อ",
+    query:"Gyuma Japanese BBQ Buffet Thong Lo Bangkok",
+    address:"25/11 Soi Sukhumvit 55, Thong Lo, Bangkok", addressTH:"25/11 ซอยสุขุมวิท 55, ทองหล่อ, กรุงเทพฯ",
+    lat:13.7270, lng:100.5744, type:"Japanese Yakiniku Buffet", typeTH:"บุฟเฟ่ต์ยากินิกุญี่ปุ่น",
+    price:"฿499–555", priceNum:527, baseScore:7.12, totalScore:71.15,
+    scores:{rr:79,gs:72,ps:80,tc:60,dc:80,un:40},
+    group:"High", groupTH:"สูง", access:"BTS Thong Lo", accessTH:"BTS ทองหล่อ", photo:"Japanese Style", photoTH:"สไตล์ญี่ปุ่น",
+    why:"A refined Japanese BBQ buffet in Thong Lo with high-quality beef, attentive staff and a clean, pleasant atmosphere. Quality focus and central location drive its score.",
+    whyTH:"บุฟเฟ่ต์ยากินิกุญี่ปุ่นระดับสูงในทองหล่อ เนื้อวัวคุณภาพ พนักงานดูแลดี บรรยากาศสะอาดน่าพึงพอใจ",
+    pros:["High-quality beef & curated menu","Outstanding, attentive service","Nice, clean atmosphere"],
+    prosTH:["เนื้อวัวคุณภาพสูง เมนูคัดสรร","บริการดูแลยอดเยี่ยม","บรรยากาศสะอาดน่าพึงพอใจ"],
+    cons:["Menu less extensive than rivals","Premium positioning"],
+    consTH:["เมนูน้อยกว่าคู่แข่ง","ระดับพรีเมียม ราคาสูง"],
+    bestFor:"Date Night, Friends Gathering, Meat Lovers", bestForTH:"ออกเดต, สังสรรค์เพื่อน, คนรักเนื้อ",
+    review:"Rated 4.6. Customers praise the high-quality beef, curated menu, and outstanding service. Menu is less extensive than some rivals.",
+    reviewTH:"เรตติ้ง 4.6 ลูกค้าชมเนื้อวัวคุณภาพ เมนูคัดสรร และบริการยอดเยี่ยม เมนูน้อยกว่าบางคู่แข่ง"
+  },
+  {
+    id:18, name:"Shabu Indy", nameTH:"ชาบู อินดี้",
+    query:"Shabu Indy buffet Bangkok",
+    address:"Phet Kasem, Bangkok", addressTH:"เพชรเกษม กรุงเทพฯ",
+    lat:13.7100, lng:100.4600, type:"Shabu Buffet", typeTH:"บุฟเฟ่ต์ชาบู",
+    price:"฿350–500", priceNum:425, baseScore:7.11, totalScore:71.1,
+    scores:{rr:74,gs:72,ps:80,tc:60,dc:80,un:52},
+    group:"High", groupTH:"สูง", access:"Outer Bangkok", accessTH:"ชานเมือง", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A shabu-shabu buffet with fresh premium ingredients and a well-liked Tom Yum broth, though seafood freshness is occasionally questioned.",
+    whyTH:"บุฟเฟ่ต์ชาบูชาบูวัตถุดิบสดพรีเมียมและน้ำซุปต้มยำที่ชื่นชอบ แม้ความสดของอาหารทะเลจะถูกตั้งคำถามบ้าง",
+    pros:["Fresh, premium-quality ingredients","Flavorful Tom Yum broth","Tasty grilled prawns"],
+    prosTH:["วัตถุดิบสดพรีเมียม","น้ำซุปต้มยำอร่อย","กุ้งย่างอร่อย"],
+    cons:["Some seafood not consistently fresh","Located in outer Bangkok (Phet Kasem)"],
+    consTH:["อาหารทะเลบางอย่างไม่สดสม่ำเสมอ","อยู่ชานเมือง (เพชรเกษม)"],
+    bestFor:"Family, Friends Gathering, Shabu Lovers", bestForTH:"ครอบครัว, สังสรรค์เพื่อน, คนรักชาบู",
+    review:"Rated 4.4. Customers praise the fresh ingredients and flavorful Tom Yum broth. Occasional concerns about seafood freshness.",
+    reviewTH:"เรตติ้ง 4.4 ลูกค้าชมวัตถุดิบสดและน้ำซุปต้มยำ มีข้อกังวลเรื่องความสดอาหารทะเลบางครั้ง"
+  },
+  {
+    id:19, name:"The House Restaurant", nameTH:"เดอะ เฮ้าส์ เรสเตอรองท์",
+    query:"The House Restaurant Chiang Mai Thailand",
+    address:"Chiang Mai (out of town)", addressTH:"เชียงใหม่ (ต่างจังหวัด)",
+    lat:18.7900, lng:98.9900, type:"Restaurant (Limited Data)", typeTH:"ร้านอาหาร (ข้อมูลจำกัด)",
+    price:"N/A", priceNum:0, baseScore:6.89, totalScore:68.9,
+    scores:{rr:73,gs:66,ps:80,tc:35,dc:100,un:52},
+    group:"Moderate", groupTH:"ปานกลาง", access:"Chiang Mai", accessTH:"เชียงใหม่", photo:"N/A", photoTH:"ไม่มีข้อมูล",
+    why:"A Chiang Mai restaurant with high star ratings but almost no review text and missing price data. Very limited information and distant location result in a lower score.",
+    whyTH:"ร้านอาหารในเชียงใหม่ เรตติ้งดาวสูงแต่แทบไม่มีข้อความรีวิวและไม่มีข้อมูลราคา ข้อมูลจำกัดมากและทำเลไกลส่งผลให้คะแนนต่ำ",
+    pros:["High star ratings (4.7)"],
+    prosTH:["เรตติ้งดาวสูง (4.7)"],
+    cons:["Only 3 reviews — minimal data","No review text or price info","Located in Chiang Mai"],
+    consTH:["รีวิวแค่ 3 รายการ ข้อมูลน้อยมาก","ไม่มีข้อความรีวิวหรือข้อมูลราคา","อยู่ในเชียงใหม่"],
+    bestFor:"Insufficient data — verify before visiting", bestForTH:"ข้อมูลไม่เพียงพอ — ตรวจสอบก่อนไป",
+    review:"Only 3 reviews with no review text and missing price info. Located in Chiang Mai. Verify independently before visiting.",
+    reviewTH:"มีเพียง 3 รีวิวโดยไม่มีข้อความและข้อมูลราคา อยู่ในเชียงใหม่ ควรตรวจสอบอิสระก่อนไป"
+  },
+  {
+    id:20, name:"KITA Shabu and Sukiyaki", nameTH:"คิตะ ชาบู แอนด์ สุกี้ยากี้",
+    query:"KITA Shabu Sukiyaki Chiang Mai",
+    address:"Chiang Mai (out of town)", addressTH:"เชียงใหม่ (ต่างจังหวัด)",
+    lat:18.7883, lng:98.9853, type:"Japanese Hotpot Buffet", typeTH:"บุฟเฟ่ต์หม้อไฟญี่ปุ่น",
+    price:"฿300–500", priceNum:400, baseScore:6.72, totalScore:67.2,
+    scores:{rr:62,gs:66,ps:70,tc:80,dc:80,un:40},
+    group:"High", groupTH:"สูง", access:"Chiang Mai", accessTH:"เชียงใหม่", photo:"Cozy", photoTH:"อบอุ่น",
+    why:"A cozy Japanese hotpot buffet in Chiang Mai with quality ingredients, tasty garlic rice and good service. Pleasant experience scores well, though one premium-set review disappointed.",
+    whyTH:"บุฟเฟ่ต์หม้อไฟญี่ปุ่นอบอุ่นในเชียงใหม่ วัตถุดิบดี ข้าวกระเทียมอร่อย บริการดี มีรีวิวเซตพรีเมียมผิดหวัง",
+    pros:["Quality ingredients, tasty garlic rice","Cozy atmosphere, friendly service","Fun university area vibe"],
+    prosTH:["วัตถุดิบดี ข้าวกระเทียมอร่อย","บรรยากาศอบอุ่น บริการเป็นมิตร","บรรยากาศแถวมหาวิทยาลัยสนุก"],
+    cons:["One premium-set reviewer found beef poor","Long wait at busy times","Located in Chiang Mai"],
+    consTH:["มีรีวิวเซตพรีเมียมบอกเนื้อไม่ดี","รายงานว่ารอนานช่วงพีค","อยู่ในเชียงใหม่"],
+    bestFor:"Friends Gathering, Family, Casual Dinner", bestForTH:"สังสรรค์เพื่อน, ครอบครัว, ดินเนอร์ลำลอง",
+    review:"Cozy Japanese hotpot in Chiang Mai. Rated 4.9. Cozy atmosphere and friendly service. One premium-set reviewer disappointed with beef quality.",
+    reviewTH:"หม้อไฟญี่ปุ่นอบอุ่นในเชียงใหม่ เรตติ้ง 4.9 บรรยากาศอบอุ่นและบริการเป็นมิตร"
+  },
+  {
+    id:21, name:"Sam Gyup Sal", nameTH:"ซัม กยุป ซัล",
+    query:"Sam Gyup Sal Korean BBQ Bangkok Sukhumvit",
+    address:"Near BTS/MRT, Sukhumvit, Bangkok", addressTH:"ใกล้ BTS/MRT สุขุมวิท กรุงเทพฯ",
+    lat:13.7365, lng:100.5615, type:"Korean BBQ Buffet", typeTH:"บุฟเฟ่ต์ปิ้งย่างเกาหลี",
+    price:"฿300–450", priceNum:375, baseScore:5.25, totalScore:52.5,
+    scores:{rr:70,gs:35,ps:70,tc:30,dc:60,un:40},
+    group:"Moderate", groupTH:"ปานกลาง", access:"BTS/MRT", accessTH:"BTS/MRT", photo:"Medium", photoTH:"ปานกลาง",
+    why:"A popular Korean-style buffet near the BTS/MRT with decent grill items, but reviews are polarized over hygiene, noise and value. Mixed feedback significantly tempers its score.",
+    whyTH:"บุฟเฟ่ต์สไตล์เกาหลีใกล้ BTS/MRT รายการย่างพอใช้ แต่รีวิวแตกต่างเรื่องสุขอนามัย เสียง และความคุ้มค่า คะแนนต่ำสุดในกลุ่ม",
+    pros:["Good-quality ingredients","Convenient transit access","Grill-for-you service"],
+    prosTH:["วัตถุดิบดี","การเดินทางสะดวก","มีย่างให้บริการ"],
+    cons:["Serious hygiene complaints (flies, no A/C)","Noisy; seen as overpriced","Polarized / suspected inflated ratings"],
+    consTH:["ร้องเรียนสุขอนามัยร้ายแรง (แมลงวัน ไม่มีแอร์)","เสียงดัง บางคนว่าแพงเกิน","รีวิวแตกต่างมาก / สงสัยเรตติ้งบวม"],
+    bestFor:"Friends Gathering, Casual Korean BBQ (verify hygiene first)", bestForTH:"สังสรรค์เพื่อน, บาร์บีคิวเกาหลีลำลอง (ตรวจสอบสุขอนามัยก่อน)",
+    review:"Rated 4.9 but reviews are polarized. Serious hygiene concerns (flies, no A/C) reported. Lowest scoring restaurant in this set. Verify conditions before visiting.",
+    reviewTH:"เรตติ้ง 4.9 แต่รีวิวแตกต่างมาก มีรายงานปัญหาสุขอนามัยร้ายแรง คะแนนต่ำสุดในกลุ่ม ควรตรวจสอบก่อน"
+  }
+];
+
+const RANK_COLORS={1:'rank-1',2:'rank-2',3:'rank-3'};
+const MEDAL={1:'🥇',2:'🥈',3:'🥉'};
+const CARD_CLASS={1:'gold',2:'silver',3:'bronze'};
+
+function starsHTML(rating){
+  const full=Math.floor(rating), half=(rating-full)>=0.5?1:0, empty=5-full-half;
+  return '⭐'.repeat(full)+(half?'✨':'')+'☆'.repeat(empty);
+}
+
+function rName(r){ return LANG==='th' ? r.nameTH||r.name : r.name; }
+function rAddr(r){ return LANG==='th' ? r.addressTH||r.address : r.address; }
+function rType(r){ return LANG==='th' ? r.typeTH||r.type : r.type; }
+function rWhy(r){ return LANG==='th' ? r.whyTH||r.why : r.why; }
+function rPros(r){ return LANG==='th' ? r.prosTH||r.pros : r.pros; }
+function rCons(r){ return LANG==='th' ? r.consTH||r.cons : r.cons; }
+function rBestFor(r){ return LANG==='th' ? r.bestForTH||r.bestFor : r.bestFor; }
+function rReview(r){ return LANG==='th' ? r.reviewTH||r.review : r.review; }
+function rGroup(r){ return LANG==='th' ? r.groupTH||r.group : r.group; }
+function rAccess(r){ return LANG==='th' ? r.accessTH||r.access : r.access; }
+function rPhoto(r){ return LANG==='th' ? r.photoTH||r.photo : r.photo; }
+
+function mapsURL(r){
+  return r.placeId ? `https://www.google.com/maps/place/?q=place_id:${r.placeId}`
+    : `https://www.google.com/maps/search/${encodeURIComponent(r.query)}`;
+}
+
+function mapsBtnHTML(r, full=false){
+  return `<a class="maps-btn" href="${mapsURL(r)}" target="_blank" onclick="event.stopPropagation();focusMarker(${r.id-1})">
+    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+    ${full ? T('mapsBtnFull') : T('mapsBtnShort')}
+  </a>`;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════
+
+// ─── GOOGLE REVIEWS MODAL ───────────────────────
+function showReviews(i){
+  activeReviewIndex = i;
+  showInsights(i);
+  const r = RESTAURANTS[i];
+  const panel = document.getElementById('reviewPanel');
+
+  // Build panel header
+  const starsStr = r.liveRating ? starsHTML(r.liveRating) : '';
+  const metaStr = `${starsStr} <strong style="color:var(--text)">${r.liveRating||'—'}</strong> &nbsp;·&nbsp; ${r.liveReviews ? r.liveReviews.toLocaleString() + (LANG==='th'?' รีวิว':' reviews') : '—'} &nbsp;·&nbsp; <span style="color:var(--green)">${r.price}</span>`;
+
+  panel.innerHTML = `
+    <div class="rp-header">
+      <div>
+        <div class="rp-name">${rName(r)}</div>
+        <div class="rp-meta">${metaStr}</div>
+      </div>
+      <a class="maps-btn" href="${mapsURL(r)}" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        ${T('iwOpenMaps')}
+      </a>
+    </div>
+    <div id="rpBody" class="rp-body">
+      <div class="review-loading">
+        <div style="font-size:24px;margin-bottom:8px">⏳</div>
+        <div>${LANG==='th'?'กำลังโหลดรีวิวจาก Google…':'Loading Google reviews…'}</div>
+      </div>
+    </div>`;
+
+  // Show reviews footer
+  const rf = document.getElementById('reviewFooter');
+  if(rf) rf.style.display='block';
+  // Scroll to review section
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+
+  const body = document.getElementById('rpBody');
+
+  // Use per-language cache
+  const langKey = 'reviews_' + (LANG === 'th' ? 'th' : 'en');
+  if(r[langKey] && r[langKey].length){
+    renderReviews(r, body);
+    return;
+  }
+
+  if(!r.placeId){
+    body.innerHTML = `<div class="review-loading">${LANG==='th'?'ไม่พบข้อมูลร้าน กรุณาลองใหม่':'Place not found yet — try again in a moment.'}</div>`;
+    return;
+  }
+
+  const apiLang = LANG === 'th' ? 'th' : 'en';
+  service.getDetails({
+    placeId: r.placeId,
+    fields: ['reviews','name','rating','user_ratings_total','url'],
+    language: apiLang
+  }, (detail, status) => {
+    if(status === google.maps.places.PlacesServiceStatus.OK && detail && detail.reviews){
+      r['reviews_' + apiLang] = detail.reviews;
+      renderReviews(r, body);
+    } else {
+      body.innerHTML = `<div class="review-loading">${LANG==='th'?'ไม่พบรีวิวจาก Google':'No Google reviews found for this restaurant.'}</div>`;
+    }
+  });
+}
+
+function renderReviews(r, container){
+  const langKey = 'reviews_' + (LANG === 'th' ? 'th' : 'en');
+  r.liveReviewsList = r[langKey] || [];
+  if(!r.liveReviewsList || !r.liveReviewsList.length){
+    container.innerHTML = `<div class="review-loading">${LANG==='th'?'ยังไม่มีรีวิว':'No reviews available.'}</div>`;
+    return;
+  }
+  container.innerHTML = `<div class="rp-grid">${r.liveReviewsList.map(rv=>{
+    const initial = (rv.author_name||'?')[0].toUpperCase();
+    const stars = '⭐'.repeat(rv.rating||0) + '☆'.repeat(5-(rv.rating||0));
+    const timeStr = rv.relative_time_description || '';
+    const text = rv.text || (LANG==='th'?'ไม่มีข้อความรีวิว':'No review text.');
+    return `<div class="review-item">
+      <div class="review-top">
+        <div class="review-avatar">${initial}</div>
+        <div style="flex:1;min-width:0">
+          <div class="review-author">${rv.author_name||'Anonymous'}</div>
+          <div class="review-time">${timeStr}</div>
+        </div>
+        <div class="review-stars">${stars}</div>
+      </div>
+      <div class="review-text">${text}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function buildTop3(){
+  const grid = document.getElementById('top3Grid');
+  if(!grid) return;
+  const tiers = ['gold','silver','bronze'];
+  const medals = ['1','2','3'];
+  grid.innerHTML = RESTAURANTS.slice(0,3).map((r,i)=>{
+    const tier = tiers[i];
+    const rating = r.liveRating ? `⭐ ${r.liveRating}${r.liveReviews?' ('+r.liveReviews.toLocaleString()+' '+(LANG==='th'?'รีวิว':'reviews')+')':''}` : (LANG==='th'?'กำลังโหลด…':'Loading…');
+    return `<div class="top3-card ${tier}" onclick="focusMarker(${i});showReviews(${i})">
+      <div class="top3-rank ${tier}">${medals[i]}</div>
+      <div class="top3-info">
+        <div class="top3-name">${rName(r)}</div>
+        <div class="top3-rating">${rating}</div>
+        <span class="price-tag">${r.price}</span>
+      </div>
+      <div class="top3-score-block">
+        <div class="top3-score-lbl">SCORE</div>
+        <div class="top3-score-num">${r.baseScore.toFixed(2)}</div>
+        <div class="top3-score-denom">/10</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildComp(){
+  document.getElementById('compBody').innerHTML = RESTAURANTS.map((r,i)=>{
+    const rating=r.liveRating||'—';
+    const starsStr=r.liveRating ? starsHTML(r.liveRating) : '—';
+    const g=rGroup(r), a=rAccess(r), p=rPhoto(r);
+    const gpill = (g.includes('High')||g.includes('สูง')) ? `<span class="pill pill-green">✓ ${g}</span>` : `<span class="pill pill-orange">~ ${g}</span>`;
+    const apill = (a.includes('BTS')||a.includes('Terminal')||a.includes('ติด')) ? `<span class="pill pill-green">✓ ${a}</span>` : `<span class="pill pill-blue">~ ${a}</span>`;
+    const ppill = (p.includes('Hotel')||p.includes('Quality')||p.includes('Mall')||p.includes('Premium')||p.includes('โรงแรม')||p.includes('ห้าง')) ? `<span class="pill pill-green">✓ ${p}</span>` : `<span class="pill pill-orange">~ ${p}</span>`;
+    return `<tr onclick="focusMarker(${i})" style="cursor:pointer">
+      <td class="col-num">${i+1}</td>
+      <td>
+        <span class="name-link" onclick="event.stopPropagation();showReviews(${i});scrollToReviews()">${rName(r)}</span>
+      </td>
+      <td style="text-align:center"><span class="stars" style="font-size:11px">${starsStr}</span><br>${rating}</td>
+      <td style="text-align:center"><span class="price-tag">${r.price}</span></td>
+      <td style="text-align:center">${gpill}</td>
+      <td style="text-align:center">${apill}</td>
+      <td style="text-align:center">${ppill}</td>
+      <td style="text-align:center"><strong style="color:var(--text)">${r.baseScore.toFixed(2)}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildMapList(){
+  document.getElementById('mapList').innerHTML = RESTAURANTS.map((r,i)=>{
+    const rank=i+1, rc=RANK_COLORS[rank]||'rank-n';
+    const rating = r.liveRating ? `⭐ ${r.liveRating}` : '—';
+    const reviews = r.liveReviews ? `(${r.liveReviews.toLocaleString()})` : '';
+    const scoreBarW = Math.round(r.baseScore * 9);
+    return `<div class="map-item" id="mi-${i}" onclick="focusMarker(${i})">
+      <div class="rank-dot ${rc}">${rank}</div>
+      <div class="info">
+        <div class="name" onclick="event.stopPropagation();showReviews(${i});scrollToReviews()" style="cursor:pointer;text-decoration:underline;text-underline-offset:2px">${rName(r)}</div>
+        <div class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
+          <span>${rating} ${reviews}</span>
+          <span style="color:#e0dbd0">·</span>
+          <span class="price-tag" style="font-size:10px;padding:1px 6px">${r.price}</span>
+        </div>
+        <div style="margin-top:5px;display:flex;align-items:center;gap:5px">
+          <div style="flex:1;height:3px;background:#f0ede6;border-radius:999px;overflow:hidden">
+            <div style="width:${scoreBarW}%;height:100%;background:#556B2F;border-radius:999px"></div>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:#556B2F">${r.baseScore.toFixed(1)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// RESTAURANT INSIGHTS WIDGET
+// ═══════════════════════════════════════════════
+const SCORE_CRITERIA = [
+  { key:'rr', weight:25 },
+  { key:'gs', weight:20 },
+  { key:'ps', weight:15 },
+  { key:'tc', weight:15 },
+  { key:'dc', weight:15 },
+  { key:'un', weight:10 }
+];
+const SCORE_LABELS = {
+  en:{ rr:'Rating & Review Quality', gs:'Group Suitability', ps:'Price Suitability', tc:'Travel Convenience', dc:'Data Completeness', un:'Uniqueness / Experience' },
+  th:{ rr:'คุณภาพเรตติ้งและรีวิว', gs:'ความเหมาะสมกับกลุ่ม', ps:'ความเหมาะสมด้านราคา', tc:'ความสะดวกในการเดินทาง', dc:'ความครบถ้วนของข้อมูล', un:'ความพิเศษ / ประสบการณ์' }
+};
+
+function showInsights(i){
+  const r = RESTAURANTS[i];
+  const section = document.getElementById('insightsSection');
+  const rank = i + 1;
+
+  // Header
+  document.getElementById('insRank').textContent = rank;
+  document.getElementById('insName').textContent = LANG==='th' ? (r.nameTH||r.name) : r.name;
+  document.getElementById('insType').textContent = LANG==='th' ? (r.typeTH||r.type) : r.type;
+  document.getElementById('insTotal').textContent = r.totalScore.toFixed(1);
+  document.getElementById('insTotalLabel').textContent = LANG==='th' ? 'คะแนนรวม / 100' : 'Overall Score / 100';
+
+  // Stars based on liveRating
+  const starsEl = document.getElementById('insStars');
+  if(r.liveRating){
+    const full=Math.floor(r.liveRating), half=(r.liveRating-full)>=0.5?1:0, empty=5-full-half;
+    starsEl.textContent='⭐'.repeat(full)+(half?'✨':'')+'☆'.repeat(empty)+' '+r.liveRating+(r.liveReviews?` (${r.liveReviews.toLocaleString()} ${LANG==='th'?'รีวิว':'reviews'})`:'');
+  } else {
+    starsEl.textContent='';
+  }
+
+  // Summary
+  document.getElementById('insSummary').textContent = LANG==='th' ? (r.whyTH||r.why) : r.why;
+
+  // Score breakdown bars
+  const labels = SCORE_LABELS[LANG==='th'?'th':'en'];
+  const barColors = { rr:'#8b9400', gs:'#5a8a00', ps:'#0d9488', tc:'#2563eb', dc:'#9333ea', un:'#e87c1e' };
+  document.getElementById('insBreakdown').innerHTML = SCORE_CRITERIA.map(c=>{
+    const val = r.scores[c.key];
+    const color = barColors[c.key];
+    return `<div class="ins-bar-row">
+      <div class="ins-bar-label">
+        <span class="ins-bar-name">${labels[c.key]}</span>
+        <span><span class="ins-bar-val">${val}</span><span class="ins-bar-weight"> / 100 · ${c.weight}%</span></span>
+      </div>
+      <div class="ins-bar-track">
+        <div class="ins-bar-fill" style="width:${val}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Strengths
+  const pros = LANG==='th' ? (r.prosTH||r.pros) : r.pros;
+  document.getElementById('insStrengths').innerHTML = pros.map(p=>`<li>${p}</li>`).join('');
+
+  // Concerns
+  const cons = LANG==='th' ? (r.consTH||r.cons) : r.cons;
+  document.getElementById('insConcerns').innerHTML = cons.map(c=>`<li>${c}</li>`).join('');
+
+  // Recommendation tags
+  const rec = LANG==='th' ? (r.bestForTH||r.bestFor) : r.bestFor;
+  document.getElementById('insRec').innerHTML = rec.split(',').map(t=>`<span class="ins-rec-tag">${t.trim()}</span>`).join('');
+
+  // Labels
+  document.getElementById('insLblSummary').textContent = LANG==='th' ? '📝 สรุปโดย AI' : '📝 AI Summary';
+  document.getElementById('insLblBreakdown').textContent = LANG==='th' ? '📊 รายละเอียดคะแนน' : '📊 Score Breakdown';
+  document.getElementById('insLblStrengths').textContent = LANG==='th' ? '✅ จุดเด่น' : '✅ Key Strengths';
+  document.getElementById('insLblConcerns').textContent = LANG==='th' ? '⚠️ ข้อควรระวัง' : '⚠️ Key Concerns';
+  document.getElementById('insLblRec').textContent = LANG==='th' ? '🎯 เหมาะสำหรับ' : '🎯 Recommended For';
+  document.getElementById('secInsights').innerHTML = (LANG==='th' ? '🔍 ข้อมูลเชิงลึกร้านอาหาร' : '🔍 RESTAURANT INSIGHTS') + ' <span class="ai-badge">AI</span>';
+
+  // Show & scroll
+  section.style.display='block';
+  section.style.opacity='0';
+  requestAnimationFrame(()=>{ section.style.transition='opacity .3s'; section.style.opacity='1'; });
+}
+
+function scrollToReviews(){
+  setTimeout(()=>{
+    const el = document.getElementById('reviewPanel');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
+}
+
+function refreshAll(){
+  buildComp(); buildMapList(); buildTop3();
+  // hero text
+  const heroTitle = document.getElementById('heroTitle');
+  if(heroTitle) heroTitle.textContent = LANG==='th' ? 'ค้นหาบุฟเฟ่ต์ที่ดีที่สุดในอโศก' : 'Find the Best Buffets in Asok';
+  const heroSub = document.getElementById('heroSub');
+  if(heroSub) heroSub.textContent = LANG==='th' ? 'ร้านบุฟเฟ่ต์ที่ดีที่สุดสำหรับทีม' : 'Top buffet restaurants for team gatherings';
+  // navbar
+  const navTitle = document.getElementById('hTitle');
+  if(navTitle) navTitle.textContent = LANG==='th' ? 'ค้นหาบุฟเฟ่ต์ อโศก' : 'Asok Buffet Finder';
+  // chips
+  ['chip1','chip2','chip3','chip4','chip5'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && TR[LANG][id]) el.textContent=TR[LANG][id];
+  });
+  // section titles and table headers
+  ['apiLabel','secMap','secComp','secReview',
+   'cthName','cthRating','cthPrice','cthGroup','cthAccess','cthPhoto','cthFinal'
+  ].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && TR[LANG][id]) el.textContent=TR[LANG][id];
+  });
+  // review panel empty text
+  const ret=document.getElementById('reviewEmptyText');
+  if(ret) ret.textContent = LANG==='th'
+    ? 'คลิกชื่อร้านในตารางจัดอันดับเพื่อโหลด Google รีวิวสด'
+    : 'Click any restaurant name in the ranking table to load live Google reviews.';
+  // modal maps button text
+  const mbt=document.getElementById('modalMapsBtnText');
+  if(mbt) mbt.textContent=T('iwOpenMaps');
+  // view all button
+  const vab=document.getElementById('viewAllBtn');
+  if(vab) vab.textContent = LANG==='th' ? 'ดูร้านอาหารทั้งหมด 20+ ↓' : 'View All 20+ Restaurants ↓';
+}
+
+// ═══════════════════════════════════════════════
+// LANGUAGE SWITCH
+// ═══════════════════════════════════════════════
+function setLang(lang){
+  LANG = lang;
+  document.getElementById('btnEN').classList.toggle('active', lang==='en');
+  document.getElementById('btnTH').classList.toggle('active', lang==='th');
+  document.documentElement.lang = lang;
+  // animate swap
+  document.querySelectorAll('.section,.header,.api-status').forEach(el=>{
+    el.classList.remove('fade-swap');
+    void el.offsetWidth; // reflow
+    el.classList.add('fade-swap');
+  });
+  refreshAll();
+  updateNewRestLang();
+  // Re-render insights + reviews in new language if open
+  if(activeReviewIndex !== null){
+    showInsights(activeReviewIndex);
+    showReviews(activeReviewIndex);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// GOOGLE MAPS
+// ═══════════════════════════════════════════════
+let map, markers=[], infoWindow, service;
+let activeReviewIndex = null;
+
+function initMap(){
+  const asok={lat:13.7376,lng:100.5606};
+  map = new google.maps.Map(document.getElementById('map'),{
+    center:asok, zoom:15,
+    styles:[
+      {featureType:'poi',stylers:[{visibility:'off'}]},
+      {featureType:'transit.station',stylers:[{visibility:'on'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#4a4a2a'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#f5f3ec'}]},
+      {featureType:'road.arterial',elementType:'geometry',stylers:[{color:'#ede9df'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#e0dbd0'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#d4e8d0'}]},
+      {featureType:'landscape',elementType:'geometry',stylers:[{color:'#f7f6f2'}]},
+    ],
+    mapTypeControl:false, streetViewControl:false, fullscreenControl:true
+  });
+
+  infoWindow = new google.maps.InfoWindow({maxWidth:260});
+  service = new google.maps.places.PlacesService(map);
+
+  RESTAURANTS.forEach((r,i) => placeMarker(r,i));
+  searchPlaces();
+
+  document.getElementById('apiLabel').textContent = T('apiConnected');
+  document.getElementById('fetchTime').textContent = new Date().toLocaleTimeString();
+
+  refreshAll();
+}
+
+function pinSVG(label, color){
+  return {
+    url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
+        <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="${color}"/>
+        <circle cx="18" cy="18" r="10" fill="rgba(0,0,0,0.4)"/>
+        <text x="18" y="23" text-anchor="middle" font-size="13" font-weight="bold" fill="white" font-family="Arial">${label}</text>
+      </svg>`),
+    scaledSize:new google.maps.Size(36,44),
+    anchor:new google.maps.Point(18,44)
+  };
+}
+
+function placeMarker(r,i){
+  const colors=['#f59e0b','#94a3b8','#b45309','#6366f1','#6366f1','#6366f1','#6366f1','#6366f1','#6366f1','#6366f1'];
+  const marker = new google.maps.Marker({
+    position:{lat:r.lat,lng:r.lng}, map, title:r.name,
+    icon:pinSVG(i+1, colors[i]||'#6366f1')
+  });
+  marker.addListener('click',()=>openInfoWindow(r,i,marker));
+  markers.push(marker);
+}
+
+function openInfoWindow(r,i,marker){
+  document.querySelectorAll('.map-item').forEach(el=>el.classList.remove('active'));
+  const mi=document.getElementById('mi-'+i);
+  if(mi){mi.classList.add('active');mi.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  const rating = r.liveRating ? `⭐ ${r.liveRating} (${r.liveReviews?.toLocaleString()||'—'} ${LANG==='th'?'รีวิว':'reviews'})` : T('loading');
+  const reviewBtnLabel = LANG==='th' ? '💬 ดูรีวิว Google' : '💬 View Google Reviews';
+  infoWindow.setContent(`
+    <div class="iw-body">
+      <div class="iw-name">${rName(r)}</div>
+      <div class="iw-rating">${rating}</div>
+      <div class="iw-price">${r.price} · ${rType(r)}</div>
+      <div style="font-size:11px;color:#9a9485;line-height:1.4;margin-bottom:4px">${rAddr(r)}</div>
+      <button onclick="showReviews(${i});scrollToReviews()" style="width:100%;background:#f7fae0;border:1.5px solid #b5c200;border-radius:6px;padding:6px;font-size:11px;font-weight:700;color:#5a7a00;cursor:pointer;margin-bottom:6px">${reviewBtnLabel}</button>
+      <a class="iw-btn" href="${mapsURL(r)}" target="_blank">${T('iwOpenMaps')}</a>
+    </div>`);
+  infoWindow.open(map,marker);
+  map.panTo(marker.getPosition());
+  // Auto-load reviews when clicking a marker
+  showReviews(i);
+}
+
+function focusMarker(i){
+  if(markers[i]){
+    map.panTo(markers[i].getPosition());
+    map.setZoom(17);
+    openInfoWindow(RESTAURANTS[i],i,markers[i]);
+    document.getElementById('map').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+let searchCount=0, searchTotal=RESTAURANTS.length;
+function searchPlaces(){
+  RESTAURANTS.forEach((r,i)=>{
+    service.textSearch({query:r.query,location:{lat:r.lat,lng:r.lng},radius:1000},(results,status)=>{
+      if(status===google.maps.places.PlacesServiceStatus.OK && results[0]){
+        const place=results[0];
+        r.placeId=place.place_id;
+        r.liveRating=place.rating;
+        r.liveReviews=place.user_ratings_total;
+        const loc=place.geometry.location;
+        r.lat=loc.lat(); r.lng=loc.lng();
+        if(markers[i]) markers[i].setPosition({lat:r.lat,lng:r.lng});
+        const revCell=document.getElementById('rev-'+r.id);
+        if(revCell) revCell.textContent=r.liveReviews?r.liveReviews.toLocaleString():'N/A';
+        service.getDetails({placeId:r.placeId,fields:['name','rating','user_ratings_total','reviews','url','formatted_address','photos']},(detail,dStatus)=>{
+          if(dStatus===google.maps.places.PlacesServiceStatus.OK&&detail){
+            r.googleUrl=detail.url;
+            r.liveRating=detail.rating||r.liveRating;
+            r.liveReviews=detail.user_ratings_total||r.liveReviews;
+            if(detail.formatted_address) r.address=detail.formatted_address;
+          }
+          searchCount++;
+          if(searchCount>=searchTotal) finalRefresh();
+        });
+      } else {
+        searchCount++;
+        if(searchCount>=searchTotal) finalRefresh();
+      }
+    });
+  });
+}
+
+function finalRefresh(){
+  refreshAll();
+  document.getElementById('fetchTime').textContent = new Date().toLocaleTimeString()+' (live)';
+  // Start toast review prefetch once we have place IDs
+  setTimeout(prefetchReviewsForToast, 2000);
+}
+
+// ═══════════════════════════════════════════════
+// N8N — NEW RESTAURANT TODAY
+// ═══════════════════════════════════════════════
+const N8N_API = 'https://n8n-external.exservice.io/webhook/6b31a389-74de-4dbc-bde6-3b70055e193c';
+const REFRESH_MS = 60 * 60 * 1000; // 1 hour
+
+async function fetchNewRestaurant(){
+  try {
+    const res = await fetch(N8N_API);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const name = data.latestRestaurant || data.restaurant || data.name || null;
+    if(name && name.trim()){
+      const now = new Date();
+      const section = document.getElementById('newRestaurantSection');
+
+      // Default fallback Google Maps search URL
+      const fallbackUrl = `https://www.google.com/maps/search/${encodeURIComponent(name.trim()+' Bangkok')}`;
+      renderNewRestaurant(name.trim(), fallbackUrl, now);
+
+      // Try Places API to get the exact place link
+      if(service){
+        service.textSearch(
+          { query: name.trim() + ' Bangkok', location: {lat:13.7376, lng:100.5606}, radius: 5000 },
+          (results, status) => {
+            if(status === google.maps.places.PlacesServiceStatus.OK && results[0]){
+              const place = results[0];
+              const placeUrl = `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+              renderNewRestaurant(name.trim(), placeUrl, now, place.rating, place.user_ratings_total, place.formatted_address);
+            }
+          }
+        );
+      }
+
+      section.style.display = 'block';
+      section.style.opacity = '0';
+      requestAnimationFrame(()=>{ section.style.transition='opacity .4s'; section.style.opacity='1'; });
+    } else {
+      document.getElementById('newRestaurantSection').style.display = 'none';
+    }
+  } catch(e) {
+    console.warn('n8n fetch failed:', e.message);
+    document.getElementById('newRestaurantSection').style.display = 'none';
+  }
+}
+
+function renderNewRestaurant(name, mapsUrl, now, rating, reviewCount, address){
+  // Clickable name
+  const nameEl = document.getElementById('newRestName');
+  nameEl.innerHTML = `<a href="${mapsUrl}" target="_blank" style="color:inherit;text-decoration:none;border-bottom:2px solid rgba(249,115,22,0.5);padding-bottom:2px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='rgba(249,115,22,0.5)'">${name}</a>`;
+
+  // Sub info
+  const starStr = rating ? ('⭐'.repeat(Math.floor(rating)) + (rating%1>=0.5?'✨':'') + ' ' + rating) : '';
+  const reviewStr = reviewCount ? `(${reviewCount.toLocaleString()} reviews)` : '';
+  const addrStr = address || 'Asok, Bangkok';
+  document.getElementById('newRestSub').innerHTML = `
+    <span>📍 ${addrStr}</span>
+    ${starStr ? `<span class="dot"></span><span>${starStr} ${reviewStr}</span>` : ''}
+    <span class="dot"></span>
+    <span>${now.toLocaleDateString(LANG==='th'?'th-TH':'en-GB',{day:'numeric',month:'long',year:'numeric'})}</span>`;
+
+  // Maps button — update or create
+  let mapsBtn = document.getElementById('newRestMapsBtn');
+  if(!mapsBtn){
+    const right = document.getElementById('newRestaurantSection').querySelector('.new-rest-right');
+    mapsBtn = document.createElement('a');
+    mapsBtn.id = 'newRestMapsBtn';
+    mapsBtn.className = 'maps-btn';
+    mapsBtn.target = '_blank';
+    mapsBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg> <span id="newRestMapsBtnTxt">${LANG==='th'?'ดูใน Google Maps':'View on Google Maps'}</span>`;
+    right.insertBefore(mapsBtn, right.firstChild);
+  }
+  mapsBtn.href = mapsUrl;
+  document.getElementById('newRestFetched').textContent =
+    (LANG==='th' ? 'ดึงข้อมูลล่าสุด: ' : 'Last fetched: ') + now.toLocaleTimeString();
+}
+
+function updateNewRestLang(){
+  const lbl = document.getElementById('newRestRefreshLabel');
+  if(lbl) lbl.textContent = LANG==='th' ? 'รีเฟรชอัตโนมัติทุก 1 ชั่วโมง' : 'Auto-refresh every 1 hour';
+  const fetched = document.getElementById('newRestFetched');
+  if(fetched && fetched.textContent && !fetched.textContent.endsWith('—')){
+    const time = fetched.textContent.replace(/^[^:]+:\s*/,'');
+    fetched.textContent = (LANG==='th'?'ดึงข้อมูลล่าสุด: ':'Last fetched: ') + time;
+  }
+  const secLabel = document.getElementById('secNewRest');
+  if(secLabel) secLabel.textContent = LANG==='th' ? '🔥 ร้านอาหารใหม่วันนี้!!!' : '🔥 New Restaurant TODAY!!!';
+  const btnTxt = document.getElementById('newRestMapsBtnTxt');
+  if(btnTxt) btnTxt.textContent = LANG==='th' ? 'ดูใน Google Maps' : 'View on Google Maps';
+}
+
+// Initial fetch + schedule
+fetchNewRestaurant();
+setInterval(fetchNewRestaurant, REFRESH_MS);
+
+// ═══════════════════════════════════════════════
+// REVIEW TOAST POPUP
+// ═══════════════════════════════════════════════
+const REVIEW_POOL = [];   // { author, text, rating, restName }
+let toastTimer = null, toastDismissTimer = null, prefetchDone = false;
+const TOAST_DISPLAY_MS = 7000;    // show for 7 s
+const TOAST_INTERVAL_MS = 35000;  // new popup every 35 s
+
+function prefetchReviewsForToast(){
+  if(prefetchDone) return;
+  prefetchDone = true;
+  // Fetch reviews for top 8 restaurants silently
+  const targets = RESTAURANTS.slice(0, 8).filter(r => r.placeId);
+  let done = 0;
+  if(!targets.length){ scheduleToast(12000); return; }
+  targets.forEach(r => {
+    const lang = LANG === 'th' ? 'th' : 'en';
+    const cacheKey = 'reviews_' + lang;
+    if(r[cacheKey] && r[cacheKey].length){
+      r[cacheKey].forEach(rv => {
+        if(rv.text && rv.text.length > 20)
+          REVIEW_POOL.push({ author: rv.author_name, text: rv.text, rating: rv.rating, restName: rName(r), time: rv.relative_time_description });
+      });
+      done++;
+      if(done === targets.length) scheduleToast(8000);
+      return;
+    }
+    service.getDetails({ placeId: r.placeId, fields: ['reviews'], language: lang }, (detail, status) => {
+      if(status === google.maps.places.PlacesServiceStatus.OK && detail && detail.reviews){
+        r[cacheKey] = detail.reviews;
+        detail.reviews.forEach(rv => {
+          if(rv.text && rv.text.length > 20)
+            REVIEW_POOL.push({ author: rv.author_name, text: rv.text, rating: rv.rating, restName: rName(r), time: rv.relative_time_description });
+        });
+      }
+      done++;
+      if(done === targets.length) scheduleToast(8000);
+    });
+  });
+}
+
+function scheduleToast(delay){
+  if(!REVIEW_POOL.length) return;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(showToast, delay);
+}
+
+function showToast(){
+  if(!REVIEW_POOL.length) return;
+  const rv = REVIEW_POOL[Math.floor(Math.random() * REVIEW_POOL.length)];
+  const initial = (rv.author || '?')[0].toUpperCase();
+  const stars = '⭐'.repeat(rv.rating || 0) + '☆'.repeat(5 - (rv.rating || 0));
+  const label = LANG === 'th' ? '💬 Google รีวิวสด' : '💬 Live Google Review';
+  const text = rv.text.length > 180 ? rv.text.slice(0, 180) + '…' : rv.text;
+
+  document.getElementById('rtLabel').textContent = label;
+  document.getElementById('rtAvatar').textContent = initial;
+  document.getElementById('rtAuthor').textContent = rv.author || 'Anonymous';
+  document.getElementById('rtRest').textContent = '📍 ' + rv.restName + (rv.time ? '  ·  ' + rv.time : '');
+  document.getElementById('rtStars').textContent = stars;
+  document.getElementById('rtText').textContent = text;
+
+  // Progress bar animation
+  const bar = document.getElementById('rtBar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => {
+    bar.style.transition = `width ${TOAST_DISPLAY_MS}ms linear`;
+    bar.style.width = '0%';
+  });
+
+  const toast = document.getElementById('reviewToast');
+  toast.classList.add('show');
+  clearTimeout(toastDismissTimer);
+  toastDismissTimer = setTimeout(dismissToast, TOAST_DISPLAY_MS);
+
+  // Schedule next
+  const next = TOAST_INTERVAL_MS + Math.random() * 15000;
+  toastTimer = setTimeout(showToast, next);
+}
+
+function dismissToast(){
+  document.getElementById('reviewToast').classList.remove('show');
+  clearTimeout(toastDismissTimer);
+}
+
+// Start prefetch after map + Places API is ready (triggered from finalRefresh)
+
+</script>
+
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTBUAytoj2TB5_c5X_aQHFKLweGG6y9tE&libraries=places&callback=initMap">
+</script>
+</body>
+</html>
