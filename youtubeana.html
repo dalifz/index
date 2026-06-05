@@ -1121,7 +1121,14 @@ async function downloadPNG(){
       // disable animations/transitions and force full opacity in the cloned doc.
       onclone:(doc)=>{
         const st=doc.createElement('style');
-        st.textContent='*{animation:none!important;transition:none!important}#results{opacity:1!important;transform:none!important}';
+        // disable fade-in animation; AND replace inset box-shadows (which html2canvas
+        // renders as a thick red glow) with equivalent real borders so PNG == screen.
+        st.textContent=
+          '*{animation:none!important;transition:none!important}'+
+          '#results{opacity:1!important;transform:none!important}'+
+          '.rec.rec-critical{box-shadow:none!important;border:1px solid var(--red)!important;border-left-width:3px!important}'+
+          '.panel-issues{box-shadow:none!important;border:1px solid var(--border)!important;border-left:3px solid var(--red)!important}'+
+          '.panel-actions{box-shadow:none!important;border:1px solid var(--border)!important;border-left:3px solid var(--blue)!important}';
         doc.head.appendChild(st);
         const r=doc.getElementById('results');
         if(r){ r.style.opacity='1'; r.style.transform='none'; r.style.animation='none'; }
