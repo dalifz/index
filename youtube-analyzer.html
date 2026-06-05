@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YT Analytics | แพลตฟอร์มวิเคราะห์ YouTube</title>
+<style>
+  :root {
+    --yt-red: #ff0033;
+    --yt-red-soft: #ff3355;
+    --bg: #0b0d12;
+    --panel: #14171f;
+    --panel-2: #1b1f2a;
+    --panel-3: #232838;
+    --text: #eef1f6;
+    --text-soft: #9aa3b2;
+    --text-dim: #6b7280;
+    --border: #262b38;
+    --green: #2dd4a7;
+    --green-bg: rgba(45,212,167,.12);
+    --amber: #f5b945;
+    --amber-bg: rgba(245,185,69,.12);
+    --red: #ff5470;
+    --red-bg: rgba(255,84,112,.12);
+    --blue: #5b8def;
+    --blue-bg: rgba(91,141,239,.12);
+    --purple: #a78bfa;
+    --radius: 14px;
+    --font: 'Sarabun','Inter','Segoe UI','Noto Sans Thai',system-ui,sans-serif;
+    --sidebar-w: 248px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    font-family: var(--font); background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.55;
+    background-image: radial-gradient(900px 500px at 110% -10%, rgba(255,0,51,.08), transparent 60%);
+  }
+  a { color: inherit; text-decoration: none; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--panel-3); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .app { display: block; min-height: 100vh; }
+  .main { max-width: 1180px; margin: 0 auto; }
+  .brand-mini { display:flex; align-items:center; gap:11px; }
+  .brand-mini h1 { font-size:16px; font-weight:800; }
+  .brand-mini span { display:block; font-size:11px; color:var(--text-dim); font-weight:500; }
+  .btn-csv { background: var(--panel-2); color: var(--text); border:1px solid var(--border); padding: 11px 16px; display:inline-flex; align-items:center; gap:7px; }
+  .btn-csv:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+  .btn-csv:disabled { opacity:.45; cursor:not-allowed; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    background: var(--panel); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+  }
+  .brand { display:flex; align-items:center; gap:11px; padding: 20px 20px; border-bottom: 1px solid var(--border); }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 11px; flex-shrink:0;
+    background: linear-gradient(135deg, var(--yt-red), #b3001f);
+    display:grid; place-items:center; box-shadow: 0 6px 18px rgba(255,0,51,.35);
+  }
+  .brand-mark::after { content:""; width:0;height:0; border-left:12px solid #fff; border-top:8px solid transparent; border-bottom:8px solid transparent; margin-left:3px; }
+  .brand h1 { font-size: 16px; font-weight: 800; letter-spacing:.2px; }
+  .brand span { display:block; font-size: 11px; color: var(--text-dim); font-weight:500; }
+  .nav { padding: 14px 12px; flex:1; }
+  .nav-label { font-size: 10px; letter-spacing:1.2px; text-transform: uppercase; color: var(--text-dim); padding: 14px 12px 6px; }
+  .nav-item {
+    display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius: 10px;
+    color: var(--text-soft); font-weight:600; cursor:pointer; transition:.15s; margin-bottom:2px;
+  }
+  .nav-item:hover { background: var(--panel-2); color: var(--text); }
+  .nav-item.active { background: linear-gradient(90deg, rgba(255,0,51,.16), transparent); color:#fff; }
+  .nav-item.active .ic { color: var(--yt-red); }
+  .nav-item .ic { width:18px; text-align:center; font-size:16px; }
+  .nav-item .badge { margin-left:auto; font-size:11px; background: var(--yt-red); color:#fff; border-radius:20px; padding:1px 8px; font-weight:700; }
+  .side-foot { padding: 14px; border-top:1px solid var(--border); }
+  .user-chip { display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; }
+  .user-chip:hover { background: var(--panel-2); }
+  .user-av { width:34px;height:34px;border-radius:50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display:grid;place-items:center; font-weight:700; }
+  .user-chip b { font-size:13px; display:block; }
+  .user-chip small { font-size:11px; color: var(--text-dim); }
+
+  /* ---------- Main ---------- */
+  .main { min-width: 0; display:flex; flex-direction:column; }
+  .topbar {
+    position: sticky; top:0; z-index:20; background: rgba(11,13,18,.85); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border); padding: 14px 28px; display:flex; align-items:center; gap:16px;
+  }
+  .page-title h2 { font-size: 19px; font-weight:800; }
+  .page-title p { font-size:12px; color: var(--text-dim); }
+  .topbar-spacer { flex:1; }
+  .url-field {
+    display:flex; align-items:center; gap:10px; background: var(--panel-2); border:1px solid var(--border);
+    border-radius: 11px; padding: 0 12px; min-width: 340px; transition: border .2s, box-shadow .2s;
+  }
+  .url-field:focus-within { border-color: var(--yt-red); box-shadow: 0 0 0 3px rgba(255,0,51,.15); }
+  .url-field svg { color: var(--yt-red); flex-shrink:0; }
+  .url-field input { flex:1; border:none; background:transparent; outline:none; color:var(--text); font-family:var(--font); font-size:14px; padding: 11px 0; }
+  .btn {
+    border:none; border-radius:11px; font-family:var(--font); font-weight:700; font-size:14px; cursor:pointer; transition:.18s; white-space:nowrap;
+  }
+  .btn-primary { background: var(--yt-red); color:#fff; padding: 11px 22px; box-shadow: 0 6px 16px rgba(255,0,51,.3); }
+  .btn-primary:hover { background: var(--yt-red-soft); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+  .icon-btn { width:42px;height:42px;border-radius:11px; background:var(--panel-2); border:1px solid var(--border); color:var(--text); cursor:pointer; font-size:17px; }
+  .icon-btn:hover { border-color: var(--yt-red); }
+
+  .content { padding: 24px 28px 48px; }
+  .sample-links { font-size:12px; color: var(--text-dim); margin-bottom: 22px; }
+  .sample-links a { color: var(--yt-red-soft); cursor:pointer; margin: 0 4px; font-weight:600; }
+  .sample-links a:hover { text-decoration: underline; }
+
+  /* ---------- Status ---------- */
+  .status-area { display:none; align-items:center; gap:14px; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:22px; }
+  .status-area.show { display:flex; }
+  .status-area.error { border-color: var(--red); background: var(--red-bg); }
+  .spinner { width:22px;height:22px; border:3px solid var(--border); border-top-color:var(--yt-red); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status-text { flex:1; }
+  .status-text b { display:block; font-size:14px; }
+  .status-text span { font-size:13px; color: var(--text-soft); }
+  .progress-bar { height:6px; background: var(--panel-3); border-radius:6px; overflow:hidden; margin-top:7px; }
+  .progress-fill { height:100%; width:0; background: linear-gradient(90deg,var(--yt-red),var(--yt-red-soft)); transition: width .4s ease; }
+
+  /* ---------- KPI cards ---------- */
+  .kpi-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .kpi {
+    background: var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; position:relative; overflow:hidden;
+  }
+  .kpi::after { content:""; position:absolute; right:-30px; top:-30px; width:90px;height:90px; border-radius:50%; opacity:.12; }
+  .kpi.k-red::after { background: var(--yt-red); }
+  .kpi.k-green::after { background: var(--green); }
+  .kpi.k-blue::after { background: var(--blue); }
+  .kpi.k-amber::after { background: var(--amber); }
+  .kpi-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .kpi-ic { width:38px;height:38px;border-radius:11px; display:grid;place-items:center; font-size:18px; }
+  .k-red .kpi-ic { background: var(--red-bg); }
+  .k-green .kpi-ic { background: var(--green-bg); }
+  .k-blue .kpi-ic { background: var(--blue-bg); }
+  .k-amber .kpi-ic { background: var(--amber-bg); }
+  .kpi-trend { font-size:12px; font-weight:700; padding:3px 9px; border-radius:20px; }
+  .trend-up { color: var(--green); background: var(--green-bg); }
+  .trend-down { color: var(--red); background: var(--red-bg); }
+  .kpi .val { font-size:27px; font-weight:800; letter-spacing:-.5px; }
+  .kpi .lbl { font-size:12.5px; color: var(--text-soft); }
+  .spark { display:flex; align-items:flex-end; gap:3px; height:30px; margin-top:12px; }
+  .spark i { flex:1; background: var(--panel-3); border-radius:3px; }
+  .k-red .spark i { background: rgba(255,0,51,.4); }
+  .k-green .spark i { background: rgba(45,212,167,.4); }
+  .k-blue .spark i { background: rgba(91,141,239,.4); }
+  .k-amber .spark i { background: rgba(245,185,69,.4); }
+
+  /* ---------- Generic panels ---------- */
+  #results { display:none; }
+  #results.show { display:block; animation: fade .5s ease; }
+  @keyframes fade { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+  .grid { display:grid; gap:16px; }
+  .g-2 { grid-template-columns: 1fr 1fr; }
+  .g-2-1 { grid-template-columns: 1.4fr 1fr; }
+  .panel { background: var(--panel); border:1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom:16px; }
+  .panel-head { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .panel-head .ph-ic { width:30px;height:30px;border-radius:9px; display:grid;place-items:center; font-size:15px; background: var(--panel-2); }
+  .panel-head h3 { font-size:15px; font-weight:800; }
+  .panel-head p { font-size:12px; color:var(--text-dim); }
+  .panel-head .ph-right { margin-left:auto; font-size:12px; color: var(--text-dim); }
+
+  /* video info */
+  .video-card { display:flex; gap:20px; }
+  .thumb { position:relative; width:300px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; flex-shrink:0; background: linear-gradient(135deg,#2a0008,#7a0016); display:grid;place-items:center; }
+  .thumb .play { width:58px;height:40px; background:rgba(0,0,0,.5); border-radius:10px; display:grid;place-items:center; }
+  .thumb .play::after { content:""; border-left:16px solid #fff; border-top:10px solid transparent; border-bottom:10px solid transparent; margin-left:4px; }
+  .thumb .live { position:absolute; top:10px; left:10px; background: var(--yt-red); color:#fff; font-size:11px; font-weight:800; padding:3px 9px; border-radius:6px; letter-spacing:.5px; }
+  .thumb .dur { position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,.85); color:#fff; font-size:12px; padding:2px 7px; border-radius:5px; }
+  .video-meta { flex:1; min-width:0; }
+  .video-meta h3 { font-size:18px; margin-bottom:10px; line-height:1.4; }
+  .channel { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .channel .avatar { width:40px;height:40px;border-radius:50%; background:linear-gradient(135deg,var(--yt-red),#ff7b00); display:grid;place-items:center; color:#fff; font-weight:700; }
+  .channel .name { font-weight:700; } .channel .subs { font-size:12px; color:var(--text-dim); }
+  .pub-meta { margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-soft); background:var(--panel-2); border:1px solid var(--border); border-radius:9px; padding:6px 11px; }
+  .pub-meta .pub-ic { font-size:13px; }
+  .mini-stats { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; }
+  .mini-stat { background: var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:11px; }
+  .mini-stat .v { font-size:17px; font-weight:800; } .mini-stat .l { font-size:11.5px; color:var(--text-dim); }
+
+  /* summary */
+  .summary-card p { color: var(--text-soft); }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+  .chip { background: var(--panel-2); border:1px solid var(--border); border-radius:20px; padding:4px 11px; font-size:12px; color: var(--text-soft); }
+  .sentiment-bar { display:flex; height:13px; border-radius:8px; overflow:hidden; margin-top:18px; }
+  .sentiment-bar > div { display:grid;place-items:center; font-size:10px; color:#06140f; font-weight:800; }
+  .sb-pos { background: var(--green); } .sb-neu { background:#6b7280; } .sb-neg { background: var(--red); }
+  .sentiment-legend { display:flex; gap:18px; margin-top:11px; font-size:12.5px; color:var(--text-soft); flex-wrap:wrap; }
+  .sentiment-legend span::before { content:""; display:inline-block; width:9px;height:9px;border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .lg-pos::before { background:var(--green); } .lg-neu::before { background:#6b7280; } .lg-neg::before { background:var(--red); }
+  .score-ring { display:flex; align-items:center; gap:16px; margin-bottom:4px; }
+  .ring { width:78px;height:78px; border-radius:50%; display:grid;place-items:center; flex-shrink:0; }
+  .ring .inner { width:62px;height:62px; border-radius:50%; background:var(--panel); display:grid;place-items:center; font-size:21px; font-weight:800; }
+  .score-ring .sr-txt b { font-size:15px; } .score-ring .sr-txt small { color:var(--text-dim); font-size:12px; }
+
+  /* video embed */
+  .thumb iframe { width:100%; height:100%; border:0; display:block; }
+  .thumb-ph { width:100%; height:100%; display:grid; place-items:center; background:linear-gradient(135deg,#2a0008,#7a0016); }
+  .thumb-ph .play { width:58px;height:40px; background:rgba(0,0,0,.5); border-radius:10px; display:grid;place-items:center; }
+  .thumb-ph .play::after { content:""; border-left:16px solid #fff; border-top:10px solid transparent; border-bottom:10px solid transparent; margin-left:4px; }
+
+  /* sentiment (driven by Sentiment_Score + Video_Sentiment) */
+  .sentiment-row { margin-top:18px; }
+  .sent-badge { display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:800; padding:8px 14px; border-radius:10px; }
+  .sent-badge::before { content:""; width:9px;height:9px;border-radius:50%; background:currentColor; }
+  .sent-pos { color:var(--green); background:var(--green-bg); }
+  .sent-neg { color:var(--red); background:var(--red-bg); }
+  .sent-neu { color:var(--text-soft); background:var(--panel-2); }
+  .sent-counts { display:flex; gap:16px; margin-top:12px; font-size:13px; }
+  .sent-counts .sc-pos { color:var(--green); font-weight:700; }
+  .sent-counts .sc-neg { color:var(--red); font-weight:700; }
+  .sent-counts small { color:var(--text-dim); font-weight:500; }
+
+  /* priority emphasis: producer/planner outputs */
+  .priority-banner { display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; letter-spacing:.4px; color:var(--amber); background:var(--amber-bg); border:1px solid rgba(245,185,69,.3); padding:7px 14px; border-radius:20px; margin:6px 0 14px; }
+  .panel-priority { position:relative; border-width:1px; }
+  .panel-issues { border-color:rgba(255,84,112,.35); box-shadow: var(--shadow), inset 3px 0 0 var(--red); }
+  .panel-actions { border-color:rgba(91,141,239,.35); box-shadow: var(--shadow), inset 3px 0 0 var(--blue); }
+  .panel-priority .panel-head h3 { font-size:16px; }
+  .ph-ic-warn { background:var(--red-bg) !important; }
+  .ph-ic-action { background:var(--blue-bg) !important; }
+
+  /* feedback */
+  .fb-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .fb-item { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:11px; background:var(--panel-2); border:1px solid var(--border); }
+  .fb-item .ic { width:28px;height:28px;border-radius:8px; display:grid;place-items:center; font-size:14px; flex-shrink:0; font-weight:800; }
+  .pos .ic { background: var(--green-bg); color: var(--green); }
+  .neg .ic { background: var(--red-bg); color: var(--red); }
+  .fb-item .txt b { display:block; font-size:13.5px; } .fb-item .txt small { color:var(--text-dim); font-size:12px; }
+  .fb-badge { margin-left:auto; align-self:center; font-size:12px; font-weight:700; white-space:nowrap; }
+  .pos .fb-badge { color:var(--green); } .neg .fb-badge { color:var(--red); }
+
+  /* issues */
+  .issue { display:flex; gap:13px; padding:13px 14px; border-radius:11px; background:var(--panel-2); border:1px solid var(--border); margin-bottom:10px; align-items:center; }
+  .issue:last-child { margin-bottom:0; }
+  .issue-cat-ic { width:36px;height:36px;border-radius:10px; display:grid;place-items:center; font-size:17px; background:var(--panel-3); flex-shrink:0; }
+  .issue .body { flex:1; min-width:0; }
+  .issue .body b { display:block; font-size:14px; } .issue .body small { color:var(--text-dim); font-size:12px; }
+  .issue.issue-top { align-items:flex-start; }
+  .issue-bullets { margin:6px 0 0; padding-left:18px; }
+  .issue-bullets li { font-size:12.5px; color:var(--text-soft); margin:3px 0; line-height:1.45; }
+  .issue-meta { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .sev { font-size:10.5px; font-weight:800; padding:3px 10px; border-radius:20px; letter-spacing:.3px; }
+  .sev-high { background:var(--red-bg); color:var(--red); } .sev-mid { background:var(--amber-bg); color:var(--amber); } .sev-low { background:var(--green-bg); color:var(--green); }
+  .issue-count { text-align:center; min-width:42px; }
+  .issue-count b { display:block; font-size:18px; font-weight:800; line-height:1; }
+  .issue-count small { font-size:10px; color:var(--text-dim); }
+  .issue-head { display:grid; grid-template-columns: 36px 1fr auto auto; gap:13px; align-items:center; padding:0 14px 8px; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--text-dim); font-weight:700; }
+
+  /* comments tabs */
+  .ctabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .ctab { padding:7px 14px; border-radius:9px; background:var(--panel-2); border:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text-soft); cursor:pointer; transition:.15s; }
+  .ctab:hover { color:var(--text); }
+  .ctab.active { background:var(--yt-red); color:#fff; border-color:var(--yt-red); }
+  .ctab .n { opacity:.7; font-weight:600; }
+  .comment .replies { font-size:12px; color:var(--text-dim); margin-left:12px; }
+
+  /* recommendations */
+  .rec-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:13px; }
+  .rec { display:flex; gap:13px; padding:16px; border-radius:11px; background:var(--panel-2); border:1px solid var(--border); border-left:3px solid var(--yt-red); }
+  .rec .num { width:30px;height:30px;border-radius:9px; background:var(--red-bg); color:var(--yt-red-soft); font-weight:800; display:grid;place-items:center; flex-shrink:0; }
+  .rec b { display:block; margin-bottom:3px; font-size:14px; line-height:1.5; } .rec small { color:var(--text-dim); font-size:12.5px; }
+  .rec.rec-critical { border-left-color:var(--red); background:var(--red-bg); box-shadow: inset 0 0 0 1px var(--red); }
+  .rec.rec-critical .num { background:var(--red); color:#fff; }
+  .rec.rec-info { border-left-color:var(--blue); }
+  .rec-badge { display:inline-block; font-size:10px; font-weight:800; letter-spacing:.4px; padding:2px 8px; border-radius:6px; background:var(--red); color:#fff; margin-right:8px; vertical-align:middle; }
+  .rec-badge-info { background:var(--blue); }
+
+  /* comments */
+  .comment { display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--border); }
+  .comment:last-child { border-bottom:none; padding-bottom:0; }
+  .comment .avatar { width:38px;height:38px;border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--purple)); display:grid;place-items:center; color:#fff; font-weight:700; flex-shrink:0; }
+  .c-body { flex:1; min-width:0; }
+  .c-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .c-head b { font-size:13.5px; } .c-head .time { font-size:11.5px; color:var(--text-dim); }
+  .tag { font-size:10.5px; padding:1px 8px; border-radius:10px; font-weight:700; }
+  .tag-pos { background:var(--green-bg); color:var(--green); } .tag-neg { background:var(--red-bg); color:var(--red); } .tag-neu { background:var(--panel-3); color:var(--text-soft); }
+  .c-text { font-size:13.5px; margin:4px 0; } .c-likes { font-size:12.5px; color:var(--text-dim); }
+
+  /* history table */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:640px; }
+  th,td { text-align:left; padding:12px 14px; font-size:13.5px; border-bottom:1px solid var(--border); }
+  th { font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.6px; font-weight:700; }
+  tbody tr { cursor:pointer; transition: background .15s; }
+  tbody tr:hover { background: var(--panel-2); }
+  .score-pill { font-weight:800; padding:2px 11px; border-radius:20px; font-size:12.5px; }
+  .type-tag { font-size:11.5px; padding:2px 9px; border-radius:7px; background:var(--panel-3); color:var(--text-soft); }
+  .empty-row td { text-align:center; color:var(--text-dim); padding:30px; }
+
+  @media (max-width: 1080px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .g-2, .g-2-1, .rec-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position:fixed; left:-260px; z-index:100; transition:left .25s; width:248px; }
+    .sidebar.open { left:0; box-shadow: 0 0 0 100vmax rgba(0,0,0,.5); }
+    .menu-btn { display:grid !important; }
+    .video-card { flex-direction:column; } .thumb { width:100%; }
+    .url-field { min-width:0; }
+  }
+  @media (max-width: 600px) {
+    .kpi-grid { grid-template-columns:1fr; }
+    .mini-stats { grid-template-columns: repeat(2,1fr); }
+    .topbar { flex-wrap:wrap; } .url-field { order:3; width:100%; }
+    .content { padding: 18px 16px 40px; }
+  }
+  .menu-btn { display:none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="brand-mini">
+        <div class="brand-mark"></div>
+        <div><h1>YT Analytics<span>วิเคราะห์วิดีโอ YouTube</span></h1></div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <label class="url-field">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2s-.2-1.4-.8-2c-.7-.8-1.6-.8-2-.9C16 4 12 4 12 4s-4 0-6.8.3c-.4.1-1.3.1-2 .9-.6.6-.8 2-.8 2S2 8.9 2 10.5v1c0 1.6.2 3.3.2 3.3s.2 1.4.8 2c.7.8 1.7.8 2.1.9 1.5.1 6.4.2 6.9.2 0 0 4 0 6.8-.3.4-.1 1.3-.1 2-.9.6-.6.8-2 .8-2s.2-1.7.2-3.3v-1c0-1.6-.2-3.3-.2-3.3zM10 14V9l5 2.5-5 2.5z"/></svg>
+        <input type="text" id="urlInput" placeholder="วางลิงก์ YouTube ที่ต้องการวิเคราะห์..." autocomplete="off">
+      </label>
+      <button class="btn btn-primary" id="analyzeBtn">วิเคราะห์</button>
+      <button class="btn btn-csv" id="csvBtn" title="บันทึกผลเป็นไฟล์ CSV" disabled>⬇ บันทึก CSV</button>
+      <button class="icon-btn" id="themeBtn" title="สลับธีม">🌙</button>
+    </header>
+
+    <div class="content">
+      <div class="sample-links">
+        วางลิงก์วิดีโอ แล้วกด "วิเคราะห์" · เมื่อมีผลแล้วกด "บันทึก CSV" เพื่อดาวน์โหลด
+        <label style="margin-left:10px;cursor:pointer;user-select:none">
+          <input type="checkbox" id="testMode" style="vertical-align:middle"> โหมดทดสอบ (webhook-test)
+        </label>
+        <br>ตัวอย่างข้อมูลจำลอง (ออฟไลน์):
+        <a data-sample="live">ไลฟ์สดเกมมิ่ง</a>·
+        <a data-sample="cook">วิดีโอทำอาหาร</a>·
+        <a data-sample="tech">รีวิวเทคโนโลยี</a>
+      </div>
+
+      <!-- Status -->
+      <div class="status-area" id="statusArea">
+        <div class="spinner" id="statusSpin"></div>
+        <div class="status-text">
+          <b id="statusTitle">กำลังวิเคราะห์...</b>
+          <span id="statusDetail">กำลังดึงข้อมูลวิดีโอ</span>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+
+      <!-- ===== RESULTS ===== -->
+      <div id="results">
+
+        <!-- Video info + Summary -->
+        <div class="grid g-2-1">
+          <div class="panel">
+            <div class="panel-head"><div class="ph-ic">🎬</div><div><h3>ข้อมูลวิดีโอ</h3><p>รายละเอียดและสถิติหลัก</p></div></div>
+            <div class="video-card">
+              <div class="thumb" id="vThumb"></div>
+              <div class="video-meta">
+                <h3 id="vTitle"></h3>
+                <div class="channel">
+                  <div class="avatar" id="vAvatar"></div>
+                  <div><div class="name" id="vChannel"></div><div class="subs" id="vSubs"></div></div>
+                  <div class="pub-meta"><span class="pub-ic">📅</span><span id="vPubDate"></span></div>
+                </div>
+                <div class="mini-stats">
+                  <div class="mini-stat"><div class="v" id="sViews"></div><div class="l">ยอดดู</div></div>
+                  <div class="mini-stat"><div class="v" id="sLikes"></div><div class="l">ระยะเวลา</div></div>
+                  <div class="mini-stat"><div class="v" id="sComments"></div><div class="l">จุดเด่น</div></div>
+                  <div class="mini-stat"><div class="v" id="sEngage"></div><div class="l">จุดที่ติ</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel summary-card">
+            <div class="panel-head"><div class="ph-ic">📝</div><div><h3>สรุปการวิเคราะห์</h3><p>ภาพรวมโดย AI</p></div></div>
+            <div class="score-ring">
+              <div class="ring" id="scoreRing"><div class="inner" id="scoreVal"></div></div>
+              <div class="sr-txt"><b id="scoreLabel"></b><small>Sentiment Score · ความรู้สึกรวม</small></div>
+            </div>
+            <div class="sentiment-row" id="sentimentRow"></div>
+          </div>
+        </div>
+
+        <!-- summary text -->
+        <div class="panel">
+          <div class="panel-head"><div class="ph-ic">💡</div><div><h3>บทสรุปเชิงลึก</h3></div></div>
+          <p id="summaryText" style="color:var(--text-soft)"></p>
+          <div class="chips" id="summaryChips"></div>
+        </div>
+
+        <!-- ===== PRIORITY: key outputs for producers / planners ===== -->
+        <div class="priority-banner">⭐ สำคัญสำหรับ Producer &amp; Planner</div>
+
+        <!-- Issues analysis (emphasized) -->
+        <div class="panel panel-priority panel-issues">
+          <div class="panel-head"><div class="ph-ic ph-ic-warn">⚠️</div><div><h3>วิเคราะห์ปัญหา</h3><p>ปัญหาวิกฤต &amp; เชิงต้นทุน จัดลำดับตามความรุนแรง</p></div></div>
+          <div id="issuesCard"></div>
+        </div>
+
+        <!-- Planner actions (emphasized) -->
+        <div class="panel panel-priority panel-actions">
+          <div class="panel-head"><div class="ph-ic ph-ic-action">🚀</div><div><h3>Planner Actions · สิ่งที่ต้องลงมือทำ</h3><p>ข้อเสนอแนะเชิงปฏิบัติสำหรับทีมวางแผน</p></div></div>
+          <div class="rec-grid" id="recGrid"></div>
+        </div>
+
+        <!-- Positive / Negative -->
+        <div class="grid g-2">
+          <div class="panel pos">
+            <div class="panel-head"><div class="ph-ic">👍</div><div><h3>ฟีดแบ็กเชิงบวก</h3><p>จุดเด่นที่ผู้ชมชื่นชม</p></div></div>
+            <ul class="fb-list" id="posList"></ul>
+          </div>
+          <div class="panel neg">
+            <div class="panel-head"><div class="ph-ic">👎</div><div><h3>ฟีดแบ็กเชิงลบ</h3><p>จุดที่ผู้ชมติชม</p></div></div>
+            <ul class="fb-list" id="negList"></ul>
+          </div>
+        </div>
+
+        <!-- Top comments -->
+        <div class="panel">
+          <div class="panel-head"><div class="ph-ic">💬</div><div><h3>คอมเมนต์ยอดนิยม</h3><p>แยกตามกลุ่มความรู้สึกและการถกเถียง</p></div><div class="ph-right">วิเคราะห์ความรู้สึกอัตโนมัติ</div></div>
+          <div class="ctabs" id="ctabs">
+            <div class="ctab active" data-tab="pos">👍 เชิงบวก <span class="n" id="cntPos"></span></div>
+            <div class="ctab" data-tab="neg">👎 เชิงลบ <span class="n" id="cntNeg"></span></div>
+            <div class="ctab" data-tab="disc">🔥 ถกเถียงมากสุด <span class="n" id="cntDisc"></span></div>
+          </div>
+          <div id="commentsCard"></div>
+        </div>
+
+      </div><!-- /results -->
+
+      <!-- Empty state (before first analysis) -->
+      <div class="panel" id="emptyState" style="text-align:center;padding:48px 20px">
+        <div style="font-size:46px;margin-bottom:10px">🎬</div>
+        <h3 style="font-size:17px;margin-bottom:6px">เริ่มวิเคราะห์วิดีโอ YouTube</h3>
+        <p style="color:var(--text-dim)">วางลิงก์วิดีโอด้านบน แล้วกด "วิเคราะห์" — เมื่อได้ผลแล้วสามารถบันทึกเป็น CSV ได้</p>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---------- Theme ---------- */
+$('themeBtn').addEventListener('click', () => {
+  const light = document.documentElement.hasAttribute('data-light');
+  if (light) { document.documentElement.removeAttribute('data-light'); $('themeBtn').textContent='🌙'; }
+  else { document.documentElement.setAttribute('data-light',''); $('themeBtn').textContent='☀️'; applyLight(); }
+});
+// minimal light overrides injected once
+const lightCSS = document.createElement('style');
+lightCSS.textContent = `:root[data-light]{--bg:#f4f5f9;--panel:#ffffff;--panel-2:#f1f3f8;--panel-3:#e6e9f2;--text:#11151c;--text-soft:#4b5563;--text-dim:#8a93a3;--border:#e4e7ef;} :root[data-light] body{background-image:radial-gradient(900px 500px at 110% -10%, rgba(255,0,51,.06), transparent 60%);} :root[data-light] .ring .inner{background:#fff;} :root[data-light] .sb-pos,:root[data-light] .sb-neu,:root[data-light] .sb-neg{color:#fff;}`;
+document.head.appendChild(lightCSS);
+function applyLight(){}
+
+/* ---------- Mock datasets ---------- */
+const DATASETS = {
+  live: {
+    isLive:true, duration:'LIVE 3:42:11',
+    title:'ไลฟ์สดดันแรงค์! ลุยโหมดจัดอันดับยาว ๆ ถึงเที่ยงคืน 🎮',
+    channel:'GamerZ TH', avatar:'G', subs:'1.2M ผู้ติดตาม', publishDate:'4 มิ.ย. 2026 · กำลังถ่ายทอดสด',
+    views:'48.2K', likes:'12.5K', comments:'8.9K', engage:'9.4%',
+    summary:'ไลฟ์สดเล่นเกมแนวจัดอันดับ บรรยากาศสนุกสนาน ผู้ชมมีส่วนร่วมสูงผ่านแชทสด สตรีมเมอร์ตอบโต้กับผู้ชมต่อเนื่อง จุดเด่นคือพลังงานและการเล่นที่ดุดัน แต่ช่วงต้นสตรีมมีปัญหาเสียงเบาและภาพกระตุกเป็นระยะ',
+    chips:['เกมมิ่ง','ไลฟ์สด','จัดอันดับ','อินเทอร์แอคทีฟ','ภาษาไทย'],
+    sentiment:{pos:68,neu:22,neg:10},
+    positive:[
+      ['พลังงานสูง สนุกตลอด','ผู้ชมชมว่าบรรยากาศไลฟ์มีชีวิตชีวา ตลกตลอดสตรีม','342'],
+      ['ตอบแชทเร็ว','สตรีมเมอร์อ่านและตอบคอมเมนต์สดต่อเนื่อง','218'],
+      ['ฝีมือเล่นเกมดี','หลายคนชื่นชมการเล่นและการตัดสินใจในเกม','187'],
+      ['คอมมูนิตี้อบอุ่น','แฟน ๆ ในแชทช่วยกันตอบและให้กำลังใจ','95'],
+    ],
+    negative:[
+      ['เสียงเบาช่วงแรก','เสียงไมค์เบากว่าเสียงเกมในชั่วโมงแรก','156'],
+      ['ภาพกระตุกเป็นระยะ','มีรายงานเฟรมตกช่วงฉากเอฟเฟกต์เยอะ','98'],
+      ['โฆษณาแทรกบ่อย','โฆษณามาขัดจังหวะช่วงสำคัญ','61'],
+    ],
+    issues:[
+      ['🔊','คุณภาพเสียง','high',23,'ระดับเสียงไมค์ต่ำกว่าเสียงเกมในช่วง 0:00 ถึง 1:05 ทำให้ฟังบทพูดยาก'],
+      ['🎞️','คุณภาพวิดีโอ','mid',14,'เฟรมเรตลดลงเหลือ ~24fps ในฉากแอ็กชัน อาจเกิดจากการตั้งค่าเอนโค้ด'],
+      ['📢','โฆษณา','mid',9,'โฆษณาแทรกขัดจังหวะช่วงสำคัญของเกม ผู้ชมบางส่วนบ่น'],
+      ['⏳','เนื้อหา','low',5,'มีช่วงรอโหลดเกมประมาณ 4 นาทีที่ไม่มีเนื้อหา'],
+    ],
+    recommendations:[
+      ['ปรับสมดุลเสียง','ตั้งเสียงไมค์ให้ดังกว่าเสียงเกม 6-8 dB และทดสอบก่อนเริ่ม'],
+      ['ลดบิตเรตเอนโค้ด','ใช้พรีเซ็ตที่เบาลงหรือสลับไป NVENC เพื่อลดเฟรมตก'],
+      ['เตรียมเนื้อหาช่วงโหลด','เปิดเพลงหรือเล่าเรื่องระหว่างรอโหลดเพื่อคงผู้ชม'],
+      ['ตั้งช่วงโฆษณา','กำหนดเวลาโฆษณาช่วงพักเกมเพื่อไม่ขัดจังหวะ'],
+    ],
+    topComments:[
+      ['Nong_Pro','P','pos','เล่นโหดมากกก เชียร์อยู่ตลอดเลยพี่ 🔥','1.2K','5 นาทีที่แล้ว',34],
+      ['MintyCat','M','neg','เสียงเบาไปนิดนะคะช่วงแรก แต่ตอนนี้โอเคแล้ว','430','22 นาทีที่แล้ว',128],
+      ['TonGamer','T','pos','คอมมูนิตี้นี้น่ารักที่สุดแล้ว มาทุกไลฟ์เลย','388','1 ชั่วโมงที่แล้ว',12],
+      ['Aff_zz','A','neu','แรงค์อะไรอยู่ตอนนี้ครับ เพิ่งเข้ามา','95','1 ชั่วโมงที่แล้ว',67],
+      ['ProArena','R','neg','โฆษณาเด้งบ่อยไปจริง ๆ ครับ ขัดอารมณ์มาก','276','40 นาทีที่แล้ว',203],
+      ['BellSiri','B','pos','ไลฟ์นี้สนุกสุดในรอบเดือนเลย ขอบคุณที่ตั้งใจนะ','510','15 นาทีที่แล้ว',45],
+    ],
+    type:'ไลฟ์สด', score:82, viewsNum:'48.2K',
+  },
+  cook: {
+    isLive:false, duration:'14:52',
+    title:'ผัดกะเพราหมูสับ สูตรร้านดัง! กรอบ หอม เผ็ดกำลังดี ทำใน 10 นาที',
+    channel:'ครัวบ้านนา', avatar:'ค', subs:'684K ผู้ติดตาม', publishDate:'18 พ.ค. 2026',
+    views:'1.9M', likes:'88K', comments:'4.2K', engage:'4.8%',
+    summary:'วิดีโอสอนทำผัดกะเพราหมูสับ นำเสนอเป็นขั้นตอนชัดเจน ภาพถ่ายอาหารสวยน่ากิน เสียงบรรยายนุ่มฟังสบาย ผู้ชมส่วนใหญ่ทำตามได้จริง จุดที่ติคือไม่ได้บอกปริมาณเครื่องปรุงเป็นตัวเลขชัดเจน และอินโทรช่วงต้นยาวเกินไป',
+    chips:['ทำอาหาร','อาหารไทย','สอนทำ','เมนูง่าย','10 นาที'],
+    sentiment:{pos:81,neu:14,neg:5},
+    positive:[
+      ['ทำตามได้จริง','ผู้ชมจำนวนมากลองทำตามแล้วได้ผลดี','1.1K'],
+      ['ภาพสวยน่ากิน','มุมกล้องและแสงทำให้อาหารดูน่าทาน','720'],
+      ['เสียงบรรยายฟังสบาย','น้ำเสียงนุ่มและอธิบายเข้าใจง่าย','530'],
+      ['ขั้นตอนชัดเจน','ลำดับการทำเป็นระเบียบ ไม่สับสน','410'],
+    ],
+    negative:[
+      ['ไม่บอกปริมาณชัด','อยากได้สัดส่วนเครื่องปรุงเป็นช้อน/กรัม','288'],
+      ['อินโทรยาวไป','ช่วงเปิดตัวก่อนเข้าเนื้อหายาวเกือบ 2 นาที','141'],
+      ['เพลงพื้นหลังดัง','บางช่วงเพลงกลบเสียงบรรยาย','67'],
+    ],
+    issues:[
+      ['📋','สูตร/ปริมาณ','mid',47,'ไม่ได้ระบุปริมาณเครื่องปรุงเป็นหน่วยวัด ทำให้ผลลัพธ์ไม่สม่ำเสมอ'],
+      ['⏱️','โครงสร้างคลิป','low',18,'ช่วงอินโทรกินเวลา 1:48 ก่อนเริ่มทำจริง'],
+      ['🎵','คุณภาพเสียง','low',11,'เพลงประกอบดังกว่าเสียงพูดในบางช่วง'],
+    ],
+    recommendations:[
+      ['ใส่สูตรในคำอธิบาย','แนบรายการเครื่องปรุงพร้อมปริมาณในกล่องคำอธิบายและบนจอ'],
+      ['ตัดอินโทรให้สั้น','ลดช่วงเปิดเหลือ 15-20 วินาที'],
+      ['ลดเสียงเพลง','ลดระดับเพลงพื้นหลังลง 10 dB ขณะมีเสียงบรรยาย'],
+      ['เพิ่มไทม์สแตมป์','ใส่แชปเตอร์ในไทม์ไลน์เพื่อข้ามไปขั้นตอนที่ต้องการ'],
+    ],
+    topComments:[
+      ['BaanCook','B','pos','ทำตามแล้วอร่อยมากค่ะ สามีชมใหญ่เลย ขอบคุณนะคะ','3.4K','2 วันที่แล้ว',56],
+      ['FoodieJoe','F','neg','อยากให้บอกปริมาณน้ำปลาเป็นช้อนด้วยครับ กะไม่ถูก','890','1 วันที่แล้ว',184],
+      ['NamFon','N','pos','ภาพสวยมากกก ดูแล้วหิวเลย 😋','612','3 วันที่แล้ว',8],
+      ['ChefMild','C','neu','ใช้หมูสับหรือหมูบดดีกว่ากันคะ','204','4 ชั่วโมงที่แล้ว',95],
+      ['AreeKitchen','A','neg','ของหนูเค็มไปอ่ะค่ะ น่าจะบอกปริมาณน้ำปลาชัด ๆ','341','1 วันที่แล้ว',132],
+      ['JoyCooks','J','pos','ทำขายดีมากค่ะ ลูกค้าติดใจ ขอบคุณสูตรดี ๆ นะคะ','780','5 ชั่วโมงที่แล้ว',23],
+    ],
+    type:'วิดีโอ', score:88, viewsNum:'1.9M',
+  },
+  tech: {
+    isLive:false, duration:'21:37',
+    title:'รีวิวมือถือรุ่นใหม่! กล้องเทพจริงไหม? แบตอึดแค่ไหน? ทดสอบจัดเต็ม',
+    channel:'TechTalk Thailand', avatar:'T', subs:'912K ผู้ติดตาม', publishDate:'29 พ.ค. 2026',
+    views:'745K', likes:'34K', comments:'6.1K', engage:'5.4%',
+    summary:'วิดีโอรีวิวสมาร์ตโฟนเชิงลึก ครอบคลุมกล้อง แบตเตอรี่ และประสิทธิภาพ มีกราฟเปรียบเทียบและตัวอย่างภาพถ่ายจริง ผู้ชมชื่นชมความละเอียดและความเป็นกลาง อย่างไรก็ตามวิดีโอค่อนข้างยาวและมีศัพท์เทคนิคเยอะ ผู้ชมมือใหม่บางส่วนตามไม่ทัน',
+    chips:['รีวิว','เทคโนโลยี','สมาร์ตโฟน','เปรียบเทียบ','จัดเต็ม'],
+    sentiment:{pos:72,neu:19,neg:9},
+    positive:[
+      ['รีวิวละเอียดเป็นกลาง','ผู้ชมเชื่อถือเพราะบอกทั้งข้อดีข้อเสีย','980'],
+      ['มีตัวอย่างจริง','ภาพถ่ายและผลทดสอบช่วยให้ตัดสินใจได้','640'],
+      ['กราฟเข้าใจง่าย','การเปรียบเทียบด้วยกราฟชัดเจน','455'],
+      ['ตัดต่อมืออาชีพ','งานภาพและจังหวะตัดต่อลื่นไหล','300'],
+    ],
+    negative:[
+      ['ศัพท์เทคนิคเยอะ','มือใหม่ตามไม่ทันคำศัพท์เฉพาะทาง','310'],
+      ['วิดีโอยาวไป','รู้สึกว่า 21 นาทียาวเกินสำหรับรีวิวเดียว','205'],
+      ['ไม่สรุปท้ายชัด','ขาดบทสรุปสั้น ๆ ว่าน่าซื้อหรือไม่','120'],
+    ],
+    issues:[
+      ['🧠','การเข้าถึงเนื้อหา','mid',38,'ใช้ศัพท์เทคนิคจำนวนมากโดยไม่มีคำอธิบายประกอบ มือใหม่ตามไม่ทัน'],
+      ['⏱️','ความยาวคลิป','mid',26,'วิดีโอยาว 21:37 ขณะที่อัตราการดูจบลดลงหลังนาทีที่ 12'],
+      ['🏁','บทสรุป','low',13,'ปลายวิดีโอไม่มีข้อสรุปชัดเจนเรื่องความคุ้มค่า'],
+    ],
+    recommendations:[
+      ['อธิบายศัพท์บนจอ','ใส่คำนิยามสั้น ๆ เมื่อกล่าวถึงคำเทคนิค'],
+      ['ทำเวอร์ชันสรุป','ตัดคลิปสั้น 3-5 นาทีสำหรับคนที่ต้องการข้อมูลเร็ว'],
+      ['เพิ่มบทสรุปฟันธง','ปิดท้ายด้วยคะแนนรวมและคำแนะนำว่าควรซื้อหรือไม่'],
+      ['ใส่ไทม์สแตมป์หัวข้อ','แบ่งบทกล้อง/แบต/ประสิทธิภาพให้ข้ามดูได้'],
+    ],
+    topComments:[
+      ['GadgetMan','G','pos','รีวิวเป็นกลางมากครับ ดูแล้วตัดสินใจซื้อได้เลย ขอบคุณ','2.8K','1 วันที่แล้ว',41],
+      ['NoobUser','N','neg','ศัพท์เยอะไปหน่อยครับ คนไม่รู้เรื่องเทคตามไม่ทัน','760','20 ชั่วโมงที่แล้ว',156],
+      ['PimTech','P','pos','กราฟเปรียบเทียบดีมาก เข้าใจง่ายสุด ๆ','540','2 วันที่แล้ว',19],
+      ['MaxZ','M','neu','รุ่นนี้เทียบกับรุ่นก่อนคุ้มกว่าไหมครับ','288','6 ชั่วโมงที่แล้ว',88],
+      ['ValueBuyer','V','neg','21 นาทียาวไปครับ อยากได้เวอร์ชันสรุปสั้น ๆ','402','18 ชั่วโมงที่แล้ว',174],
+      ['TechFanTH','F','pos','ทดสอบกล้องละเอียดดีมาก รอคลิปต่อไปเลยครับ','690','1 วันที่แล้ว',27],
+    ],
+    type:'วิดีโอ', score:79, viewsNum:'745K',
+  },
+};
+
+/* ---------- result state (for CSV export) ---------- */
+let lastResult = null;
+function setResult(d){
+  lastResult = d;
+  const cb=$('csvBtn'); if(cb) cb.disabled=false;
+  const es=$('emptyState'); if(es) es.style.display='none';
+}
+
+/* ---------- Helpers ---------- */
+function detectDataset(url){
+  const u=(url||'').toLowerCase();
+  if(u.includes('live')||u.includes('ไลฟ์')) return 'live';
+  if(u.includes('cook')||u.includes('food')||u.includes('อาหาร')) return 'cook';
+  if(u.includes('tech')||u.includes('review')||u.includes('รีวิว')) return 'tech';
+  const keys=['live','cook','tech']; let h=0;
+  for(let i=0;i<u.length;i++) h=(h+u.charCodeAt(i))%keys.length; return keys[h];
+}
+function scoreColor(s){ return s>=85?'var(--green)':s>=70?'var(--amber)':'var(--red)'; }
+function scoreBg(s){ return s>=85?'var(--green-bg)':s>=70?'var(--amber-bg)':'var(--red-bg)'; }
+
+/* ISO-8601 duration  PT1H23M15S -> 1:23:15  (returns input unchanged if not ISO) */
+function isoDuration(v){
+  if(v==null||v==='') return '';
+  const s=String(v).trim();
+  const m=s.match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/i);
+  if(!m) return s;
+  let d=+m[1]||0, h=+m[2]||0, mi=+m[3]||0, se=Math.round(+m[4]||0);
+  h+=d*24; if(se===60){se=0;mi++;} if(mi===60){mi=0;h++;}
+  const p=n=>String(n).padStart(2,'0');
+  return h>0 ? `${h}:${p(mi)}:${p(se)}` : `${mi}:${p(se)}`;
+}
+/* ISO date -> readable Thai  2026-06-03T07:16:26Z -> 3 มิ.ย. 2026, 14:16 */
+const TH_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function fmtDate(v){
+  if(v==null||v==='') return '';
+  const dt=new Date(v);
+  if(isNaN(dt.getTime())) return String(v);
+  const p=n=>String(n).padStart(2,'0');
+  const hasTime=/\d{1,2}:\d{2}/.test(String(v));
+  const base=`${dt.getDate()} ${TH_MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  return hasTime ? `${base}, ${p(dt.getHours())}:${p(dt.getMinutes())} น.` : base;
+}
+/* sentiment tone from Video_Sentiment label, fall back to Sentiment_Score sign */
+function sentTone(label, score){
+  const l=String(label||'').toLowerCase();
+  if(/pos|บวก|good|ดี/.test(l)) return 'pos';
+  if(/neg|ลบ|bad|แย่|วิกฤต/.test(l)) return 'neg';
+  if(/neu|mixed|กลาง|ปานกลาง|ผสม/.test(l)) return 'neu';
+  const n=Number(score);
+  return n>0?'pos':n<0?'neg':'neu';
+}
+const TONE_COLOR={pos:'var(--green)', neg:'var(--red)', neu:'#6b7280'};
+const TONE_LABEL={pos:'เชิงบวก', neg:'เชิงลบ', neu:'กลาง'};
+
+/* ---------- Render ---------- */
+function render(d){
+  // video embed (Video_ID) or placeholder, with live + duration overlays
+  const durTxt = d.duration||'';
+  const overlays =
+    (d.isLive?`<span class="live">● LIVE</span>`:'') +
+    (durTxt?`<span class="dur">${durTxt}</span>`:'');
+  $('vThumb').innerHTML = d.videoId
+    ? `<iframe src="https://www.youtube.com/embed/${d.videoId}" title="${d.title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>${overlays}`
+    : `<div class="thumb-ph"><div class="play"></div></div>${overlays}`;
+
+  $('vTitle').textContent=d.title;
+  $('vAvatar').textContent=d.avatar; $('vChannel').textContent=d.channel; $('vSubs').textContent=d.subs;
+  $('vPubDate').textContent=d.publishDate;
+  const posC = d.posCount ?? d.positive.length, negC = d.negCount ?? d.negative.length;
+  $('sViews').textContent=d.views; $('sLikes').textContent=durTxt||'-';
+  $('sComments').textContent=posC; $('sEngage').textContent=negC;
+
+  // sentiment: driven by Sentiment_Score (signed) + Video_Sentiment label — NOT computed from counts
+  const tone = sentTone(d.videoSentiment, d.score);
+  const tc = TONE_COLOR[tone];
+  $('scoreRing').style.background=tc;
+  $('scoreVal').textContent=(d.score>0?'+':'')+d.score; $('scoreVal').style.color=tc;
+  $('scoreLabel').textContent = d.videoSentiment || TONE_LABEL[tone];
+  $('sentimentRow').innerHTML =
+    `<div class="sent-badge sent-${tone}">${d.videoSentiment || TONE_LABEL[tone]}</div>` +
+    `<div class="sent-counts"><span class="sc-pos">▲ ${posC} <small>เชิงบวก</small></span><span class="sc-neg">▼ ${negC} <small>เชิงลบ</small></span></div>`;
+
+  $('summaryText').textContent=d.summary;
+  $('summaryChips').innerHTML=d.chips.map(c=>`<span class="chip">#${c}</span>`).join('');
+
+  const fbBadge=v=>v?`<div class="fb-badge">${v} ครั้ง</div>`:'';
+  const fbEmpty='<li class="fb-item"><div class="txt"><small style="color:var(--text-dim)">ไม่มีข้อมูล</small></div></li>';
+  $('posList').innerHTML=d.positive.length?d.positive.map(p=>`<li class="fb-item pos"><div class="ic">✓</div><div class="txt"><b>${p[0]}</b>${p[1]?`<small>${p[1]}</small>`:''}</div>${fbBadge(p[2])}</li>`).join(''):fbEmpty;
+  $('negList').innerHTML=d.negative.length?d.negative.map(p=>`<li class="fb-item neg"><div class="ic">!</div><div class="txt"><b>${p[0]}</b>${p[1]?`<small>${p[1]}</small>`:''}</div>${fbBadge(p[2])}</li>`).join(''):fbEmpty;
+
+  // issues: category / severity / count  (items shown as bullets)
+  const sevL={high:'รุนแรง',mid:'ปานกลาง',low:'เล็กน้อย'}, sevC={high:'sev-high',mid:'sev-mid',low:'sev-low'};
+  const issueBody=i=>{
+    const items=Array.isArray(i[4])?i[4]:(i[4]?[i[4]]:[]);
+    return items.length
+      ? `<ul class="issue-bullets">${items.map(t=>`<li>${t}</li>`).join('')}</ul>`
+      : '';
+  };
+  $('issuesCard').innerHTML=d.issues.length
+    ? `<div class="issue-head"><span></span><span>หมวดหมู่</span><span>ระดับ</span><span>จำนวน</span></div>` +
+      d.issues.map(i=>`<div class="issue issue-top"><div class="issue-cat-ic">${i[0]}</div><div class="body"><b>${i[1]}</b>${issueBody(i)}</div><div class="issue-meta"><span class="sev ${sevC[i[2]]}">${sevL[i[2]]}</span><div class="issue-count"><b>${i[3]}</b><small>รายการ</small></div></div></div>`).join('')
+    : '<p style="color:var(--text-dim)">ไม่พบปัญหา</p>';
+
+  // recommendations: each action a card; [CRITICAL] => warning style + badge
+  $('recGrid').innerHTML=d.recommendations.length
+    ? d.recommendations.map((r,i)=>{
+        let text=String(r[0]||''); let badge='', cls='';
+        const m=text.match(/^\s*\[\s*([^\]]+?)\s*\]\s*/);
+        if(m){
+          const tag=m[1].toUpperCase(); text=text.slice(m[0].length).trim();
+          if(/CRIT|วิกฤต|urgent|ด่วน/i.test(tag)){ cls=' rec-critical'; badge=`<span class="rec-badge">⚠ ${m[1]}</span>`; }
+          else { cls=' rec-info'; badge=`<span class="rec-badge rec-badge-info">${m[1]}</span>`; }
+        }
+        return `<div class="rec${cls}"><div class="num">${i+1}</div><div><b>${badge}${text}</b>${r[1]?`<small>${r[1]}</small>`:''}</div></div>`;
+      }).join('')
+    : '<p style="color:var(--text-dim)">ไม่มีข้อเสนอแนะ</p>';
+
+  // comments: use real list if present, else fall back to pos/neg counts from sheet
+  currentComments=d.topComments||[];
+  commentCounts={pos:d.posCount, neg:d.negCount};
+  if(currentComments.length){
+    $('cntPos').textContent='('+currentComments.filter(c=>c[2]==='pos').length+')';
+    $('cntNeg').textContent='('+currentComments.filter(c=>c[2]==='neg').length+')';
+    $('cntDisc').textContent='('+currentComments.length+')';
+  }else{
+    $('cntPos').textContent=d.posCount!=null?'('+d.posCount+')':'';
+    $('cntNeg').textContent=d.negCount!=null?'('+d.negCount+')':'';
+    $('cntDisc').textContent='';
+  }
+  renderComments(activeTab);
+  setResult(d);   // store for CSV export, hide empty state
+}
+
+let currentComments=[], activeTab='pos', commentCounts={};
+function renderComments(tab){
+  activeTab=tab;
+  const tC={pos:'tag-pos',neg:'tag-neg',neu:'tag-neu'}, tL={pos:'บวก',neg:'ลบ',neu:'กลาง'};
+  // no per-comment data (sheet mode): show count summary
+  if(!currentComments.length){
+    const p=commentCounts.pos, n=commentCounts.neg;
+    if(p!=null||n!=null){
+      $('commentsCard').innerHTML=`<div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div class="mini-stat" style="flex:1;min-width:140px"><div class="v" style="color:var(--green)">${p??'-'}</div><div class="l">คอมเมนต์เชิงบวก</div></div>
+        <div class="mini-stat" style="flex:1;min-width:140px"><div class="v" style="color:var(--red)">${n??'-'}</div><div class="l">คอมเมนต์เชิงลบ</div></div>
+      </div><p style="color:var(--text-dim);margin-top:12px;font-size:13px">ชุดข้อมูลนี้สรุปเป็นจำนวนรวม ไม่มีคอมเมนต์รายข้อความ</p>`;
+    }else{
+      $('commentsCard').innerHTML='<p style="color:var(--text-dim);padding:8px 0">ไม่มีข้อมูลคอมเมนต์</p>';
+    }
+    return;
+  }
+  let list;
+  if(tab==='pos') list=currentComments.filter(c=>c[2]==='pos').sort((a,b)=>b[6]-a[6]||0);
+  else if(tab==='neg') list=currentComments.filter(c=>c[2]==='neg');
+  else list=[...currentComments].sort((a,b)=>(b[6]||0)-(a[6]||0)); // most discussed by replies
+  if(!list.length){ $('commentsCard').innerHTML='<p style="color:var(--text-dim);padding:8px 0">ไม่มีคอมเมนต์ในกลุ่มนี้</p>'; return; }
+  $('commentsCard').innerHTML=list.map(c=>`<div class="comment"><div class="avatar">${c[1]}</div><div class="c-body"><div class="c-head"><b>${c[0]}</b><span class="tag ${tC[c[2]]}">${tL[c[2]]}</span><span class="time">${c[5]}</span></div><div class="c-text">${c[3]}</div><div class="c-likes">👍 ${c[4]}<span class="replies">💬 ${c[6]||0} ตอบกลับ</span></div></div></div>`).join('');
+}
+
+/* ---------- Analyze flow ---------- */
+const steps=[['กำลังดึงข้อมูลวิดีโอ',20],['กำลังวิเคราะห์คอมเมนต์',45],['กำลังประเมินความรู้สึก',70],['กำลังสร้างข้อเสนอแนะ',90],['เสร็จสิ้น',100]];
+function analyze(){
+  const url=$('urlInput').value.trim(), statusArea=$('statusArea'), results=$('results');
+  if(!url){ showError('กรุณาวางลิงก์ YouTube ก่อนเริ่มวิเคราะห์'); return; }
+  if(!/youtu\.?be|youtube\.com|^[\w\s]+$/.test(url.toLowerCase())){ showError('ลิงก์ไม่ถูกต้อง กรุณาใส่ URL ของ YouTube'); return; }
+  results.classList.remove('show'); statusArea.classList.remove('error'); statusArea.classList.add('show');
+  $('statusSpin').style.display='block'; $('analyzeBtn').disabled=true; $('statusTitle').textContent='กำลังวิเคราะห์...';
+  const data=DATASETS[detectDataset(url)]; let step=0;
+  const run=()=>{
+    if(step>=steps.length){
+      statusArea.classList.remove('show'); $('analyzeBtn').disabled=false;
+      render(data); results.classList.add('show');
+      results.scrollIntoView({behavior:'smooth',block:'start'}); return;
+    }
+    $('statusDetail').textContent=steps[step][0]; $('progressFill').style.width=steps[step][1]+'%'; step++;
+    setTimeout(run,520);
+  };
+  run();
+}
+function showError(msg){
+  const s=$('statusArea'); s.classList.add('show','error'); $('statusSpin').style.display='none';
+  $('statusTitle').textContent='⚠️ เกิดข้อผิดพลาด'; $('statusDetail').textContent=msg; $('progressFill').style.width='0%';
+}
+
+/* ====================================================================
+   n8n WEBHOOK INTEGRATION
+   ==================================================================== */
+const WEBHOOK_BASE = 'https://n8n-external.exservice.io';
+const WEBHOOK_ID   = 'caf58d97-b601-43c2-9a50-88260594d4d9';
+// test mode -> /webhook-test/ (for "Listen for test event"); off -> /webhook/ (Active workflow)
+function webhookURL(){
+  const test = $('testMode') ? $('testMode').checked : true;
+  return `${WEBHOOK_BASE}/webhook${test?'-test':''}/${WEBHOOK_ID}`;
+}
+
+/* unwrap n8n-style envelopes: [ {json:{...}} ], {data:{...}}, {result:{...}} ... */
+function unwrap(r){
+  if(Array.isArray(r)) r = r[0] || {};
+  if(r && typeof r==='object'){
+    if(r.json && typeof r.json==='object') r = r.json;
+    if(r.data && typeof r.data==='object' && !r.summary && !r.title) r = r.data;
+    if(r.result && typeof r.result==='object') r = r.result;
+    if(r.output && typeof r.output==='object') r = r.output;
+  }
+  return r || {};
+}
+const pick = (o,keys,def)=>{ for(const k of keys){ if(o[k]!==undefined && o[k]!==null && o[k]!=='') return o[k]; } return def; };
+
+/* turn a feedback entry (string OR object) into [title, detail, count] */
+function coerceFb(x){
+  if(typeof x==='string') return [x,'',''];
+  if(Array.isArray(x)) return [x[0]||'', x[1]||'', x[2]||''];
+  return [ pick(x,['title','label','point','text','headline'],''),
+           pick(x,['detail','description','desc','note'],''),
+           String(pick(x,['count','mentions','votes',''],'')) ];
+}
+/* issue -> [icon, category, severity, count, description] */
+function coerceIssue(x){
+  if(Array.isArray(x)) return x.length>=5?x:['⚠️',x[1]||x[0]||'ปัญหา',x[2]||'mid',x[3]||0,x[4]||''];
+  const sevRaw=String(pick(x,['severity','level','priority'],'mid')).toLowerCase();
+  const sev=/hi|สูง|รุน|crit/.test(sevRaw)?'high':/lo|ต่ำ|เล็ก|minor/.test(sevRaw)?'low':'mid';
+  return [ pick(x,['icon','emoji'],'⚠️'),
+           pick(x,['category','name','title','type'],'ปัญหา'),
+           sev,
+           pick(x,['count','occurrences','reports'],0),
+           pick(x,['description','detail','desc'],'') ];
+}
+/* recommendation -> [title, detail] */
+function coerceRec(x){
+  if(typeof x==='string') return [x,''];
+  if(Array.isArray(x)) return [x[0]||'',x[1]||''];
+  return [ pick(x,['title','action','label','text'],''), pick(x,['detail','description','desc'],'') ];
+}
+/* comment -> [name, avatar, sentiment, text, likes, time, replies] */
+function coerceComment(x){
+  if(Array.isArray(x)) return x;
+  const sRaw=String(pick(x,['sentiment','tag','label'],'neu')).toLowerCase();
+  const sent=/pos|บวก|good/.test(sRaw)?'pos':/neg|ลบ|bad/.test(sRaw)?'neg':'neu';
+  const name=pick(x,['author','name','user','username'],'ผู้ใช้');
+  return [ name, (name[0]||'?').toUpperCase(), sent,
+           pick(x,['text','comment','message','content'],''),
+           String(pick(x,['likes','like','votes'],0)),
+           pick(x,['time','date','timeAgo','published'],''),
+           pick(x,['replies','reply','discussion','comments'],0) ];
+}
+
+/* map arbitrary webhook JSON -> dashboard data object used by render() */
+function normalizeResponse(raw){
+  const r = unwrap(raw);
+  const arr = v => Array.isArray(v) ? v : [];
+  const isLive = !!pick(r,['isLive','live'],false) || /live|สด/i.test(String(pick(r,['duration','length'],'')));
+  const vSent = pick(r,['Video_Sentiment','videoSentiment','sentimentLabel','sentiment'],'');
+  let sc = parseFloat(pick(r,['Sentiment_Score','score','sentimentScore','qualityScore','rating'],0)); if(isNaN(sc)) sc=0;
+
+  return {
+    isLive,
+    duration: isoDuration(pick(r,['duration','length','Duration'],'')),
+    type: pick(r,['type','contentType'], isLive?'ไลฟ์สด':'วิดีโอ'),
+    videoId: extractVideoId(r),
+    title: pick(r,['title','videoTitle','name','Video_Title'],'(ไม่มีชื่อเรื่อง)'),
+    channel: pick(r,['channel','channelTitle','author','channelName','Channel_Name'],'-'),
+    avatar: (pick(r,['channel','channelTitle','author','Channel_Name'],'?')[0]||'?').toUpperCase(),
+    subs: pick(r,['subs','subscribers','subscriberCount'],''),
+    publishDate: fmtDate(pick(r,['publishDate','publishedAt','published','date','Publish_Date'],'')),
+    views: String(pick(r,['views','viewCount','Views'],'-')),
+    viewsNum: String(pick(r,['views','viewCount','Views'],'-')),
+    likes:'-', comments:'-', engage:'-',
+    summary: pick(r,['summary','aiSummary','overview','description','Summary'],'(ไม่มีบทสรุป)'),
+    chips: arr(pick(r,['chips','tags','keywords','topics'],[])).map(String),
+    videoSentiment: String(vSent||''), score: Math.round(sc),
+    positive: arr(pick(r,['positive','positives','positiveFeedback','pros','Positive_Points'],[])).map(coerceFb),
+    negative: arr(pick(r,['negative','negatives','negativeFeedback','cons','Negative_Points'],[])).map(coerceFb),
+    issues: arr(pick(r,['issues','problems','issuesAnalysis'],[])).map(coerceIssue),
+    recommendations: arr(pick(r,['recommendations','recommends','actions','actionItems','suggestions','Planner_Actions'],[])).map(coerceRec),
+    topComments: arr(pick(r,['topComments','comments_list','commentList','comments'],[])).filter(c=>typeof c!=='number').map(coerceComment),
+    posCount: parseInt(pick(r,['Positive_Count','positiveCount'],0))||0,
+    negCount: parseInt(pick(r,['Negative_Count','negativeCount'],0))||0,
+  };
+}
+
+/* live analyze via webhook */
+let webhookBusy=false;
+async function analyzeLive(){
+  if(webhookBusy) return;
+  const url=$('urlInput').value.trim(), statusArea=$('statusArea'), results=$('results');
+  if(!url){ showError('กรุณาวางลิงก์ YouTube ก่อนเริ่มวิเคราะห์'); return; }
+  if(!/youtu\.?be|youtube\.com/.test(url.toLowerCase())){ showError('ลิงก์ไม่ถูกต้อง กรุณาใส่ URL ของ YouTube'); return; }
+
+  webhookBusy=true;
+  results.classList.remove('show'); statusArea.classList.remove('error'); statusArea.classList.add('show');
+  $('statusSpin').style.display='block'; $('analyzeBtn').disabled=true;
+  $('statusTitle').textContent='กำลังวิเคราะห์ผ่าน n8n...';
+  $('statusDetail').textContent='POST → '+webhookURL();
+
+  // indeterminate progress while we wait for the workflow
+  let p=8; $('progressFill').style.width=p+'%';
+  const tick=setInterval(()=>{ p=Math.min(p+Math.random()*9,90); $('progressFill').style.width=p+'%'; },420);
+
+  try{
+    const res = await fetch(webhookURL(),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ url, youtubeUrl:url, source:'dashboard', requestedAt:new Date().toISOString() })
+    });
+    clearInterval(tick);
+    if(!res.ok) throw new Error('HTTP '+res.status+' '+res.statusText);
+
+    const text = await res.text();
+    let raw; try{ raw = text ? JSON.parse(text) : {}; }catch(e){ throw new Error('ตอบกลับไม่ใช่ JSON: '+text.slice(0,120)); }
+    console.log('[n8n webhook response]', raw);
+
+    let data = normalizeResponse(raw);
+    // if POST returned nothing useful, fall back to the dashboard-data sheet (newest row)
+    const empty = !data.summary || data.summary==='(ไม่มีบทสรุป)';
+    const noLists = !data.positive.length && !data.negative.length && !data.issues.length && !data.topComments.length;
+    if(empty && noLists){
+      $('statusDetail').textContent='กำลังดึงผลจากชีต...';
+      const latest = await fetchLatestRow();
+      if(latest){ data = latest; }
+      else{
+        $('progressFill').style.width='100%';
+        showError('เชื่อมต่อสำเร็จ แต่ยังไม่ได้รับผลวิเคราะห์ — ตรวจว่ามีโหนด "Respond to Webhook" คืน JSON หรือชีตมีข้อมูล (เปิด F12 ดู JSON ดิบ)');
+        webhookBusy=false; $('analyzeBtn').disabled=false; return;
+      }
+    }
+
+    $('progressFill').style.width='100%';
+    $('statusDetail').textContent='เสร็จสิ้น';
+    setTimeout(()=>{
+      statusArea.classList.remove('show');
+      render(data);
+      results.classList.add('show');
+      results.scrollIntoView({behavior:'smooth',block:'start'});
+    },300);
+  }catch(err){
+    clearInterval(tick);
+    let msg = err.message||String(err);
+    if(/Failed to fetch|NetworkError|CORS/i.test(msg))
+      msg = 'เชื่อมต่อไม่ได้ — สาเหตุที่พบบ่อย: (1) ติด CORS: ในโหนด Webhook ของ n8n ตั้ง "Allowed Origins (CORS)" = *  (2) ใช้ path ผิด: ถ้ากด Listen for test event ให้ติ๊ก "โหมดทดสอบ", ถ้า Activate workflow แล้วให้เอาออก. URL ที่ยิง: '+webhookURL();
+    showError(msg);
+  }finally{
+    webhookBusy=false; $('analyzeBtn').disabled=false;
+  }
+}
+
+/* ====================================================================
+   DASHBOARD DATA SOURCE  (reads the Google Sheet via n8n webhook)
+   columns: Video_Title, Channel_Name, Publish_Date, Views, Duration,
+   Summary, Sentiment_Score, Video_Sentiment, Positive_Points,
+   Negative_Points, Critical_Issues, Economy_Issues, Planner_Actions,
+   Positive_Count, Negative_Count, Analysis_Date
+   ==================================================================== */
+const DASHBOARD_DATA_URL = 'https://n8n-external.exservice.io/webhook/caf58d97-b601-43c2-9a50-88260594d4d9';
+let loadedRows = [];
+
+/* split a sheet cell into a clean list.
+   handles: real arrays, serialized JSON arrays ('["a","b"]', even double-encoded),
+   and plain text (newline / ; / | / bullets / numbered). Never shows raw JSON. */
+function splitItems(v){
+  if(v==null) return [];
+  if(Array.isArray(v)) return v.map(x=>String(x).trim()).filter(Boolean);
+  let s=String(v).trim();
+  if(!s) return [];
+  // JSON array string?  e.g.  ["Issue A","Issue B"]   (possibly wrapped/escaped)
+  if(s[0]==='[' || (s[0]==='"' && s.includes('['))){
+    try{
+      let parsed=JSON.parse(s);
+      if(typeof parsed==='string') parsed=JSON.parse(parsed); // double-encoded
+      if(Array.isArray(parsed)) return parsed.map(x=>String(x).trim()).filter(Boolean);
+    }catch(e){ /* not valid JSON -> fall through to text handling */ }
+    // salvage: strip [ ] and split on "," between quotes
+    if(/^\[.*\]$/.test(s)){
+      const inner=s.replace(/^\[|\]$/g,'');
+      const items=inner.split(/"\s*,\s*"/).map(x=>x.replace(/^["']|["']$/g,'').replace(/\\"/g,'"').trim()).filter(Boolean);
+      if(items.length) return items;
+    }
+  }
+  // plain text fallback
+  return s
+    .split(/\r?\n|;|•|\|(?!\|)|(?:\s)\d+[.)]\s/g)
+    .map(x=>x.replace(/^[-•*\d.)\s]+/, '').trim())
+    .filter(Boolean);
+}
+/* "1.9M" / "745K" / "48,210" -> number */
+function parseViews(v){
+  if(v==null) return 0;
+  const s=String(v).trim().replace(/,/g,'');
+  const m=s.match(/([\d.]+)\s*([kKmMbB])?/); if(!m) return 0;
+  let n=parseFloat(m[1])||0; const u=(m[2]||'').toLowerCase();
+  if(u==='k')n*=1e3; else if(u==='m')n*=1e6; else if(u==='b')n*=1e9; return n;
+}
+function fmtViews(n){
+  if(n>=1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'')+'K';
+  return String(Math.round(n));
+}
+const G=(o,keys)=>{ for(const k of keys){ if(o[k]!==undefined&&o[k]!==null&&o[k]!=='') return o[k]; } return ''; };
+
+/* extract a YouTube Video_ID from an explicit field or any URL-ish value */
+function extractVideoId(r){
+  let id = G(r,['Video_ID','video_id','videoId','VideoId','id']);
+  if(id){
+    const m=String(id).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
+    return m ? m[1] : String(id).trim();
+  }
+  const url = G(r,['Video_URL','url','URL','link','Link']);
+  if(url){ const m=String(url).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/); if(m) return m[1]; }
+  return '';
+}
+
+/* one sheet row -> dashboard data object used by render(). 100% API-driven, nothing hardcoded. */
+function normalizeSheetRow(row){
+  const r = (row&&row.json)?row.json:row;
+  const title   = G(r,['Video_Title','title','Title']) || '(ไม่มีชื่อเรื่อง)';
+  const channel = G(r,['Channel_Name','channel','Channel']) || '-';
+  // Sentiment_Score kept AS-IS (may be negative). Only normalise a 0-1 fraction to a readable integer.
+  let rawScore = G(r,['Sentiment_Score','score']);
+  let score = parseFloat(rawScore);
+  if(isNaN(score)) score = 0;
+  else if(score>-1 && score<1 && score!==0) score = Math.round(score*100); // 0-1 fraction -> integer
+  else score = Math.round(score);
+  const vSent = G(r,['Video_Sentiment','sentiment_label','sentiment']);
+  const posCount = parseInt(G(r,['Positive_Count']))||0;
+  const negCount = parseInt(G(r,['Negative_Count']))||0;
+  const rawDuration = G(r,['Duration','duration']);
+  const isLive = /live|สด/i.test(String(rawDuration)) || /live|สด/i.test(String(vSent));
+  const duration = isoDuration(rawDuration);   // PT1H23M15S -> 1:23:15
+
+  // issues: Critical (high) + Economy (mid)
+  const crit=splitItems(G(r,['Critical_Issues','critical_issues']));
+  const econ=splitItems(G(r,['Economy_Issues','economy_issues']));
+  const issues=[];
+  if(crit.length) issues.push(['🔴','ปัญหาวิกฤต (Critical)','high',crit.length,crit]);
+  if(econ.length) issues.push(['💰','ปัญหาเชิงต้นทุน (Economy)','mid',econ.length,econ]);
+
+  const chips=[]; if(vSent) chips.push(String(vSent)); if(duration) chips.push(duration);
+
+  return {
+    isLive, duration, type: isLive?'ไลฟ์สด':'วิดีโอ',
+    videoId: extractVideoId(r),
+    title, channel, avatar:(channel[0]||'?').toUpperCase(), subs:'',
+    publishDate: fmtDate(G(r,['Publish_Date','publishDate','published'])),
+    views: String(G(r,['Views','views'])||'-'), viewsNum: String(G(r,['Views','views'])||'-'),
+    likes:'-', comments:'-', engage:'-',
+    summary: G(r,['Summary','summary']) || '(ไม่มีบทสรุป)',
+    chips, videoSentiment: String(vSent||''), score,
+    positive: splitItems(G(r,['Positive_Points','positive'])).map(t=>[t,'','']),
+    negative: splitItems(G(r,['Negative_Points','negative'])).map(t=>[t,'','']),
+    issues,
+    recommendations: splitItems(G(r,['Planner_Actions','recommendations','actions'])).map(a=>[a,'']),
+    topComments: [],
+    posCount, negCount,
+    analysisDate: G(r,['Analysis_Date','analysisDate','date']),
+  };
+}
+
+/* fallback: pull the newest analyzed row from the sheet webhook (GET) */
+async function fetchLatestRow(){
+  try{
+    const res=await fetch(DASHBOARD_DATA_URL,{method:'GET'});
+    if(!res.ok) return null;
+    const text=await res.text();
+    let raw; try{ raw=text?JSON.parse(text):[]; }catch(e){ return null; }
+    console.log('[dashboard-data response]', raw);
+    let arr = Array.isArray(raw) ? raw
+            : Array.isArray(raw.data) ? raw.data
+            : Array.isArray(raw.rows) ? raw.rows
+            : Array.isArray(raw.items) ? raw.items
+            : [raw];
+    const rows = arr.map(normalizeSheetRow)
+                    .filter(r=>(r.title&&r.title!=='(ไม่มีชื่อเรื่อง)')||r.summary!=='(ไม่มีบทสรุป)');
+    if(!rows.length) return null;
+    rows.sort((a,b)=>String(b.analysisDate).localeCompare(String(a.analysisDate)));
+    return rows[0];
+  }catch(e){ return null; }
+}
+
+/* ====================================================================
+   CSV EXPORT  (saves the currently displayed analysis result)
+   ==================================================================== */
+function csvEscape(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+function resultToCSV(d){
+  const join = a => Array.isArray(a) ? a.join(' | ') : (a||'');
+  const crit = (d.issues.find(i=>i[2]==='high')||[])[4];
+  const econ = (d.issues.find(i=>i[2]==='mid')||[])[4];
+  const headers=['Video_Title','Channel_Name','Publish_Date','Views','Duration','Summary','Sentiment_Score','Video_Sentiment','Positive_Points','Negative_Points','Critical_Issues','Economy_Issues','Planner_Actions','Positive_Count','Negative_Count','Analysis_Date'];
+  const row=[
+    d.title, d.channel, d.publishDate, d.views, d.duration, d.summary,
+    d.score, (d.chips&&d.chips[0])||'',
+    d.positive.map(p=>p[0]).join(' | '),
+    d.negative.map(p=>p[0]).join(' | '),
+    join(crit), join(econ),
+    d.recommendations.map(r=>r[0]).join(' | '),
+    d.posCount!=null?d.posCount:d.positive.length,
+    d.negCount!=null?d.negCount:d.negative.length,
+    d.analysisDate || new Date().toISOString().slice(0,10)
+  ];
+  return headers.join(',')+'\r\n'+row.map(csvEscape).join(',')+'\r\n';
+}
+function downloadCSV(){
+  if(!lastResult){ return; }
+  const csv='﻿'+resultToCSV(lastResult);   // BOM so Excel shows Thai correctly
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const name=(lastResult.title||'analysis').slice(0,50).replace(/[\\/:*?"<>|]+/g,'').trim()||'analysis';
+  a.download='youtube-analysis_'+name+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ---------- Events ---------- */
+$('analyzeBtn').addEventListener('click',analyzeLive);
+$('urlInput').addEventListener('keydown',e=>{ if(e.key==='Enter') analyzeLive(); });
+$('csvBtn').addEventListener('click',downloadCSV);
+document.querySelectorAll('.sample-links a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    const map={live:'https://www.youtube.com/watch?v=live_stream_demo',cook:'https://www.youtube.com/watch?v=cooking_demo',tech:'https://www.youtube.com/watch?v=tech_review_demo'};
+    $('urlInput').value=map[a.dataset.sample]; analyze();
+  });
+});
+document.querySelectorAll('.ctab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.ctab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  renderComments(t.dataset.tab);
+}));
+</script>
+</body>
+</html>
