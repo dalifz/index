@@ -1653,7 +1653,7 @@ function renderNewRestaurant(name, mapsUrl, now, rating, reviewCount, address){
 
 function updateNewRestLang(){
   const lbl = document.getElementById('newRestRefreshLabel');
-  if(lbl) lbl.textContent = LANG==='th' ? 'รีเฟรชอัตโนมัติทุก 1 ชั่วโมง' : 'Auto-refresh every 1 hour';
+  if(lbl) lbl.textContent = LANG==='th' ? 'รีเฟรชอัตโนมัติทุก 1 วัน' : 'Auto-refresh every 1 Day';
   const fetched = document.getElementById('newRestFetched');
   if(fetched && fetched.textContent && !fetched.textContent.endsWith('—')){
     const time = fetched.textContent.replace(/^[^:]+:\s*/,'');
