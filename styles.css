@@ -99,7 +99,7 @@ body {
 }
 
 /* ---- Main ---- */
-.main { padding: 24px 28px 40px; max-width: 1500px; }
+.main { padding: 24px 32px 40px; width: 100%; }
 .main-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
 .main-head h2 { margin: 0; font-size: 22px; font-weight: 700; }
 .main-head .sub { color: var(--muted); font-size: 13px; }
