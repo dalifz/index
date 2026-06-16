@@ -146,13 +146,18 @@ body {
 }
 .card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
 .card .cap { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
-.card .chart-wrap { position: relative; height: 280px; }
-.card .chart-wrap.sm { height: 180px; }
+.card .chart-wrap { position: relative; height: 320px; }
+.card .chart-wrap.sm { height: 232px; }
+.card .chart-wrap.lg { height: 360px; }
 
 .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
 .row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
 .span-2 { grid-column: span 2; }
 .full  { grid-column: 1 / -1; margin-top: 16px; }
+
+/* detail page: charts are the star (big), table is secondary detail */
+.charts-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.charts-1 { display: grid; grid-template-columns: 1fr; gap: 18px; }
 
 .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
 .legend span { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
@@ -161,8 +166,8 @@ body {
 #status { padding: 40px; text-align: center; color: var(--muted); }
 #status.error { color: var(--down); }
 
-/* ---- Data table (detail pages) ---- */
-.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin-top: 4px; }
+/* ---- Data table (detail pages) — secondary, capped height ---- */
+.table-wrap { overflow: auto; max-height: 540px; border-radius: 12px; border: 1px solid var(--border); margin-top: 4px; }
 table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
 table.data thead th {
   position: sticky; top: 0; background: var(--panel-2); color: var(--text);
@@ -181,6 +186,7 @@ table.data td.na  { color: var(--muted); }
   .grid { grid-template-columns: 1fr; }
   .row-3 { grid-template-columns: 1fr 1fr; }
   .row-4 { grid-template-columns: 1fr 1fr; }
+  .charts-2 { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
 @media (max-width: 720px) {
