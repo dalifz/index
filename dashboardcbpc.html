@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cabal Dashboard — CBPC</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { display: grid; place-items: center; min-height: 100vh; }
+    .hub { width: 100%; max-width: 920px; padding: 40px 24px; text-align: center; }
+    .hub h1 { font-size: 30px; font-weight: 800; margin: 0 0 6px; }
+    .hub .tag { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .entry {
+      display: block; text-decoration: none; color: var(--text);
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+      padding: 28px 24px; box-shadow: var(--shadow); transition: transform .15s, border-color .15s;
+    }
+    .entry:hover { transform: translateY(-4px); }
+    .entry .logo-wrap { height: 110px; display: grid; place-items: center; margin-bottom: 16px; }
+    .entry img { max-width: 230px; max-height: 110px; }
+    .entry .name { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+    .entry .desc { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .entry .go { margin-top: 16px; display: inline-block; font-weight: 700; padding: 9px 22px; border-radius: 11px; color: #06231a; }
+    .entry.th { } .entry.sea { }
+    .entry.th:hover  { border-color: #2ee59d; box-shadow: 0 14px 40px rgba(46,229,157,.22); }
+    .entry.sea:hover { border-color: #25d3c0; box-shadow: 0 14px 40px rgba(37,211,192,.22); }
+    .entry.th  .logo-wrap img { filter: drop-shadow(0 0 14px rgba(46,229,157,.55)); }
+    .entry.sea .logo-wrap img { filter: drop-shadow(0 0 14px rgba(37,211,192,.55)); }
+    .entry.th  .go { background: linear-gradient(135deg,#3df0a4,#0c7d54); }
+    .entry.sea .go { background: linear-gradient(135deg,#2bf0d4,#0a8fa6); }
+    .foot { margin-top: 30px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-theme="th">
+  <div class="hub">
+    <h1>CABAL Dashboard</h1>
+    <div class="tag">CBPC · ภาพรวม 40 วัน · อัปเดตทุกวัน 18:00</div>
+
+    <div class="cards">
+      <a class="entry th" href="th.html">
+        <div class="logo-wrap"><img src="logo_CBPC_TH.png" alt="CBPC-TH"></div>
+        <div class="name">CBPC-TH</div>
+        <div class="desc">DAU · CCU · Revenue · ALZ · FG</div>
+        <span class="go">เข้าดู Dashboard →</span>
+      </a>
+
+      <a class="entry sea" href="sea.html">
+        <div class="logo-wrap"><img src="logo_CBPC-SEA.png" alt="CBPC-SEA"></div>
+        <div class="name">CBPC-SEA</div>
+        <div class="desc">DAU · CCU · Revenue · ALZ · FG</div>
+        <span class="go">เข้าดู Dashboard →</span>
+      </a>
+    </div>
+
+    <div class="foot">ข้อมูลจาก Google Sheet · auto-update 18:00 (GMT+7)</div>
+  </div>
+</body>
+</html>
