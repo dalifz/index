@@ -138,6 +138,17 @@ body {
 .pill.down { color: var(--down); background: rgba(255,107,107,.14); }
 .pill.flat { color: var(--muted); background: var(--panel-2); }
 
+/* Revenue target card (red, prominent) */
+.stat.target {
+  border-color: rgba(255,77,77,.45);
+  background: linear-gradient(160deg, rgba(255,77,77,.12), var(--panel) 60%);
+}
+.stat.target .value { color: #ff6b6b; }
+.stat .ic.red { background: rgba(255,77,77,.16); color: #ff6b6b; }
+.target-bar { margin-top: 10px; height: 7px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
+.target-bar span { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #ff4d4d, #ff8a3d); }
+.target-sub { margin-top: 6px; font-size: 11px; color: var(--muted); }
+
 /* ---- Chart grid ---- */
 .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
 .card {
