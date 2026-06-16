@@ -48,8 +48,10 @@ function render(product, data) {
   renderKpis(p);
   drawMain(labels, p['DAU'] || [], p['CCU'] || []);
   drawArea('revChart', labels, p['Revenue'] || [], ACCENT);
-  drawArea('alzChart', labels, p['ALZ Daily'] || [], ACCENT, true);
-  drawArea('fgChart',  labels, p['FG Daily']  || [], ACCENT2, true);
+  drawArea('alzChart',   labels, p['ALZ Daily'] || [], ACCENT,  true);
+  drawArea('alz30Chart', labels, p['ALZ 30D']   || [], ACCENT,  true);
+  drawArea('fgChart',    labels, p['FG Daily']  || [], ACCENT2, true);
+  drawArea('fg30Chart',  labels, p['FG 30D']    || [], ACCENT2, true);
   drawBar(p['Revenue'] || [], data.days);
 }
 
