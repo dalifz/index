@@ -22,10 +22,10 @@
 
       <div class="nav-section">Metrics</div>
       <nav class="nav">
-        <a href="#overview">Overview</a>
-        <a href="#trend">DAU / CCU Trend</a>
-        <a href="#economy">ALZ / FG</a>
-        <a href="#revenue">Revenue</a>
+        <a href="th.html" class="active">Overview</a>
+        <a href="detail.html?p=CBPC-TH&g=dauccu">DAU / CCU Trend</a>
+        <a href="detail.html?p=CBPC-TH&g=alzfg">ALZ / FG</a>
+        <a href="detail.html?p=CBPC-TH&g=revenue">Revenue</a>
       </nav>
 
       <div class="side-foot">
@@ -60,17 +60,30 @@
         </div>
       </section>
 
-      <section class="row-3" id="economy">
+      <section class="row-4" id="economy">
         <div class="card">
           <h3>ALZ Daily</h3>
           <div class="cap">เงินไหลเข้า/ออกต่อวัน</div>
           <div class="chart-wrap sm"><canvas id="alzChart"></canvas></div>
         </div>
         <div class="card">
+          <h3>ALZ 30D</h3>
+          <div class="cap">ยอดสะสม 30 วัน</div>
+          <div class="chart-wrap sm"><canvas id="alz30Chart"></canvas></div>
+        </div>
+        <div class="card">
           <h3>FG Daily</h3>
           <div class="cap">Force Gem รายวัน</div>
           <div class="chart-wrap sm"><canvas id="fgChart"></canvas></div>
         </div>
+        <div class="card">
+          <h3>FG 30D</h3>
+          <div class="cap">Force Gem สะสม 30 วัน</div>
+          <div class="chart-wrap sm"><canvas id="fg30Chart"></canvas></div>
+        </div>
+      </section>
+
+      <section class="full">
         <div class="card">
           <h3>Revenue / 7 วันล่าสุด</h3>
           <div class="cap">รายได้รายวัน</div>
