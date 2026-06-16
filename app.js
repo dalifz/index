@@ -10,7 +10,11 @@ var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb
 function cssVar(name) {
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
-var ACCENT, ACCENT2, GRID, TICK;
+var ACCENT, ACCENT2, GRID, TICK, PRODUCT, CUR;
+
+// Monthly revenue targets + currency unit per product.
+var TARGETS  = { 'CBPC-TH': 6000000, 'CBPC-SEA': 200000 };
+var CURRENCY = { 'CBPC-TH': '฿', 'CBPC-SEA': '$' };
 
 // ---- Boot ------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
@@ -45,7 +49,10 @@ function render(product, data) {
 
   var labels = data.days.map(shortDate);
 
-  renderKpis(p);
+  PRODUCT = product;
+  CUR = CURRENCY[product] || '';
+
+  renderKpis(product, p, data.days);
   drawMain(labels, p['DAU'] || [], p['CCU'] || []);
   drawArea('revChart',   labels, p['Revenue']   || [], colorFor('Revenue'));
   drawArea('alzChart',   labels, p['ALZ Daily'] || [], colorFor('ALZ Daily'), true);
@@ -53,15 +60,44 @@ function render(product, data) {
   drawArea('fgChart',    labels, p['FG Daily']  || [], colorFor('FG Daily'),  true);
   drawArea('fg30Chart',  labels, p['FG 30D']    || [], colorFor('FG 30D'),    true);
   drawBar(p['Revenue'] || [], data.days);
+  drawTarget(product, p, data.days);
 }
 
-function renderKpis(p) {
+function renderKpis(product, p, days) {
   var wrap = document.getElementById('kpis');
   wrap.innerHTML = '';
   wrap.appendChild(heroCard('DAU', 'Daily Active Users', kpi(p['DAU']), 'a'));
   wrap.appendChild(heroCard('CCU', 'Concurrent Users',   kpi(p['CCU']), 'b'));
-  wrap.appendChild(statCard('💰', 'Revenue', kpi(p['Revenue'])));
-  wrap.appendChild(statCard('📈', 'ALZ 30D', kpi(p['ALZ 30D'])));
+  wrap.appendChild(statCard('💰', 'Revenue', kpi(p['Revenue']), true));
+  wrap.appendChild(targetCard(product, p, days));
+}
+
+// month-to-date revenue (sum of latest calendar month in the window)
+function revenueMTD(p, days) {
+  var rev = p['Revenue'] || [];
+  if (!days.length) return 0;
+  var month = days[days.length - 1].slice(0, 7); // "YYYY-MM"
+  var sum = 0;
+  for (var i = 0; i < days.length; i++) {
+    if (days[i].slice(0, 7) === month && rev[i] != null) sum += rev[i];
+  }
+  return sum;
+}
+
+function targetCard(product, p, days) {
+  var target = TARGETS[product] || 0;
+  var mtd = revenueMTD(p, days);
+  var pct = target ? (mtd / target) * 100 : 0;
+  var div = document.createElement('div');
+  div.className = 'stat target';
+  div.innerHTML =
+    '<div class="row"><div class="ic red">🎯</div>' +
+    '<div class="label">Revenue Target (เดือนนี้)</div>' +
+    '<div class="pill down">' + pct.toFixed(1) + '%</div></div>' +
+    '<div class="value">' + fmtMoney(mtd) + '</div>' +
+    '<div class="target-bar"><span style="width:' + Math.min(100, pct).toFixed(1) + '%"></span></div>' +
+    '<div class="target-sub">เป้า ' + fmtMoney(target) + '</div>';
+  return div;
 }
 
 function kpi(series) {
@@ -91,15 +127,16 @@ function heroCard(label, sub, k, variant) {
   return div;
 }
 
-function statCard(icon, label, k) {
+function statCard(icon, label, k, isMoney) {
   var d = deltaInfo(k.delta);
   var div = document.createElement('div');
   div.className = 'stat';
+  var val = k.value == null ? '—' : (isMoney ? fmtMoney(k.value) : fmtNum(k.value));
   div.innerHTML =
     '<div class="row"><div class="ic">' + icon + '</div>' +
     '<div class="label">' + label + '</div>' +
     '<div class="pill ' + d.cls + '">' + d.html + '</div></div>' +
-    '<div class="value">' + (k.value == null ? '—' : fmtNum(k.value)) + '</div>';
+    '<div class="value">' + val + '</div>';
   return div;
 }
 
@@ -175,17 +212,23 @@ function drawMain(labels, dau, ccu) {
 
 function drawArea(id, labels, series, color, allowNeg) {
   var c = document.getElementById(id);
+  var money = (id === 'revChart'); // Revenue trend shows currency unit
+  var f = money ? fmtMoney : fmtNum;
   new Chart(c, {
     type: 'line',
     data: { labels: labels, datasets: [
       { label: id, data: series, borderColor: color, backgroundColor: gradientFill(c.getContext('2d'), color),
         fill: true, tension: .4, pointRadius: 0, borderWidth: 2.5, spanGaps: true }
     ] },
-    options: baseOpts({ scales: {
-      x: { grid: { color: GRID }, ticks: { color: TICK, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
-      y: { grid: { color: GRID, drawBorder: false }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return fmtNum(v); } },
-           beginAtZero: !allowNeg }
-    } })
+    options: baseOpts({
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
+        return (x.parsed.y == null ? '—' : f(x.parsed.y)); } } } },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { color: TICK, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
+        y: { grid: { color: GRID, drawBorder: false }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return f(v); } },
+             beginAtZero: !allowNeg }
+      }
+    })
   });
 }
 
@@ -199,11 +242,46 @@ function drawBar(revenue, days) {
   g.addColorStop(0, ACCENT); g.addColorStop(1, hexToRgba(ACCENT2, 0.6));
   new Chart(c, {
     type: 'bar',
-    data: { labels: labels, datasets: [{ label: 'Revenue', data: data, backgroundColor: g, borderRadius: 6, maxBarThickness: 26 }] },
-    options: baseOpts({ scales: {
-      x: { grid: { display: false }, ticks: { color: TICK } },
-      y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return fmtNum(v); } }, beginAtZero: true }
-    } })
+    data: { labels: labels, datasets: [
+      { label: 'Revenue', data: data, backgroundColor: g, borderRadius: 6, maxBarThickness: 30, order: 2 },
+      { label: 'Trend', data: data, type: 'line', borderColor: '#ffce5c', backgroundColor: 'transparent',
+        borderWidth: 2.5, tension: .35, pointRadius: 3, pointBackgroundColor: '#ffce5c', fill: false, order: 1 }
+    ] },
+    options: baseOpts({
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
+        return x.dataset.label + ': ' + fmtMoney(x.parsed.y); } } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: TICK } },
+        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return fmtMoney(v); } }, beginAtZero: true }
+      }
+    })
+  });
+}
+
+// Donut gauge: month-to-date revenue vs target (red = achieved).
+function drawTarget(product, p, days) {
+  var c = document.getElementById('targetChart');
+  if (!c) return;
+  var target = TARGETS[product] || 0;
+  var mtd = revenueMTD(p, days);
+  var pct = target ? (mtd / target) * 100 : 0;
+  var achieved = Math.max(0, Math.min(target, mtd));
+  var remaining = Math.max(0, target - mtd);
+  new Chart(c, {
+    type: 'doughnut',
+    data: { labels: ['ทำได้', 'เหลือ'], datasets: [{
+      data: [achieved, remaining],
+      backgroundColor: ['#ff4d4d', 'rgba(255,255,255,.07)'],
+      borderColor: 'transparent', cutout: '72%'
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function (x) { return x.label + ': ' + fmtMoney(x.parsed); } } },
+        centerText: { pct: pct, sub: fmtMoney(mtd) + ' / ' + fmtMoney(target) }
+      }
+    }
   });
 }
 
@@ -224,6 +302,26 @@ function installGlowDefaults() {
     },
     afterDatasetDraw: function (chart) { chart.ctx.restore(); }
   });
+
+  // Center % label for the target doughnut gauge.
+  Chart.register({
+    id: 'centerText',
+    afterDraw: function (chart) {
+      var opt = chart.config.options.plugins && chart.config.options.plugins.centerText;
+      if (!opt) return;
+      var a = chart.chartArea, ctx = chart.ctx;
+      var cx = (a.left + a.right) / 2, cy = (a.top + a.bottom) / 2;
+      ctx.save();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ff5d5d';
+      ctx.font = '700 30px -apple-system, Segoe UI, Roboto, sans-serif';
+      ctx.fillText(opt.pct.toFixed(1) + '%', cx, cy - 8);
+      ctx.fillStyle = '#9aa3b2';
+      ctx.font = '500 11px -apple-system, Segoe UI, Roboto, sans-serif';
+      ctx.fillText('ของเป้า', cx, cy + 16);
+      ctx.restore();
+    }
+  });
 }
 
 // ---- Utils -----------------------------------------------------------------
@@ -231,6 +329,10 @@ function lastNonNull(arr, beforeIndex) {
   var start = (beforeIndex == null ? arr.length : beforeIndex) - 1;
   for (var i = start; i >= 0; i--) if (arr[i] != null) return { value: arr[i], index: i };
   return { value: null, index: -1 };
+}
+function fmtMoney(n) {
+  if (n == null) return '—';
+  return (CUR || '') + fmtNum(n);
 }
 function fmtNum(n) {
   if (n == null) return '—';

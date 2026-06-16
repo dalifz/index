@@ -28,6 +28,10 @@ var METRIC_CAP = {
 function colorFor(m) { return m === 'DAU' ? ACCENT : (METRIC_COLOR[m] || ACCENT); }
 function capFor(m) { return METRIC_CAP[m] || ''; }
 
+var TARGETS  = { 'CBPC-TH': 6000000, 'CBPC-SEA': 200000 };
+var CURRENCY = { 'CBPC-TH': '฿', 'CBPC-SEA': '$' };
+var CUR = '';
+
 var ACCENT, ACCENT2, GRID, TICK;
 
 function qs(name, def) {
@@ -40,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var groupKey = qs('g', 'dauccu');
   if (!GROUPS[groupKey]) groupKey = 'dauccu';
   var group = GROUPS[groupKey];
+  CUR = CURRENCY[product] || '';
 
   // Theme + branding by product (before charts so CSS vars resolve).
   document.body.dataset.theme = (product === 'CBPC-SEA') ? 'sea' : 'th';
@@ -95,6 +100,16 @@ function render(product, group, data) {
     drawArea(cid, labels, p[metric] || [], color);
   });
 
+  // Revenue detail also gets a 7-day bar + trend line card.
+  if (group.metrics.indexOf('Revenue') !== -1) {
+    var bcard = document.createElement('div');
+    bcard.className = 'card';
+    bcard.innerHTML = '<h3>Revenue / 7 วันล่าสุด</h3><div class="cap">รายได้รายวัน + trend line</div>' +
+      '<div class="chart-wrap lg"><canvas id="c_RevenueBar"></canvas></div>';
+    grid.appendChild(bcard);
+    drawRevenueBar('c_RevenueBar', p['Revenue'] || [], data.days);
+  }
+
   buildTable(product, group, p, data.days);
 }
 
@@ -113,7 +128,8 @@ function buildTable(product, group, p, days) {
       // ALZ/FG = in-game currency: ลบ = burn ออกดี = เขียว(pos), บวก = เฟ้อ = แดง(neg)
       var isCurrency = /^(ALZ|FG)/.test(m);
       var cls = isCurrency ? (v < 0 ? 'pos' : (v > 0 ? 'neg' : '')) : '';
-      rows += '<td class="' + cls + '">' + fmtFull(v) + '</td>';
+      var disp = (m === 'Revenue') ? (CUR + fmtFull(v)) : fmtFull(v);
+      rows += '<td class="' + cls + '">' + disp + '</td>';
     });
     rows += '</tr>';
   }
@@ -125,6 +141,7 @@ function cssVar(n) { return getComputedStyle(document.body).getPropertyValue(n).
 
 function drawArea(id, labels, series, color) {
   var c = document.getElementById(id);
+  var money = (id === 'c_Revenue');
   var ctx = c.getContext('2d');
   var g = ctx.createLinearGradient(0, 0, 0, 360);
   g.addColorStop(0, hexToRgba(color, 0.40)); g.addColorStop(1, hexToRgba(color, 0.01));
@@ -139,10 +156,38 @@ function drawArea(id, labels, series, color) {
       responsive: true, maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
-        return (x.parsed.y == null ? '—' : fmtFull(x.parsed.y)); } } } },
+        return (x.parsed.y == null ? '—' : (money ? CUR + fmtNum(x.parsed.y) : fmtFull(x.parsed.y))); } } } },
       scales: {
         x: { grid: { color: GRID }, ticks: { color: TICK, maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } },
-        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return fmtNum(v); } } }
+        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return (money ? CUR : '') + fmtNum(v); } } }
+      }
+    }
+  });
+}
+
+function drawRevenueBar(id, revenue, days) {
+  var n = Math.min(7, revenue.length);
+  var data = revenue.slice(revenue.length - n);
+  var labels = days.slice(days.length - n).map(shortDate);
+  var c = document.getElementById(id);
+  var ctx = c.getContext('2d');
+  var g = ctx.createLinearGradient(0, 0, 0, 360);
+  g.addColorStop(0, ACCENT); g.addColorStop(1, hexToRgba(ACCENT, 0.25));
+  new Chart(c, {
+    type: 'bar',
+    data: { labels: labels, datasets: [
+      { label: 'Revenue', data: data, backgroundColor: g, borderRadius: 6, maxBarThickness: 40, order: 2 },
+      { label: 'Trend', data: data, type: 'line', borderColor: '#ffce5c', backgroundColor: 'transparent',
+        borderWidth: 2.5, tension: .35, pointRadius: 3, pointBackgroundColor: '#ffce5c', fill: false, order: 1 }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
+        return x.dataset.label + ': ' + CUR + fmtNum(x.parsed.y); } } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: TICK } },
+        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return CUR + fmtNum(v); } }, beginAtZero: true }
       }
     }
   });
