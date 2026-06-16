@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CBPC-SEA · Cabal Dashboard</title>
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="icon" href="logo_CBPC-SEA.png">
+  <link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body data-theme="sea">
+  <button id="showSide" title="แสดงเมนู">☰</button>
   <div class="shell">
     <aside class="sidebar">
       <div class="brand">
@@ -29,77 +31,59 @@
       </nav>
 
       <div class="side-foot">
-        <a class="dl-btn" href="#" onclick="window.print();return false;">⬇ Export PDF</a>
+        <button id="toggleSide" class="side-btn">« ซ่อนเมนู</button>
+        <div class="profile"><span class="avatar">🛡️</span><div><div class="pname">Admin</div><div class="prole">Administrator</div></div></div>
       </div>
     </aside>
 
     <main class="main">
       <div class="main-head" id="overview">
-        <h2>CBPC-SEA</h2>
-        <span class="sub">· ภาพรวม 40 วันล่าสุด</span>
-        <span class="updated" id="updatedAt">—</span>
+        <div class="head-title">
+          <h2>CBPC-SEA Overview</h2>
+          <div class="updated" id="updatedAt">—</div>
+        </div>
+        <div class="head-actions">
+          <div class="range" id="range">
+            <button data-n="7">7D</button>
+            <button data-n="14">14D</button>
+            <button data-n="30">30D</button>
+            <button data-n="40">40D</button>
+          </div>
+          <button id="refresh" class="icon-btn" title="รีเฟรช">⟳</button>
+          <a class="dl-btn sm" href="#" onclick="window.print();return false;">⬇ Export PDF</a>
+        </div>
       </div>
 
-      <div id="status">กำลังโหลด…</div>
+      <section class="insights" id="insights"></section>
+      <div id="status"><div class="skeleton"></div><div class="skeleton"></div></div>
+
       <section class="kpis" id="kpis"></section>
 
       <section class="grid" id="trend">
         <div class="card">
-          <h3>DAU vs CCU</h3>
-          <div class="cap">Active users รายวัน</div>
-          <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
-          <div class="legend">
-            <span><i style="background:var(--accent)"></i> DAU</span>
-            <span><i style="background:#37c6ff"></i> CCU</span>
+          <div class="card-head">
+            <h3>DAU vs CCU Trend</h3>
+            <div class="legend inline">
+              <span><i style="background:var(--accent)"></i> DAU</span>
+              <span><i style="background:#37c6ff"></i> CCU</span>
+            </div>
           </div>
+          <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
         </div>
         <div class="card" id="revenue">
           <h3>Revenue Trend</h3>
-          <div class="cap">รายได้รายวัน</div>
+          <div class="cap">รายได้รายวัน ($)</div>
           <div class="chart-wrap"><canvas id="revChart"></canvas></div>
         </div>
       </section>
 
-      <section class="row-4" id="economy">
-        <div class="card">
-          <h3>ALZ Daily</h3>
-          <div class="cap">เงินไหลเข้า/ออกต่อวัน</div>
-          <div class="chart-wrap sm"><canvas id="alzChart"></canvas></div>
-        </div>
-        <div class="card">
-          <h3>ALZ 30D</h3>
-          <div class="cap">ยอดสะสม 30 วัน</div>
-          <div class="chart-wrap sm"><canvas id="alz30Chart"></canvas></div>
-        </div>
-        <div class="card">
-          <h3>FG Daily</h3>
-          <div class="cap">Force Gem รายวัน</div>
-          <div class="chart-wrap sm"><canvas id="fgChart"></canvas></div>
-        </div>
-        <div class="card">
-          <h3>FG 30D</h3>
-          <div class="cap">Force Gem สะสม 30 วัน</div>
-          <div class="chart-wrap sm"><canvas id="fg30Chart"></canvas></div>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="card">
-          <h3>Revenue / 7 วันล่าสุด</h3>
-          <div class="cap">รายได้รายวัน + trend line ($)</div>
-          <div class="chart-wrap sm"><canvas id="barChart"></canvas></div>
-        </div>
-        <div class="card">
-          <h3>Revenue vs Target</h3>
-          <div class="cap">เป้าเดือนนี้ 200,000 $</div>
-          <div class="chart-wrap sm"><canvas id="targetChart"></canvas></div>
-        </div>
-      </section>
+      <section class="row-4" id="metrics"></section>
+      <section class="full" id="rev7"></section>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>window.DASH_PRODUCT = 'CBPC-SEA';</script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
