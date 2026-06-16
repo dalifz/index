@@ -13,6 +13,21 @@ var GROUPS = {
 };
 
 var LOGOS = { 'CBPC-TH': 'logo_CBPC_TH.png', 'CBPC-SEA': 'logo_CBPC-SEA.png' };
+
+// Distinct hue per metric (keep in sync with app.js).
+var METRIC_COLOR = {
+  'DAU': '#2ee59d', 'CCU': '#37c6ff', 'Revenue': '#ffce5c',
+  'ALZ Daily': '#2ee59d', 'ALZ 30D': '#37c6ff',
+  'FG Daily': '#b98bff', 'FG 30D': '#ff7ab6'
+};
+var METRIC_CAP = {
+  'DAU': 'Daily Active Users', 'CCU': 'Concurrent Users', 'Revenue': 'รายได้รายวัน',
+  'ALZ Daily': 'เงินไหลเข้า/ออกต่อวัน', 'ALZ 30D': 'ยอดสะสม 30 วัน',
+  'FG Daily': 'Force Gem รายวัน', 'FG 30D': 'Force Gem สะสม 30 วัน'
+};
+function colorFor(m) { return m === 'DAU' ? ACCENT : (METRIC_COLOR[m] || ACCENT); }
+function capFor(m) { return METRIC_CAP[m] || ''; }
+
 var ACCENT, ACCENT2, GRID, TICK;
 
 function qs(name, def) {
@@ -65,16 +80,17 @@ function render(product, group, data) {
 
   var labels = data.days.map(shortDate);
   var grid = document.getElementById('charts');
-  grid.className = 'row-' + (group.metrics.length >= 4 ? '4' : (group.metrics.length === 1 ? '3' : '3'));
+  // Charts are the star for presentations: big, 2-up (single metric = full width).
+  grid.className = (group.metrics.length === 1) ? 'charts-1' : 'charts-2';
   grid.innerHTML = '';
 
-  group.metrics.forEach(function (metric, i) {
-    var color = (i % 2 === 0) ? ACCENT : ACCENT2;
+  group.metrics.forEach(function (metric) {
+    var color = colorFor(metric);
     var card = document.createElement('div');
     card.className = 'card';
-    if (group.metrics.length === 1) card.className += ' span-2';
     var cid = 'c_' + metric.replace(/\s+/g, '_');
-    card.innerHTML = '<h3>' + metric + '</h3><div class="chart-wrap sm"><canvas id="' + cid + '"></canvas></div>';
+    card.innerHTML = '<h3>' + metric + '</h3><div class="cap">' + capFor(metric) + '</div>' +
+      '<div class="chart-wrap lg"><canvas id="' + cid + '"></canvas></div>';
     grid.appendChild(card);
     drawArea(cid, labels, p[metric] || [], color);
   });
@@ -110,13 +126,14 @@ function cssVar(n) { return getComputedStyle(document.body).getPropertyValue(n).
 function drawArea(id, labels, series, color) {
   var c = document.getElementById(id);
   var ctx = c.getContext('2d');
-  var g = ctx.createLinearGradient(0, 0, 0, 200);
-  g.addColorStop(0, hexToRgba(color, 0.35)); g.addColorStop(1, hexToRgba(color, 0.01));
+  var g = ctx.createLinearGradient(0, 0, 0, 360);
+  g.addColorStop(0, hexToRgba(color, 0.40)); g.addColorStop(1, hexToRgba(color, 0.01));
+  var stroke = strokeGradient(ctx, c.clientWidth || 600, color, lighten(color, 70));
   new Chart(c, {
     type: 'line',
     data: { labels: labels, datasets: [
-      { label: id, data: series, borderColor: color, backgroundColor: g,
-        fill: true, tension: .4, pointRadius: 0, borderWidth: 2.5, spanGaps: true }
+      { label: id, data: series, borderColor: stroke, backgroundColor: g,
+        fill: true, tension: .4, pointRadius: 0, borderWidth: 3, spanGaps: true }
     ] },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -170,4 +187,16 @@ function hexToRgba(hex, a) {
   if (hex.length === 3) hex = hex.split('').map(function (x) { return x + x; }).join('');
   var n = parseInt(hex, 16);
   return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+}
+function lighten(hex, amt) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(function (x) { return x + x; }).join('');
+  var n = parseInt(hex, 16);
+  var r = Math.min(255, ((n >> 16) & 255) + amt), g = Math.min(255, ((n >> 8) & 255) + amt), b = Math.min(255, (n & 255) + amt);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+function strokeGradient(ctx, w, c1, c2) {
+  var g = ctx.createLinearGradient(0, 0, w || 600, 0);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  return g;
 }

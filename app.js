@@ -47,11 +47,11 @@ function render(product, data) {
 
   renderKpis(p);
   drawMain(labels, p['DAU'] || [], p['CCU'] || []);
-  drawArea('revChart', labels, p['Revenue'] || [], ACCENT);
-  drawArea('alzChart',   labels, p['ALZ Daily'] || [], ACCENT,  true);
-  drawArea('alz30Chart', labels, p['ALZ 30D']   || [], ACCENT,  true);
-  drawArea('fgChart',    labels, p['FG Daily']  || [], ACCENT2, true);
-  drawArea('fg30Chart',  labels, p['FG 30D']    || [], ACCENT2, true);
+  drawArea('revChart',   labels, p['Revenue']   || [], colorFor('Revenue'));
+  drawArea('alzChart',   labels, p['ALZ Daily'] || [], colorFor('ALZ Daily'), true);
+  drawArea('alz30Chart', labels, p['ALZ 30D']   || [], colorFor('ALZ 30D'),   true);
+  drawArea('fgChart',    labels, p['FG Daily']  || [], colorFor('FG Daily'),  true);
+  drawArea('fg30Chart',  labels, p['FG 30D']    || [], colorFor('FG 30D'),    true);
   drawBar(p['Revenue'] || [], data.days);
 }
 
@@ -121,21 +121,52 @@ function baseOpts(extra) {
   return Object.assign(o, extra || {});
 }
 
+// Distinct hue per metric so the dashboard isn't all-green.
+var METRIC_COLOR = {
+  'DAU': '#2ee59d', 'CCU': '#37c6ff', 'Revenue': '#ffce5c',
+  'ALZ Daily': '#2ee59d', 'ALZ 30D': '#37c6ff',
+  'FG Daily': '#b98bff', 'FG 30D': '#ff7ab6'
+};
+function colorFor(metric) {
+  if (metric === 'DAU') return ACCENT; // keep per-product identity on the main chart
+  return METRIC_COLOR[metric] || ACCENT;
+}
+
+// Shift a hex toward a lighter companion for gradient strokes.
+function lighten(hex, amt) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(function (x) { return x + x; }).join('');
+  var n = parseInt(hex, 16);
+  var r = Math.min(255, ((n >> 16) & 255) + amt), g = Math.min(255, ((n >> 8) & 255) + amt), b = Math.min(255, (n & 255) + amt);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
 function gradientFill(ctx, hex) {
-  var g = ctx.createLinearGradient(0, 0, 0, 260);
-  g.addColorStop(0, hexToRgba(hex, 0.35));
+  var g = ctx.createLinearGradient(0, 0, 0, 300);
+  g.addColorStop(0, hexToRgba(hex, 0.40));
   g.addColorStop(1, hexToRgba(hex, 0.01));
+  return g;
+}
+
+// Horizontal gradient along the line for a "ไล่สี" look.
+function strokeGradient(ctx, w, c1, c2) {
+  var g = ctx.createLinearGradient(0, 0, w || 600, 0);
+  g.addColorStop(0, c1);
+  g.addColorStop(1, c2);
   return g;
 }
 
 function drawMain(labels, dau, ccu) {
   var c = document.getElementById('mainChart');
+  var ctx = c.getContext('2d');
+  var w = c.clientWidth || 600;
+  var dauStroke = strokeGradient(ctx, w, colorFor('DAU'), colorFor('CCU')); // emerald -> sky
   new Chart(c, {
     type: 'line',
     data: { labels: labels, datasets: [
-      { label: 'DAU', data: dau, borderColor: ACCENT, backgroundColor: gradientFill(c.getContext('2d'), ACCENT),
+      { label: 'DAU', data: dau, borderColor: dauStroke, backgroundColor: gradientFill(ctx, colorFor('DAU')),
         fill: true, tension: .4, pointRadius: 0, borderWidth: 3, spanGaps: true },
-      { label: 'CCU', data: ccu, borderColor: ACCENT2, backgroundColor: 'transparent',
+      { label: 'CCU', data: ccu, borderColor: colorFor('CCU'), backgroundColor: 'transparent',
         fill: false, tension: .4, pointRadius: 0, borderWidth: 2, borderDash: [5, 4], spanGaps: true }
     ] },
     options: baseOpts()
