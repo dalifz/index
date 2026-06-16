@@ -94,7 +94,9 @@ function buildTable(product, group, p, days) {
     group.metrics.forEach(function (m) {
       var v = (p[m] || [])[d];
       if (v == null) { rows += '<td class="na">—</td>'; return; }
-      var cls = /Daily/.test(m) ? (v < 0 ? 'neg' : (v > 0 ? 'pos' : '')) : '';
+      // ALZ/FG = in-game currency: ลบ = burn ออกดี = เขียว(pos), บวก = เฟ้อ = แดง(neg)
+      var isCurrency = /^(ALZ|FG)/.test(m);
+      var cls = isCurrency ? (v < 0 ? 'pos' : (v > 0 ? 'neg' : '')) : '';
       rows += '<td class="' + cls + '">' + fmtFull(v) + '</td>';
     });
     rows += '</tr>';
