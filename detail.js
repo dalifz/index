@@ -31,8 +31,12 @@ function capFor(m) { return METRIC_CAP[m] || ''; }
 var TARGETS  = { 'CBPC-TH': 6000000, 'CBPC-SEA': 200000 };
 var CURRENCY = { 'CBPC-TH': '฿', 'CBPC-SEA': '$' };
 var CUR = '';
+var FULLD, GROUPD, PRODUCTD, WIND = 30, DCHARTS = [];
 
 var ACCENT, ACCENT2, GRID, TICK;
+
+function money(n, full) { if (n == null) return '—'; return CUR + (CUR === '฿' ? ' ' : '') + (full ? fmtFull(n) : fmtNum(n)); }
+function trackD(c) { DCHARTS.push(c); return c; }
 
 function qs(name, def) {
   var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
@@ -49,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Theme + branding by product (before charts so CSS vars resolve).
   document.body.dataset.theme = (product === 'CBPC-SEA') ? 'sea' : 'th';
   document.getElementById('brandLogo').src = LOGOS[product] || LOGOS['CBPC-TH'];
+  var fav = document.createElement('link'); fav.rel = 'icon'; fav.href = LOGOS[product] || LOGOS['CBPC-TH']; document.head.appendChild(fav);
   document.getElementById('brandSub').textContent = product;
   document.title = group.title + ' · ' + product;
   document.getElementById('detailTitle').textContent = product + ' — ' + group.title;
@@ -69,66 +74,91 @@ document.addEventListener('DOMContentLoaded', function () {
   TICK = cssVar('--muted') || '#8c9b94';
   installGlow();
 
+  wireRangeD();
   fetch(WEB_APP_URL)
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (data) { render(product, group, data); })
+    .then(function (data) {
+      var p = data.products[product];
+      if (!p) return showStatus('ไม่พบข้อมูล product: ' + product, true);
+      document.getElementById('status').style.display = 'none';
+      var meta = document.getElementById('updatedAt');
+      if (meta && data.updatedAt) meta.textContent = formatUpdated(data.updatedAt);
+      FULLD = data; GROUPD = group; PRODUCTD = product;
+      applyWindowD(WIND);
+    })
     .catch(function (err) { showStatus('โหลดข้อมูลไม่ได้: ' + err.message, true); });
 });
 
-function render(product, group, data) {
-  var p = data.products[product];
-  if (!p) return showStatus('ไม่พบข้อมูล product: ' + product, true);
-  document.getElementById('status').style.display = 'none';
+function wireRangeD() {
+  var box = document.getElementById('range'); if (!box) return;
+  [].forEach.call(box.querySelectorAll('button'), function (b) {
+    b.addEventListener('click', function () { WIND = parseInt(b.getAttribute('data-n'), 10); applyWindowD(WIND); });
+  });
+}
 
-  var meta = document.getElementById('updatedAt');
-  if (meta && data.updatedAt) meta.textContent = formatUpdated(data.updatedAt);
+// last N days, trimming leading days where every group metric is null
+function windowedD(N) {
+  var p = FULLD.products[PRODUCTD], days = FULLD.days, ms = GROUPD.metrics;
+  var start = Math.max(0, days.length - N);
+  var di = days.slice(start), sl = {};
+  ms.forEach(function (m) { sl[m] = (p[m] || []).slice(start); });
+  var first = 0;
+  for (var i = 0; i < di.length; i++) { if (ms.some(function (m) { return sl[m][i] != null; })) { first = i; break; } }
+  var out = { days: di.slice(first) };
+  ms.forEach(function (m) { out[m] = sl[m].slice(first); });
+  return out;
+}
 
-  var labels = data.days.map(shortDate);
+function applyWindowD(N) {
+  var box = document.getElementById('range');
+  if (box) [].forEach.call(box.querySelectorAll('button'), function (b) {
+    b.className = (parseInt(b.getAttribute('data-n'), 10) === N) ? 'active' : '';
+  });
+  DCHARTS.forEach(function (c) { try { c.destroy(); } catch (e) {} }); DCHARTS = [];
+
+  var w = windowedD(N), labels = w.days.map(shortDate), group = GROUPD;
   var grid = document.getElementById('charts');
-  // Charts are the star for presentations: big, 2-up (single metric = full width).
   grid.className = (group.metrics.length === 1) ? 'charts-1' : 'charts-2';
   grid.innerHTML = '';
 
   group.metrics.forEach(function (metric) {
-    var color = colorFor(metric);
     var card = document.createElement('div');
     card.className = 'card';
     var cid = 'c_' + metric.replace(/\s+/g, '_');
     card.innerHTML = '<h3>' + metric + '</h3><div class="cap">' + capFor(metric) + '</div>' +
       '<div class="chart-wrap lg"><canvas id="' + cid + '"></canvas></div>';
     grid.appendChild(card);
-    drawArea(cid, labels, p[metric] || [], color);
+    drawArea(cid, labels, w[metric] || [], colorFor(metric));
   });
 
-  // Revenue detail also gets a 7-day bar + trend line card.
   if (group.metrics.indexOf('Revenue') !== -1) {
     var bcard = document.createElement('div');
     bcard.className = 'card';
     bcard.innerHTML = '<h3>Revenue / 7 วันล่าสุด</h3><div class="cap">รายได้รายวัน + trend line</div>' +
       '<div class="chart-wrap lg"><canvas id="c_RevenueBar"></canvas></div>';
     grid.appendChild(bcard);
-    drawRevenueBar('c_RevenueBar', p['Revenue'] || [], data.days);
+    drawRevenueBar('c_RevenueBar', FULLD.products[PRODUCTD]['Revenue'] || [], FULLD.days);
   }
 
-  buildTable(product, group, p, data.days);
+  buildTable(group, w);
 }
 
-function buildTable(product, group, p, days) {
+function buildTable(group, w) {
   var t = document.getElementById('dataTable');
   var head = '<thead><tr><th>วันที่</th>';
   group.metrics.forEach(function (m) { head += '<th>' + m + '</th>'; });
   head += '</tr></thead>';
 
   var rows = '';
-  for (var d = days.length - 1; d >= 0; d--) { // ล่าสุดอยู่บน
-    rows += '<tr><td>' + days[d] + '</td>';
+  for (var d = w.days.length - 1; d >= 0; d--) { // ล่าสุดอยู่บน
+    rows += '<tr><td>' + w.days[d] + '</td>';
     group.metrics.forEach(function (m) {
-      var v = (p[m] || [])[d];
+      var v = (w[m] || [])[d];
       if (v == null) { rows += '<td class="na">—</td>'; return; }
       // ALZ/FG = in-game currency: ลบ = burn ออกดี = เขียว(pos), บวก = เฟ้อ = แดง(neg)
       var isCurrency = /^(ALZ|FG)/.test(m);
       var cls = isCurrency ? (v < 0 ? 'pos' : (v > 0 ? 'neg' : '')) : '';
-      var disp = (m === 'Revenue') ? (CUR + fmtFull(v)) : fmtFull(v);
+      var disp = (m === 'Revenue') ? money(v, true) : fmtFull(v);
       rows += '<td class="' + cls + '">' + disp + '</td>';
     });
     rows += '</tr>';
@@ -141,28 +171,28 @@ function cssVar(n) { return getComputedStyle(document.body).getPropertyValue(n).
 
 function drawArea(id, labels, series, color) {
   var c = document.getElementById(id);
-  var money = (id === 'c_Revenue');
+  var isMoney = (id === 'c_Revenue');
   var ctx = c.getContext('2d');
   var g = ctx.createLinearGradient(0, 0, 0, 360);
   g.addColorStop(0, hexToRgba(color, 0.40)); g.addColorStop(1, hexToRgba(color, 0.01));
   var stroke = strokeGradient(ctx, c.clientWidth || 600, color, lighten(color, 70));
-  new Chart(c, {
+  trackD(new Chart(c, {
     type: 'line',
     data: { labels: labels, datasets: [
       { label: id, data: series, borderColor: stroke, backgroundColor: g,
         fill: true, tension: .4, pointRadius: 0, borderWidth: 3, spanGaps: true }
     ] },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
       interaction: { intersect: false, mode: 'index' },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
-        return (x.parsed.y == null ? '—' : (money ? CUR + fmtNum(x.parsed.y) : fmtFull(x.parsed.y))); } } } },
+        return (x.parsed.y == null ? '—' : (isMoney ? money(x.parsed.y) : fmtFull(x.parsed.y))); } } } },
       scales: {
         x: { grid: { color: GRID }, ticks: { color: TICK, maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } },
-        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return (money ? CUR : '') + fmtNum(v); } } }
+        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return isMoney ? money(v) : fmtNum(v); } } }
       }
     }
-  });
+  }));
 }
 
 function drawRevenueBar(id, revenue, days) {
@@ -173,7 +203,7 @@ function drawRevenueBar(id, revenue, days) {
   var ctx = c.getContext('2d');
   var g = ctx.createLinearGradient(0, 0, 0, 360);
   g.addColorStop(0, ACCENT); g.addColorStop(1, hexToRgba(ACCENT, 0.25));
-  new Chart(c, {
+  trackD(new Chart(c, {
     type: 'bar',
     data: { labels: labels, datasets: [
       { label: 'Revenue', data: data, backgroundColor: g, borderRadius: 6, maxBarThickness: 40, order: 2 },
@@ -184,13 +214,13 @@ function drawRevenueBar(id, revenue, days) {
       responsive: true, maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) {
-        return x.dataset.label + ': ' + CUR + fmtNum(x.parsed.y); } } } },
+        return x.dataset.label + ': ' + money(x.parsed.y); } } } },
       scales: {
         x: { grid: { display: false }, ticks: { color: TICK } },
-        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return CUR + fmtNum(v); } }, beginAtZero: true }
+        y: { grid: { color: GRID }, ticks: { color: TICK, maxTicksLimit: 5, callback: function (v) { return money(v); } }, beginAtZero: true }
       }
     }
-  });
+  }));
 }
 
 function installGlow() {
