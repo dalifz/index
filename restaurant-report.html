@@ -295,6 +295,13 @@ body{padding-top:60px}
 /* ── INSIGHTS AI BADGE ──────────────────────────── */
 .ai-badge{display:inline-flex;align-items:center;gap:4px;background:#556B2F;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:4px;text-transform:uppercase;margin-left:8px;vertical-align:middle}
 
+/* ── RANK SELECTOR ──────────────────────────────── */
+.rank-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding:14px 18px;background:#fff;border:1.5px solid #e0dbd0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.04);align-items:center}
+.rank-selector-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#6B7280;margin-right:6px;white-space:nowrap}
+.rank-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid #e0dbd0;background:#FAF9F6;color:#374151;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.rank-btn:hover{border-color:#A3B18A;background:#f4f7ee;color:#556B2F}
+.rank-btn.active{background:#556B2F;border-color:#556B2F;color:#fff;box-shadow:0 2px 8px rgba(85,107,47,0.3)}
+
 /* ── COMPARISON TABLE # COLUMN ──────────────────── */
 .col-num{width:40px;text-align:center;font-weight:700;color:#6B7280;font-size:13px}
 
@@ -401,7 +408,7 @@ body{padding-top:60px}
 <div class="hero">
   <div class="hero-text">
     <h1 id="heroTitle">Find the Best Buffets in Asok</h1>
-    <p id="heroSub">Top buffet restaurants for team gatherings Created by Dalif Tchengthong</p>
+    <p id="heroSub">Top buffet restaurants for team gatherings</p>
     <div class="hero-chips">
       <div class="hero-chip" id="chip1">📍 Asok, Bangkok</div>
       <div class="hero-chip" id="chip2">👥 Team of 10</div>
@@ -484,7 +491,7 @@ body{padding-top:60px}
     <div class="new-rest-right">
       <div class="refresh-info">
         <span class="refresh-dot"></span>
-        <span id="newRestRefreshLabel">Auto-refresh every 1 day</span>
+        <span id="newRestRefreshLabel">Auto-refresh every 1 hour</span>
       </div>
       <div style="font-size:11px;color:#92400e" id="newRestFetched">Last fetched: —</div>
     </div>
@@ -513,8 +520,13 @@ body{padding-top:60px}
 </div>
 
 <!-- RESTAURANT INSIGHTS WIDGET -->
-<div class="section" id="insightsSection" style="display:none">
+<div class="section" id="insightsSection">
   <div class="section-title" id="secInsights">🔍 RESTAURANT INSIGHTS <span class="ai-badge">AI</span></div>
+  <!-- Rank Selector -->
+  <div class="rank-selector" id="rankSelector">
+    <span class="rank-selector-label" id="rankSelectorLabel">เลือกอันดับ :</span>
+    <!-- filled by buildRankSelector() -->
+  </div>
   <div class="insights-card" id="insightsCard">
 
     <!-- Header row -->
@@ -659,7 +671,7 @@ const TR = {
   en: {
     badge: '🏆 Live Restaurant Report · Google Maps API',
     title: 'Asok Buffet Finder',
-    sub: 'Top buffet restaurants for team gatherings · Created by Dalif Tchengthong',
+    sub: 'Top buffet restaurants for team gatherings · Powered by Google Maps Places API',
     chip1: '📍 Asok, Bangkok', chip2: '👥 Team of 10', chip3: '🍽️ Buffet Only',
     chip4: '💰 Budget-Friendly Focus', chip5: '🚇 BTS/MRT Accessible',
     apiConnecting: 'Connecting to Google Maps API…',
@@ -1376,10 +1388,39 @@ function showInsights(i){
   document.getElementById('insLblRec').textContent = LANG==='th' ? '🎯 เหมาะสำหรับ' : '🎯 Recommended For';
   document.getElementById('secInsights').innerHTML = (LANG==='th' ? '🔍 ข้อมูลเชิงลึกร้านอาหาร' : '🔍 RESTAURANT INSIGHTS') + ' <span class="ai-badge">AI</span>';
 
-  // Show & scroll
-  section.style.display='block';
-  section.style.opacity='0';
-  requestAnimationFrame(()=>{ section.style.transition='opacity .3s'; section.style.opacity='1'; });
+  // Update active rank button
+  document.querySelectorAll('.rank-btn').forEach(btn=>{
+    btn.classList.toggle('active', parseInt(btn.dataset.rank)===rank);
+  });
+
+  // Animate card
+  const card = document.getElementById('insightsCard');
+  card.style.opacity='0';
+  card.style.transform='translateY(6px)';
+  requestAnimationFrame(()=>{
+    card.style.transition='opacity .3s,transform .3s';
+    card.style.opacity='1';
+    card.style.transform='translateY(0)';
+  });
+}
+
+function buildRankSelector(){
+  const el = document.getElementById('rankSelector');
+  if(!el) return;
+  const label = LANG==='th' ? 'เลือกอันดับ :' : 'Select Rank :';
+  let html = `<span class="rank-selector-label" id="rankSelectorLabel">${label}</span>`;
+  RESTAURANTS.forEach((r,i)=>{
+    const rank = i+1;
+    const isActive = (activeReviewIndex===i) ? 'active' : '';
+    html += `<button class="rank-btn ${isActive}" data-rank="${rank}" onclick="selectRank(${i})" title="${LANG==='th'?(r.nameTH||r.name):r.name}">${rank}</button>`;
+  });
+  el.innerHTML = html;
+}
+
+function selectRank(i){
+  activeReviewIndex = i;
+  showInsights(i);
+  showReviews(i);
 }
 
 function scrollToReviews(){
@@ -1390,12 +1431,14 @@ function scrollToReviews(){
 }
 
 function refreshAll(){
-  buildComp(); buildMapList(); buildTop3();
+  buildComp(); buildMapList(); buildTop3(); buildRankSelector();
+  // Show insights for current selection or default to rank #1
+  showInsights(activeReviewIndex !== null ? activeReviewIndex : 0);
   // hero text
   const heroTitle = document.getElementById('heroTitle');
   if(heroTitle) heroTitle.textContent = LANG==='th' ? 'ค้นหาบุฟเฟ่ต์ที่ดีที่สุดในอโศก' : 'Find the Best Buffets in Asok';
   const heroSub = document.getElementById('heroSub');
-  if(heroSub) heroSub.textContent = LANG==='th' ? 'ร้านบุฟเฟ่ต์ที่ดีที่สุดสำหรับทีม' : 'Top buffet restaurants for team gatherings Created by Dalif Tchengthong';
+  if(heroSub) heroSub.textContent = LANG==='th' ? 'ร้านบุฟเฟ่ต์ที่ดีที่สุดสำหรับทีม' : 'Top buffet restaurants for team gatherings';
   // navbar
   const navTitle = document.getElementById('hTitle');
   if(navTitle) navTitle.textContent = LANG==='th' ? 'ค้นหาบุฟเฟ่ต์ อโศก' : 'Asok Buffet Finder';
@@ -1440,9 +1483,8 @@ function setLang(lang){
   });
   refreshAll();
   updateNewRestLang();
-  // Re-render insights + reviews in new language if open
+  // Re-render reviews in new language if a restaurant is selected
   if(activeReviewIndex !== null){
-    showInsights(activeReviewIndex);
     showReviews(activeReviewIndex);
   }
 }
@@ -1578,17 +1620,30 @@ function finalRefresh(){
 // N8N — NEW RESTAURANT TODAY
 // ═══════════════════════════════════════════════
 const N8N_API = 'https://n8n-external.exservice.io/webhook/6b31a389-74de-4dbc-bde6-3b70055e193c';
-const REFRESH_MS = 24 * 60 * 60 * 1000; // 1 day
+const REFRESH_MS = 60 * 60 * 1000; // 1 hour
 
 async function fetchNewRestaurant(){
+  const section = document.getElementById('newRestaurantSection');
+  const nameEl  = document.getElementById('newRestName');
+  const fetchedEl = document.getElementById('newRestFetched');
+
+  // Always show the section so users know the feature exists
+  section.style.display = 'block';
+
   try {
     const res = await fetch(N8N_API);
     if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+
+    let data = {};
+    const text = await res.text();
+    if(text && text.trim()) {
+      try { data = JSON.parse(text); } catch(_){ throw new Error('Invalid JSON from n8n'); }
+    }
+
     const name = data.latestRestaurant || data.restaurant || data.name || null;
+
     if(name && name.trim()){
       const now = new Date();
-      const section = document.getElementById('newRestaurantSection');
 
       // Default fallback Google Maps search URL
       const fallbackUrl = `https://www.google.com/maps/search/${encodeURIComponent(name.trim()+' Bangkok')}`;
@@ -1608,15 +1663,22 @@ async function fetchNewRestaurant(){
         );
       }
 
-      section.style.display = 'block';
       section.style.opacity = '0';
       requestAnimationFrame(()=>{ section.style.transition='opacity .4s'; section.style.opacity='1'; });
+
     } else {
-      document.getElementById('newRestaurantSection').style.display = 'none';
+      // n8n responded but sent no restaurant — show waiting state
+      if(nameEl) nameEl.textContent = LANG==='th' ? '⏳ รอข้อมูลจาก n8n…' : '⏳ Waiting for n8n data…';
+      if(fetchedEl) fetchedEl.textContent = (LANG==='th'?'n8n ตอบกลับแต่ไม่มีชื่อร้าน':'n8n replied but sent no restaurant name')
+        + ' · ' + new Date().toLocaleTimeString();
+      console.warn('n8n returned empty restaurant data. Response:', data);
     }
+
   } catch(e) {
+    // Show error state instead of hiding the section entirely
+    if(nameEl) nameEl.textContent = LANG==='th' ? '⚠️ ไม่สามารถดึงข้อมูลได้' : '⚠️ Could not fetch restaurant';
+    if(fetchedEl) fetchedEl.textContent = 'Error: ' + e.message + ' · ' + new Date().toLocaleTimeString();
     console.warn('n8n fetch failed:', e.message);
-    document.getElementById('newRestaurantSection').style.display = 'none';
   }
 }
 
@@ -1653,7 +1715,7 @@ function renderNewRestaurant(name, mapsUrl, now, rating, reviewCount, address){
 
 function updateNewRestLang(){
   const lbl = document.getElementById('newRestRefreshLabel');
-  if(lbl) lbl.textContent = LANG==='th' ? 'รีเฟรชอัตโนมัติทุก 1 วัน' : 'Auto-refresh every 1 Day';
+  if(lbl) lbl.textContent = LANG==='th' ? 'รีเฟรชอัตโนมัติทุก 1 ชั่วโมง' : 'Auto-refresh every 1 hour';
   const fetched = document.getElementById('newRestFetched');
   if(fetched && fetched.textContent && !fetched.textContent.endsWith('—')){
     const time = fetched.textContent.replace(/^[^:]+:\s*/,'');
