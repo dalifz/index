@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detail · Cabal Dashboard</title>
+  <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body data-theme="th">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img id="brandLogo" src="logo_CBPC_TH.png" alt="CABAL">
+        <div class="sub" id="brandSub">CBPC-TH</div>
+      </div>
+
+      <div class="nav-section">Servers</div>
+      <nav class="nav" id="navServers">
+        <a id="navTH" href="th.html"><span class="dot"></span> CBPC-TH</a>
+        <a id="navSEA" href="sea.html"><span class="dot"></span> CBPC-SEA</a>
+      </nav>
+
+      <div class="nav-section">Metrics</div>
+      <nav class="nav" id="navMetrics">
+        <a data-g="overview">Overview</a>
+        <a data-g="dauccu">DAU / CCU Trend</a>
+        <a data-g="alzfg">ALZ / FG</a>
+        <a data-g="revenue">Revenue</a>
+      </nav>
+
+      <div class="side-foot">
+        <a class="dl-btn" href="#" onclick="window.print();return false;">⬇ Export PDF</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-head">
+        <h2 id="detailTitle">—</h2>
+        <div class="range" id="range">
+          <button data-n="7">7D</button>
+          <button data-n="14">14D</button>
+          <button data-n="30">30D</button>
+          <button data-n="40">40D</button>
+        </div>
+        <span class="updated" id="updatedAt">—</span>
+      </div>
+
+      <div id="status"><div class="skeleton"></div><div class="skeleton"></div></div>
+      <section class="row-3" id="charts"></section>
+
+      <section class="full">
+        <div class="card">
+          <h3>ตารางข้อมูล</h3>
+          <div class="cap" id="tableCap">ค่ารายวัน (ล่าสุดอยู่บน)</div>
+          <div class="table-wrap"><table class="data" id="dataTable"></table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="detail.js?v=7"></script>
+</body>
+</html>
