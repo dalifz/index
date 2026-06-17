@@ -258,7 +258,12 @@ function drawArea(id, labels, series, color, allowNeg, money) {
   var c = document.getElementById(id); if (!c) return; var ctx = c.getContext('2d');
   var f = money ? fmtMoney : fmtNum;
   var ds = [{ label: id, data: series, borderColor: color, backgroundColor: gradientFill(ctx, color), fill: true, tension: .4, pointRadius: 0, borderWidth: 2.5, spanGaps: true }];
-  if (money) { var dt = dailyTarget(); if (dt) ds.push({ label: 'เป้า/วัน', data: series.map(function () { return dt; }), borderColor: '#ff6b6b', borderDash: [6, 5], borderWidth: 1.5, pointRadius: 0, fill: false }); }
+  if (money) {
+    var dt = dailyTarget();
+    if (dt) ds.push({ label: 'เป้า/วัน', data: series.map(function () { return dt; }), borderColor: '#ff6b6b', borderDash: [6, 5], borderWidth: 1.5, pointRadius: 0, fill: false });
+    var tl = trendLine(series);
+    if (tl) ds.push({ label: 'แนวโน้ม (Trend)', data: tl, borderColor: '#ff7eb6', borderWidth: 2, pointRadius: 0, fill: false });
+  }
   track(new Chart(c, { type: 'line', data: { labels: labels, datasets: ds }, options: baseOpts({
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (x) { return x.dataset.label + ': ' + (x.parsed.y == null ? '—' : f(x.parsed.y)); } } } },
     scales: { x: { grid: { color: GRID }, ticks: { color: TICK, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
@@ -383,6 +388,17 @@ function thDate(iso) { if (!iso) return ''; var mo = ['ม.ค.','ก.พ.','ม
 function plainUpdated(iso) { var d = new Date(iso); if (isNaN(d)) return iso; return d.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' }); }
 function lighten(hex, amt) { hex = hex.replace('#', ''); if (hex.length === 3) hex = hex.split('').map(function (x) { return x + x; }).join(''); var n = parseInt(hex, 16); return 'rgb(' + Math.min(255, ((n >> 16) & 255) + amt) + ',' + Math.min(255, ((n >> 8) & 255) + amt) + ',' + Math.min(255, (n & 255) + amt) + ')'; }
 function hexToRgba(hex, a) { hex = hex.replace('#', ''); if (hex.length === 3) hex = hex.split('').map(function (x) { return x + x; }).join(''); var n = parseInt(hex, 16); return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; }
+// least-squares linear regression -> straight trend line (skips nulls)
+function trendLine(series) {
+  var xs = [], ys = [];
+  for (var i = 0; i < series.length; i++) if (series[i] != null) { xs.push(i); ys.push(series[i]); }
+  var n = xs.length; if (n < 2) return null;
+  var sx = 0, sy = 0, sxy = 0, sxx = 0;
+  for (var j = 0; j < n; j++) { sx += xs[j]; sy += ys[j]; sxy += xs[j] * ys[j]; sxx += xs[j] * xs[j]; }
+  var d = n * sxx - sx * sx; if (d === 0) return null;
+  var slope = (n * sxy - sx * sy) / d, intercept = (sy - slope * sx) / n;
+  return series.map(function (_, i) { return slope * i + intercept; });
+}
 function lerpColor(a, b, t) { a = parseInt(a.replace('#', ''), 16); b = parseInt(b.replace('#', ''), 16);
   var ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255, br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
   return 'rgb(' + Math.round(ar + (br - ar) * t) + ',' + Math.round(ag + (bg - ag) * t) + ',' + Math.round(ab + (bb - ab) * t) + ')'; }
