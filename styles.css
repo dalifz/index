@@ -139,7 +139,8 @@ canvas.spark { position: absolute; right: 14px; bottom: 12px; width: 96px !impor
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ---- KPI hero + stat cards ---- */
-.kpis { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr; gap: 16px; margin-bottom: 18px; align-items: start; }
+.kpis { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr; gap: 16px; margin-bottom: 18px; align-items: stretch; }
+.kpis > * { height: 264px; }   /* equal card height -> bottoms align to grid */
 
 /* Revenue Today big card */
 .hero.rev-today { background: var(--panel); border: 1px solid var(--border); color: var(--text); overflow: hidden; min-height: 172px; display: flex; flex-direction: column; }
@@ -165,8 +166,8 @@ canvas.spark { position: absolute; right: 14px; bottom: 12px; width: 96px !impor
 .kpi-card .sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
 
 /* target card: % left, donut right */
-.kpi-card.target { border-color: rgba(255,77,77,.4); background: linear-gradient(160deg, rgba(255,77,77,.1), var(--panel) 55%); }
-.kpi-card.target .t-body { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.kpi-card.target { border-color: rgba(255,77,77,.4); background: linear-gradient(160deg, rgba(255,77,77,.1), var(--panel) 55%); display: flex; flex-direction: column; }
+.kpi-card.target .t-body { display: flex; align-items: center; gap: 12px; flex: 1; }
 .kpi-card.target .t-left { flex: 1; min-width: 0; }
 .kpi-card.target .t-donut { width: 182px; height: 182px; flex: none; position: relative; }
 .kpi-card.target .t-donut canvas { width: 182px !important; height: 182px !important; }
@@ -270,7 +271,7 @@ canvas.spark { position: absolute; right: 14px; bottom: 12px; width: 96px !impor
 .card .chart-wrap { position: relative; height: 320px; }
 .card .chart-wrap.sm { height: 232px; }
 .card .chart-wrap.lg { height: 360px; }
-.chart-wrap.mini { height: 150px !important; margin-top: 8px; }
+.chart-wrap.mini { flex: 1 1 auto; min-height: 0; margin-top: 8px; }
 .card.kpi-chart { display: flex; flex-direction: column; }
 
 .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }

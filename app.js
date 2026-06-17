@@ -172,7 +172,6 @@ function targetCard(p, days) {
       '<div class="t-left">' +
         '<div class="value red">' + pct.toFixed(1) + '%</div>' +
         '<div class="sub">จากเป้าหมาย ' + fmtMoney(t) + '</div>' +
-        '<div class="target-bar"><span style="width:' + Math.min(100, pct).toFixed(1) + '%"></span></div>' +
         '<div class="target-sub">' + fmtMoney(mtd) + ' / ' + fmtMoney(t) + '</div>' +
       '</div>' +
       '<div class="t-donut"><canvas id="targetChart"></canvas></div>' +
