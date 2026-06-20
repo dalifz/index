@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ทริปบ้านรักไทย–ปาย</title>
+<style>
+  :root{
+    --bg:#0c0e17; --bg2:#121524; --card:#191d2e; --card2:#222740;
+    --ink:#eef1f8; --muted:#8b93ad; --line:#272c44;
+    --brand:#7c5cff; --brand2:#9d7bff;
+    --green:#3ecf8e; --amber:#f5b945; --red:#ff6b6b; --blue:#5aa9ff;
+    --food:#f5b945; --transport:#5aa9ff; --hotel:#3ecf8e; --shop:#f78fb3; --other:#b794f6;
+    --nav-h:64px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Segoe UI','Sarabun',system-ui,sans-serif;
+    background:#05060c;color:var(--ink);
+    display:flex;justify-content:center;
+  }
+  /* phone frame */
+  #app{
+    width:100%;max-width:440px;min-height:100vh;
+    background:linear-gradient(180deg,#0c0e17,#10131f);
+    position:relative;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));
+    overflow-x:hidden;
+  }
+  .pad{padding:16px}
+  .status{height:env(safe-area-inset-top)}
+  h1{font-size:1.5rem}h2{font-size:1.15rem}h3{font-size:1rem}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:12px;align-items:center}
+  .between{display:flex;justify-content:space-between;align-items:center}
+  .tabnum{font-variant-numeric:tabular-nums}
+
+  /* header */
+  .hero{
+    background:radial-gradient(120% 90% at 80% -10%,rgba(124,92,255,.45),transparent 60%),var(--card);
+    border-radius:22px;padding:20px;margin:4px 0 16px;position:relative;overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .hero .deco{position:absolute;right:-10px;bottom:-20px;font-size:6rem;opacity:.12}
+  .hero h1{margin-bottom:2px}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px}
+  .b-brand{background:rgba(124,92,255,.2);color:var(--brand2)}
+  .b-green{background:rgba(62,207,142,.18);color:var(--green)}
+  .b-amber{background:rgba(245,185,69,.18);color:var(--amber)}
+  .b-red{background:rgba(255,107,107,.18);color:var(--red)}
+  .b-blue{background:rgba(90,169,255,.18);color:var(--blue)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+  .card.sm{padding:13px}
+
+  /* budget ring on home */
+  .ringwrap{display:flex;align-items:center;gap:18px}
+  .ring{width:104px;height:104px;flex-shrink:0}
+  .ring text{fill:var(--ink)}
+  .bud-legend{flex:1}
+  .bud-legend .big{font-size:1.6rem;font-weight:800}
+
+  /* buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;
+    border:none;border-radius:12px;font-family:inherit;font-weight:700;
+    font-size:.95rem;padding:13px;cursor:pointer;width:100%;transition:.15s}
+  .btn-brand{background:var(--brand);color:#fff}
+  .btn-brand:active{background:var(--brand2)}
+  .btn-ghost{background:var(--card2);color:var(--ink)}
+  .btn-sm{padding:7px 12px;width:auto;font-size:.8rem;border-radius:9px}
+  .maps-btn{background:rgba(124,92,255,.14);color:var(--brand2);border:1px solid rgba(124,92,255,.3)}
+  .nav-btn{background:rgba(90,169,255,.14);color:var(--blue);border:1px solid rgba(90,169,255,.3)}
+
+  /* day tabs */
+  .daytabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+  .daytabs::-webkit-scrollbar{display:none}
+  .dtab{flex-shrink:0;background:var(--card2);border:1px solid var(--line);color:var(--muted);
+    padding:8px 14px;border-radius:99px;font-weight:700;font-size:.85rem;cursor:pointer}
+  .dtab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  /* timeline */
+  .tl{position:relative;padding-left:26px;margin-top:6px}
+  .tl::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .stop{position:relative;margin-bottom:14px}
+  .stop::before{content:'';position:absolute;left:-24px;top:4px;width:12px;height:12px;border-radius:50%;
+    background:var(--brand);border:3px solid var(--bg2)}
+  .stop.eat::before{background:var(--food)}
+  .stop.cafe::before{background:var(--other)}
+  .stop.hotel::before{background:var(--hotel)}
+  .stop.warn::before{background:var(--red)}
+  .stop.fuel::before{background:var(--shop)}
+  .stop.sight::before{background:var(--blue)}
+  .stop .scard{background:var(--card2);border-radius:13px;padding:11px 13px;cursor:pointer;
+    border:1px solid transparent;transition:.15s;position:relative}
+  .stop .scard:active{background:#2a3050}
+  .stop .scard .chev{position:absolute;right:11px;top:11px;color:var(--muted);font-size:.9rem}
+  .stop .time{font-size:.78rem;font-weight:700;color:var(--brand2);font-variant-numeric:tabular-nums}
+  .stop .ttl{font-weight:700;margin-top:1px;padding-right:16px}
+  .stop .desc{color:var(--muted);font-size:.83rem;margin-top:3px}
+  .deadline{color:var(--red)}
+  .mapsrow{display:flex;gap:8px;margin-top:9px}
+  /* time-based state */
+  .stop.past{opacity:.4}
+  .stop.past::before{background:var(--muted)!important}
+  .stop.now::before{background:var(--brand)!important;box-shadow:0 0 0 4px rgba(124,92,255,.28);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(124,92,255,.28)}50%{box-shadow:0 0 0 7px rgba(124,92,255,.08)}}
+  .stop.now .scard{border-color:var(--brand);background:rgba(124,92,255,.1);box-shadow:0 6px 20px rgba(124,92,255,.18)}
+  .nowtag{display:inline-block;background:var(--brand);color:#fff;font-size:.66rem;font-weight:800;
+    padding:2px 8px;border-radius:99px;margin-bottom:5px}
+  .mapembed{width:100%;height:200px;border:0;border-radius:13px;margin-top:6px;background:var(--card2)}
+  /* stop detail sheet */
+  .stop-hero{height:150px;border-radius:15px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:linear-gradient(135deg,rgba(124,92,255,.35),rgba(90,169,255,.2))}
+  .stop-hero.eat{background:linear-gradient(135deg,rgba(245,185,69,.35),rgba(124,92,255,.18))}
+  .stop-hero.cafe{background:linear-gradient(135deg,rgba(183,148,246,.35),rgba(124,92,255,.18))}
+  .stop-hero.hotel{background:linear-gradient(135deg,rgba(62,207,142,.35),rgba(90,169,255,.18))}
+  .stop-hero.warn{background:linear-gradient(135deg,rgba(255,107,107,.35),rgba(245,185,69,.18))}
+  .stop-hero.fuel{background:linear-gradient(135deg,rgba(247,143,179,.35),rgba(124,92,255,.18))}
+  .stop-hero.sight{background:linear-gradient(135deg,rgba(90,169,255,.35),rgba(62,207,142,.18))}
+  .stop-hero .ph{font-size:4rem;opacity:.8}
+  .stop-hero img{width:100%;height:100%;object-fit:cover}
+  .stop-meta{margin:14px 0 4px}
+  .mrow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .mrow:last-child{border:none}.mrow span{color:var(--muted);font-size:.88rem;white-space:nowrap}
+
+  /* checklist */
+  .chk{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .chk:last-child{border:none}
+  .chk input{width:20px;height:20px;margin-top:1px;accent-color:var(--green);flex-shrink:0}
+  .chk .t{font-weight:600}
+  .chk .tm{color:var(--muted);font-size:.78rem}
+  .chk input:checked ~ div .t{color:var(--muted);text-decoration:line-through}
+
+  /* expenses */
+  .exp{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  .exp:last-child{border:none}
+  .exp .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+  .exp .amt{font-weight:800;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+  .exp .slip-thumb{width:34px;height:34px;border-radius:7px;object-fit:cover;cursor:pointer}
+  .cat-food{background:rgba(245,185,69,.16);color:var(--food)}
+  .cat-transport{background:rgba(90,169,255,.16);color:var(--transport)}
+  .cat-hotel{background:rgba(62,207,142,.16);color:var(--hotel)}
+  .cat-shop{background:rgba(247,143,179,.16);color:var(--shop)}
+  .cat-other{background:rgba(183,148,246,.16);color:var(--other)}
+
+  /* form */
+  label.fl{display:block;font-size:.82rem;color:var(--muted);margin:12px 0 5px;font-weight:600}
+  input,select,textarea{width:100%;font-family:inherit;font-size:1rem;color:var(--ink);
+    background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:12px}
+  input:focus,select,textarea:focus{outline:none;border-color:var(--brand)}
+  .catgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .catpick{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 4px;
+    text-align:center;cursor:pointer;font-size:.8rem;font-weight:700}
+  .catpick.on{border-color:var(--brand);background:rgba(124,92,255,.14)}
+  .catpick .e{font-size:1.3rem;display:block}
+  .sliparea{border:2px dashed var(--line);border-radius:13px;padding:18px;text-align:center;cursor:pointer}
+  .sliparea img{max-width:100%;max-height:180px;border-radius:9px}
+
+  /* donut legend */
+  .donutwrap{display:flex;align-items:center;gap:8px;flex-direction:column}
+  .legend{width:100%;margin-top:10px}
+  .leg{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+  .leg:last-child{border:none}
+  .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .leg .pc{margin-left:auto;color:var(--muted)}
+  .leg .v{font-weight:700;font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+
+  /* bottom nav */
+  .nav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(13,15,26,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+    display:flex;max-width:440px;margin:0 auto}
+  .nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;
+    font-size:.66rem;font-weight:600;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:3px;cursor:pointer}
+  .nav button .ni{font-size:1.3rem;line-height:1}
+  .nav button.on{color:var(--brand2)}
+
+  .view{display:none}.view.on{display:block;animation:fade .2s}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+
+  /* fab */
+  .fab{position:fixed;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
+    right:max(16px,calc(50% - 220px + 16px));width:54px;height:54px;border-radius:50%;
+    background:var(--brand);color:#fff;border:none;font-size:1.7rem;cursor:pointer;
+    box-shadow:0 8px 24px rgba(124,92,255,.5);z-index:30}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;
+    align-items:flex-end;justify-content:center}
+  .modal.on{display:flex}
+  .sheet{background:var(--bg2);width:100%;max-width:440px;border-radius:22px 22px 0 0;
+    padding:18px 16px calc(24px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;
+    animation:up .25s}
+  @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .grab{width:42px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 14px}
+  .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:60;align-items:center;justify-content:center;padding:20px}
+  .imgmodal.on{display:flex}.imgmodal img{max-width:100%;max-height:100%;border-radius:10px}
+
+  .empty{text-align:center;color:var(--muted);padding:30px 10px}
+  .progbar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:8px}
+  .progbar>div{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:99px;transition:.3s}
+
+  .alert{font-size:.82rem;padding:10px 12px;border-radius:11px;margin-top:10px;display:flex;gap:8px}
+  .alert.ok{background:rgba(62,207,142,.12);color:var(--green)}
+  .alert.warn{background:rgba(245,185,69,.12);color:var(--amber)}
+  .alert.over{background:rgba(255,107,107,.12);color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status"></div>
+
+  <!-- ============ HOME ============ -->
+  <section class="view on pad" id="v-home">
+    <div class="hero">
+      <span class="deco">⛰️</span>
+      <div class="between"><span class="badge b-brand" id="home-day">Day –</span><span>🔔</span></div>
+      <h1 style="margin-top:8px">ทริปบ้านรักไทย–ปาย</h1>
+      <div class="muted" style="font-size:.88rem">25–29 · กรุงเทพ → ลำปาง → ปาย → แม่มะ</div>
+    </div>
+
+    <!-- PLAN per day (on home) -->
+    <div id="planSection">
+      <div class="between" style="margin:2px 4px 10px"><h2>📍 แผนแต่ละวัน</h2></div>
+      <div class="daytabs" id="daytabs"></div>
+      <div id="dayinfo"></div>
+      <div class="tl" id="timeline"></div>
+    </div>
+
+    <div class="card" style="margin-top:6px">
+      <div class="between" style="margin-bottom:14px"><h3>💰 งบประมาณ</h3>
+        <button class="btn btn-ghost btn-sm" onclick="go('budget')">รายละเอียด ›</button></div>
+      <div class="ringwrap">
+        <svg class="ring" viewBox="0 0 36 36" id="home-ring"></svg>
+        <div class="bud-legend">
+          <div class="muted" style="font-size:.78rem">ใช้ไป / งบ</div>
+          <div class="big"><span id="home-spent">0</span> <span class="muted" style="font-size:.9rem">฿</span></div>
+          <div class="muted" style="font-size:.85rem">เหลือ <b style="color:var(--green)" id="home-left">0</b> ฿ จาก <span id="home-total">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="between"><h3>✅ Checklist ก่อนออก</h3><span class="badge b-blue" id="home-chk">0/0</span></div>
+      <div class="progbar"><div id="home-chk-bar" style="width:0"></div></div>
+      <button class="btn btn-ghost" style="margin-top:12px" onclick="go('chk')">ไปเช็คลิสต์</button>
+    </div>
+
+    <div class="card sm">
+      <h3 style="margin-bottom:10px">📞 เบอร์สำคัญ</h3>
+      <div class="between" style="padding:6px 0"><span class="muted">นงนุช บ้านรักไทย</span><a class="badge b-blue" href="tel:0856709419">085-670-9419</a></div>
+      <div class="between" style="padding:6px 0"><span class="muted">ชอบนอน ลำปาง</span><a class="badge b-blue" href="tel:0822120390">082-212-0390</a></div>
+      <div class="between" style="padding:6px 0"><span class="muted">สายด่วนทางหลวง</span><a class="badge b-red" href="tel:1586">1586</a></div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKLIST ============ -->
+  <section class="view pad" id="v-chk">
+    <h1 style="margin:4px 0 4px">✅ Checklist</h1>
+    <p class="muted" style="margin-bottom:14px;font-size:.88rem">เช็ค 1–2 วันก่อนออก · ติ๊กแล้วบันทึกอัตโนมัติ</p>
+    <div class="card" id="chklist"></div>
+  </section>
+
+  <!-- ============ BUDGET ============ -->
+  <section class="view pad" id="v-budget">
+    <div class="between" style="margin:4px 0 14px"><h1>💸 รายจ่าย</h1>
+      <button class="btn btn-ghost btn-sm" onclick="openSettings()">⚙️ ตั้งงบ</button></div>
+
+    <div class="card">
+      <div class="between" style="margin-bottom:10px"><h3>สรุปตามหมวด</h3>
+        <span class="tabnum" style="font-weight:800" id="bud-total">0 ฿</span></div>
+      <div class="donutwrap">
+        <svg viewBox="0 0 42 42" width="150" height="150" id="donut"></svg>
+        <div class="legend" id="donut-legend"></div>
+      </div>
+      <div id="bud-alert"></div>
+    </div>
+
+    <div class="between" style="margin:18px 4px 8px"><h3>รายการ</h3>
+      <span class="muted" style="font-size:.82rem" id="exp-count"></span></div>
+    <div class="card" id="explist"></div>
+  </section>
+
+  <!-- ============ MORE ============ -->
+  <section class="view pad" id="v-more">
+    <h1 style="margin:4px 0 14px">⚙️ เพิ่มเติม</h1>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">🚗 ความเร็วแนะนำ</h3>
+      <div class="row" style="gap:8px">
+        <div class="card2 catpick" style="flex:1"><b style="color:var(--green);font-size:1.2rem">100-110</b><br><span class="muted" style="font-size:.75rem">ทางตรง</span></div>
+        <div class="catpick" style="flex:1"><b style="color:var(--amber);font-size:1.2rem">40-60</b><br><span class="muted" style="font-size:.75rem">ขึ้นเขา</span></div>
+        <div class="catpick" style="flex:1"><b style="color:var(--red);font-size:1.2rem">30-40</b><br><span class="muted" style="font-size:.75rem">หมอก/โค้ง</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px">🏨 ที่พัก</h3>
+      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · ชอบนอน ลำปาง</span><span class="badge b-green">จ่ายแล้ว Agoda</span></div>
+      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>26 · บ้านรักไทย</span><span class="badge b-green">จ่ายแล้ว</span></div>
+      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>27 · Chorthip ปาย</span><span class="badge b-green">Agoda แล้ว</span></div>
+      <div class="between" style="padding:7px 0"><span>28 · Gooday แม่มะ</span><span class="badge b-amber">เหลือ 1,000 สด</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:6px">🗺️ Google Maps embed (optional)</h3>
+      <p class="muted" style="font-size:.8rem">ใส่ API key เพื่อฝังแผนที่ในหน้ารายละเอียด. ไม่ใส่ก็ใช้ปุ่ม "เปิด Maps" ได้ปกติ.</p>
+      <input id="mapskey" placeholder="Google Maps API key" style="margin-top:8px">
+      <button class="btn btn-ghost" style="margin-top:8px" onclick="saveKey()">บันทึก key</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px">💾 ข้อมูล</h3>
+      <button class="btn btn-ghost" onclick="exportData()">⬇️ Export JSON</button>
+      <button class="btn btn-ghost" style="margin-top:8px;color:var(--red)" onclick="resetData()">🗑️ ล้างรายจ่ายทั้งหมด</button>
+    </div>
+    <p class="muted" style="text-align:center;font-size:.75rem;margin-top:10px">ข้อมูลเก็บในเครื่อง (localStorage) ไม่ส่งออกไปไหน</p>
+  </section>
+
+  <!-- bottom nav -->
+  <nav class="nav">
+    <button class="on" data-v="home" onclick="go('home')"><span class="ni">🏠</span>หน้าหลัก</button>
+    <button data-v="plan" id="nav-plan" onclick="gotoPlan()"><span class="ni">📍</span>แผน</button>
+    <button data-v="chk" onclick="go('chk')"><span class="ni">✅</span>เช็คลิสต์</button>
+    <button data-v="budget" onclick="go('budget')"><span class="ni">💸</span>รายจ่าย</button>
+    <button data-v="more" onclick="go('more')"><span class="ni">⋯</span>เพิ่ม</button>
+  </nav>
+</div>
+
+<!-- FAB add expense -->
+<button class="fab" id="fab" onclick="openExpense()">＋</button>
+
+<!-- add-expense sheet -->
+<div class="modal" id="m-expense">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2 style="margin-bottom:4px">บันทึกรายจ่าย</h2>
+    <label class="fl">หมวด</label>
+    <div class="catgrid" id="catpick"></div>
+    <label class="fl">จำนวนเงิน (฿)</label>
+    <input id="e-amt" type="number" inputmode="decimal" placeholder="0">
+    <label class="fl">รายการ</label>
+    <input id="e-note" placeholder="เช่น ค่าน้ำมัน, ข้าวเที่ยง">
+    <label class="fl">วันที่</label>
+    <input id="e-date" type="date">
+    <label class="fl">สลิป / รูป (optional)</label>
+    <div class="sliparea" id="e-sliparea" onclick="document.getElementById('e-slip').click()">
+      <span class="muted">📷 แตะเพื่อถ่าย / เลือกรูปสลิป</span>
+    </div>
+    <input id="e-slip" type="file" accept="image/*" capture="environment" style="display:none">
+    <div class="row" style="margin-top:18px;gap:10px">
+      <button class="btn btn-ghost" onclick="closeModal('m-expense')">ยกเลิก</button>
+      <button class="btn btn-brand" onclick="saveExpense()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- settings sheet -->
+<div class="modal" id="m-settings">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2 style="margin-bottom:4px">ตั้งงบประมาณ</h2>
+    <label class="fl">งบรวมทั้งทริป (฿)</label>
+    <input id="s-budget" type="number" inputmode="decimal">
+    <label class="fl">เตือนเมื่อใช้ถึง (%)</label>
+    <input id="s-warn" type="number" value="80">
+    <button class="btn btn-brand" style="margin-top:18px" onclick="saveSettings()">บันทึก</button>
+  </div>
+</div>
+
+<!-- stop detail sheet -->
+<div class="modal" id="m-stop">
+  <div class="sheet">
+    <div class="grab"></div>
+    <div id="stop-body"></div>
+    <input id="stop-photo" type="file" accept="image/*" capture="environment" style="display:none">
+    <button class="btn btn-ghost" style="margin-top:16px" onclick="closeModal('m-stop')">ปิด</button>
+  </div>
+</div>
+
+<!-- image viewer -->
+<div class="imgmodal" id="m-img" onclick="this.classList.remove('on')"><img id="m-img-src"></div>
+
+<script>
+/* ============ DATA ============ */
+const CATS={
+  food:{label:'กิน',e:'🍜',cls:'food'},
+  transport:{label:'เดินทาง',e:'⛽',cls:'transport'},
+  hotel:{label:'ที่พัก',e:'🏨',cls:'hotel'},
+  shop:{label:'ช้อปปิ้ง',e:'🛍️',cls:'shop'},
+  other:{label:'อื่นๆ',e:'✨',cls:'other'}
+};
+
+// map = คำค้น Google Maps (ชื่อ + จังหวัด). ไม่ต้องมี API key.
+const DAYS=[
+ {id:'25',label:'25 ลำปาง',title:'25 · กรุงเทพ → นครสวรรค์ → ลำปาง',badge:['ไม่ต้องรีบ','b-green'],note:'ออกเช้า สบายๆ',
+  stops:[
+   {t:'06:00',ty:'fuel',ti:'ออกจากจรัญ',d:'เติมน้ำมันเต็มถัง'},
+   {t:'09:00',ty:'eat',ti:'🥟 ติ่มซำ บ้านอาอี๊',d:'นครสวรรค์ · เข่งไม้ไผ่ร้อนๆ หมูแดง · รีวิว 4.5 · เปิด 8:00',map:'ติ่มซำ บ้านอาอี๊ นครสวรรค์'},
+   {t:'10:15',ty:'cafe',ti:'☕ sa.ma.tha คาเฟ่มัทฉะ',d:'นครสวรรค์ · มัทฉะเกรดพิธี',map:'sa.ma.tha cafe นครสวรรค์'},
+   {t:'11:00',ty:'',ti:'ออก → ลำปาง',d:'~5 ชม.'},
+   {t:'13:00',ty:'',ti:'แวะพักปั๊ม กำแพงเพชร/ตาก'},
+   {t:'16:30',ty:'hotel',ti:'✅ เช็คอินชอบนอน โฮเทล',d:'จ่ายเต็มแล้ว Agoda',map:'ชอบนอน โฮเทล ลำปาง'},
+   {t:'18:30',ty:'eat',ti:'🍲 ข้าวต้มบาทเดียว',d:'อาหารค่ำ ลำปาง',map:'ข้าวต้มบาทเดียว ลำปาง'},
+   {t:'ค่ำ',ty:'',ti:'กาดกองต้า',d:'ถ้าไหว · เสาร์เปิด',map:'กาดกองต้า ลำปาง'},
+   {t:'!',ty:'warn',ti:'Yasumi Cafe ปิด 17:00',d:'→ ไปเช้าวันที่ 26 ก่อนออกแทน'},
+  ]},
+ {id:'26',label:'26 บ้านรักไทย',title:'26 · ลำปาง → บ้านรักไทย',badge:['ขึ้นเขา · เดดไลน์','b-red'],note:'ขึ้นเขาตอนสด! ตื่นเต็มอิ่ม',
+  stops:[
+   {t:'06:30',ty:'hotel',ti:'ตื่น เช็คเอาท์',d:'จ่ายครบแล้ว Agoda'},
+   {t:'07:30',ty:'cafe',ti:'☕ Yasumi Cafe',d:'กาแฟ+ข้าวเช้า · รีวิว 4.8 ญี่ปุ่น · เปิด 8:00 ส-อา',map:'Yasumi Cafe ลำปาง'},
+   {t:'08:00',ty:'',ti:'ออก → จอมทอง',d:'~2 ชม.'},
+   {t:'⛽',ty:'fuel',ti:'เติมน้ำมันเต็มที่จอมทอง!',d:'ก่อนขึ้นเขา ปั๊มห่าง',map:'ปั๊มน้ำมัน จอมทอง เชียงใหม่'},
+   {t:'10:00',ty:'sight',ti:'ขึ้นดอยอินทนนท์ → แม่แจ่ม',d:'ขับ 50-60 ระวังโค้ง+หมอก',map:'ดอยอินทนนท์'},
+   {t:'12:00',ty:'eat',ti:'🍴 Mae Chaem Gate',d:'ข้าวเที่ยง · รีวิว 4.8',map:'Mae Chaem Gate ร้านอาหาร แม่แจ่ม'},
+   {t:'13:00',ty:'warn',ti:'ออกจากแม่แจ่ม ← เดดไลน์!',d:'ห้ามช้ากว่านี้ · เข้า ทล.1263 ทางเขายาว',deadline:1,map:'อำเภอแม่แจ่ม'},
+   {t:'14:30',ty:'cafe',ti:"☕ Dad's Garden ขุนยวม",d:'พักสั้น วิวนา',map:"Dad's Garden ขุนยวม"},
+   {t:'16:00',ty:'hotel',ti:'✅ ถึงบ้านรักไทย',map:'บ้านรักไทย แม่ฮ่องสอน'},
+  ]},
+ {id:'27',label:'27 ปาย',title:'27 · บ้านรักไทย → ปาย',badge:['~150 กม. โค้งเยอะ 4-5 ชม.','b-amber'],note:'',
+  stops:[
+   {t:'เช้า',ty:'sight',ti:'เที่ยวบ้านรักไทย',d:'ไร่ชา หมู่บ้านจีน · เช็คเอาท์สาย',map:'บ้านรักไทย ไร่ชา แม่ฮ่องสอน'},
+   {t:'เที่ยง',ty:'eat',ti:'แวะแม่ฮ่องสอน กินข้าว',map:'ร้านอาหาร แม่ฮ่องสอน'},
+   {t:'เย็น',ty:'hotel',ti:'เช็คอิน Chorthip House',d:'จ่าย Agoda แล้ว',map:'Chorthip House ปาย'},
+   {t:'ค่ำ',ty:'',ti:'ถนนคนเดินปาย',map:'ถนนคนเดินปาย Pai Walking Street'},
+  ]},
+ {id:'28',label:'28 แม่มะ',title:'28 · ปาย → แม่มะ',badge:['',''],note:'',
+  stops:[
+   {t:'เช้า',ty:'sight',ti:'เที่ยวปาย',d:'Coffee in Love · กองแลน · สะพานประวัติศาสตร์',map:'Coffee in Love ปาย'},
+   {t:'',ty:'sight',ti:'กองแลน (Pai Canyon)',map:'Pai Canyon กองแลน'},
+   {t:'',ty:'sight',ti:'สะพานประวัติศาสตร์ปาย',map:'สะพานประวัติศาสตร์ปาย'},
+   {t:'บ่าย',ty:'hotel',ti:'เช็คอิน Gooday Height แม่มะ',map:'Gooday Height แม่มะ'},
+   {t:'💰',ty:'warn',ti:'จ่ายหน้างาน 1,000',d:'เงินสด!'},
+  ]},
+ {id:'29',label:'29 กลับ',title:'29 · กลับกรุงเทพ',badge:['เชียงใหม่-ลำปาง-ตาก','b-blue'],note:'',
+  stops:[
+   {t:'09-10',ty:'',ti:'ออกเดินทาง'},
+   {t:'12:30',ty:'eat',ti:'🍜 แกงฮอม ลำปาง',d:'ข้าวเที่ยง',map:'ร้านแกงฮอม ลำปาง'},
+   {t:'15:00',ty:'warn',ti:'☕ Good House x Khao-soi ตาก',d:'ข้าวซอยอร่อย · ปิด 16:00 ต้องถึงก่อน!',deadline:1,map:'Good House Khao soi ตาก'},
+   {t:'18:30',ty:'eat',ti:'🍴 Khamnueang นครสวรรค์',d:'ข้าวเย็น ถ้าหิว',map:'Khamnueang นครสวรรค์'},
+   {t:'กลางคืน',ty:'',ti:'ถึงกรุงเทพ 🏁'},
+  ]},
+];
+
+const CHECK=[
+ {t:'โทร 1586 เช็คถนน/ดินสไลด์',tm:'หน้าฝน!'},
+ {t:'โทรรีสอร์ทถามถนนเข้าออก',tm:''},
+ {t:'เตรียมเงินสด ≥ 1,000 ฿',tm:'Gooday แม่มะ จ่ายหน้างาน'},
+ {t:'เติมน้ำมันเต็มถังก่อนออก',tm:''},
+ {t:'เช็คลมยาง + ยางอะไหล่',tm:''},
+ {t:'ชาร์จโทรศัพท์ + สายชาร์จในรถ',tm:''},
+ {t:'ยาแก้เมารถ + น้ำดื่ม',tm:''},
+ {t:'โหลดแผนที่ offline',tm:'สัญญาณหายบนเขา'},
+];
+
+/* ============ STATE ============ */
+const LS=k=>JSON.parse(localStorage.getItem(k)||'null');
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let expenses=LS('tripExpenses')||[];
+let settings=LS('tripSettings')||{budget:15000,warn:80};
+let checks=LS('tripChk')||Array(CHECK.length).fill(false);
+let pickedCat='food', pickedSlip=null;
+let stopPhotos=LS('tripStopPhotos')||{};
+// auto-select วันนี้ ถ้าอยู่ในช่วงทริป (มิ.ย. 25–29), ไม่งั้นวันแรก
+let activeDay=(()=>{const n=new Date();const d=String(n.getDate());
+  return (n.getMonth()===5 && DAYS.some(x=>x.id===d))?d:'25';})();
+// id ของวันนี้ ถ้าอยู่ในช่วงทริป (มิ.ย.), ไม่งั้น null
+function todayId(){const n=new Date();const d=String(n.getDate());return (n.getMonth()===5&&DAYS.some(x=>x.id===d))?d:null;}
+// แปลง '06:00' → นาที, อย่างอื่น (ค่ำ/⛽/09-10) → null
+function parseTime(t){const m=String(t).match(/^(\d{1,2}):(\d{2})$/);return m?(+m[1])*60+(+m[2]):null;}
+
+/* ============ MAPS ============ */
+function mapsSearch(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
+function mapsDir(q){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(q);}
+function mapEmbed(q){return 'https://maps.google.com/maps?q='+encodeURIComponent(q)+'&z=14&output=embed';}
+
+/* ============ NAV ============ */
+function go(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.getElementById('fab').style.display=(v==='budget')?'flex':'none';
+  window.scrollTo(0,0);
+  if(v==='budget')renderBudget();
+  if(v==='home')renderHome();
+}
+function gotoPlan(){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.getElementById('v-home').classList.add('on');
+  document.getElementById('fab').style.display='none';
+  renderHome();
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('nav-plan').classList.add('on');
+  setTimeout(()=>document.getElementById('planSection').scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
+/* ============ TIMELINE ============ */
+function renderTimeline(){
+  const tabs=document.getElementById('daytabs');
+  tabs.innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'active':''}" onclick="setDay('${d.id}')">${d.label}</button>`).join('');
+  const day=DAYS.find(d=>d.id===activeDay);
+  document.getElementById('dayinfo').innerHTML=
+    `<div class="between" style="margin-bottom:4px"><h2>${day.title}</h2></div>`+
+    (day.badge[0]?`<span class="badge ${day.badge[1]}">${day.badge[0]}</span>`:'')+
+    (day.note?`<p class="muted" style="font-style:italic;margin-top:6px;font-size:.88rem">${day.note}</p>`:'');
+  // time-based highlight (เฉพาะวันที่ตรงกับวันนี้)
+  const isToday=(todayId()===activeDay);
+  const now=new Date().getHours()*60+new Date().getMinutes();
+  let nextIdx=-1;
+  if(isToday){
+    for(let i=0;i<day.stops.length;i++){const tm=parseTime(day.stops[i].t);if(tm!=null&&tm>=now){nextIdx=i;break;}}
+  }
+  document.getElementById('timeline').innerHTML=day.stops.map((s,i)=>{
+    const maps=s.map?`<div class="mapsrow">
+        <a class="btn btn-sm maps-btn" href="${mapsSearch(s.map)}" target="_blank" onclick="event.stopPropagation()">📍 เปิด Maps</a>
+        <a class="btn btn-sm nav-btn" href="${mapsDir(s.map)}" target="_blank" onclick="event.stopPropagation()">🧭 นำทาง</a></div>`:'';
+    let state='';
+    if(isToday){ if(nextIdx===-1||i<nextIdx)state='past'; else if(i===nextIdx)state='now'; }
+    return `<div class="stop ${s.ty} ${state}"><div class="scard" onclick="openStop('${activeDay}',${i})">
+      <span class="chev">›</span>
+      ${state==='now'?'<div class="nowtag">⏰ ถัดไป</div>':''}
+      <span class="time">${s.t}</span>
+      <div class="ttl ${s.deadline?'deadline':''}">${s.ti}</div>
+      ${s.d?`<div class="desc">${s.d}</div>`:''}
+      ${maps}</div></div>`;
+  }).join('');
+}
+function setDay(id){activeDay=id;renderTimeline();}
+
+/* ============ STOP DETAIL ============ */
+let curStopKey=null;
+function openStop(dayId,idx){
+  const day=DAYS.find(d=>d.id===dayId);const s=day.stops[idx];
+  curStopKey=dayId+'-'+idx;
+  const photo=stopPhotos[curStopKey];
+  const tyEmoji={eat:'🍽️',cafe:'☕',hotel:'🏨',fuel:'⛽',sight:'⛰️',warn:'⚠️'}[s.ty]||'📍';
+  document.getElementById('stop-body').innerHTML=
+   `<div class="stop-hero ${s.ty}">${photo?`<img src="${photo}">`:`<span class="ph">${tyEmoji}</span>`}</div>
+    <h2 style="margin:14px 0 2px" class="${s.deadline?'deadline':''}">${s.ti}</h2>
+    <div class="muted" style="font-size:.9rem">${day.title}</div>
+    <div class="stop-meta">
+      <div class="mrow"><span>🕐 เวลา</span><b>${s.t}</b></div>
+      ${s.d?`<div class="mrow"><span>📝 รายละเอียด</span><b style="text-align:right;max-width:60%">${s.d}</b></div>`:''}
+      ${s.map?`<div class="mrow"><span>📍 สถานที่</span><b style="text-align:right;max-width:60%">${s.map}</b></div>`:''}
+    </div>
+    ${s.map?`<iframe class="mapembed" loading="lazy" src="${mapEmbed(s.map)}"></iframe>
+      <div class="mapsrow" style="margin-top:10px">
+        <a class="btn maps-btn" href="${mapsSearch(s.map)}" target="_blank">📍 เปิด Maps</a>
+        <a class="btn nav-btn" href="${mapsDir(s.map)}" target="_blank">🧭 นำทาง</a></div>`
+     :'<p class="muted" style="margin-top:10px;font-size:.85rem">จุดนี้ไม่มีพิกัดแผนที่</p>'}
+    <div class="sliparea" style="margin-top:12px" onclick="document.getElementById('stop-photo').click()">
+      <span class="muted">${photo?'🔄 เปลี่ยนรูป':'📷 แนบรูปจุดนี้ (จากกล้อง/แกลเลอรี)'}</span>
+    </div>
+    ${photo?`<button class="btn btn-ghost" style="margin-top:8px;color:var(--red)" onclick="delStopPhoto()">ลบรูป</button>`:''}`;
+  document.getElementById('m-stop').classList.add('on');
+}
+document.getElementById('stop-photo').onchange=function(){
+  const f=this.files[0];if(!f||!curStopKey)return;
+  compressImg(f,d=>{stopPhotos[curStopKey]=d;save('tripStopPhotos',stopPhotos);
+    const[dy,ix]=curStopKey.split('-');openStop(dy,+ix);renderTimeline();});
+};
+function delStopPhoto(){if(!curStopKey)return;delete stopPhotos[curStopKey];save('tripStopPhotos',stopPhotos);const[dy,ix]=curStopKey.split('-');openStop(dy,+ix);}
+
+/* ============ CHECKLIST ============ */
+function renderChk(){
+  document.getElementById('chklist').innerHTML=CHECK.map((c,i)=>
+    `<label class="chk"><input type="checkbox" ${checks[i]?'checked':''} onchange="toggleChk(${i},this.checked)">
+     <div><div class="t">${c.t}</div>${c.tm?`<div class="tm">${c.tm}</div>`:''}</div></label>`).join('');
+}
+function toggleChk(i,v){checks[i]=v;save('tripChk',checks);renderHome();}
+
+/* ============ HOME ============ */
+function renderHome(){
+  const spent=expenses.reduce((s,e)=>s+e.amt,0);
+  const total=settings.budget, left=Math.max(0,total-spent);
+  const pct=total?Math.min(100,Math.round(spent/total*100)):0;
+  document.getElementById('home-spent').textContent=fmt(spent);
+  document.getElementById('home-left').textContent=fmt(left);
+  document.getElementById('home-total').textContent=fmt(total);
+  // ring
+  const col=pct>=100?'var(--red)':pct>=settings.warn?'var(--amber)':'var(--green)';
+  document.getElementById('home-ring').innerHTML=ringSVG(pct,col);
+  // checklist
+  const done=checks.filter(Boolean).length;
+  document.getElementById('home-chk').textContent=done+'/'+CHECK.length;
+  document.getElementById('home-chk-bar').style.width=(done/CHECK.length*100)+'%';
+  document.getElementById('home-day').textContent='25–29 มิ.ย.';
+}
+function ringSVG(pct,col){
+  return `<circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--card2)" stroke-width="3.4"/>
+   <circle cx="18" cy="18" r="15.9" fill="none" stroke="${col}" stroke-width="3.4"
+     stroke-dasharray="${pct} ${100-pct}" stroke-dashoffset="25" stroke-linecap="round" transform="rotate(0 18 18)"/>
+   <text x="18" y="17" text-anchor="middle" font-size="8" font-weight="800">${pct}%</text>
+   <text x="18" y="24" text-anchor="middle" font-size="3.4" fill="var(--muted)">ใช้ไป</text>`;
+}
+
+/* ============ BUDGET ============ */
+function renderBudget(){
+  const spent=expenses.reduce((s,e)=>s+e.amt,0);
+  document.getElementById('bud-total').textContent=fmt(spent)+' ฿';
+  // group by cat
+  const by={};Object.keys(CATS).forEach(k=>by[k]=0);
+  expenses.forEach(e=>by[e.cat]=(by[e.cat]||0)+e.amt);
+  // donut
+  let off=25,svg=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--card2)" stroke-width="6"/>`;
+  let legend='';
+  Object.keys(CATS).forEach(k=>{
+    const v=by[k]; if(!v)return;
+    const p=spent?(v/spent*100):0;
+    svg+=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--${CATS[k].cls})" stroke-width="6"
+      stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"/>`;
+    off-=p;
+    legend+=`<div class="leg"><span class="dot" style="background:var(--${CATS[k].cls})"></span>
+      ${CATS[k].e} ${CATS[k].label}<span class="pc">${Math.round(p)}%</span>
+      <span class="v">${fmt(v)} ฿</span></div>`;
+  });
+  svg+=`<text x="21" y="20" text-anchor="middle" font-size="6" font-weight="800" fill="var(--ink)">${fmt(spent)}</text>
+    <text x="21" y="26" text-anchor="middle" font-size="3" fill="var(--muted)">฿ รวม</text>`;
+  document.getElementById('donut').innerHTML=spent?svg:`<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--card2)" stroke-width="6"/><text x="21" y="22" text-anchor="middle" font-size="4" fill="var(--muted)">ยังไม่มี</text>`;
+  document.getElementById('donut-legend').innerHTML=legend||'<p class="empty">ยังไม่มีรายจ่าย — กด ＋ มุมขวาล่าง</p>';
+  // alert
+  const pct=settings.budget?spent/settings.budget*100:0;
+  const a=document.getElementById('bud-alert');
+  if(pct>=100)a.innerHTML=`<div class="alert over">⚠️ เกินงบแล้ว! ใช้ไป ${fmt(spent)} / ${fmt(settings.budget)} ฿</div>`;
+  else if(pct>=settings.warn)a.innerHTML=`<div class="alert warn">⚡ ใช้ไป ${Math.round(pct)}% ของงบ เหลือ ${fmt(settings.budget-spent)} ฿</div>`;
+  else a.innerHTML=`<div class="alert ok">✅ ใช้ไป ${Math.round(pct)}% · เหลือ ${fmt(settings.budget-spent)} ฿</div>`;
+  // list
+  document.getElementById('exp-count').textContent=expenses.length+' รายการ';
+  const sorted=[...expenses].sort((a,b)=>(b.date||'').localeCompare(a.date)||b.id-a.id);
+  document.getElementById('explist').innerHTML=sorted.length?sorted.map(e=>{
+    const c=CATS[e.cat];
+    return `<div class="exp">
+      <div class="ic cat-${c.cls}">${c.e}</div>
+      <div><div style="font-weight:700">${e.note||c.label}</div>
+        <div class="muted" style="font-size:.78rem">${c.label} · ${fdate(e.date)}</div></div>
+      ${e.slip?`<img class="slip-thumb" src="${e.slip}" onclick="viewImg('${e.id}')">`:''}
+      <span class="amt">${fmt(e.amt)} ฿</span>
+      <span onclick="delExp(${e.id})" style="color:var(--red);cursor:pointer;padding:4px">✕</span>
+    </div>`;
+  }).join(''):'<p class="empty">ยังไม่มีรายจ่าย<br>กดปุ่ม ＋ มุมขวาล่างเพื่อเพิ่ม</p>';
+  renderHome();
+}
+
+/* ============ EXPENSE MODAL ============ */
+function openExpense(){
+  pickedCat='food';pickedSlip=null;
+  document.getElementById('catpick').innerHTML=Object.keys(CATS).map(k=>
+    `<div class="catpick ${k==='food'?'on':''}" data-cat="${k}" onclick="pickCat('${k}')">
+      <span class="e">${CATS[k].e}</span>${CATS[k].label}</div>`).join('');
+  document.getElementById('e-amt').value='';
+  document.getElementById('e-note').value='';
+  document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('e-sliparea').innerHTML='<span class="muted">📷 แตะเพื่อถ่าย / เลือกรูปสลิป</span>';
+  document.getElementById('m-expense').classList.add('on');
+}
+function pickCat(k){pickedCat=k;document.querySelectorAll('#catpick .catpick').forEach(c=>c.classList.toggle('on',c.dataset.cat===k));}
+// ย่อรูป max 900px jpeg 0.7 → callback(dataURL)
+function compressImg(file,cb){
+  const r=new FileReader();
+  r.onload=ev=>{const img=new Image();img.onload=()=>{
+    const max=900,sc=Math.min(1,max/Math.max(img.width,img.height));
+    const cv=document.createElement('canvas');cv.width=img.width*sc;cv.height=img.height*sc;
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    cb(cv.toDataURL('image/jpeg',0.7));
+  };img.src=ev.target.result;};
+  r.readAsDataURL(file);
+}
+document.getElementById('e-slip').onchange=function(){
+  const f=this.files[0];if(!f)return;
+  compressImg(f,d=>{pickedSlip=d;document.getElementById('e-sliparea').innerHTML=`<img src="${pickedSlip}">`;});
+};
+function saveExpense(){
+  const amt=parseFloat(document.getElementById('e-amt').value);
+  if(!amt||amt<=0){alert('ใส่จำนวนเงิน');return;}
+  expenses.push({id:Date.now(),cat:pickedCat,amt,
+    note:document.getElementById('e-note').value.trim(),
+    date:document.getElementById('e-date').value,slip:pickedSlip});
+  save('tripExpenses',expenses);
+  closeModal('m-expense');renderBudget();
+}
+function delExp(id){if(!confirm('ลบรายการนี้?'))return;expenses=expenses.filter(e=>e.id!==id);save('tripExpenses',expenses);renderBudget();}
+function viewImg(id){const e=expenses.find(x=>x.id==id);if(!e||!e.slip)return;document.getElementById('m-img-src').src=e.slip;document.getElementById('m-img').classList.add('on');}
+
+/* ============ SETTINGS ============ */
+function openSettings(){document.getElementById('s-budget').value=settings.budget;document.getElementById('s-warn').value=settings.warn;document.getElementById('m-settings').classList.add('on');}
+function saveSettings(){settings={budget:parseFloat(document.getElementById('s-budget').value)||0,warn:parseFloat(document.getElementById('s-warn').value)||80};save('tripSettings',settings);closeModal('m-settings');renderBudget();}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+
+/* ============ MORE ============ */
+function saveKey(){localStorage.setItem('tripMapsKey',document.getElementById('mapskey').value.trim());alert('บันทึก key แล้ว');}
+function exportData(){
+  const blob=new Blob([JSON.stringify({expenses,settings,checks},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trip-data.json';a.click();
+}
+function resetData(){if(!confirm('ล้างรายจ่ายทั้งหมด?'))return;expenses=[];save('tripExpenses',expenses);renderBudget();}
+
+/* ============ UTIL ============ */
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function fdate(d){if(!d)return'';const[y,m,dd]=d.split('-');return`${+dd}/${+m}`;}
+
+// close sheet on backdrop tap
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+document.getElementById('mapskey').value=localStorage.getItem('tripMapsKey')||'';
+
+/* ============ INIT ============ */
+renderTimeline();renderChk();renderHome();
+go('home');
+</script>
+</body>
+</html>
