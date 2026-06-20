@@ -217,7 +217,7 @@
       <span class="deco">⛰️</span>
       <div class="between"><span class="badge b-brand" id="home-day">Day –</span><span>🔔</span></div>
       <h1 style="margin-top:8px">ทริปบ้านรักไทย–ปาย</h1>
-      <div class="muted" style="font-size:.88rem">25–29 · กรุงเทพ → ลำปาง → ปาย → แม่มะ</div>
+      <div class="muted" style="font-size:.88rem">25–29 · กรุงเทพ → ลำปาง → ปาย → เชียงดาว</div>
     </div>
 
     <!-- PLAN per day (on home) -->
@@ -300,7 +300,7 @@
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · ชอบนอน ลำปาง</span><span class="badge b-green">จ่ายแล้ว Agoda</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>26 · บ้านรักไทย</span><span class="badge b-green">จ่ายแล้ว</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>27 · Chorthip ปาย</span><span class="badge b-green">Agoda แล้ว</span></div>
-      <div class="between" style="padding:7px 0"><span>28 · Gooday แม่มะ</span><span class="badge b-amber">เหลือ 1,000 สด</span></div>
+      <div class="between" style="padding:7px 0"><span>28 · Good Day &amp; Night เชียงดาว</span><span class="badge b-amber">เช็คยอดจ่าย</span></div>
     </div>
 
     <div class="card">
@@ -417,6 +417,8 @@ const DAYS=[
    {t:'13:00',ty:'warn',ti:'ออกจากแม่แจ่ม ← เดดไลน์!',d:'ห้ามช้ากว่านี้ · เข้า ทล.1263 ทางเขายาว',deadline:1,map:'อำเภอแม่แจ่ม'},
    {t:'14:30',ty:'cafe',ti:"☕ Dad's Garden ขุนยวม",d:'พักสั้น วิวนา',map:"Dad's Garden ขุนยวม"},
    {t:'16:00',ty:'hotel',ti:'✅ ถึงบ้านรักไทย',map:'บ้านรักไทย แม่ฮ่องสอน'},
+   {t:'เย็น',ty:'eat',ti:'🍽️ ร้านลีไวน์ บ้านรักไท',d:'อาหารเย็น (ตัวเลือก 1)',map:'ร้านลีไวน์ บ้านรักไทย แม่ฮ่องสอน'},
+   {t:'เย็น',ty:'cafe',ti:"☕ Wojia Cafe' บ้านรักไท",d:'อาหารเย็น/คาเฟ่ (ตัวเลือก 2)',map:"Wojia Cafe บ้านรักไทย แม่ฮ่องสอน"},
   ]},
  {id:'27',label:'27 ปาย',title:'27 · บ้านรักไทย → ปาย',badge:['~150 กม. โค้งเยอะ 4-5 ชม.','b-amber'],note:'',
   stops:[
@@ -425,19 +427,24 @@ const DAYS=[
    {t:'เย็น',ty:'hotel',ti:'เช็คอิน Chorthip House',d:'จ่าย Agoda แล้ว',map:'Chorthip House ปาย'},
    {t:'ค่ำ',ty:'',ti:'ถนนคนเดินปาย',map:'ถนนคนเดินปาย Pai Walking Street'},
   ]},
- {id:'28',label:'28 แม่มะ',title:'28 · ปาย → แม่มะ',badge:['',''],note:'',
+ {id:'28',label:'28 เชียงดาว',title:'28 · ปาย → เชียงดาว',badge:['ปาย → เชียงดาว ~2-2.5 ชม.','b-amber'],note:'ออกจากปายเลี่ยงเข้าเมือง เชียงใหม่ ไปทางแม่มาลัย',
   stops:[
-   {t:'เช้า',ty:'sight',ti:'เที่ยวปาย',d:'Coffee in Love · กองแลน · สะพานประวัติศาสตร์',map:'Coffee in Love ปาย'},
-   {t:'',ty:'sight',ti:'กองแลน (Pai Canyon)',map:'Pai Canyon กองแลน'},
-   {t:'',ty:'sight',ti:'สะพานประวัติศาสตร์ปาย',map:'สะพานประวัติศาสตร์ปาย'},
-   {t:'บ่าย',ty:'hotel',ti:'เช็คอิน Gooday Height แม่มะ',map:'Gooday Height แม่มะ'},
-   {t:'💰',ty:'warn',ti:'จ่ายหน้างาน 1,000',d:'เงินสด!'},
+   {t:'08:00',ty:'eat',ti:'🍽️ อาหารเช้าในปาย',d:'แถวเมืองปาย',map:'Pai Town'},
+   {t:'09:00',ty:'cafe',ti:'☕ คาเฟ่สวยในปาย — ม่อนโก้ อิน ปาย',d:'วิวนา+ภูเขา ใกล้เมือง · เช็คเวลาเปิด',map:'ม่อนโก้ อิน ปาย Monko in Pai'},
+   {t:'~09:45',ty:'sight',ti:'⛰️ กองแลน (Pai Canyon)',d:'อยู่ทางใต้ของปาย ผ่านระหว่างทางออก',map:'Pai Canyon กองแลน'},
+   {t:'10:15',ty:'',ti:'ออกเดินทางจากปาย',d:'→ แม่มาลัย → เชียงดาว',map:'Pai'},
+   {t:'12:00',ty:'eat',ti:'🍴 ครัวม่อนไข่ เชียงดาว',d:'อาหารกลางวัน',map:'Krua Mon Khai Chiang Dao ครัวม่อนไข่ เชียงดาว'},
+   {t:'13:15',ty:'cafe',ti:'☕ บ้านธารชีวี Tarnchevee',d:'ซื้อขนม / กาแฟ',map:'Tarnchevee Mae Mae Chiang Dao บ้านธารชีวี เชียงดาว'},
+   {t:'14:00',ty:'hotel',ti:'✅ Good Day & Night Homestay Chiangdao',d:'เช็คอิน · คืนนี้ไม่ออก ทานเย็นที่บ้านพัก',map:'Good Day and Night Homestay Chiang Dao'},
+   {t:'เย็น',ty:'eat',ti:'🍲 อาหารเย็นที่บ้านพัก',d:'ไม่ออกไปไหน พักผ่อน'},
   ]},
- {id:'29',label:'29 กลับ',title:'29 · กลับกรุงเทพ',badge:['เชียงใหม่-ลำปาง-ตาก','b-blue'],note:'',
+ {id:'29',label:'29 กลับ',title:'29 · เชียงดาว → เชียงใหม่ → กทม',badge:['เวลาตึง! ต้องถึงตาก ก่อน 16:00','b-red'],note:'เชียงดาว→เชียงใหม่ ~1.5 ชม. / เชียงใหม่→ตาก ~4 ชม.',
   stops:[
-   {t:'09-10',ty:'',ti:'ออกเดินทาง'},
-   {t:'12:30',ty:'eat',ti:'🍜 แกงฮอม ลำปาง',d:'ข้าวเที่ยง',map:'ร้านแกงฮอม ลำปาง'},
-   {t:'15:00',ty:'warn',ti:'☕ Good House x Khao-soi ตาก',d:'ข้าวซอยอร่อย · ปิด 16:00 ต้องถึงก่อน!',deadline:1,map:'Good House Khao soi ตาก'},
+   {t:'09-10',ty:'',ti:'ออกเดินทางจากเชียงดาว',d:'→ เชียงใหม่ ~1.5 ชม.',map:'Chiang Dao'},
+   {t:'~11:00',ty:'cafe',ti:'☕ Magokoro Teahouse (มีใจให้มัทฉะ)',d:'ช้างคลาน เชียงใหม่ · มัทฉะญี่ปุ่น · เปิด 10:00',map:'Magokoro Teahouse Sridonchai Chang Khlan Chiang Mai'},
+   {t:'~11:45',ty:'eat',ti:'🍜 เติ๋น เชียงใหม่',d:'ข้าวกลางวัน · กินเร็วหน่อย เวลาตึง',map:'ร้านเติ๋น เชียงใหม่'},
+   {t:'≤12:00',ty:'warn',ti:'ออกจากเชียงใหม่ ← เดดไลน์!',d:'ช้ากว่านี้ไม่ทัน Good House (ขับ ~4 ชม.)',deadline:1,map:'เชียงใหม่'},
+   {t:'~15:45',ty:'warn',ti:'☕ Good House x Khao-soi ตาก',d:'ข้าวซอยอร่อย · ปิด 16:00 ต้องถึงก่อน!',deadline:1,map:'Good House Khao soi ตาก'},
    {t:'18:30',ty:'eat',ti:'🍴 Khamnueang นครสวรรค์',d:'ข้าวเย็น ถ้าหิว',map:'Khamnueang นครสวรรค์'},
    {t:'กลางคืน',ty:'',ti:'ถึงกรุงเทพ 🏁'},
   ]},
@@ -446,7 +453,7 @@ const DAYS=[
 const CHECK=[
  {t:'โทร 1586 เช็คถนน/ดินสไลด์',tm:'หน้าฝน!'},
  {t:'โทรรีสอร์ทถามถนนเข้าออก',tm:''},
- {t:'เตรียมเงินสด ≥ 1,000 ฿',tm:'Gooday แม่มะ จ่ายหน้างาน'},
+ {t:'เตรียมเงินสด',tm:'เช็คยอดที่พักเชียงดาว ว่าจ่ายหน้างานไหม'},
  {t:'เติมน้ำมันเต็มถังก่อนออก',tm:''},
  {t:'เช็คลมยาง + ยางอะไหล่',tm:''},
  {t:'ชาร์จโทรศัพท์ + สายชาร์จในรถ',tm:''},
