@@ -161,7 +161,7 @@ function donut(id, data, palette) {
   var cols = labels.map(function (l, i) { return l.indexOf('อื่นๆ') === 0 ? GRAY : palette[i % palette.length]; });
   charts.push(new Chart(c, { type: 'doughnut', data: { labels: labels, datasets: [{ data: vals, backgroundColor: cols, borderColor: 'transparent', cutout: '58%' }] },
     options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { color: '#cdd6d2', boxWidth: 10, font: { size: 11 }, padding: 8 } },
+      plugins: { legend: { position: 'bottom', labels: { color: '#cdd6d2', boxWidth: 11, font: { size: 13 }, padding: 9 } },
         tooltip: { callbacks: { label: function (x) { var t = x.dataset.data.reduce(function (a, b) { return a + b; }, 0); return x.label + ': ' + fmt(x.parsed) + ' (' + (t ? (x.parsed / t * 100).toFixed(1) : 0) + '%)'; } } } } } }));
 }
 
