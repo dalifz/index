@@ -75,7 +75,9 @@ function mdLite(t) {
   t = String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   return t.split(/\n+/).map(function (l) {
-    l = l.trim(); if (!l) return '';
+    l = l.trim(); if (!l || l === '---') return '';
+    var m = l.match(/^(#{1,3})\s*(.*)/);
+    if (m) return '<div class="ai-h' + (m[1].length === 1 ? '1' : '2') + '">' + m[2] + '</div>';
     l = l.replace(/^[-•]\s*/, '');
     return '<div class="ai-line">' + l + '</div>';
   }).join('');

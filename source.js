@@ -64,7 +64,13 @@ function renderSourceAI() {
 function addDaysIso(iso, n) { var p = iso.split('-'); var d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
 function mdLite(t) {
   t = String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  return t.split(/\n+/).map(function (l) { l = l.trim().replace(/^[-•]\s*/, ''); return l ? '<div class="ai-line">' + l + '</div>' : ''; }).join('');
+  return t.split(/\n+/).map(function (l) {
+    l = l.trim(); if (!l || l === '---') return '';
+    var m = l.match(/^(#{1,3})\s*(.*)/);
+    if (m) return '<div class="ai-h' + (m[1].length === 1 ? '1' : '2') + '">' + m[2] + '</div>';
+    l = l.replace(/^[-•]\s*/, '');
+    return '<div class="ai-line">' + l + '</div>';
+  }).join('');
 }
 
 function wireChrome() {
@@ -161,7 +167,7 @@ function donut(id, data, palette) {
   var cols = labels.map(function (l, i) { return l.indexOf('อื่นๆ') === 0 ? GRAY : palette[i % palette.length]; });
   charts.push(new Chart(c, { type: 'doughnut', data: { labels: labels, datasets: [{ data: vals, backgroundColor: cols, borderColor: 'transparent', cutout: '58%' }] },
     options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { color: '#cdd6d2', boxWidth: 11, font: { size: 13 }, padding: 9 } },
+      plugins: { legend: { position: 'bottom', labels: { color: '#cdd6d2', boxWidth: 12, font: { size: 15 }, padding: 10 } },
         tooltip: { callbacks: { label: function (x) { var t = x.dataset.data.reduce(function (a, b) { return a + b; }, 0); return x.label + ': ' + fmt(x.parsed) + ' (' + (t ? (x.parsed / t * 100).toFixed(1) : 0) + '%)'; } } } } } }));
 }
 

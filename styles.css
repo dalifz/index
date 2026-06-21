@@ -298,6 +298,9 @@ canvas.spark { position: absolute; right: 14px; bottom: 12px; width: 96px !impor
 .ai-card .ai-line { margin: 4px 0; padding-left: 14px; position: relative; color: var(--text); }
 .ai-card .ai-line:before { content: "›"; position: absolute; left: 0; color: var(--accent); }
 .ai-card .ai-line strong { color: var(--accent); }
+.ai-card .ai-h1 { font-size: 17px; font-weight: 800; color: var(--accent); margin: 8px 0 3px; }
+.ai-card .ai-h2 { font-size: 15.5px; font-weight: 800; color: var(--accent); margin: 10px 0 3px; }
+.ai-card .ai-h1:first-child, .ai-card .ai-h2:first-child { margin-top: 0; }
 
 /* external HTML tooltip for mini charts */
 #chartTip {

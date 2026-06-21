@@ -40,17 +40,22 @@
     .src-tbl .table-wrap{max-height:none}
     @media(max-width:1100px){.src-bottom{grid-template-columns:1fr}}
 
-    /* +20% font — ALZ/FG Source page only */
-    .main-head h2{font-size:29px}
-    .head-title .updated{font-size:14px}
-    .range button{font-size:14px} select{font-size:16px}
-    .net .lbl{font-size:16px} .net .big{font-size:34px} .net .io{font-size:15px}
-    .curtoggle button{font-size:16px}
-    .ratio span{font-size:14px}
-    .hl .chip{font-size:16px} .hl .chip b{font-size:13px}
-    .card h3{font-size:18px} .card .cap{font-size:14px}
-    .ai-head{font-size:18px} .ai-range{font-size:14px} .ai-body,.ai-line{font-size:16px}
-    table.data th,table.data td{font-size:16px}
+    /* enlarged font — ALZ/FG Source page only (headings always > body) */
+    .main-head h2{font-size:33px}
+    .head-title .updated{font-size:16px}
+    .range button{font-size:16px} select{font-size:18px}
+    .net .lbl{font-size:18px} .net .big{font-size:39px} .net .io{font-size:17px}
+    .curtoggle button{font-size:18px}
+    .ratio span{font-size:16px}
+    .hl .chip{font-size:18px} .hl .chip b{font-size:15px}
+    .card h3{font-size:21px} .card .cap{font-size:16px}
+    table.data th,table.data td{font-size:18px}
+    /* AI card hierarchy: title 23 > h1 21 > h2 20 > detail 18 (scoped to beat styles.css) */
+    #srcAiCard .ai-head{font-size:23px} #srcAiCard .ai-range{font-size:15px}
+    #srcAiCard .ai-body,#srcAiCard .ai-line{font-size:18px; line-height:1.55}
+    #srcAiCard .ai-h1{font-size:21px;font-weight:800;color:var(--accent);margin:10px 0 4px}
+    #srcAiCard .ai-h2{font-size:20px;font-weight:800;color:var(--accent);margin:12px 0 4px}
+    #srcAiCard .ai-h1:first-child,#srcAiCard .ai-h2:first-child{margin-top:0}
   </style>
 </head>
 <body data-theme="th">
@@ -123,6 +128,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="source.js?v=19"></script>
+  <script src="source.js?v=20"></script>
 </body>
 </html>
