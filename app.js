@@ -53,7 +53,6 @@ function boot(product, data) {
   var meta = document.getElementById('updatedAt');
   if (meta && data.updatedAt) meta.textContent = '⏱ อัปเดตล่าสุด ' + plainUpdated(data.updatedAt);
   renderInsights();
-  renderAI();
   applyWindow(WINDOW);
 }
 
