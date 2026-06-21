@@ -249,6 +249,7 @@
 
     <div class="card sm">
       <h3 style="margin-bottom:10px">📞 เบอร์สำคัญ</h3>
+      <div class="between" style="padding:6px 0"><span class="muted">549 Resort &amp; Cafe ลี้</span><a class="badge b-blue" href="tel:0821952549">082-195-2549</a></div>
       <div class="between" style="padding:6px 0"><span class="muted">นงนุช บ้านรักไทย</span><a class="badge b-blue" href="tel:0856709419">085-670-9419</a></div>
       <div class="between" style="padding:6px 0"><span class="muted">สายด่วนทางหลวง</span><a class="badge b-red" href="tel:1586">1586</a></div>
     </div>
@@ -296,7 +297,7 @@
 
     <div class="card">
       <h3 style="margin-bottom:10px">🏨 ที่พัก</h3>
-      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · 549 Resort &amp; Cafe ลี้ ลำพูน</span><span class="badge b-amber">เช็คยอดจ่าย</span></div>
+      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · 549 Resort &amp; Cafe ลี้ ลำพูน</span><span class="badge b-green">จ่ายแล้ว 990</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>26 · บ้านรักไทย</span><span class="badge b-green">จ่ายแล้ว</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>27 · Chorthip ปาย</span><span class="badge b-green">Agoda แล้ว</span></div>
       <div class="between" style="padding:7px 0"><span>28 · Good Day &amp; Night เชียงดาว</span><span class="badge b-amber">เช็คยอดจ่าย</span></div>
@@ -334,7 +335,7 @@
 <div class="modal" id="m-expense">
   <div class="sheet">
     <div class="grab"></div>
-    <h2 style="margin-bottom:4px">บันทึกรายจ่าย</h2>
+    <h2 style="margin-bottom:4px" id="exp-title">บันทึกรายจ่าย</h2>
     <label class="fl">หมวด</label>
     <div class="catgrid" id="catpick"></div>
     <label class="fl">จำนวนเงิน (฿)</label>
@@ -630,27 +631,32 @@ function renderBudget(){
   document.getElementById('explist').innerHTML=sorted.length?sorted.map(e=>{
     const c=CATS[e.cat];
     return `<div class="exp">
-      <div class="ic cat-${c.cls}">${c.e}</div>
-      <div><div style="font-weight:700">${e.note||c.label}</div>
+      <div class="ic cat-${c.cls}" onclick="openExpense(${e.id})" style="cursor:pointer">${c.e}</div>
+      <div onclick="openExpense(${e.id})" style="cursor:pointer;flex:1">
+        <div style="font-weight:700">${e.note||c.label} <span style="color:var(--muted);font-size:.75rem">✏️</span></div>
         <div class="muted" style="font-size:.78rem">${c.label} · ${fdate(e.date)}</div></div>
       ${e.slip?`<img class="slip-thumb" src="${e.slip}" onclick="viewImg('${e.id}')">`:''}
       <span class="amt">${fmt(e.amt)} ฿</span>
-      <span onclick="delExp(${e.id})" style="color:var(--red);cursor:pointer;padding:4px">✕</span>
+      <span onclick="delExp(${e.id})" style="color:var(--red);cursor:pointer;padding:4px 6px;font-size:1.1rem">✕</span>
     </div>`;
   }).join(''):'<p class="empty">ยังไม่มีรายจ่าย<br>กดปุ่ม ＋ มุมขวาล่างเพื่อเพิ่ม</p>';
   renderHome();
 }
 
 /* ============ EXPENSE MODAL ============ */
-function openExpense(){
-  pickedCat='food';pickedSlip=null;
+let editingId=null;
+function openExpense(id){
+  editingId=(typeof id==='number')?id:null;
+  const ex=editingId?expenses.find(e=>e.id===editingId):null;
+  pickedCat=ex?ex.cat:'food';pickedSlip=ex?(ex.slip||null):null;
+  document.getElementById('exp-title').textContent=ex?'แก้ไขรายจ่าย':'บันทึกรายจ่าย';
   document.getElementById('catpick').innerHTML=Object.keys(CATS).map(k=>
-    `<div class="catpick ${k==='food'?'on':''}" data-cat="${k}" onclick="pickCat('${k}')">
+    `<div class="catpick ${k===pickedCat?'on':''}" data-cat="${k}" onclick="pickCat('${k}')">
       <span class="e">${CATS[k].e}</span>${CATS[k].label}</div>`).join('');
-  document.getElementById('e-amt').value='';
-  document.getElementById('e-note').value='';
-  document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
-  document.getElementById('e-sliparea').innerHTML='<span class="muted">📷 แตะเพื่อถ่าย / เลือกรูปสลิป</span>';
+  document.getElementById('e-amt').value=ex?ex.amt:'';
+  document.getElementById('e-note').value=ex?(ex.note||''):'';
+  document.getElementById('e-date').value=ex?ex.date:new Date().toISOString().slice(0,10);
+  document.getElementById('e-sliparea').innerHTML=pickedSlip?`<img src="${pickedSlip}">`:'<span class="muted">📷 แตะเพื่อถ่าย / เลือกรูปสลิป</span>';
   document.getElementById('m-expense').classList.add('on');
 }
 function pickCat(k){pickedCat=k;document.querySelectorAll('#catpick .catpick').forEach(c=>c.classList.toggle('on',c.dataset.cat===k));}
@@ -672,9 +678,10 @@ document.getElementById('e-slip').onchange=function(){
 function saveExpense(){
   const amt=parseFloat(document.getElementById('e-amt').value);
   if(!amt||amt<=0){alert('ใส่จำนวนเงิน');return;}
-  expenses.push({id:Date.now(),cat:pickedCat,amt,
-    note:document.getElementById('e-note').value.trim(),
-    date:document.getElementById('e-date').value,slip:pickedSlip});
+  const data={cat:pickedCat,amt,note:document.getElementById('e-note').value.trim(),
+    date:document.getElementById('e-date').value,slip:pickedSlip};
+  if(editingId){Object.assign(expenses.find(x=>x.id===editingId),data);}
+  else expenses.push({id:Date.now(),...data});
   save('tripExpenses',expenses);
   closeModal('m-expense');renderBudget();
 }
