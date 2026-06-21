@@ -217,7 +217,7 @@
       <span class="deco">⛰️</span>
       <div class="between"><span class="badge b-brand" id="home-day">Day –</span><span>🔔</span></div>
       <h1 style="margin-top:8px">ทริปบ้านรักไทย–ปาย</h1>
-      <div class="muted" style="font-size:.88rem">25–29 · กรุงเทพ → ลำปาง → ปาย → เชียงดาว</div>
+      <div class="muted" style="font-size:.88rem">25–29 · กรุงเทพ → ลี้ → แม่ฮ่องสอน → ปาย → เชียงดาว</div>
     </div>
 
     <!-- PLAN per day (on home) -->
@@ -250,7 +250,6 @@
     <div class="card sm">
       <h3 style="margin-bottom:10px">📞 เบอร์สำคัญ</h3>
       <div class="between" style="padding:6px 0"><span class="muted">นงนุช บ้านรักไทย</span><a class="badge b-blue" href="tel:0856709419">085-670-9419</a></div>
-      <div class="between" style="padding:6px 0"><span class="muted">ชอบนอน ลำปาง</span><a class="badge b-blue" href="tel:0822120390">082-212-0390</a></div>
       <div class="between" style="padding:6px 0"><span class="muted">สายด่วนทางหลวง</span><a class="badge b-red" href="tel:1586">1586</a></div>
     </div>
   </section>
@@ -297,7 +296,7 @@
 
     <div class="card">
       <h3 style="margin-bottom:10px">🏨 ที่พัก</h3>
-      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · ชอบนอน ลำปาง</span><span class="badge b-green">จ่ายแล้ว Agoda</span></div>
+      <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>25 · 549 Resort &amp; Cafe ลี้ ลำพูน</span><span class="badge b-amber">เช็คยอดจ่าย</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>26 · บ้านรักไทย</span><span class="badge b-green">จ่ายแล้ว</span></div>
       <div class="between" style="padding:7px 0;border-bottom:1px solid var(--line)"><span>27 · Chorthip ปาย</span><span class="badge b-green">Agoda แล้ว</span></div>
       <div class="between" style="padding:7px 0"><span>28 · Good Day &amp; Night เชียงดาว</span><span class="badge b-amber">เช็คยอดจ่าย</span></div>
@@ -394,31 +393,24 @@ const CATS={
 
 // map = คำค้น Google Maps (ชื่อ + จังหวัด). ไม่ต้องมี API key.
 const DAYS=[
- {id:'25',label:'25 ลำปาง',title:'25 · กรุงเทพ → นครสวรรค์ → ลำปาง',badge:['ไม่ต้องรีบ','b-green'],note:'ออกเช้า สบายๆ',
+ {id:'25',label:'25 ลี้ ลำพูน',title:'25 · กรุงเทพ → ตาก → ลี้ (ลำพูน)',badge:['ขับยาว ~8 ชม. ไม่แวะนครสวรรค์','b-amber'],note:'ผ่านเมืองเถิน เลี้ยวซ้ายไปลี้ ดอยเต่า',
   stops:[
-   {t:'06:00',ty:'fuel',ti:'ออกจากจรัญ',d:'เติมน้ำมันเต็มถัง'},
-   {t:'09:00',ty:'eat',ti:'🥟 ติ่มซำ บ้านอาอี๊',d:'นครสวรรค์ · เข่งไม้ไผ่ร้อนๆ หมูแดง · รีวิว 4.5 · เปิด 8:00',map:'ติ่มซำ บ้านอาอี๊ นครสวรรค์'},
-   {t:'10:15',ty:'cafe',ti:'☕ sa.ma.tha คาเฟ่มัทฉะ',d:'นครสวรรค์ · มัทฉะเกรดพิธี',map:'sa.ma.tha cafe นครสวรรค์'},
-   {t:'11:00',ty:'',ti:'ออก → ลำปาง',d:'~5 ชม.'},
-   {t:'13:00',ty:'',ti:'แวะพักปั๊ม กำแพงเพชร/ตาก'},
-   {t:'16:30',ty:'hotel',ti:'✅ เช็คอินชอบนอน โฮเทล',d:'จ่ายเต็มแล้ว Agoda',map:'ชอบนอน โฮเทล ลำปาง'},
-   {t:'18:30',ty:'eat',ti:'🍲 ข้าวต้มบาทเดียว',d:'อาหารค่ำ ลำปาง',map:'ข้าวต้มบาทเดียว ลำปาง'},
-   {t:'ค่ำ',ty:'',ti:'กาดกองต้า',d:'ถ้าไหว · เสาร์เปิด',map:'กาดกองต้า ลำปาง'},
-   {t:'!',ty:'warn',ti:'Yasumi Cafe ปิด 17:00',d:'→ ไปเช้าวันที่ 26 ก่อนออกแทน'},
+   {t:'06:00',ty:'fuel',ti:'ออกจากจรัญ',d:'เติมน้ำมันเต็มถัง · ขับยาว ~8 ชม.'},
+   {t:'~11:30',ty:'warn',ti:'🍜 Good House x Khao-soi ตาก',d:'ข้าวเที่ยง · ข้าวซอยอร่อย · ปิด 16:00 ต้องถึงก่อน!',deadline:1,map:'Good House Khao soi ตาก'},
+   {t:'~12:30',ty:'',ti:'ออกจากตาก → เมืองเถิน → ลี้',d:'ที่เถิน/ลำปาง เลี้ยวซ้ายไปลี้ ดอยเต่า'},
+   {t:'~15:30',ty:'hotel',ti:'✅ เช็คอิน 549 Resort & Cafe',d:'549 อ.ลี้ ลำพูน 51110',map:'549 Resort & Cafe Lamphun ลี้ ลำพูน'},
+   {t:'เย็น',ty:'',ti:'พักผ่อน / คาเฟ่ในรีสอร์ท'},
   ]},
- {id:'26',label:'26 บ้านรักไทย',title:'26 · ลำปาง → บ้านรักไทย',badge:['ขึ้นเขา · เดดไลน์','b-red'],note:'ขึ้นเขาตอนสด! ตื่นเต็มอิ่ม',
+ {id:'26',label:'26 รักไทย',title:'26 · ลี้ → ดอยเต่า → แม่สะเรียง → แม่ฮ่องสอน → รักไทย',badge:['เส้นยาว · ปั๊มน้อย ระวังน้ำมัน','b-red'],note:'เส้น 108 โค้งเยอะ ปั๊มห่าง เติมน้ำมันตามจุด',
   stops:[
-   {t:'06:30',ty:'hotel',ti:'ตื่น เช็คเอาท์',d:'จ่ายครบแล้ว Agoda'},
-   {t:'07:30',ty:'cafe',ti:'☕ Yasumi Cafe',d:'กาแฟ+ข้าวเช้า · รีวิว 4.8 ญี่ปุ่น · เปิด 8:00 ส-อา',map:'Yasumi Cafe ลำปาง'},
-   {t:'08:00',ty:'',ti:'ออก → จอมทอง',d:'~2 ชม.'},
-   {t:'⛽',ty:'fuel',ti:'เติมน้ำมันเต็มที่จอมทอง!',d:'ก่อนขึ้นเขา ปั๊มห่าง',map:'ปั๊มน้ำมัน จอมทอง เชียงใหม่'},
-   {t:'10:00',ty:'sight',ti:'ขึ้นดอยอินทนนท์ → แม่แจ่ม',d:'ขับ 50-60 ระวังโค้ง+หมอก',map:'ดอยอินทนนท์'},
-   {t:'12:00',ty:'eat',ti:'🍴 Mae Chaem Gate',d:'ข้าวเที่ยง · รีวิว 4.8',map:'Mae Chaem Gate ร้านอาหาร แม่แจ่ม'},
-   {t:'13:00',ty:'warn',ti:'ออกจากแม่แจ่ม ← เดดไลน์!',d:'ห้ามช้ากว่านี้ · เข้า ทล.1263 ทางเขายาว',deadline:1,map:'อำเภอแม่แจ่ม'},
-   {t:'14:30',ty:'cafe',ti:"☕ Dad's Garden ขุนยวม",d:'พักสั้น วิวนา',map:"Dad's Garden ขุนยวม"},
-   {t:'16:00',ty:'hotel',ti:'✅ ถึงบ้านรักไทย',map:'บ้านรักไทย แม่ฮ่องสอน'},
-   {t:'เย็น',ty:'eat',ti:'🍽️ ร้านลีไวน์ บ้านรักไท',d:'อาหารเย็น (ตัวเลือก 1)',map:'ร้านลีไวน์ บ้านรักไทย แม่ฮ่องสอน'},
-   {t:'เย็น',ty:'cafe',ti:"☕ Wojia Cafe' บ้านรักไท",d:'อาหารเย็น/คาเฟ่ (ตัวเลือก 2)',map:"Wojia Cafe บ้านรักไทย แม่ฮ่องสอน"},
+   {t:'08:30',ty:'hotel',ti:'ออกจาก 549 Resort',d:'ออก 8:00–9:00 · อ.ลี้ ลำพูน',map:'549 Resort & Cafe Lamphun ลี้ ลำพูน'},
+   {t:'~09:30',ty:'fuel',ti:'⛽ เติมน้ำมันที่ฮอด',d:'ผ่านดอยเต่า → ฮอด · ปั๊มใหญ่จุดสุดท้ายก่อนเข้าเส้น 108',map:'อำเภอฮอด เชียงใหม่'},
+   {t:'~11:30',ty:'cafe',ti:'☕ Maela Food & Coffee',d:'แม่ลาหลวง อ.แม่ลาน้อย แม่ฮ่องสอน 58120',map:'Maela Food & Coffee แม่ลาหลวง แม่ลาน้อย แม่ฮ่องสอน'},
+   {t:'~13:00',ty:'eat',ti:'🍴 ธนโภชนา ขุนยวม',d:'ข้าวกลางวัน · 284/2 ม.2 ขุนยวม แม่ฮ่องสอน',map:'ธนโภชนา ขุนยวม แม่ฮ่องสอน'},
+   {t:'⛽',ty:'fuel',ti:'เติมน้ำมันที่ขุนยวม',d:'ช่วงขุนยวม→แม่ฮ่องสอน→รักไทย ปั๊มน้อย เติมให้เต็ม',map:'ปั๊มน้ำมัน ขุนยวม แม่ฮ่องสอน'},
+   {t:'~16:00',ty:'hotel',ti:'✅ เช็คอิน นงนุชรีสอร์ท',d:'หมอกจำแป่ เมืองแม่ฮ่องสอน (บ้านรักไทย)',map:'นงนุชรีสอร์ท หมอกจำแป่ แม่ฮ่องสอน'},
+   {t:'เย็น',ty:'eat',ti:'🍽️ ร้านลีไวน์ บ้านรักไท',d:'อาหารเย็น',map:'ร้านลีไวน์ บ้านรักไทย แม่ฮ่องสอน'},
+   {t:'เย็น',ty:'cafe',ti:"☕ Wojia Cafe' (ตัวเลือก)",d:'คาเฟ่บ้านรักไท',map:"Wojia Cafe บ้านรักไทย แม่ฮ่องสอน"},
   ]},
  {id:'27',label:'27 ปาย',title:'27 · บ้านรักไทย → ปาย',badge:['~150 กม. โค้งเยอะ 4-5 ชม.','b-amber'],note:'',
   stops:[
