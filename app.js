@@ -53,8 +53,34 @@ function boot(product, data) {
   var meta = document.getElementById('updatedAt');
   if (meta && data.updatedAt) meta.textContent = '⏱ อัปเดตล่าสุด ' + plainUpdated(data.updatedAt);
   renderInsights();
+  renderAI();
   applyWindow(WINDOW);
 }
+
+// weekly AI economic summary (per product) from snapshot
+function renderAI() {
+  var el = document.getElementById('aiCard'); if (!el) return;
+  var a = FULL.aiSummary;
+  if (!a || !a.byProduct || !a.byProduct[PRODUCT]) { el.style.display = 'none'; return; }
+  var range = thShort(a.weekStart) + ' – ' + thShort(a.weekEnd);
+  var next = thShort(addDaysIso(a.weekEnd, 8));
+  el.innerHTML =
+    '<div class="ai-head"><span class="ai-ic">🤖</span> สรุปเศรษฐกิจรายสัปดาห์' +
+      '<span class="ai-range">' + range + ' · Next Analysis ' + next + '</span></div>' +
+    '<div class="ai-body">' + mdLite(a.byProduct[PRODUCT]) + '</div>';
+  el.style.display = 'block';
+}
+function addDaysIso(iso, n) { var p = iso.split('-'); var d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function mdLite(t) {
+  t = String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return t.split(/\n+/).map(function (l) {
+    l = l.trim(); if (!l) return '';
+    l = l.replace(/^[-•]\s*/, '');
+    return '<div class="ai-line">' + l + '</div>';
+  }).join('');
+}
+function thShort(iso) { if (!iso) return ''; var mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']; var p = iso.split('-'); return (+p[2]) + ' ' + mo[(+p[1]) - 1]; }
 
 // ---- top-bar chrome: refresh + sidebar collapse ----
 function wireChrome() {

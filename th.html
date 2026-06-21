@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CBPC-TH · Cabal Dashboard</title>
   <link rel="icon" href="logo_CBPC_TH.png">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body data-theme="th">
   <button id="showSide" title="แสดงเมนู">☰</button>
@@ -28,6 +28,7 @@
         <a href="detail.html?p=CBPC-TH&g=dauccu">DAU / CCU Trend</a>
         <a href="detail.html?p=CBPC-TH&g=alzfg">ALZ / FG</a>
         <a href="detail.html?p=CBPC-TH&g=revenue">Revenue</a>
+        <a href="source.html?p=CBPC-TH">ALZ/FG Source</a>
       </nav>
 
       <div class="side-foot">
@@ -55,6 +56,7 @@
       </div>
 
       <section class="insights" id="insights"></section>
+      <section class="ai-card" id="aiCard" style="display:none"></section>
       <div id="status"><div class="skeleton"></div><div class="skeleton"></div></div>
 
       <section class="kpis" id="kpis"></section>
@@ -84,6 +86,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>window.DASH_PRODUCT = 'CBPC-TH';</script>
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

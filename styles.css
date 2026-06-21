@@ -288,6 +288,17 @@ canvas.spark { position: absolute; right: 14px; bottom: 12px; width: 96px !impor
 .legend span { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
 .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 
+/* AI weekly summary card */
+.ai-card { background: linear-gradient(160deg, rgba(79,140,255,.08), var(--panel) 55%); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 18px; }
+.ai-card .ai-head { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ai-card .ai-ic { font-size: 18px; }
+.ai-card .ai-range { color: var(--muted); font-size: 12px; font-weight: 600; margin-left: auto; }
+.ai-card .ai-body { font-size: 13.5px; line-height: 1.5; }
+.ai-card .ai-line { margin: 4px 0; padding-left: 14px; position: relative; color: var(--text); }
+.ai-card .ai-line:before { content: "›"; position: absolute; left: 0; color: var(--accent); }
+.ai-card .ai-line strong { color: var(--accent); }
+
 /* external HTML tooltip for mini charts */
 #chartTip {
   position: absolute; z-index: 1000; pointer-events: none; opacity: 0;
