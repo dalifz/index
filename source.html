@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALZ / FG Source · Cabal Dashboard</title>
+  <link rel="icon" href="logo_CBPC_TH.png">
+  <link rel="stylesheet" href="styles.css?v=16">
+  <style>
+    :root{ --gold:#ffce5c; --teal:#25d3c0; }
+    .nets{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+    .net{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+    .net.alz{border-color:rgba(255,206,92,.4)} .net.fg{border-color:rgba(37,211,192,.4)}
+    .net .lbl{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+    .net.alz .lbl{color:var(--gold)} .net.fg .lbl{color:var(--teal)}
+    .net .big{font-size:28px;font-weight:800;margin-top:8px}
+    .net .io{display:flex;gap:18px;margin-top:8px;font-size:12px}
+    .net .io .in{color:#ff5d5d} .net .io .out{color:#38e08a}
+    .sdot{width:10px;height:10px;border-radius:3px;display:inline-block}
+    .curtoggle{display:flex;gap:8px;margin-bottom:16px}
+    .curtoggle button{background:var(--panel);border:1px solid var(--border);color:var(--muted);font-weight:700;padding:8px 20px;border-radius:10px;cursor:pointer}
+    .curtoggle button.active.alz{background:var(--gold);color:#241a00;border-color:var(--gold)}
+    .curtoggle button.active.fg{background:var(--teal);color:#04201d;border-color:var(--teal)}
+    .ratio{display:flex;height:34px;border-radius:10px;overflow:hidden;margin:6px 0 10px}
+    .ratio .seg-in{background:#ff5d5d} .ratio .seg-out{background:#38e08a}
+    .ratio span{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0a0e0d;min-width:0;overflow:hidden;white-space:nowrap}
+    .hl{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .hl .chip{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px}
+    .hl .chip b{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:3px}
+    .hl .chip .v{font-weight:800}
+    table.data td.pos{color:#ff5d5d} table.data td.neg{color:#38e08a}
+    .bar-mini{height:6px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;min-width:70px}
+    .bar-mini span{display:block;height:100%}
+    select{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;font-size:13px}
+    .donuts2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:stretch}
+    .chart-wrap.dn{height:340px}
+    @media(max-width:900px){.donuts2{grid-template-columns:1fr}}
+    .src-bottom{display:grid;grid-template-columns:1fr 560px;gap:16px;margin-top:16px;align-items:start}
+    .src-tbl table.data{width:100%;margin:0;min-width:0}
+    .src-tbl .table-wrap{max-height:none}
+    @media(max-width:1100px){.src-bottom{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-theme="th">
+  <button id="showSide" title="แสดงเมนู">☰</button>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><img id="brandLogo" src="logo_CBPC_TH.png" alt="CABAL"><div class="sub" id="brandSub">CBPC-TH</div></div>
+      <div class="nav-section">Servers</div>
+      <nav class="nav"><a id="navTH"><span class="dot"></span> CBPC-TH</a><a id="navSEA"><span class="dot"></span> CBPC-SEA</a></nav>
+      <div class="nav-section">Metrics</div>
+      <nav class="nav" id="navMetrics">
+        <a data-g="overview">Overview</a>
+        <a data-g="dauccu">DAU / CCU Trend</a>
+        <a data-g="alzfg">ALZ / FG</a>
+        <a data-g="revenue">Revenue</a>
+        <a data-g="source" class="active">ALZ/FG Source</a>
+      </nav>
+      <div class="side-foot"><button id="toggleSide" class="side-btn">« ซ่อนเมนู</button></div>
+    </aside>
+
+    <main class="main">
+      <div class="main-head">
+        <div class="head-title">
+          <h2 id="title">ALZ / FG Source</h2>
+          <div class="updated" id="updatedAt">—</div>
+        </div>
+        <div class="head-actions">
+          <div class="range" id="range">
+            <button data-n="7">7D</button><button data-n="14">14D</button>
+            <button data-n="30" class="active">30D</button><button data-n="40">40D</button>
+          </div>
+          <select id="dayPick"><option value="">— ทั้งช่วง —</option></select>
+        </div>
+      </div>
+
+      <div id="status"><div class="skeleton"></div><div class="skeleton"></div></div>
+
+      <section class="nets">
+        <div class="net alz"><div class="lbl"><span class="sdot" style="background:var(--gold)"></span> ALZ · Net</div>
+          <div class="big" id="alzNet">—</div>
+          <div class="io"><span class="in">▲ เข้า <b id="alzIn">—</b></span><span class="out">▼ ออก <b id="alzOut">—</b></span></div></div>
+        <div class="net fg"><div class="lbl"><span class="sdot" style="background:var(--teal)"></span> FG · Net</div>
+          <div class="big" id="fgNet">—</div>
+          <div class="io"><span class="in">▲ เข้า <b id="fgIn">—</b></span><span class="out">▼ ออก <b id="fgOut">—</b></span></div></div>
+      </section>
+
+      <div class="curtoggle" id="curToggle">
+        <button class="alz active" data-cur="ALZ">ALZ</button>
+        <button class="fg" data-cur="FG">FG</button>
+      </div>
+
+      <section class="card full" style="margin-top:0">
+        <h3>เข้า vs ออก (รวมตามช่วง)</h3>
+        <div class="cap">income รวม เทียบ outcome รวม</div>
+        <div class="ratio" id="ratio"></div>
+        <div class="hl" id="highlights"></div>
+      </section>
+
+      <section class="donuts2">
+        <div class="card"><h3 style="color:#ff5d5d">รายการเข้า (Income)</h3><div class="cap">เข้าทางไหนเยอะสุด · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="inDonut"></canvas></div></div>
+        <div class="card"><h3 style="color:#38e08a">รายการออก / Burn (Outcome)</h3><div class="cap">burn ทางไหนเยอะสุด · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="outDonut"></canvas></div></div>
+      </section>
+
+      <section class="src-bottom">
+        <div class="card ai-card" id="srcAiCard" style="display:none"></div>
+        <div class="card src-tbl"><h3>ตาราง Top channels (รวมตามช่วง)</h3><div class="cap">เข้า=แดง · ออก=เขียว</div>
+          <div class="table-wrap"><table class="data" id="tbl"></table></div></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="source.js?v=18"></script>
+</body>
+</html>
