@@ -174,7 +174,8 @@ function render() {
   donut('inDonut', topN(inc, 8), RED);
   donut('outDonut', topN(out, 8), GREEN);
   // 3rd donut — NPC Shop Sell storage churn
-  var cw = document.getElementById('churnWrap');
+  var cw = document.getElementById('churnWrap'), row = document.getElementById('donutsRow');
+  if (row) row.style.gridTemplateColumns = S.has ? '1fr 1fr 1fr' : '1fr 1fr';
   if (S.has) {
     cw.style.display = '';
     donut('churnDonut', [['ขายเข้า (Sell)', S.sell], ['ดึงคืน (Restore)', S.restore]], ['#b98bff', '#7c5cd6']);
