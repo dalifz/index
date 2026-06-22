@@ -141,9 +141,9 @@ function chip(l, v, c) { return '<span class="ins ' + (c || '') + '"><b>' + l + 
 function renderKpis(p, w) {
   var wrap = document.getElementById('kpis'); wrap.innerHTML = '';
   var labels = w.days.map(shortDate);
-  wrap.appendChild(revenueTodayCard(p));
-  wrap.appendChild(kpiChartCard('DAU', SVG.users, '#37c6ff', colorFor('DAU'), p['DAU']));
-  wrap.appendChild(kpiChartCard('CCU', SVG.user, '#37c6ff', '#37c6ff', p['CCU']));
+  wrap.appendChild(revenueTodayCard(w));
+  wrap.appendChild(kpiChartCard('DAU', SVG.users, '#37c6ff', colorFor('DAU'), w['DAU']));
+  wrap.appendChild(kpiChartCard('CCU', SVG.user, '#37c6ff', '#37c6ff', w['CCU']));
   wrap.appendChild(targetCard(p, FULL.days));
   drawMini('spark_revtoday', labels, w['Revenue'], ACCENT, true);
   drawMini('c_DAU', labels, w['DAU'], colorFor('DAU'));
@@ -153,27 +153,27 @@ function renderKpis(p, w) {
 
 // DAU/CCU: index beside title + interactive mini chart (hover tooltip)
 function kpiChartCard(label, icon, iconColor, lineColor, series) {
-  var w = wow(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
+  var w = changeOver(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
   var val = w.value == null ? '—' : fmtNum(w.value);
   var div = document.createElement('div'); div.className = 'card kpi-chart';
   div.innerHTML =
     '<div class="metric-head">' +
       '<div class="mh-left"><h3><span class="ic2 mini" style="color:' + iconColor + ';background:' + hexToRgba(iconColor, .15) + '">' + icon + '</span> ' + label + '</h3></div>' +
       '<div class="metric-idx"><span class="mi-val">' + val + '</span>' +
-        '<span class="delta ' + w.cls + '">' + w.arrow + ' ' + Math.abs(w.pct).toFixed(1) + '% vs เมื่อวาน</span></div>' +
+        '<span class="delta ' + w.cls + '">' + w.arrow + ' ' + Math.abs(w.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</span></div>' +
     '</div>' +
     '<div class="chart-wrap mini"><canvas id="c_' + label + '"></canvas></div>';
   return div;
 }
 
-function revenueTodayCard(p) {
-  var d = dod(p['Revenue']);
+function revenueTodayCard(w) {
+  var d = changeOver(w['Revenue'] || []) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
   var div = document.createElement('div'); div.className = 'hero rev-today';
   div.innerHTML =
     '<div class="rt-head">' +
       '<div class="label"><span class="ic2 green">' + SVG.money + '</span> Revenue Today</div>' +
       '<div class="big money">' + (d.value == null ? '—' : fmtMoney(d.value)) + '</div>' +
-      '<div class="delta ' + d.cls + '">' + d.arrow + ' ' + Math.abs(d.pct).toFixed(1) + '% vs เมื่อวาน</div>' +
+      '<div class="delta ' + d.cls + '">' + d.arrow + ' ' + Math.abs(d.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</div>' +
     '</div>' +
     '<div class="chart-wrap mini"><canvas id="spark_revtoday"></canvas></div>';
   return div;
