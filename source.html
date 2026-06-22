@@ -35,6 +35,12 @@
     .donuts2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:stretch}
     .chart-wrap.dn{height:340px}
     @media(max-width:900px){.donuts2{grid-template-columns:1fr}}
+    .churn-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+    .churn-stat{text-align:center}
+    .churn-stat .cs-lbl{color:var(--muted);font-size:14px}
+    .churn-stat .cs-val{font-size:40px;font-weight:800;color:#b98bff;margin-top:6px}
+    .churn-stat .cs-sub{color:var(--muted);font-size:13px;margin-top:6px}
+    @media(max-width:900px){.churn-row{grid-template-columns:1fr}}
     .src-bottom{display:grid;grid-template-columns:1fr 560px;gap:16px;margin-top:16px;align-items:start}
     .src-tbl table.data{width:100%;margin:0;min-width:0}
     .src-tbl .table-wrap{max-height:none}
@@ -115,8 +121,23 @@
       </section>
 
       <section class="donuts2">
-        <div class="card"><h3 style="color:#ff5d5d">รายการเข้า (Income)</h3><div class="cap">เข้าทางไหนเยอะสุด · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="inDonut"></canvas></div></div>
-        <div class="card"><h3 style="color:#38e08a">รายการออก / Burn (Outcome)</h3><div class="cap">burn ทางไหนเยอะสุด · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="outDonut"></canvas></div></div>
+        <div class="card"><h3 style="color:#ff5d5d">รายการเข้า (Income)</h3><div class="cap">เข้าทางไหนเยอะสุด · ไม่รวม NPC Shop Sell · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="inDonut"></canvas></div></div>
+        <div class="card"><h3 style="color:#38e08a">รายการออก / Burn (Outcome)</h3><div class="cap">burn ทางไหนเยอะสุด · ไม่รวม Sell Restore · Top 8 + อื่นๆ</div><div class="chart-wrap dn"><canvas id="outDonut"></canvas></div></div>
+      </section>
+
+      <section class="full" id="churnWrap" style="display:none">
+        <div class="card">
+          <h3 style="color:#b98bff">NPC Shop Sell · ฝาก/ดึงคลัง (ไม่ใช่เงินเข้า-ออกจริง)</h3>
+          <div class="cap">ผู้เล่นขายของเพื่อฝากไว้แล้วดึงคืน วนไปมา — แยกออกจากกราฟหลัก</div>
+          <div class="churn-row">
+            <div class="chart-wrap dn"><canvas id="churnDonut"></canvas></div>
+            <div class="churn-stat">
+              <div class="cs-lbl">NPC Shop Sell True (ขายจริง)</div>
+              <div class="cs-val" id="churnTrue">—</div>
+              <div class="cs-sub" id="churnSub">= ขายเข้า − ดึงคืน</div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="src-bottom">
@@ -128,6 +149,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="source.js?v=21"></script>
+  <script src="source.js?v=22"></script>
 </body>
 </html>

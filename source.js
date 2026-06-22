@@ -130,36 +130,59 @@ function topN(o, n) {
   return top;
 }
 
+// pull NPC Shop Sell churn out of income/outcome (storage behavior, not real flow)
+function splitChurn(incObj, outObj) {
+  var inc = {}, out = {};
+  Object.keys(incObj).forEach(function (k) { inc[k] = incObj[k]; });
+  Object.keys(outObj).forEach(function (k) { out[k] = outObj[k]; });
+  var sell = inc['NPC Shop Sell'] || 0, restore = out['NPC Shop Sell Restore'] || 0;
+  delete inc['NPC Shop Sell']; delete out['NPC Shop Sell Restore'];
+  return { inc: inc, out: out, sell: sell, restore: restore, tru: sell - restore, has: (sell > 0 || restore > 0) };
+}
+
 function render() {
   charts.forEach(function (c) { c.destroy(); }); charts = [];
-  // both nets
+  // both net cards — REAL economy (churn netted into True, fake pair removed)
   ['ALZ', 'FG'].forEach(function (cur) {
-    var inc = total(aggregate(DATA[cur].income)), out = total(aggregate(DATA[cur].outcome)), net = inc - out;
+    var S = splitChurn(aggregate(DATA[cur].income), aggregate(DATA[cur].outcome));
+    var inR = total(S.inc) + (S.tru > 0 ? S.tru : 0), outR = total(S.out) + (S.tru < 0 ? -S.tru : 0), net = inR - outR;
     var k = cur.toLowerCase();
     var el = document.getElementById(k + 'Net');
     el.textContent = (net >= 0 ? '+' : '') + fmt(net);
     el.style.color = net > 0 ? '#ff5d5d' : '#38e08a';
-    document.getElementById(k + 'In').textContent = fmt(inc);
-    document.getElementById(k + 'Out').textContent = fmt(out);
+    document.getElementById(k + 'In').textContent = fmt(inR);
+    document.getElementById(k + 'Out').textContent = fmt(outR);
   });
-  var inc = aggregate(DATA[CUR].income), out = aggregate(DATA[CUR].outcome);
+
+  var S = splitChurn(aggregate(DATA[CUR].income), aggregate(DATA[CUR].outcome));
+  var inc = S.inc, out = S.out;                       // donut/table/highlights = non-NPC channels
   var ti = total(inc), to = total(out), tot = ti + to || 1;
-  // ratio
-  var ri = ti / tot * 100, ro = to / tot * 100;
+  var inR = ti + (S.tru > 0 ? S.tru : 0), outR = to + (S.tru < 0 ? -S.tru : 0), netR = inR - outR; // real (incl True)
+  // ratio — real (incl True selling)
+  var ri = inR / (inR + outR || 1) * 100, ro = outR / (inR + outR || 1) * 100;
   document.getElementById('ratio').innerHTML =
     '<span class="seg-in" style="width:' + ri + '%">เข้า ' + ri.toFixed(1) + '%</span>' +
     '<span class="seg-out" style="width:' + ro + '%">ออก ' + ro.toFixed(1) + '%</span>';
-  // highlights
+  // highlights — top non-NPC channels + real net
   var hi = topN(inc, 1)[0] || ['-', 0], ho = topN(out, 1)[0] || ['-', 0];
   document.getElementById('highlights').innerHTML =
-    chip('เข้าเยอะสุด', hi[0] + ' · ' + fmt(hi[1]) + ' (' + (ti ? (hi[1] / ti * 100).toFixed(1) : 0) + '%)', '#ff5d5d') +
-    chip('ออกเยอะสุด', ho[0] + ' · ' + fmt(ho[1]) + ' (' + (to ? (ho[1] / to * 100).toFixed(1) : 0) + '%)', '#38e08a') +
-    chip('เข้า : ออก', to ? (ti / to).toFixed(2) + ' : 1' : '—', '') +
-    chip('Net', ((ti - to) >= 0 ? '+' : '') + fmt(ti - to), (ti - to) > 0 ? '#ff5d5d' : '#38e08a');
-  // donuts
+    chip('เข้าเยอะสุด (ไม่รวม NPC)', hi[0] + ' · ' + fmt(hi[1]) + ' (' + (ti ? (hi[1] / ti * 100).toFixed(1) : 0) + '%)', '#ff5d5d') +
+    chip('ออกเยอะสุด (ไม่รวม Restore)', ho[0] + ' · ' + fmt(ho[1]) + ' (' + (to ? (ho[1] / to * 100).toFixed(1) : 0) + '%)', '#38e08a') +
+    chip('NPC Shop Sell True', (S.tru >= 0 ? '+' : '') + fmt(S.tru), S.tru >= 0 ? '#b98bff' : '#38e08a') +
+    chip('Net (จริง)', (netR >= 0 ? '+' : '') + fmt(netR), netR > 0 ? '#ff5d5d' : '#38e08a');
+  // main donuts (non-NPC)
   donut('inDonut', topN(inc, 8), RED);
   donut('outDonut', topN(out, 8), GREEN);
-  // table
+  // 3rd donut — NPC Shop Sell storage churn
+  var cw = document.getElementById('churnWrap');
+  if (S.has) {
+    cw.style.display = '';
+    donut('churnDonut', [['ขายเข้า (Sell)', S.sell], ['ดึงคืน (Restore)', S.restore]], ['#b98bff', '#7c5cd6']);
+    document.getElementById('churnTrue').textContent = (S.tru >= 0 ? '+' : '') + fmt(S.tru);
+    document.getElementById('churnTrue').style.color = S.tru >= 0 ? '#b98bff' : '#38e08a';
+    document.getElementById('churnSub').textContent = 'ขายเข้า ' + fmt(S.sell) + ' − ดึงคืน ' + fmt(S.restore);
+  } else { cw.style.display = 'none'; }
+  // table (non-NPC channels)
   var rows = [];
   Object.keys(inc).forEach(function (k) { rows.push(['Income', k, inc[k], ti]); });
   Object.keys(out).forEach(function (k) { rows.push(['Outcome', k, out[k], to]); });
