@@ -8,7 +8,7 @@ var RED = ['#ff4d4d','#ff6b3d','#ff8a3d','#ffa14d','#ffb86b','#e0563d','#c0392b'
 var GREEN = ['#1fd67a','#38e08a','#2ee59d','#0fb37a','#5af2c8','#27c98f','#1aa86a','#7bf0b8'];
 var GRAY = '#5b6b64';
 
-var DATA, PRODUCT, CUR = 'ALZ', WIN = 30, DAY = '', charts = [];
+var DATA, PRODUCT, CUR = 'ALZ', WIN = 30, DAY = '', charts = [], ANCHOR = 0;
 
 function qs(n, d) { var m = new RegExp('[?&]' + n + '=([^&]+)').exec(location.search); return m ? decodeURIComponent(m[1]) : d; }
 
@@ -42,13 +42,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function boot(d) {
   DATA = d;
+  ANCHOR = lastDataIdx();
   document.getElementById('status').style.display = 'none';
   if (d.updatedAt) document.getElementById('updatedAt').textContent = '⏱ อัปเดต ' + plain(d.updatedAt);
-  // day dropdown
+  // day dropdown — only days that have data (up to latest data day)
   var sel = document.getElementById('dayPick');
-  d.days.forEach(function (iso) { var o = document.createElement('option'); o.value = iso; o.textContent = thDate(iso); sel.appendChild(o); });
+  d.days.slice(0, ANCHOR + 1).forEach(function (iso) { var o = document.createElement('option'); o.value = iso; o.textContent = thDate(iso); sel.appendChild(o); });
   renderSourceAI();
   render();
+}
+
+// latest day index that has any ALZ/FG data (window anchors here, not "today")
+function lastDataIdx() {
+  var last = 0;
+  ['ALZ', 'FG'].forEach(function (cur) {
+    ['income', 'outcome'].forEach(function (t) {
+      var o = DATA[cur][t];
+      Object.keys(o).forEach(function (ch) {
+        var arr = o[ch];
+        for (var i = arr.length - 1; i > last; i--) { if (arr[i] > 0) { last = i; break; } }
+      });
+    });
+  });
+  return last;
 }
 
 function renderSourceAI() {
@@ -99,7 +115,7 @@ function aggregate(obj) {
   var days = DATA.days, out = {};
   var idxs;
   if (DAY) { var di = days.indexOf(DAY); idxs = di < 0 ? [] : [di]; }
-  else { var start = Math.max(0, days.length - WIN); idxs = []; for (var i = start; i < days.length; i++) idxs.push(i); }
+  else { var end = ANCHOR, start = Math.max(0, end - WIN + 1); idxs = []; for (var i = start; i <= end; i++) idxs.push(i); }
   Object.keys(obj).forEach(function (ch) {
     var s = 0; idxs.forEach(function (i) { s += (obj[ch][i] || 0); });
     if (s > 0) out[ch] = s;
