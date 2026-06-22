@@ -118,8 +118,19 @@ function applyWindow(N) {
   renderKpis(p, w);
   drawMain(labels, w['DAU'], w['CCU']);
   drawArea('revChart', labels, w['Revenue'], colorFor('Revenue'), false, true);
+  renderRevIdx(w['Revenue'] || []);
   renderMetricCards(w);
   renderRev7(p['Revenue'] || [], FULL.days);
+}
+
+// Revenue Trend header index: latest revenue + %change over selected range
+function renderRevIdx(series) {
+  var v = document.getElementById('revIdxVal'), d = document.getElementById('revIdxDelta');
+  if (!v || !d) return;
+  var c = changeOver(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
+  v.textContent = c.value == null ? '—' : fmtMoney(c.value);
+  d.className = 'delta ' + c.cls;
+  d.textContent = c.arrow + ' ' + Math.abs(c.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.';
 }
 
 function destroyCharts() { CHARTS.forEach(function (c) { try { c.destroy(); } catch (e) {} }); CHARTS = []; }
