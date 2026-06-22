@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CBPC-TH · Cabal Dashboard</title>
   <link rel="icon" href="logo_CBPC_TH.png">
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body data-theme="th">
   <button id="showSide" title="แสดงเมนู">☰</button>
@@ -72,8 +72,10 @@
           <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
         </div>
         <div class="card" id="revenue">
-          <h3>Revenue Trend</h3>
-          <div class="cap">รายได้รายวัน (฿)</div>
+          <div class="metric-head">
+            <div class="mh-left"><h3>Revenue Trend</h3><div class="cap">รายได้รายวัน (฿)</div></div>
+            <div class="metric-idx"><span class="mi-val" id="revIdxVal" style="color:#ffce5c">—</span><span class="delta" id="revIdxDelta"></span></div>
+          </div>
           <div class="chart-wrap"><canvas id="revChart"></canvas></div>
         </div>
       </section>
@@ -85,6 +87,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>window.DASH_PRODUCT = 'CBPC-TH';</script>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
