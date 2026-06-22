@@ -211,12 +211,11 @@ function renderMetricCards(w) {
   var wrap = document.getElementById('metrics'); if (!wrap) return; wrap.innerHTML = '';
   var labels = w.days.map(shortDate);
   ['ALZ Daily', 'ALZ 30D', 'FG Daily', 'FG 30D'].forEach(function (m) {
-    var is30 = /30D/.test(m);
-    var ww = wow(w[m] || [], is30 ? 30 : 7);
+    var ww = changeOver(w[m] || []);   // %change across the SELECTED window
     var color = colorFor(m);
     var cid = 'c_' + m.replace(/\s+/g, '_');
     var val = ww && ww.value != null ? fmtNum(ww.value) : '—';
-    var dl = ww ? '<span class="delta ' + ww.cls + '">' + ww.arrow + ' ' + Math.abs(ww.pct).toFixed(1) + '% vs ' + (is30 ? '30' : '7') + 'ว.</span>' : '';
+    var dl = ww ? '<span class="delta ' + ww.cls + '">' + ww.arrow + ' ' + Math.abs(ww.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</span>' : '';
     var div = document.createElement('div'); div.className = 'card';
     div.innerHTML =
       '<div class="metric-head">' +
@@ -403,6 +402,15 @@ function wow(series, back) { back = back || 7; series = series || []; var l = la
   if (prev == null || prev === 0) return { value: l.value, pct: 0, cls: 'flat', arrow: '—' };
   var pct = ((l.value - prev) / Math.abs(prev)) * 100;
   return { value: l.value, pct: pct, cls: pct > .05 ? 'up' : (pct < -.05 ? 'down' : 'flat'), arrow: pct > .05 ? '▲' : (pct < -.05 ? '▼' : '—') };
+}
+// %change from first non-null to last non-null within the (already windowed) array
+function changeOver(arr) {
+  arr = arr || [];
+  var last = lastNonNull(arr); if (last.value == null) return null;
+  var first = null; for (var i = 0; i < arr.length; i++) { if (arr[i] != null) { first = arr[i]; break; } }
+  if (first == null || first === 0) return { value: last.value, pct: 0, cls: 'flat', arrow: '—' };
+  var pct = ((last.value - first) / Math.abs(first)) * 100;
+  return { value: last.value, pct: pct, cls: pct > .05 ? 'up' : (pct < -.05 ? 'down' : 'flat'), arrow: pct > .05 ? '▲' : (pct < -.05 ? '▼' : '—') };
 }
 function targetPct(p, days) { var t = TARGETS[PRODUCT] || 0; return t ? (revenueMTD(p, days) / t) * 100 : 0; }
 function revenueMTD(p, days) { var rev = p['Revenue'] || []; if (!days.length) return 0; var m = days[days.length - 1].slice(0, 7), s = 0; for (var i = 0; i < days.length; i++) if (days[i].slice(0, 7) === m && rev[i] != null) s += rev[i]; return s; }
