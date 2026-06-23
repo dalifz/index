@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revenue Mini — Y70</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#161630;
+    --card:rgba(255,255,255,.05);
+    --border:rgba(255,255,255,.12);
+    --txt:#ffffff;
+    --sub:rgba(255,255,255,.72);
+    --rev:#FF496C;     /* title + dates      */
+    --th:#08E8DE;      /* PC Thai            */
+    --sea:#FF5F1F;     /* PC Sea             */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
+    font-family:-apple-system,"Segoe UI","Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  body{padding:14px;}
+  .card{height:100%;background:var(--card);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px 12px;display:flex;flex-direction:column;}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--rev);}
+  .upd{font-size:15px;font-weight:700;color:var(--rev);}
+  /* two number columns side by side */
+  .nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+  .col{background:rgba(255,255,255,.025);border-radius:13px;padding:10px 16px;
+    border:1px solid var(--border);position:relative;overflow:hidden;}
+  .col::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
+  .col.th::before{background:var(--th);}
+  .col.sea::before{background:var(--sea);}
+  .col .name{font-size:15px;font-weight:700;letter-spacing:.3px;margin-bottom:2px;
+    display:flex;align-items:center;gap:7px;}
+  .col.th .name{color:var(--th);}
+  .col.sea .name{color:var(--sea);}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .col.th .dot{background:var(--th);}
+  .col.sea .dot{background:var(--sea);}
+  /* "เดือนนี้" pushed to end of name row */
+  .mtd-inline{margin-left:auto;display:flex;align-items:baseline;gap:6px;
+    color:var(--txt);font-weight:700;font-size:14px;}
+  .mtd-inline .lab{font-size:11px;color:var(--sub);font-weight:600;}
+  .mtd-usd{font-size:11px;color:var(--sub);font-weight:600;}
+  /* big today number — scales to column width */
+  .today{font-size:clamp(34px,6.5vw,72px);font-weight:800;line-height:1;letter-spacing:-1.5px;
+    display:flex;align-items:baseline;gap:10px;white-space:nowrap;}
+  .col.th .today{color:var(--th);}
+  .col.sea .today{color:var(--sea);}
+  .native{font-size:.35em;font-weight:700;color:var(--sub);letter-spacing:0;}
+  .lab{font-size:11px;color:var(--sub);}
+  .chartwrap{flex:1 1 auto;min-height:0;position:relative;margin-top:4px;}
+  canvas{position:absolute;inset:0;}
+  .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--sub);font-size:12px;text-align:center;padding:20px;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div class="title">Revenue</div>
+      <div class="upd" id="upd"></div>
+    </div>
+
+    <div class="nums">
+      <div class="col th">
+        <div class="name"><span class="dot"></span>PC Thai
+          <span class="mtd-inline"><span class="lab">เดือนนี้</span><span id="th-mtd">—</span></span>
+        </div>
+        <div class="today"><span id="th-today">—</span></div>
+      </div>
+      <div class="col sea">
+        <div class="name"><span class="dot"></span>PC Sea
+          <span class="mtd-inline"><span class="lab">เดือนนี้</span><span id="sea-mtd">—</span></span>
+        </div>
+        <div class="today"><span id="sea-today">—</span><span class="native" id="sea-today-usd"></span></div>
+      </div>
+    </div>
+
+    <div class="chartwrap"><canvas id="chart"></canvas><div class="err" id="err" style="display:none"></div></div>
+  </div>
+
+<script>
+/* ===== CONFIG ===== */
+const CONFIG = {
+  DATA_URL: "https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec",
+  RATE: 33,                       // USD -> THB (PC Sea)
+  REFRESH_MS: 10 * 60 * 1000,     // refresh 10 นาที
+};
+const C = { th:"#08E8DE", sea:"#FF5F1F" };
+
+const fmtB = n => "฿" + Math.round(n).toLocaleString("en-US");
+const fmtUsd = n => "$" + Math.round(n).toLocaleString("en-US");
+const shortDate = iso => { const p = iso.split("-"); return p[2] + "/" + p[1]; };
+
+// last index with non-null value
+function lastIdx(a){ for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return i; return -1; }
+// sum ignoring null
+function sum(a){ return a.reduce((s,x)=>s+(x==null?0:x),0); }
+
+// linear trend over points (null-aware), returns array same length (null where source null edges kept full)
+function trendLine(a){
+  const xs=[], ys=[];
+  a.forEach((v,i)=>{ if(v!=null){ xs.push(i); ys.push(v); } });
+  if(xs.length<2) return a.map(()=>null);
+  const n=xs.length, mx=xs.reduce((s,x)=>s+x,0)/n, my=ys.reduce((s,y)=>s+y,0)/n;
+  let num=0,den=0;
+  for(let i=0;i<n;i++){ num+=(xs[i]-mx)*(ys[i]-my); den+=(xs[i]-mx)**2; }
+  const slope=den?num/den:0;
+  return a.map((_,i)=>my+slope*(i-mx));
+}
+
+function grad(ctx,area,rgb){
+  const g=ctx.createLinearGradient(0,area.top,0,area.bottom);
+  g.addColorStop(0,rgb+"55"); g.addColorStop(1,rgb+"00"); return g;
+}
+
+let chart;
+function render(d){
+  const days = d.days || [];
+  const th  = (d.products["CBPC-TH"]  || {}).Revenue || [];
+  const seaUsd = (d.products["CBPC-SEA"] || {}).Revenue || [];
+
+  // month of latest day-with-data
+  const liTh = lastIdx(th), liSea = lastIdx(seaUsd);
+  const li = Math.max(liTh, liSea);
+  const month = (days[li>=0?li:days.length-1] || "").slice(0,7);
+
+  // filter to current month
+  const idx = [];
+  days.forEach((dy,i)=>{ if(dy.slice(0,7)===month) idx.push(i); });
+  const L  = idx.map(i=>shortDate(days[i]));
+  const thM  = idx.map(i=> th[i]==null?null:th[i]);
+  const seaUsdM = idx.map(i=> seaUsd[i]==null?null:seaUsd[i]);
+  const seaBM = seaUsdM.map(v=> v==null?null:v*CONFIG.RATE);
+
+  // today values (last non-null within month)
+  const thToday  = thM[lastIdx(thM)] ?? 0;
+  const seaUsdToday = seaUsdM[lastIdx(seaUsdM)] ?? 0;
+  const seaBToday = seaUsdToday*CONFIG.RATE;
+
+  document.getElementById("th-today").textContent  = fmtB(thToday);
+  document.getElementById("th-mtd").textContent    = fmtB(sum(thM));
+  document.getElementById("sea-today").textContent = fmtB(seaBToday);
+  document.getElementById("sea-today-usd").textContent = "= " + fmtUsd(seaUsdToday);
+  document.getElementById("sea-mtd").textContent   = fmtB(sum(seaBM)) + "  (" + fmtUsd(sum(seaUsdM)) + ")";
+
+  if(d.updatedAt){
+    const dt=new Date(d.updatedAt);
+    document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+  }
+
+  // cap y-axis to data so no empty headroom
+  const allV = [...thM, ...seaBM].filter(v=>v!=null);
+  const maxV = allV.length ? Math.max(...allV) : 0;
+  const yMax = Math.ceil(maxV * 1.1 / 10000) * 10000;
+
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById("chart"), {
+    type:"line",
+    data:{ labels:L, datasets:[
+      { label:"PC Thai", data:thM, borderColor:C.th, borderWidth:2.5, tension:.4, fill:true, order:2,
+        spanGaps:true, pointRadius:0,
+        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.th):C.th+"22";} },
+      { label:"PC Sea", data:seaBM, borderColor:C.sea, borderWidth:2.5, tension:.4, fill:true, order:2,
+        spanGaps:true, pointRadius:0,
+        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.sea):C.sea+"22";} },
+      // trend lines
+      { label:"TH trend", data:trendLine(thM), borderColor:C.th, borderWidth:1.3, borderDash:[7,4],
+        fill:false, tension:0, pointRadius:0, order:1 },
+      { label:"Sea trend", data:trendLine(seaBM), borderColor:C.sea, borderWidth:1.3, borderDash:[7,4],
+        fill:false, tension:0, pointRadius:0, order:1 },
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:600},
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:true, callbacks:{label:c=>c.dataset.label+": "+fmtB(c.parsed.y)}}
+      },
+      scales:{
+        x:{ grid:{display:false}, border:{display:false},
+            ticks:{color:"#ffffff",font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:6} },
+        y:{ grid:{color:"rgba(255,255,255,.08)"}, border:{display:false},
+            beginAtZero:true, max:yMax,
+            ticks:{color:"#ffffff",font:{size:10},maxTicksLimit:4,
+                   callback:v=>"฿"+(v>=1000?(v/1000)+"k":v)} }
+      }
+    }
+  });
+}
+
+async function load(){
+  try{
+    const r = await fetch(CONFIG.DATA_URL,{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const d = await r.json();
+    if(!d.products) throw new Error("bad data");
+    document.getElementById("err").style.display="none";
+    render(d);
+  }catch(e){
+    const el=document.getElementById("err");
+    el.style.display="flex"; el.textContent="โหลดข้อมูลไม่ได้: "+e.message;
+  }
+}
+load();
+setInterval(load, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>
