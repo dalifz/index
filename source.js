@@ -8,7 +8,7 @@ var RED = ['#ff4d4d','#ff6b3d','#ff8a3d','#ffa14d','#ffb86b','#e0563d','#c0392b'
 var GREEN = ['#1fd67a','#38e08a','#2ee59d','#0fb37a','#5af2c8','#27c98f','#1aa86a','#7bf0b8'];
 var GRAY = '#5b6b64';
 
-var DATA, PRODUCT, CUR = 'ALZ', WIN = 30, DAY = '', charts = [], ANCHOR = 0;
+var DATA, PRODUCT, CUR = 'ALZ', charts = [], ANCHOR = 0, START = 0, END = 0;
 
 function qs(n, d) { var m = new RegExp('[?&]' + n + '=([^&]+)').exec(location.search); return m ? decodeURIComponent(m[1]) : d; }
 
@@ -43,11 +43,16 @@ document.addEventListener('DOMContentLoaded', function () {
 function boot(d) {
   DATA = d;
   ANCHOR = lastDataIdx();
+  END = ANCHOR;
+  START = Math.max(0, ANCHOR - 6);   // default last 7 days
   document.getElementById('status').style.display = 'none';
   if (d.updatedAt) document.getElementById('updatedAt').textContent = '⏱ อัปเดต ' + plain(d.updatedAt);
-  // day dropdown — only days that have data (up to latest data day)
-  var sel = document.getElementById('dayPick');
-  d.days.slice(0, ANCHOR + 1).forEach(function (iso) { var o = document.createElement('option'); o.value = iso; o.textContent = thDate(iso); sel.appendChild(o); });
+  // Start/End pickers — only days that have data
+  var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+  d.days.slice(0, ANCHOR + 1).forEach(function (iso, i) {
+    sp.appendChild(new Option(thDate(iso), i)); ep.appendChild(new Option(thDate(iso), i));
+  });
+  sp.value = START; ep.value = END;
   renderSourceAI();
   render();
 }
@@ -96,26 +101,25 @@ function wireChrome() {
   if (s) s.onclick = function () { sh.classList.remove('collapsed'); };
 }
 function wireControls() {
-  document.getElementById('range').addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return;
-    WIN = parseInt(b.getAttribute('data-n'), 10); DAY = '';
-    document.getElementById('dayPick').value = '';
-    setActive(this, b); render();
-  });
+  var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+  function onRange() {
+    START = parseInt(sp.value, 10); END = parseInt(ep.value, 10);
+    if (START > END) { var t = START; START = END; END = t; sp.value = START; ep.value = END; } // keep start <= end
+    render();
+  }
+  sp.addEventListener('change', onRange);
+  ep.addEventListener('change', onRange);
   document.getElementById('curToggle').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     CUR = b.getAttribute('data-cur'); setActive(this, b); render();
   });
-  document.getElementById('dayPick').addEventListener('change', function () { DAY = this.value; render(); });
 }
 function setActive(box, b) { [].forEach.call(box.querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); }); }
 
-// sum a {channel:[perDay]} over the active window or single day
+// sum a {channel:[perDay]} over the selected START..END range
 function aggregate(obj) {
-  var days = DATA.days, out = {};
-  var idxs;
-  if (DAY) { var di = days.indexOf(DAY); idxs = di < 0 ? [] : [di]; }
-  else { var end = ANCHOR, start = Math.max(0, end - WIN + 1); idxs = []; for (var i = start; i <= end; i++) idxs.push(i); }
+  var out = {}, idxs = [];
+  for (var i = START; i <= END; i++) idxs.push(i);
   Object.keys(obj).forEach(function (ch) {
     var s = 0; idxs.forEach(function (i) { s += (obj[ch][i] || 0); });
     if (s > 0) out[ch] = s;

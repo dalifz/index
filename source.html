@@ -32,6 +32,7 @@
     .bar-mini{height:6px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;min-width:70px}
     .bar-mini span{display:block;height:100%}
     select{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 12px;font-size:13px}
+    .range-lbl{color:var(--muted);font-size:12px}
     .donuts2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:stretch}
     .chart-wrap.dn{height:340px}
     @media(max-width:900px){.donuts2{grid-template-columns:1fr}}
@@ -89,11 +90,10 @@
           <div class="updated" id="updatedAt">—</div>
         </div>
         <div class="head-actions">
-          <div class="range" id="range">
-            <button data-n="7">7D</button><button data-n="14">14D</button>
-            <button data-n="30" class="active">30D</button><button data-n="40">40D</button>
-          </div>
-          <select id="dayPick"><option value="">— ทั้งช่วง —</option></select>
+          <span class="range-lbl">ช่วงวันที่</span>
+          <select id="startPick"></select>
+          <span class="range-lbl">ถึง</span>
+          <select id="endPick"></select>
         </div>
       </div>
 
@@ -143,6 +143,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="source.js?v=23"></script>
+  <script src="source.js?v=24"></script>
 </body>
 </html>
