@@ -27,9 +27,18 @@ var METRIC_CAP = {
   'FG Daily': 'Force Gem รายวัน', 'FG 30D': 'Force Gem สะสม 30 วัน'
 };
 
-var ACCENT, ACCENT2, GRID, TICK, PRODUCT, CUR, FULL, WINDOW = 30, CHARTS = [];
+var ACCENT, ACCENT2, GRID, TICK, PRODUCT, CUR, FULL, CHARTS = [], ANCHOR = 0, START = 0, END = 0;
 
 function cssVar(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
+function rangeDays() { return END - START + 1; }
+// latest day index with any data (for default range + anchor)
+function lastDataIdx() {
+  var p = FULL.products[PRODUCT], days = FULL.days, last = 0;
+  for (var i = days.length - 1; i >= 0; i--) {
+    if (METRICS_ALL.some(function (m) { return (p[m] || [])[i] != null; })) { last = i; break; }
+  }
+  return last;
+}
 function colorFor(m) { return m === 'DAU' ? ACCENT : (METRIC_COLOR[m] || ACCENT); }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -53,7 +62,14 @@ function boot(product, data) {
   var meta = document.getElementById('updatedAt');
   if (meta && data.updatedAt) meta.textContent = '⏱ อัปเดตล่าสุด ' + plainUpdated(data.updatedAt);
   renderInsights();
-  applyWindow(WINDOW);
+  ANCHOR = lastDataIdx(); END = ANCHOR; START = Math.max(0, ANCHOR - 6); // default last 7 days
+  var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+  if (sp && ep) {
+    sp.innerHTML = ''; ep.innerHTML = '';
+    FULL.days.slice(0, ANCHOR + 1).forEach(function (iso, i) { sp.appendChild(new Option(shortDate(iso), i)); ep.appendChild(new Option(shortDate(iso), i)); });
+    sp.value = START; ep.value = END;
+  }
+  applyRange();
 }
 
 // weekly AI economic summary (per product) from snapshot
@@ -93,27 +109,26 @@ function wireChrome() {
 }
 
 function wireRange() {
-  var box = document.getElementById('range'); if (!box) return;
-  [].forEach.call(box.querySelectorAll('button'), function (b) {
-    b.addEventListener('click', function () { WINDOW = parseInt(b.getAttribute('data-n'), 10); applyWindow(WINDOW); });
-  });
+  var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+  if (!sp || !ep) return;
+  function onRange() {
+    START = parseInt(sp.value, 10); END = parseInt(ep.value, 10);
+    if (START > END) { var t = START; START = END; END = t; sp.value = START; ep.value = END; }
+    applyRange();
+  }
+  sp.addEventListener('change', onRange); ep.addEventListener('change', onRange);
 }
 
-function windowed(N) {
-  var p = FULL.products[PRODUCT], days = FULL.days, start = Math.max(0, days.length - N);
-  var di = days.slice(start), sl = {};
-  METRICS_ALL.forEach(function (m) { sl[m] = (p[m] || []).slice(start); });
-  var first = 0;
-  for (var i = 0; i < di.length; i++) { if (METRICS_ALL.some(function (m) { return sl[m][i] != null; })) { first = i; break; } }
-  var out = { days: di.slice(first) };
-  METRICS_ALL.forEach(function (m) { out[m] = sl[m].slice(first); });
+// slice metrics over selected START..END range
+function windowed() {
+  var p = FULL.products[PRODUCT];
+  var out = { days: FULL.days.slice(START, END + 1) };
+  METRICS_ALL.forEach(function (m) { out[m] = (p[m] || []).slice(START, END + 1); });
   return out;
 }
 
-function applyWindow(N) {
-  var box = document.getElementById('range');
-  if (box) [].forEach.call(box.querySelectorAll('button'), function (b) { b.className = (parseInt(b.getAttribute('data-n'), 10) === N) ? 'active' : ''; });
-  var w = windowed(N), labels = w.days.map(shortDate), p = FULL.products[PRODUCT];
+function applyRange() {
+  var w = windowed(), labels = w.days.map(shortDate), p = FULL.products[PRODUCT];
   destroyCharts();
   renderKpis(p, w);
   drawMain(labels, w['DAU'], w['CCU']);
@@ -130,7 +145,7 @@ function renderRevIdx(series) {
   var c = changeOver(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
   v.textContent = c.value == null ? '—' : fmtMoney(c.value);
   d.className = 'delta ' + c.cls;
-  d.textContent = c.arrow + ' ' + Math.abs(c.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.';
+  d.textContent = c.arrow + ' ' + Math.abs(c.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.';
 }
 
 function destroyCharts() { CHARTS.forEach(function (c) { try { c.destroy(); } catch (e) {} }); CHARTS = []; }
@@ -171,7 +186,7 @@ function kpiChartCard(label, icon, iconColor, lineColor, series) {
     '<div class="metric-head">' +
       '<div class="mh-left"><h3><span class="ic2 mini" style="color:' + iconColor + ';background:' + hexToRgba(iconColor, .15) + '">' + icon + '</span> ' + label + '</h3></div>' +
       '<div class="metric-idx"><span class="mi-val">' + val + '</span>' +
-        '<span class="delta ' + w.cls + '">' + w.arrow + ' ' + Math.abs(w.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</span></div>' +
+        '<span class="delta ' + w.cls + '">' + w.arrow + ' ' + Math.abs(w.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.</span></div>' +
     '</div>' +
     '<div class="chart-wrap mini"><canvas id="c_' + label + '"></canvas></div>';
   return div;
@@ -184,7 +199,7 @@ function revenueTodayCard(w) {
     '<div class="rt-head">' +
       '<div class="label"><span class="ic2 green">' + SVG.money + '</span> Revenue Today</div>' +
       '<div class="big money">' + (d.value == null ? '—' : fmtMoney(d.value)) + '</div>' +
-      '<div class="delta ' + d.cls + '">' + d.arrow + ' ' + Math.abs(d.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</div>' +
+      '<div class="delta ' + d.cls + '">' + d.arrow + ' ' + Math.abs(d.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.</div>' +
     '</div>' +
     '<div class="chart-wrap mini"><canvas id="spark_revtoday"></canvas></div>';
   return div;
@@ -226,7 +241,7 @@ function renderMetricCards(w) {
     var color = colorFor(m);
     var cid = 'c_' + m.replace(/\s+/g, '_');
     var val = ww && ww.value != null ? fmtNum(ww.value) : '—';
-    var dl = ww ? '<span class="delta ' + ww.cls + '">' + ww.arrow + ' ' + Math.abs(ww.pct).toFixed(1) + '% ในช่วง ' + WINDOW + 'ว.</span>' : '';
+    var dl = ww ? '<span class="delta ' + ww.cls + '">' + ww.arrow + ' ' + Math.abs(ww.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.</span>' : '';
     var div = document.createElement('div'); div.className = 'card';
     div.innerHTML =
       '<div class="metric-head">' +
