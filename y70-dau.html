@@ -119,6 +119,7 @@ function render(d){
 
   const idx = [];
   days.forEach((dy,i)=>{ if(dy.slice(0,7)===month) idx.push(i); });
+  idx.splice(-1);          // ← ใส่ตรงนี้
   const L   = idx.map(i=>shortDate(days[i]));
   const thM = idx.map(i=> th[i]==null?null:th[i]);
   const seaM= idx.map(i=> sea[i]==null?null:sea[i]);
