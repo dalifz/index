@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAU Mini — Y70</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#161630;
+    --card:rgba(255,255,255,.05);
+    --border:rgba(255,255,255,.12);
+    --txt:#ffffff;
+    --sub:rgba(255,255,255,.72);
+    --accent:#BF00FF;   /* title + updatedAt */
+    --th:#FE59C2;       /* PC Thai */
+    --sea:#6F00FF;      /* PC Sea  */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
+    font-family:-apple-system,"Segoe UI","Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  body{padding:14px;}
+  .card{height:100%;background:var(--card);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px 12px;display:flex;flex-direction:column;}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--accent);}
+  .upd{font-size:15px;font-weight:700;color:var(--accent);}
+  .nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+  .col{background:rgba(255,255,255,.025);border-radius:13px;padding:10px 16px;
+    border:1px solid var(--border);position:relative;overflow:hidden;}
+  .col::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
+  .col.th::before{background:var(--th);}
+  .col.sea::before{background:var(--sea);}
+  .col .name{font-size:15px;font-weight:700;letter-spacing:.3px;margin-bottom:2px;
+    display:flex;align-items:center;gap:7px;}
+  .col.th .name{color:var(--th);}
+  .col.sea .name{color:var(--sea);}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .col.th .dot{background:var(--th);}
+  .col.sea .dot{background:var(--sea);}
+  .mtd-inline{margin-left:auto;display:flex;align-items:baseline;gap:6px;
+    color:var(--txt);font-weight:700;font-size:14px;}
+  .mtd-inline .lab{font-size:11px;color:var(--sub);font-weight:600;}
+  .today{font-size:clamp(34px,6.5vw,72px);font-weight:800;line-height:1;letter-spacing:-1.5px;
+    display:flex;align-items:baseline;gap:10px;white-space:nowrap;}
+  .col.th .today{color:var(--th);}
+  .col.sea .today{color:var(--sea);}
+  .chartwrap{flex:1 1 auto;min-height:0;position:relative;margin-top:4px;}
+  canvas{position:absolute;inset:0;}
+  .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--sub);font-size:12px;text-align:center;padding:20px;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div class="title" id="ttl">DAU</div>
+      <div class="upd" id="upd"></div>
+    </div>
+
+    <div class="nums">
+      <div class="col th">
+        <div class="name"><span class="dot"></span>PC Thai
+          <span class="mtd-inline"><span class="lab">เฉลี่ย</span><span id="th-avg">—</span></span>
+        </div>
+        <div class="today"><span id="th-today">—</span></div>
+      </div>
+      <div class="col sea">
+        <div class="name"><span class="dot"></span>PC Sea
+          <span class="mtd-inline"><span class="lab">เฉลี่ย</span><span id="sea-avg">—</span></span>
+        </div>
+        <div class="today"><span id="sea-today">—</span></div>
+      </div>
+    </div>
+
+    <div class="chartwrap"><canvas id="chart"></canvas><div class="err" id="err" style="display:none"></div></div>
+  </div>
+
+<script>
+/* ===== CONFIG ===== */
+const CONFIG = {
+  METRIC: "DAU",
+  DATA_URL: "https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec",
+  REFRESH_MS: 10 * 60 * 1000,
+};
+const C = { th:"#FE59C2", sea:"#6F00FF" };
+
+const fmtN = n => Math.round(n).toLocaleString("en-US");
+const shortDate = iso => { const p = iso.split("-"); return p[2] + "/" + p[1]; };
+
+function lastIdx(a){ for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return i; return -1; }
+function avg(a){ const v=a.filter(x=>x!=null); return v.length? v.reduce((s,x)=>s+x,0)/v.length : 0; }
+
+function trendLine(a){
+  const xs=[], ys=[];
+  a.forEach((v,i)=>{ if(v!=null){ xs.push(i); ys.push(v); } });
+  if(xs.length<2) return a.map(()=>null);
+  const n=xs.length, mx=xs.reduce((s,x)=>s+x,0)/n, my=ys.reduce((s,y)=>s+y,0)/n;
+  let num=0,den=0;
+  for(let i=0;i<n;i++){ num+=(xs[i]-mx)*(ys[i]-my); den+=(xs[i]-mx)**2; }
+  const slope=den?num/den:0;
+  return a.map((_,i)=>my+slope*(i-mx));
+}
+
+function grad(ctx,area,rgb){
+  const g=ctx.createLinearGradient(0,area.top,0,area.bottom);
+  g.addColorStop(0,rgb+"55"); g.addColorStop(1,rgb+"00"); return g;
+}
+
+let chart;
+function render(d){
+  const days = d.days || [];
+  const th  = (d.products["CBPC-TH"]  || {})[CONFIG.METRIC] || [];
+  const sea = (d.products["CBPC-SEA"] || {})[CONFIG.METRIC] || [];
+
+  const li = Math.max(lastIdx(th), lastIdx(sea));
+  const month = (days[li>=0?li:days.length-1] || "").slice(0,7);
+
+  const idx = [];
+  days.forEach((dy,i)=>{ if(dy.slice(0,7)===month) idx.push(i); });
+  const L   = idx.map(i=>shortDate(days[i]));
+  const thM = idx.map(i=> th[i]==null?null:th[i]);
+  const seaM= idx.map(i=> sea[i]==null?null:sea[i]);
+
+  document.getElementById("th-today").textContent  = fmtN(thM[lastIdx(thM)] ?? 0);
+  document.getElementById("sea-today").textContent = fmtN(seaM[lastIdx(seaM)] ?? 0);
+  document.getElementById("th-avg").textContent    = fmtN(avg(thM));
+  document.getElementById("sea-avg").textContent   = fmtN(avg(seaM));
+  document.getElementById("ttl").textContent       = CONFIG.METRIC;
+
+  if(d.updatedAt){
+    const dt=new Date(d.updatedAt);
+    document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+  }
+
+  const allV=[...thM,...seaM].filter(v=>v!=null);
+  const maxV=allV.length?Math.max(...allV):0;
+  const step=maxV>5000?1000:(maxV>500?100:10);
+  const yMax=Math.ceil(maxV*1.1/step)*step;
+
+  if(chart) chart.destroy();
+  chart = new Chart(document.getElementById("chart"), {
+    type:"line",
+    data:{ labels:L, datasets:[
+      { label:"PC Thai", data:thM, borderColor:C.th, borderWidth:2.5, tension:.4, fill:true, order:2,
+        spanGaps:true, pointRadius:0,
+        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.th):C.th+"22";} },
+      { label:"PC Sea", data:seaM, borderColor:C.sea, borderWidth:2.5, tension:.4, fill:true, order:2,
+        spanGaps:true, pointRadius:0,
+        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.sea):C.sea+"22";} },
+      { label:"TH trend", data:trendLine(thM), borderColor:C.th, borderWidth:1.3, borderDash:[7,4],
+        fill:false, tension:0, pointRadius:0, order:1 },
+      { label:"Sea trend", data:trendLine(seaM), borderColor:C.sea, borderWidth:1.3, borderDash:[7,4],
+        fill:false, tension:0, pointRadius:0, order:1 },
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:600},
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:true, callbacks:{label:c=>c.dataset.label+": "+fmtN(c.parsed.y)}}
+      },
+      scales:{
+        x:{ grid:{display:false}, border:{display:false},
+            ticks:{color:"#ffffff",font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:6} },
+        y:{ grid:{color:"rgba(255,255,255,.08)"}, border:{display:false},
+            beginAtZero:true, max:yMax,
+            ticks:{color:"#ffffff",font:{size:10},maxTicksLimit:4,
+                   callback:v=> v>=1000?(v/1000)+"k":v} }
+      }
+    }
+  });
+}
+
+async function load(){
+  try{
+    const r = await fetch(CONFIG.DATA_URL,{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const d = await r.json();
+    if(!d.products) throw new Error("bad data");
+    document.getElementById("err").style.display="none";
+    render(d);
+  }catch(e){
+    const el=document.getElementById("err");
+    el.style.display="flex"; el.textContent="โหลดข้อมูลไม่ได้: "+e.message;
+  }
+}
+load();
+setInterval(load, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>
