@@ -119,7 +119,6 @@ function render(d){
 
   const idx = [];
   days.forEach((dy,i)=>{ if(dy.slice(0,7)===month) idx.push(i); });
-  idx.splice(-1);          // ← ใส่ตรงนี้
   const L   = idx.map(i=>shortDate(days[i]));
   const thM = idx.map(i=> th[i]==null?null:th[i]);
   const seaM= idx.map(i=> sea[i]==null?null:sea[i]);
@@ -130,10 +129,11 @@ function render(d){
   document.getElementById("sea-avg").textContent   = fmtN(avg(seaM));
   document.getElementById("ttl").textContent       = CONFIG.METRIC;
 
-  if(d.updatedAt){
-    const dt=new Date(d.updatedAt);
-    document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
-  }
+if(d.updatedAt){
+  const dt=new Date(d.updatedAt);
+  dt.setDate(dt.getDate()-1);   // ← ⏱ 22 → 21
+  document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+}
 
   const allV=[...thM,...seaM].filter(v=>v!=null);
   const maxV=allV.length?Math.max(...allV):0;
