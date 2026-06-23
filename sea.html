@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CBPC-SEA · Cabal Dashboard</title>
   <link rel="icon" href="logo_CBPC-SEA.png">
-  <link rel="stylesheet" href="styles.css?v=21">
+  <link rel="stylesheet" href="styles.css?v=22">
 </head>
 <body data-theme="sea">
   <button id="showSide" title="แสดงเมนู">☰</button>
@@ -44,12 +44,10 @@
           <div class="updated" id="updatedAt">—</div>
         </div>
         <div class="head-actions">
-          <div class="range" id="range">
-            <button data-n="7">7D</button>
-            <button data-n="14">14D</button>
-            <button data-n="30">30D</button>
-            <button data-n="40">40D</button>
-          </div>
+          <span class="range-lbl">ช่วงวันที่</span>
+          <select id="startPick" class="rsel"></select>
+          <span class="range-lbl">ถึง</span>
+          <select id="endPick" class="rsel"></select>
           <button id="refresh" class="icon-btn" title="รีเฟรช">⟳</button>
           <a class="dl-btn sm" href="#" onclick="window.print();return false;">⬇ Export PDF</a>
         </div>
@@ -87,6 +85,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>window.DASH_PRODUCT = 'CBPC-SEA';</script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>

@@ -31,7 +31,7 @@ function capFor(m) { return METRIC_CAP[m] || ''; }
 var TARGETS  = { 'CBPC-TH': 6000000, 'CBPC-SEA': 200000 };
 var CURRENCY = { 'CBPC-TH': '฿', 'CBPC-SEA': '$' };
 var CUR = '';
-var FULLD, GROUPD, PRODUCTD, WIND = 30, DCHARTS = [];
+var FULLD, GROUPD, PRODUCTD, DCHARTS = [], ANCHORD = 0, STARTD = 0, ENDD = 0;
 
 var ACCENT, ACCENT2, GRID, TICK;
 
@@ -86,39 +86,48 @@ document.addEventListener('DOMContentLoaded', function () {
       var meta = document.getElementById('updatedAt');
       if (meta && data.updatedAt) meta.textContent = formatUpdated(data.updatedAt);
       FULLD = data; GROUPD = group; PRODUCTD = product;
-      applyWindowD(WIND);
+      ANCHORD = lastDataIdxD(); ENDD = ANCHORD; STARTD = Math.max(0, ANCHORD - 6);
+      var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+      if (sp && ep) {
+        sp.innerHTML = ''; ep.innerHTML = '';
+        FULLD.days.slice(0, ANCHORD + 1).forEach(function (iso, i) { sp.appendChild(new Option(shortDate(iso), i)); ep.appendChild(new Option(shortDate(iso), i)); });
+        sp.value = STARTD; ep.value = ENDD;
+      }
+      applyRangeD();
     })
     .catch(function (err) { showStatus('โหลดข้อมูลไม่ได้: ' + err.message, true); });
 });
 
 function wireRangeD() {
-  var box = document.getElementById('range'); if (!box) return;
-  [].forEach.call(box.querySelectorAll('button'), function (b) {
-    b.addEventListener('click', function () { WIND = parseInt(b.getAttribute('data-n'), 10); applyWindowD(WIND); });
-  });
+  var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
+  if (!sp || !ep) return;
+  function onRange() {
+    STARTD = parseInt(sp.value, 10); ENDD = parseInt(ep.value, 10);
+    if (STARTD > ENDD) { var t = STARTD; STARTD = ENDD; ENDD = t; sp.value = STARTD; ep.value = ENDD; }
+    applyRangeD();
+  }
+  sp.addEventListener('change', onRange); ep.addEventListener('change', onRange);
 }
 
-// last N days, trimming leading days where every group metric is null
-function windowedD(N) {
-  var p = FULLD.products[PRODUCTD], days = FULLD.days, ms = GROUPD.metrics;
-  var start = Math.max(0, days.length - N);
-  var di = days.slice(start), sl = {};
-  ms.forEach(function (m) { sl[m] = (p[m] || []).slice(start); });
-  var first = 0;
-  for (var i = 0; i < di.length; i++) { if (ms.some(function (m) { return sl[m][i] != null; })) { first = i; break; } }
-  var out = { days: di.slice(first) };
-  ms.forEach(function (m) { out[m] = sl[m].slice(first); });
+// latest day index with data among this group's metrics
+function lastDataIdxD() {
+  var p = FULLD.products[PRODUCTD], days = FULLD.days, ms = GROUPD.metrics, last = 0;
+  for (var i = days.length - 1; i >= 0; i--) { if (ms.some(function (m) { return (p[m] || [])[i] != null; })) { last = i; break; } }
+  return last;
+}
+
+// slice group metrics over selected STARTD..ENDD
+function windowedD() {
+  var p = FULLD.products[PRODUCTD], ms = GROUPD.metrics;
+  var out = { days: FULLD.days.slice(STARTD, ENDD + 1) };
+  ms.forEach(function (m) { out[m] = (p[m] || []).slice(STARTD, ENDD + 1); });
   return out;
 }
 
-function applyWindowD(N) {
-  var box = document.getElementById('range');
-  if (box) [].forEach.call(box.querySelectorAll('button'), function (b) {
-    b.className = (parseInt(b.getAttribute('data-n'), 10) === N) ? 'active' : '';
-  });
+function applyRangeD() {
   DCHARTS.forEach(function (c) { try { c.destroy(); } catch (e) {} }); DCHARTS = [];
 
-  var w = windowedD(N), labels = w.days.map(shortDate), group = GROUPD;
+  var w = windowedD(), labels = w.days.map(shortDate), group = GROUPD;
   var grid = document.getElementById('charts');
   grid.className = (group.metrics.length === 1) ? 'charts-1' : 'charts-2';
   grid.innerHTML = '';

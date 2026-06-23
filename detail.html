@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Detail · Cabal Dashboard</title>
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body data-theme="th">
   <div class="shell">
@@ -37,11 +37,11 @@
     <main class="main">
       <div class="main-head">
         <h2 id="detailTitle">—</h2>
-        <div class="range" id="range">
-          <button data-n="7">7D</button>
-          <button data-n="14">14D</button>
-          <button data-n="30">30D</button>
-          <button data-n="40">40D</button>
+        <div class="head-actions">
+          <span class="range-lbl">ช่วงวันที่</span>
+          <select id="startPick" class="rsel"></select>
+          <span class="range-lbl">ถึง</span>
+          <select id="endPick" class="rsel"></select>
         </div>
         <span class="updated" id="updatedAt">—</span>
       </div>
@@ -60,6 +60,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="detail.js?v=16"></script>
+  <script src="detail.js?v=17"></script>
 </body>
 </html>
