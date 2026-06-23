@@ -25,7 +25,7 @@
     border-radius:18px;padding:16px 18px 12px;display:flex;flex-direction:column;}
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--accent);}
-  .upd{font-size:45px;font-weight:700;color:var(--accent);}
+  .upd{font-size:15px;font-weight:700;color:var(--accent);}
   .nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
   .col{background:rgba(255,255,255,.025);border-radius:13px;padding:10px 16px;
     border:1px solid var(--border);position:relative;overflow:hidden;}
@@ -129,11 +129,10 @@ function render(d){
   document.getElementById("sea-avg").textContent   = fmtN(avg(seaM));
   document.getElementById("ttl").textContent       = CONFIG.METRIC;
 
-if(d.updatedAt){
-  const dt=new Date(d.updatedAt);
-  dt.setDate(dt.getDate()-1);   // ← ⏱ 22 → 21
-  document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
-}
+  if(d.updatedAt){
+    const dt=new Date(d.updatedAt);
+    document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+  }
 
   const allV=[...thM,...seaM].filter(v=>v!=null);
   const maxV=allV.length?Math.max(...allV):0;
@@ -175,7 +174,7 @@ if(d.updatedAt){
 
 async function load(){
   try{
-    const r = await fetch(CONFIG.DATA_URL,{cache:"no-store"});
+    const r = await fetch(CONFIG.DATA_URL + "?t=" + Date.now(), {cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     const d = await r.json();
     if(!d.products) throw new Error("bad data");
@@ -188,6 +187,14 @@ async function load(){
 }
 load();
 setInterval(load, CONFIG.REFRESH_MS);
+
+// hard reload daily at 12:00 (safety net if iframe timer is throttled)
+(function dailyReload(h=12,m=0){
+  const now=new Date(), next=new Date(now);
+  next.setHours(h,m,0,0);
+  if(next<=now) next.setDate(next.getDate()+1);
+  setTimeout(()=>location.reload(), next-now);
+})();
 </script>
 </body>
 </html>
