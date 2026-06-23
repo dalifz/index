@@ -130,10 +130,11 @@ function render(d){
   document.getElementById("sea-avg").textContent   = fmtN(avg(seaM));
   document.getElementById("ttl").textContent       = CONFIG.METRIC;
 
-  if(d.updatedAt){
-    const dt=new Date(d.updatedAt);
-    document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
-  }
+if(d.updatedAt){
+  const dt=new Date(d.updatedAt);
+  dt.setDate(dt.getDate()-1);   // ← ⏱ 22 → 21
+  document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+}
 
   const allV=[...thM,...seaM].filter(v=>v!=null);
   const maxV=allV.length?Math.max(...allV):0;
