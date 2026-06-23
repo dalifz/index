@@ -25,7 +25,7 @@
     border-radius:18px;padding:16px 18px 12px;display:flex;flex-direction:column;}
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--rev);}
-  .upd{font-size:45px;font-weight:700;color:var(--rev);}
+  .upd{font-size:15px;font-weight:700;color:var(--rev);}
   /* two number columns side by side */
   .nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
   .col{background:rgba(255,255,255,.025);border-radius:13px;padding:10px 16px;
@@ -194,7 +194,7 @@ function render(d){
 
 async function load(){
   try{
-    const r = await fetch(CONFIG.DATA_URL,{cache:"no-store"});
+    const r = await fetch(CONFIG.DATA_URL + "?t=" + Date.now(), {cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     const d = await r.json();
     if(!d.products) throw new Error("bad data");
@@ -207,6 +207,14 @@ async function load(){
 }
 load();
 setInterval(load, CONFIG.REFRESH_MS);
+
+// hard reload daily at 12:00 (safety net if iframe timer is throttled)
+(function dailyReload(h=12,m=0){
+  const now=new Date(), next=new Date(now);
+  next.setHours(h,m,0,0);
+  if(next<=now) next.setDate(next.getDate()+1);
+  setTimeout(()=>location.reload(), next-now);
+})();
 </script>
 </body>
 </html>
