@@ -461,11 +461,12 @@ function changeOver(arr) {
 function targetPct(p, days) { var t = TARGETS[PRODUCT] || 0; return t ? (revenueMTD(p, days) / t) * 100 : 0; }
 function revenueMTD(p, days) { var rev = p['Revenue'] || []; if (!days.length) return 0; var m = days[days.length - 1].slice(0, 7), s = 0; for (var i = 0; i < days.length; i++) if (days[i].slice(0, 7) === m && rev[i] != null) s += rev[i]; return s; }
 function fmtMoney(n) { if (n == null) return '—'; return (CUR || '') + (CUR === '฿' ? ' ' : '') + fmtNum(n); }
-// SEA only: annotate THB equivalent (1$ = 30฿) below a USD figure
-var USD_TO_THB = 33;
+// SEA only: annotate THB equivalent below a USD figure. Rate from backend snapshot (live, daily), fallback 33.
+function usdToThb() { var r = FULL && parseFloat(FULL.fxUSDTHB); return (r && r > 0) ? r : 33; }
 function bahtNoteHtml(usd) {
   if (PRODUCT !== 'CBPC-SEA' || usd == null) return '';
-  return '<span class="baht-note" style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px">≈ ฿ ' + fmtNum(usd * USD_TO_THB) + '</span>';
+  var r = usdToThb();
+  return '<span class="baht-note" style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px">≈ ฿ ' + fmtNum(usd * r) + ' <span style="font-weight:500;opacity:.7">@' + r.toFixed(2) + '</span></span>';
 }
 function fmtNum(n) { if (n == null) return '—'; var a = Math.abs(n);
   if (a >= 1e12) return (n / 1e12).toFixed(2) + 'T'; if (a >= 1e9) return (n / 1e9).toFixed(2) + 'B'; if (a >= 1e6) return (n / 1e6).toFixed(2) + 'M';
