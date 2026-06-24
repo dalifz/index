@@ -163,7 +163,7 @@ function renderRevIdx(series) {
   var c = changeOver(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
   var nums = (series || []).filter(function (x) { return x != null && !isNaN(x); });
   var sum = nums.length ? nums.reduce(function (a, b) { return a + Number(b); }, 0) : null;
-  v.textContent = sum == null ? '—' : fmtMoney(sum);
+  v.innerHTML = (sum == null ? '—' : fmtMoney(sum)) + bahtNoteHtml(sum);
   d.className = 'delta ' + c.cls;
   d.textContent = c.arrow + ' ' + Math.abs(c.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.';
 }
@@ -218,7 +218,7 @@ function revenueTodayCard(w) {
   div.innerHTML =
     '<div class="rt-head">' +
       '<div class="label"><span class="ic2 green">' + SVG.money + '</span> Revenue Today</div>' +
-      '<div class="big money">' + (d.value == null ? '—' : fmtMoney(d.value)) + '</div>' +
+      '<div class="big money">' + (d.value == null ? '—' : fmtMoney(d.value)) + bahtNoteHtml(d.value) + '</div>' +
       '<div class="delta ' + d.cls + '">' + d.arrow + ' ' + Math.abs(d.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.</div>' +
     '</div>' +
     '<div class="chart-wrap mini"><canvas id="spark_revtoday"></canvas></div>';
@@ -245,7 +245,7 @@ function targetCard(p, days) {
       '<div class="t-left">' +
         '<div class="value red">' + pct.toFixed(1) + '%</div>' +
         '<div class="sub">จากเป้าหมาย ' + fmtMoney(t) + '</div>' +
-        '<div class="target-sub">' + fmtMoney(mtd) + ' / ' + fmtMoney(t) + '</div>' +
+        '<div class="target-sub">' + fmtMoney(mtd) + ' / ' + fmtMoney(t) + '</div>' + bahtNoteHtml(mtd) +
       '</div>' +
       '<div class="t-donut"><canvas id="targetChart"></canvas></div>' +
     '</div>';
@@ -292,7 +292,7 @@ function renderRev7(revenue, days) {
     '<div class="card rev7">' +
       '<div class="rev7-left">' +
         '<h3>Revenue 7 Days</h3><div class="cap">รายได้รวม 7 วันล่าสุด (' + (CUR === '฿' ? 'บาท' : 'USD') + ')</div>' +
-        '<div class="rev7-total">' + fmtMoney(total) + '</div>' +
+        '<div class="rev7-total">' + fmtMoney(total) + bahtNoteHtml(total) + '</div>' +
         (w7 ? '<div class="delta ' + w7.cls + '">' + w7.arrow + ' ' + Math.abs(w7.pct).toFixed(1) + '% vs 7 วันก่อน</div>' : '') +
         '<div class="rev7-stats">' +
           '<div class="box"><div class="bl">Avg / Day</div><div class="bv">' + fmtMoney(avg) + '</div></div>' +
@@ -461,6 +461,12 @@ function changeOver(arr) {
 function targetPct(p, days) { var t = TARGETS[PRODUCT] || 0; return t ? (revenueMTD(p, days) / t) * 100 : 0; }
 function revenueMTD(p, days) { var rev = p['Revenue'] || []; if (!days.length) return 0; var m = days[days.length - 1].slice(0, 7), s = 0; for (var i = 0; i < days.length; i++) if (days[i].slice(0, 7) === m && rev[i] != null) s += rev[i]; return s; }
 function fmtMoney(n) { if (n == null) return '—'; return (CUR || '') + (CUR === '฿' ? ' ' : '') + fmtNum(n); }
+// SEA only: annotate THB equivalent (1$ = 30฿) below a USD figure
+var USD_TO_THB = 30;
+function bahtNoteHtml(usd) {
+  if (PRODUCT !== 'CBPC-SEA' || usd == null) return '';
+  return '<span class="baht-note" style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px">≈ ฿ ' + fmtNum(usd * USD_TO_THB) + '</span>';
+}
 function fmtNum(n) { if (n == null) return '—'; var a = Math.abs(n);
   if (a >= 1e12) return (n / 1e12).toFixed(2) + 'T'; if (a >= 1e9) return (n / 1e9).toFixed(2) + 'B'; if (a >= 1e6) return (n / 1e6).toFixed(2) + 'M';
   if (a >= 1e3) return Math.round(n).toLocaleString('en-US'); return n.toLocaleString('en-US'); }
