@@ -462,7 +462,7 @@ function targetPct(p, days) { var t = TARGETS[PRODUCT] || 0; return t ? (revenue
 function revenueMTD(p, days) { var rev = p['Revenue'] || []; if (!days.length) return 0; var m = days[days.length - 1].slice(0, 7), s = 0; for (var i = 0; i < days.length; i++) if (days[i].slice(0, 7) === m && rev[i] != null) s += rev[i]; return s; }
 function fmtMoney(n) { if (n == null) return '—'; return (CUR || '') + (CUR === '฿' ? ' ' : '') + fmtNum(n); }
 // SEA only: annotate THB equivalent (1$ = 30฿) below a USD figure
-var USD_TO_THB = 30;
+var USD_TO_THB = 33;
 function bahtNoteHtml(usd) {
   if (PRODUCT !== 'CBPC-SEA' || usd == null) return '';
   return '<span class="baht-note" style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px">≈ ฿ ' + fmtNum(usd * USD_TO_THB) + '</span>';
