@@ -50,7 +50,9 @@ function restoreRange() {
   try {
     var r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (!r) return false;
     var si = FULL.days.indexOf(r.s), ei = FULL.days.indexOf(r.e);
-    if (si < 0 || ei < 0 || si > ei || ei > ANCHOR) return false;
+    if (si < 0 || ei < 0) return false;
+    if (si > ei) { var t = si; si = ei; ei = t; }
+    ei = Math.min(ei, ANCHOR); si = Math.min(si, ei); // clamp to this server's available data
     START = si; END = ei; return true;
   } catch (e) { return false; }
 }

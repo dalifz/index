@@ -120,7 +120,9 @@ function restoreRangeD() {
   try {
     var r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (!r) return false;
     var si = FULLD.days.indexOf(r.s), ei = FULLD.days.indexOf(r.e);
-    if (si < 0 || ei < 0 || si > ei || ei > ANCHORD) return false;
+    if (si < 0 || ei < 0) return false;
+    if (si > ei) { var t = si; si = ei; ei = t; }
+    ei = Math.min(ei, ANCHORD); si = Math.min(si, ei); // clamp to this group's available data
     STARTD = si; ENDD = ei; return true;
   } catch (e) { return false; }
 }
