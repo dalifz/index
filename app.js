@@ -138,12 +138,14 @@ function applyRange() {
   renderRev7(p['Revenue'] || [], FULL.days);
 }
 
-// Revenue Trend header index: latest revenue + %change over selected range
+// Revenue Trend header index: SUM of revenue over selected range + %change
 function renderRevIdx(series) {
   var v = document.getElementById('revIdxVal'), d = document.getElementById('revIdxDelta');
   if (!v || !d) return;
   var c = changeOver(series) || { value: null, pct: 0, cls: 'flat', arrow: '—' };
-  v.textContent = c.value == null ? '—' : fmtMoney(c.value);
+  var nums = (series || []).filter(function (x) { return x != null && !isNaN(x); });
+  var sum = nums.length ? nums.reduce(function (a, b) { return a + Number(b); }, 0) : null;
+  v.textContent = sum == null ? '—' : fmtMoney(sum);
   d.className = 'delta ' + c.cls;
   d.textContent = c.arrow + ' ' + Math.abs(c.pct).toFixed(1) + '% ในช่วง ' + rangeDays() + 'ว.';
 }
