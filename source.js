@@ -45,6 +45,7 @@ function boot(d) {
   ANCHOR = lastDataIdx();
   END = ANCHOR;
   START = Math.max(0, ANCHOR - 6);   // default last 7 days
+  restoreRange();
   document.getElementById('status').style.display = 'none';
   if (d.updatedAt) document.getElementById('updatedAt').textContent = '⏱ อัปเดต ' + plain(d.updatedAt);
   // Start/End pickers — only days that have data
@@ -55,6 +56,20 @@ function boot(d) {
   sp.value = START; ep.value = END;
   renderSourceAI();
   render();
+}
+
+// persist selected date range across pages (shared key with Overview/Detail)
+var RANGE_KEY = 'cabal_range';
+function saveRange() {
+  try { localStorage.setItem(RANGE_KEY, JSON.stringify({ s: DATA.days[START], e: DATA.days[END] })); } catch (e) {}
+}
+function restoreRange() {
+  try {
+    var r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (!r) return false;
+    var si = DATA.days.indexOf(r.s), ei = DATA.days.indexOf(r.e);
+    if (si < 0 || ei < 0 || si > ei || ei > ANCHOR) return false;
+    START = si; END = ei; return true;
+  } catch (e) { return false; }
 }
 
 // latest day index that has any ALZ/FG data (window anchors here, not "today")
@@ -105,6 +120,7 @@ function wireControls() {
   function onRange() {
     START = parseInt(sp.value, 10); END = parseInt(ep.value, 10);
     if (START > END) { var t = START; START = END; END = t; sp.value = START; ep.value = END; } // keep start <= end
+    saveRange();
     render();
   }
   sp.addEventListener('change', onRange);

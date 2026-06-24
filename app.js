@@ -41,6 +41,20 @@ function lastDataIdx() {
 }
 function colorFor(m) { return m === 'DAU' ? ACCENT : (METRIC_COLOR[m] || ACCENT); }
 
+// persist selected date range across pages (store ISO dates, robust to index shifts)
+var RANGE_KEY = 'cabal_range';
+function saveRange() {
+  try { localStorage.setItem(RANGE_KEY, JSON.stringify({ s: FULL.days[START], e: FULL.days[END] })); } catch (e) {}
+}
+function restoreRange() {
+  try {
+    var r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (!r) return false;
+    var si = FULL.days.indexOf(r.s), ei = FULL.days.indexOf(r.e);
+    if (si < 0 || ei < 0 || si > ei || ei > ANCHOR) return false;
+    START = si; END = ei; return true;
+  } catch (e) { return false; }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   ACCENT = cssVar('--accent') || '#2ee59d'; ACCENT2 = cssVar('--accent-2') || '#0f9b6c';
   GRID = 'rgba(255,255,255,0.05)'; TICK = cssVar('--muted') || '#8c9b94';
@@ -63,6 +77,7 @@ function boot(product, data) {
   if (meta && data.updatedAt) meta.textContent = '⏱ อัปเดตล่าสุด ' + plainUpdated(data.updatedAt);
   renderInsights();
   ANCHOR = lastDataIdx(); END = ANCHOR; START = Math.max(0, ANCHOR - 6); // default last 7 days
+  restoreRange(); // override with saved range if valid
   var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
   if (sp && ep) {
     sp.innerHTML = ''; ep.innerHTML = '';
@@ -114,6 +129,7 @@ function wireRange() {
   function onRange() {
     START = parseInt(sp.value, 10); END = parseInt(ep.value, 10);
     if (START > END) { var t = START; START = END; END = t; sp.value = START; ep.value = END; }
+    saveRange();
     applyRange();
   }
   sp.addEventListener('change', onRange); ep.addEventListener('change', onRange);

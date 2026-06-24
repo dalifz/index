@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (meta && data.updatedAt) meta.textContent = formatUpdated(data.updatedAt);
       FULLD = data; GROUPD = group; PRODUCTD = product;
       ANCHORD = lastDataIdxD(); ENDD = ANCHORD; STARTD = Math.max(0, ANCHORD - 6);
+      restoreRangeD();
       var sp = document.getElementById('startPick'), ep = document.getElementById('endPick');
       if (sp && ep) {
         sp.innerHTML = ''; ep.innerHTML = '';
@@ -104,9 +105,24 @@ function wireRangeD() {
   function onRange() {
     STARTD = parseInt(sp.value, 10); ENDD = parseInt(ep.value, 10);
     if (STARTD > ENDD) { var t = STARTD; STARTD = ENDD; ENDD = t; sp.value = STARTD; ep.value = ENDD; }
+    saveRangeD();
     applyRangeD();
   }
   sp.addEventListener('change', onRange); ep.addEventListener('change', onRange);
+}
+
+// persist selected date range across pages (shared key with Overview/Source)
+var RANGE_KEY = 'cabal_range';
+function saveRangeD() {
+  try { localStorage.setItem(RANGE_KEY, JSON.stringify({ s: FULLD.days[STARTD], e: FULLD.days[ENDD] })); } catch (e) {}
+}
+function restoreRangeD() {
+  try {
+    var r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (!r) return false;
+    var si = FULLD.days.indexOf(r.s), ei = FULLD.days.indexOf(r.e);
+    if (si < 0 || ei < 0 || si > ei || ei > ANCHORD) return false;
+    STARTD = si; ENDD = ei; return true;
+  } catch (e) { return false; }
 }
 
 // latest day index with data among this group's metrics
