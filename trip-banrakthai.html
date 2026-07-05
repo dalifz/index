@@ -405,10 +405,12 @@ const DAYS=[
    {t:'17:00',ty:'sight',ti:'📸 ถ่ายรูปในรีสอร์ท / วิวภูเขา',map:'549 Resort Cafe Li'},
    {t:'18:00',ty:'eat',ti:'🍽️ อาหารเย็นในอำเภอลี้',map:'Li District Lamphun'},
   ]},
- {id:'26',label:'26 รักไทย',title:'26 · ลี้ → ฮอด → แม่ลาน้อย → ขุนยวม → บ้านรักไทย',badge:['เส้น 108 ปั๊มน้อย · เติมเต็มถัง','b-red'],note:'⛽ เติมเต็มถังก่อนออก + เติมที่ฮอด/ขุนยวม (ปั๊มห่าง)',
+ {id:'26',label:'26 รักไทย',title:'26 · ลี้ → ฮอด → แม่ลาน้อย → ขุนยวม → บ้านรักไทย',badge:['เส้น 108 ปั๊มน้อย · เติมบางจากตามจุด','b-red'],note:'⛽ เติมบางจากเต็มถัง: ฮอด → แม่สะเรียง (ช่วงแม่สะเรียง→แม่ฮ่องสอน ยาวสุด ปั๊มน้อย)',
   stops:[
    {t:'06:30',ty:'hotel',ti:'ออกจาก 549 Resort',d:'อ.ลี้ ลำพูน',map:'549 Resort Cafe Li'},
-   {t:'08:00',ty:'sight',ti:'📸 สวนสนบ่อแก้ว',d:'แวะถ่ายรูป',map:'Bo Kaeo Pine Garden'},
+   {t:'⛽',ty:'fuel',ti:'เติมบางจาก ฮอด',d:'ก่อนเข้าเส้น 108 · เติมเต็มถัง',map:'บางจาก ฮอด เชียงใหม่'},
+   {t:'08:00',ty:'sight',ti:'📸 สวนสนบ่อแก้ว',d:'บนเส้น 108 ฮอด–แม่สะเรียง',map:'Bo Kaeo Pine Garden'},
+   {t:'⛽',ty:'fuel',ti:'เติมบางจาก แม่สะเรียง',d:'สำคัญสุด! ช่วงถัดไปถึงแม่ฮ่องสอน ปั๊มน้อยมาก เติมเต็มถัง',map:'บางจาก แม่สะเรียง'},
    {t:'09:30',ty:'cafe',ti:'☕ Maela Food & Coffee',d:'อ.แม่ลาน้อย แม่ฮ่องสอน',map:'Maela Food Coffee Mae La Noi'},
    {t:'11:30',ty:'eat',ti:'🍴 ธนโภชนา ขุนยวม',d:'ข้าวกลางวัน',map:'Thanaphochana Khun Yuam'},
    {t:'14:00',ty:'hotel',ti:'✅ เช็คอิน นงนุชรีสอร์ท บ้านรักไทย',map:'Nongnuch Resort Ban Rak Thai'},
@@ -416,31 +418,41 @@ const DAYS=[
    {t:'17:30',ty:'sight',ti:'📸 จุดชมวิวบ้านรักไทย',map:'Ban Rak Thai'},
    {t:'18:30',ty:'eat',ti:'🍽️ ลีไวน์ รักไทย',d:'อาหารเย็น',map:'Lee Wine Rak Thai'},
   ]},
- {id:'27',label:'27 ปาย',title:'27 · บ้านรักไทย → ปาย',badge:['~150 กม. โค้งเยอะ 4-5 ชม.','b-amber'],note:'',
+ {id:'27',label:'27 ปาย',title:'27 · บ้านรักไทย → ปางอุ๋ง → แม่ฮ่องสอน → ปาย',badge:['วันถ่ายรูป · เส้น 1095 โค้งเยอะ','b-amber'],note:'⛽ เติมบางจากที่แม่ฮ่องสอนเมือง ก่อนเข้าเส้น 1095 ไปปาย (~3 ชม.)',
   stops:[
-   {t:'เช้า',ty:'sight',ti:'เที่ยวบ้านรักไทย',d:'ไร่ชา หมู่บ้านจีน · เช็คเอาท์สาย',map:'บ้านรักไทย ไร่ชา แม่ฮ่องสอน'},
-   {t:'เที่ยง',ty:'eat',ti:'แวะแม่ฮ่องสอน กินข้าว',map:'ร้านอาหาร แม่ฮ่องสอน'},
-   {t:'เย็น',ty:'hotel',ti:'เช็คอิน Chorthip House',d:'จ่าย Agoda แล้ว',map:'Chorthip House ปาย'},
-   {t:'ค่ำ',ty:'',ti:'ถนนคนเดินปาย',map:'ถนนคนเดินปาย Pai Walking Street'},
+   {t:'07:00',ty:'sight',ti:'📸 ตื่น / เดินถ่ายรูปหมู่บ้านรักไทย',map:'Ban Rak Thai'},
+   {t:'08:00',ty:'cafe',ti:'☕ Wojia Cafe',d:'บ้านรักไทย',map:'Wojia Cafe Ban Rak Thai'},
+   {t:'09:00',ty:'',ti:'ออกจากบ้านรักไทย',d:'→ ปางอุ๋ง'},
+   {t:'09:30',ty:'sight',ti:'📸🌲 ปางอุ๋ง',d:'เดินเล่นริมอ่างเก็บน้ำ ถ่ายรูป 45–60 นาที',map:'Pang Ung Mae Hong Son'},
+   {t:'11:00',ty:'sight',ti:'📸 วัดพระธาตุดอยกองมู',d:'จุดชมวิวเมืองแม่ฮ่องสอน',map:'Wat Phra That Doi Kong Mu'},
+   {t:'11:45',ty:'sight',ti:'📸 Fern Resort Bamboo Bridge',d:'สะพานไม้ไผ่ พาบง · (ถ้าอยากได้อันดัง = ซูตองเป้)',map:'Fern Resort Mae Hong Son'},
+   {t:'12:45',ty:'cafe',ti:'☕ The Creek Garden Cafe',d:'⚠️ เช็ค map ก่อนออก — ยืนยันตำแหน่งในแม่ฮ่องสอนไม่ได้',map:'The Creek Garden Cafe แม่ฮ่องสอน'},
+   {t:'⛽',ty:'fuel',ti:'เติมบางจาก แม่ฮ่องสอน',d:'ก่อนเข้าเส้น 1095 ไปปาย · เติมเต็มถัง',map:'บางจาก แม่ฮ่องสอน'},
+   {t:'14:00',ty:'',ti:'ออกเดินทางไปปาย',d:'เส้น 1095 โค้งเยอะ'},
+   {t:'16:45',ty:'sight',ti:'🌅 Two Huts Pai',d:'ทันพระอาทิตย์ตกแน่นอน · เปิด 10:00–20:00',map:'Two Huts Pai แม่ฮี้ ปาย'},
+   {t:'18:30',ty:'hotel',ti:'✅ Chorthip House',d:'จ่าย Agoda แล้ว',map:'Chorthip House Pai'},
+   {t:'19:00',ty:'',ti:'ถนนคนเดินปาย',map:'Pai Walking Street'},
   ]},
- {id:'28',label:'28 เชียงดาว',title:'28 · ปาย → เชียงดาว',badge:['ปาย → เชียงดาว ~2-2.5 ชม.','b-amber'],note:'ออกจากปายเลี่ยงเข้าเมือง เชียงใหม่ ไปทางแม่มาลัย',
+ {id:'28',label:'28 เชียงดาว',title:'28 · ปาย → แม่ริม → เชียงดาว (แม่แมะ)',badge:['ปาย → แม่ริม → เชียงดาว','b-amber'],note:'⛽ เติมบางจากที่ปาย ก่อนออก (เส้น 1095 ปาย–แม่มาลัย โค้งเยอะ)',
   stops:[
-   {t:'08:00',ty:'eat',ti:'🍽️ อาหารเช้าในปาย',d:'แถวเมืองปาย',map:'Pai Town'},
-   {t:'09:00',ty:'cafe',ti:'☕ คาเฟ่สวยในปาย — ม่อนโก้ อิน ปาย',d:'วิวนา+ภูเขา ใกล้เมือง · เช็คเวลาเปิด',map:'ม่อนโก้ อิน ปาย Monko in Pai'},
-   {t:'~09:45',ty:'sight',ti:'⛰️ กองแลน (Pai Canyon)',d:'อยู่ทางใต้ของปาย ผ่านระหว่างทางออก',map:'Pai Canyon กองแลน'},
-   {t:'10:15',ty:'',ti:'ออกเดินทางจากปาย',d:'→ แม่มาลัย → เชียงดาว',map:'Pai'},
-   {t:'12:00',ty:'eat',ti:'🍴 ครัวม่อนไข่ เชียงดาว',d:'อาหารกลางวัน',map:'Krua Mon Khai Chiang Dao ครัวม่อนไข่ เชียงดาว'},
-   {t:'13:15',ty:'cafe',ti:'☕ บ้านธารชีวี Tarnchevee',d:'ซื้อขนม / กาแฟ',map:'Tarnchevee Mae Mae Chiang Dao บ้านธารชีวี เชียงดาว'},
-   {t:'14:00',ty:'hotel',ti:'✅ Good Day & Night Homestay Chiangdao',d:'เช็คอิน · คืนนี้ไม่ออก ทานเย็นที่บ้านพัก',map:'Good Day and Night Homestay Chiang Dao'},
-   {t:'เย็น',ty:'eat',ti:'🍲 อาหารเย็นที่บ้านพัก',d:'ไม่ออกไปไหน พักผ่อน'},
+   {t:'08:00',ty:'hotel',ti:'ออกจาก Chorthip House',map:'Chorthip House Pai'},
+   {t:'08:15',ty:'cafe',ti:'☕ Queue Espresso Bar',d:'เวียงใต้ ปาย · เปิด 07:00',map:'Queue Espresso Bar Pai'},
+   {t:'09:00',ty:'sight',ti:'📸 Pai Canyon (กองแลน)',map:'Pai Canyon'},
+   {t:'10:00',ty:'',ti:'ออกเดินทางจากปาย',d:'→ แม่มาลัย → แม่ริม'},
+   {t:'11:00',ty:'eat',ti:'🍴 ร้านอาหารอิสลาม',d:'ระหว่างทาง (หมุดที่แชร์มา)',url:'https://maps.app.goo.gl/f4cvH8Jh5mu6zHQ69'},
+   {t:'13:00',ty:'cafe',ti:'☕📸 WTF Coffee Camp',d:'โป่งแยง แม่ริม · วิวน้ำตก · ค่าเข้า 100฿ (แลกเครื่องดื่ม) เปิด 09:00',map:'WTF Coffee Camp Mae Rim'},
+   {t:'14:00',ty:'sight',ti:'📸 ม่อนแจ่ม',d:'แม่ริม',map:'Mon Jam Chiang Mai'},
+   {t:'15:30',ty:'cafe',ti:'🍰 บ้านธารชีวี Tarnchevee',d:'ขนม/กาแฟ · เชียงดาว',map:'Tarnchevee Chiang Dao'},
+   {t:'16:00',ty:'hotel',ti:'✅ Good Day & Night Homestay Chiangdao',d:'เช็คอิน · ทานเย็นแถวที่พัก',map:'Good Day and Night Homestay Chiang Dao'},
+   {t:'17:00',ty:'sight',ti:'📸 เดินเล่นลำธารแม่แมะ',map:'Mae Mae Village Chiang Dao'},
   ]},
- {id:'29',label:'29 กลับ',title:'29 · เชียงดาว → เชียงใหม่ → กทม',badge:['เวลาตึง! ต้องถึงตาก ก่อน 16:00','b-red'],note:'เชียงดาว→เชียงใหม่ ~1.5 ชม. / เชียงใหม่→ตาก ~4 ชม.',
+ {id:'29',label:'29 กลับ',title:'29 · เชียงดาว → เชียงใหม่ → กทม',badge:['ขากลับ ยาวๆ','b-blue'],note:'ตัดข้าวซอยตากออก · แวะ Golden Bee เชียงใหม่',
   stops:[
    {t:'09-10',ty:'',ti:'ออกเดินทางจากเชียงดาว',d:'→ เชียงใหม่ ~1.5 ชม.',map:'Chiang Dao'},
-   {t:'~11:00',ty:'cafe',ti:'☕ Magokoro Teahouse (มีใจให้มัทฉะ)',d:'ช้างคลาน เชียงใหม่ · มัทฉะญี่ปุ่น · เปิด 10:00',map:'Magokoro Teahouse Sridonchai Chang Khlan Chiang Mai'},
-   {t:'~11:45',ty:'eat',ti:'🍜 เติ๋น เชียงใหม่',d:'ข้าวกลางวัน · กินเร็วหน่อย เวลาตึง',map:'ร้านเติ๋น เชียงใหม่'},
-   {t:'≤12:00',ty:'warn',ti:'ออกจากเชียงใหม่ ← เดดไลน์!',d:'ช้ากว่านี้ไม่ทัน Good House (ขับ ~4 ชม.)',deadline:1,map:'เชียงใหม่'},
-   {t:'~15:45',ty:'warn',ti:'☕ Good House x Khao-soi ตาก',d:'ข้าวซอยอร่อย · ปิด 16:00 ต้องถึงก่อน!',deadline:1,map:'Good House Khao soi ตาก'},
+   {t:'~11:00',ty:'cafe',ti:'☕ Magokoro Teahouse (มีใจให้มัทฉะ)',d:'ช้างคลาน เชียงใหม่ · มัทฉะญี่ปุ่น · เปิด 10:00',map:'Magokoro Teahouse Chang Khlan Chiang Mai'},
+   {t:'~11:45',ty:'cafe',ti:'🐝 Golden Bee เชียงใหม่',d:'หลังอนุสาวรีย์สามกษัตริย์ · (สาขาสารภี อยู่ทางใต้ ออกกทมสะดวกกว่า)',map:'Golden Bee Shop Coffee เชียงใหม่ สามกษัตริย์'},
+   {t:'~12:45',ty:'eat',ti:'🍜 เติ๋น เชียงใหม่',d:'ข้าวกลางวัน',map:'ร้านเติ๋น เชียงใหม่'},
+   {t:'บ่าย',ty:'',ti:'ออกจากเชียงใหม่ → กทม',d:'ขับยาว'},
    {t:'18:30',ty:'eat',ti:'🍴 Khamnueang นครสวรรค์',d:'ข้าวเย็น ถ้าหิว',map:'Khamnueang นครสวรรค์'},
    {t:'กลางคืน',ty:'',ti:'ถึงกรุงเทพ 🏁'},
   ]},
@@ -515,7 +527,9 @@ function renderTimeline(){
     for(let i=0;i<day.stops.length;i++){const tm=parseTime(day.stops[i].t);if(tm!=null&&tm>=now){nextIdx=i;break;}}
   }
   document.getElementById('timeline').innerHTML=day.stops.map((s,i)=>{
-    const maps=s.map?`<div class="mapsrow">
+    const maps=s.url?`<div class="mapsrow">
+        <a class="btn btn-sm maps-btn" href="${s.url}" target="_blank" onclick="event.stopPropagation()">📍 เปิดหมุด Maps</a></div>`
+     :s.map?`<div class="mapsrow">
         <a class="btn btn-sm maps-btn" href="${mapsSearch(s.map)}" target="_blank" onclick="event.stopPropagation()">📍 เปิด Maps</a>
         <a class="btn btn-sm nav-btn" href="${mapsDir(s.map)}" target="_blank" onclick="event.stopPropagation()">🧭 นำทาง</a></div>`:'';
     let state='';
@@ -547,7 +561,8 @@ function openStop(dayId,idx){
       ${s.d?`<div class="mrow"><span>📝 รายละเอียด</span><b style="text-align:right;max-width:60%">${s.d}</b></div>`:''}
       ${s.map?`<div class="mrow"><span>📍 สถานที่</span><b style="text-align:right;max-width:60%">${s.map}</b></div>`:''}
     </div>
-    ${s.map?`<iframe class="mapembed" loading="lazy" src="${mapEmbed(s.map)}"></iframe>
+    ${s.url?`<a class="btn maps-btn" style="margin-top:10px" href="${s.url}" target="_blank">📍 เปิดหมุด Google Maps</a>`
+     :s.map?`<iframe class="mapembed" loading="lazy" src="${mapEmbed(s.map)}"></iframe>
       <div class="mapsrow" style="margin-top:10px">
         <a class="btn maps-btn" href="${mapsSearch(s.map)}" target="_blank">📍 เปิด Maps</a>
         <a class="btn nav-btn" href="${mapsDir(s.map)}" target="_blank">🧭 นำทาง</a></div>`
