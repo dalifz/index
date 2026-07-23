@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เข้าสู่ระบบ · Cabal Dashboard</title>
+  <link rel="icon" href="logo_CBPC_TH.png">
+  <link rel="stylesheet" href="styles.css?v=22">
+  <style>
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .login-card{
+      width:100%;max-width:390px;background:var(--panel);border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:34px 30px 30px;
+    }
+    .login-brand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:26px}
+    .login-brand img{width:104px;height:auto}
+    .login-brand .sub{font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;font-weight:700}
+    .login-card h1{font-size:19px;font-weight:800;text-align:center;margin:0 0 4px}
+    .login-card .hint{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px}
+    .fld{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .fld label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+    .fld input{
+      background:var(--panel-2);border:1px solid var(--border);border-radius:10px;
+      color:var(--text);padding:11px 13px;font-size:15px;font-family:inherit;width:100%;
+    }
+    .fld input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+    .login-btn{
+      width:100%;margin-top:8px;padding:12px;border:0;border-radius:10px;cursor:pointer;
+      background:var(--accent);color:#05140d;font-size:15px;font-weight:800;font-family:inherit;
+    }
+    .login-btn:hover{filter:brightness(1.08)}
+    .login-btn:disabled{opacity:.6;cursor:progress}
+    .login-err{
+      display:none;margin-top:14px;padding:10px 12px;border-radius:9px;font-size:13px;
+      background:rgba(255,93,93,.12);border:1px solid rgba(255,93,93,.4);color:#ff8a8a;
+    }
+    .login-err.show{display:block}
+    .login-foot{margin-top:20px;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+  </style>
+</head>
+<body data-theme="th">
+
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <div class="login-brand">
+      <img src="logo_CBPC_TH.png" alt="CABAL">
+      <div class="sub">Economy Dashboard</div>
+    </div>
+
+    <h1>เข้าสู่ระบบ</h1>
+    <div class="hint">สำหรับผู้ดูแลระบบเท่านั้น</div>
+
+    <div class="fld">
+      <label for="u">ชื่อผู้ใช้</label>
+      <input id="u" name="username" type="text" autocomplete="username" required autofocus>
+    </div>
+
+    <div class="fld">
+      <label for="p">รหัสผ่าน</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required>
+    </div>
+
+    <button class="login-btn" id="loginBtn" type="submit">เข้าสู่ระบบ</button>
+    <div class="login-err" id="loginErr"></div>
+
+    <div class="login-foot">ระบบภายในองค์กร · ข้อมูลรายได้เป็นความลับ<br>ห้ามเผยแพร่ต่อบุคคลภายนอก</div>
+  </form>
+
+  <script src="auth.js?v=1"></script>
+  <script>
+    // already signed in -> go straight through
+    (function () {
+      if (authSession()) location.replace(nextTarget());
+    })();
+
+    function nextTarget() {
+      var q = new URLSearchParams(location.search).get('next');
+      // only allow same-folder page names, never an external URL
+      return (q && /^[\w.-]+\.html(\?.*)?$/.test(q)) ? q : 'dashboardcbpc.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var btn = document.getElementById('loginBtn'),
+          err = document.getElementById('loginErr'),
+          u   = document.getElementById('u').value,
+          p   = document.getElementById('p').value;
+
+      btn.disabled = true; err.classList.remove('show');
+
+      authVerify(u, p).then(function (ok) {
+        if (ok) { authStart(u.trim().toLowerCase()); location.replace(nextTarget()); return; }
+        btn.disabled = false;
+        err.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+        err.classList.add('show');
+        document.getElementById('p').value = '';
+        document.getElementById('p').focus();
+      }).catch(function () {
+        btn.disabled = false;
+        err.textContent = 'ตรวจสอบไม่สำเร็จ ลองใหม่อีกครั้ง';
+        err.classList.add('show');
+      });
+    });
+  </script>
+</body>
+</html>
