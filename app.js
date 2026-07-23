@@ -3,6 +3,12 @@
  */
 
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec';
+// must match Script Property DASH_ACCESS_KEY on the backend
+var ACCESS_KEY = 'pqvCqYRiD5DlHTqpDIFfS6LyCZie';
+function apiUrl(extra) {
+  if (!WEB_APP_URL) return '';
+  return WEB_APP_URL + '?key=' + encodeURIComponent(ACCESS_KEY) + (extra || '');
+}
 
 var TARGETS  = { 'CBPC-TH': 6000000, 'CBPC-SEA': 200000 };
 var CURRENCY = { 'CBPC-TH': '฿', 'CBPC-SEA': '$' };
@@ -65,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function load() {
-  fetch(WEB_APP_URL || 'sample-data.json')
+  fetch(apiUrl() || 'sample-data.json')
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (data) { boot(window.DASH_PRODUCT, data); })
     .catch(function (err) { showStatus('โหลดข้อมูลไม่ได้: ' + err.message, true); });

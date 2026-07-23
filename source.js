@@ -3,6 +3,12 @@
  * Lazy-fetches the source endpoint (?src=1&p=...); falls back to sample-source.json.
  */
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec';
+// must match Script Property DASH_ACCESS_KEY on the backend
+var ACCESS_KEY = 'pqvCqYRiD5DlHTqpDIFfS6LyCZie';
+function apiUrl(extra) {
+  if (!WEB_APP_URL) return '';
+  return WEB_APP_URL + '?key=' + encodeURIComponent(ACCESS_KEY) + (extra || '');
+}
 var LOGOS = { 'CBPC-TH': 'logo_CBPC_TH.png', 'CBPC-SEA': 'logo_CBPC-SEA.png' };
 var RED = ['#ff4d4d','#ff6b3d','#ff8a3d','#ffa14d','#ffb86b','#e0563d','#c0392b','#ff7e7e'];
 var GREEN = ['#1fd67a','#38e08a','#2ee59d','#0fb37a','#5af2c8','#27c98f','#1aa86a','#7bf0b8'];
@@ -33,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   wireChrome(); wireControls();
 
-  fetch((WEB_APP_URL ? WEB_APP_URL + '?src=1&p=' + encodeURIComponent(PRODUCT) : 'sample-source.json'))
+  fetch(apiUrl('&src=1&p=' + encodeURIComponent(PRODUCT)) || 'sample-source.json')
     .then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function (d) { if (!d || !d.ALZ) throw 0; boot(d); })
     .catch(function () { fetch('sample-source.json').then(function (r) { return r.json(); }).then(boot)

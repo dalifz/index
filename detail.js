@@ -5,6 +5,12 @@
 
 // ---- Config (keep in sync with app.js) ----
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec';
+// must match Script Property DASH_ACCESS_KEY on the backend
+var ACCESS_KEY = 'pqvCqYRiD5DlHTqpDIFfS6LyCZie';
+function apiUrl(extra) {
+  if (!WEB_APP_URL) return '';
+  return WEB_APP_URL + '?key=' + encodeURIComponent(ACCESS_KEY) + (extra || '');
+}
 
 var GROUPS = {
   dauccu:  { title: 'DAU / CCU Trend', metrics: ['DAU', 'CCU'] },
@@ -77,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
   installGlow();
 
   wireRangeD();
-  fetch(WEB_APP_URL)
+  fetch(apiUrl())
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (data) {
       var p = data.products[product];
