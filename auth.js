@@ -18,9 +18,9 @@
 
 var AUTH_SALT = 'cabal-dash-2026';
 
-// username -> SHA-256(salt + password).  Default password: cabal2026  (change it)
+// username -> SHA-256(salt + password).  Add users with _password-tool.html (local only).
 var AUTH_USERS = {
-  'admin': '9579a8b7aaed78afbb065f9b46a161944516594d5de54648a154e11b3bcff628'
+  'admin': '5ffee22348d3552abbc4c5cad6500b3b18de6bfaee982f32ed2fd51cf45cd7d1'
 };
 
 var AUTH_KEY   = 'cabal_session';
