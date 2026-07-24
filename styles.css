@@ -91,6 +91,23 @@ body {
 }
 .nav a .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--glow); }
 
+/* เมนูเด่น — หมวดของตัวเอง (Report Summary) */
+.nav-section.feature { color: var(--accent); font-weight: 700; opacity: .95; }
+.nav a.feature {
+  color: var(--text); font-weight: 700; font-size: 15px;
+  padding: 13px 12px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  border-left: 3px solid var(--accent);
+}
+.nav a.feature:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.nav a.feature.active {
+  color: #fff;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 14px var(--glow);
+}
+.nav a.feature .ic { font-size: 16px; line-height: 1; }
+
 .side-foot { margin-top: auto; padding-top: 16px; }
 .dl-btn {
   display: block; text-align: center; text-decoration: none; color: #06231a; font-weight: 700;
