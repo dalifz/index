@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var overviewHref = (product === 'CBPC-SEA') ? 'sea.html' : 'th.html';
   document.getElementById('navTH').className  = (product === 'CBPC-TH')  ? 'active' : '';
   document.getElementById('navSEA').className = (product === 'CBPC-SEA') ? 'active' : '';
-  [].forEach.call(document.querySelectorAll('#navMetrics a'), function (a) {
+  [].forEach.call(document.querySelectorAll('#navMetrics a, #navReport a'), function (a) {
     var g = a.getAttribute('data-g');
     a.href = (g === 'overview') ? overviewHref
       : (g === 'source') ? ('source.html?p=' + encodeURIComponent(product))

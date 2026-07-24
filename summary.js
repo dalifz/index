@@ -38,7 +38,7 @@ function wireNav() {
   document.getElementById('navTH').classList.toggle('active', PRODUCT === 'CBPC-TH');
   document.getElementById('navSEA').classList.toggle('active', PRODUCT === 'CBPC-SEA');
   var over = PRODUCT === 'CBPC-SEA' ? 'sea.html' : 'th.html';
-  [].forEach.call(document.querySelectorAll('#navMetrics a'), function (a) {
+  [].forEach.call(document.querySelectorAll('#navMetrics a, #navReport a'), function (a) {
     var g = a.getAttribute('data-g');
     if (g === 'overview') a.href = over;
     else if (g === 'source') a.href = 'source.html?p=' + encodeURIComponent(PRODUCT);
