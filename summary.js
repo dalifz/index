@@ -328,13 +328,13 @@ function pctColor(p) {
   return 'hsl(' + Math.round(h) + ',75%,52%)';
 }
 
-// ช่อง % = ตัวเลข + บาร์ solid สีตามค่า
+// ช่อง % = ตัวเลข + บาร์ solid สีตามค่า · ถึงเป้า (>=100%) เป็นสีรุ้ง
 function pctCell(p) {
   if (p == null) return '<td class="pctcell"><div class="pv">—</div></td>';
-  var col = pctColor(p), w = Math.max(2, Math.min(100, p));
-  return '<td class="pctcell">' +
-    '<div class="pv" style="color:' + col + (p >= 100 ? ';font-weight:800' : '') + '">' + p.toFixed(1) + '%</div>' +
-    '<div class="pbar"><span style="width:' + w.toFixed(1) + '%;background:' + col + '"></span></div>' +
+  var hit = p >= 100, col = pctColor(p), w = Math.max(2, Math.min(100, p));
+  return '<td class="pctcell' + (hit ? ' rainbow' : '') + '">' +
+    '<div class="pv"' + (hit ? '' : ' style="color:' + col + '"') + '>' + p.toFixed(1) + '%</div>' +
+    '<div class="pbar"><span style="width:' + w.toFixed(1) + '%' + (hit ? '' : ';background:' + col) + '"></span></div>' +
     '</td>';
 }
 
