@@ -302,12 +302,11 @@ function renderTable(ms) {
   }).join('') + '</tr></thead><tbody>';
 
   rows.forEach(function (m) {
-    var pctCls = m.pct == null ? '' : (m.pct >= 100 ? ' style="color:#38e08a;font-weight:700"' : (m.pct < 50 ? ' style="color:#ff5d5d"' : ''));
     html += '<tr>' +
       '<td style="font-weight:700;white-space:nowrap">' + moLabelFull(m.ym) + '</td>' +
       td(m.mau) + td(m.ccu) + td(m.dau) + td(m.nru) + td(m.payingUser) +
       td(m.target, 1) + td(m.revenue, 1) + td(m.left, 1) +
-      '<td class="num"' + pctCls + '>' + (m.pct == null ? '—' : m.pct.toFixed(1) + '%') + '</td>' +
+      pctCell(m.pct) +
       td(m.arpu, 1) + td(m.arppu, 1) +
       '<td class="num">' + (m.pctPaying == null ? '—' : (m.pctPaying * 100).toFixed(2) + '%') + '</td>' +
       '</tr>';
@@ -322,6 +321,23 @@ function td(v, isMoney) {
   return '<td class="num">' + (v == null ? '—' : (isMoney ? money(v) : num(v, 0))) + '</td>';
 }
 
+// สีไล่ตามค่า: 0% แดง -> 50% เหลืองส้ม -> 100% เขียว (เกิน 100 คงเขียว)
+function pctColor(p) {
+  var v = Math.max(0, Math.min(100, p));
+  var h = v <= 50 ? (v / 50) * 45 : 45 + ((v - 50) / 50) * 95;   // hue 0 -> 45 -> 140
+  return 'hsl(' + Math.round(h) + ',75%,52%)';
+}
+
+// ช่อง % = ตัวเลข + บาร์ solid สีตามค่า
+function pctCell(p) {
+  if (p == null) return '<td class="pctcell"><div class="pv">—</div></td>';
+  var col = pctColor(p), w = Math.max(2, Math.min(100, p));
+  return '<td class="pctcell">' +
+    '<div class="pv" style="color:' + col + (p >= 100 ? ';font-weight:800' : '') + '">' + p.toFixed(1) + '%</div>' +
+    '<div class="pbar"><span style="width:' + w.toFixed(1) + '%;background:' + col + '"></span></div>' +
+    '</td>';
+}
+
 function renderYearly() {
   var y = DATA.yearly || {}, keys = Object.keys(y).sort();
   if (!keys.length) { document.getElementById('yearWrap').innerHTML = ''; return; }
@@ -334,8 +350,7 @@ function renderYearly() {
     html += '<tr><td style="font-weight:700">' + k + '</td>' +
       '<td class="num">' + money(o.revenue) + '</td>' +
       '<td class="num">' + (o.target == null ? '—' : money(o.target)) + '</td>' +
-      '<td class="num"' + (o.pct != null && o.pct >= 100 ? ' style="color:#38e08a;font-weight:700"' : '') + '>' +
-        (o.pct == null ? '—' : o.pct.toFixed(1) + '%') + '</td>' +
+      pctCell(o.pct) +
       '<td class="num">' + (o.left == null ? '—' : money(o.left)) + '</td></tr>';
   });
   document.getElementById('yearWrap').innerHTML = html + '</tbody></table></div></div>';

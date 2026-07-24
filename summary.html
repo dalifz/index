@@ -51,6 +51,10 @@
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:1000px){.grid2{grid-template-columns:1fr}}
     table.data td.num{text-align:right;font-variant-numeric:tabular-nums}
+    table.data td.pctcell{text-align:right;min-width:92px}
+    .pctcell .pv{font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+    .pbar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:5px}
+    .pbar span{display:block;height:100%;border-radius:3px}
     table.data th{white-space:nowrap}
     .tw-scroll{overflow-x:auto}
   </style>
@@ -145,6 +149,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="summary.js?v=1"></script>
+  <script src="summary.js?v=2"></script>
 </body>
 </html>
