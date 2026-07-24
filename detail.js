@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var g = a.getAttribute('data-g');
     a.href = (g === 'overview') ? overviewHref
       : (g === 'source') ? ('source.html?p=' + encodeURIComponent(product))
+      : (g === 'summary') ? ('summary.html?p=' + encodeURIComponent(product))
       : ('detail.html?p=' + encodeURIComponent(product) + '&g=' + g);
     if (g === groupKey) a.className = 'active';
   });

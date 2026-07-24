@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('navSEA').className = PRODUCT === 'CBPC-SEA' ? 'active' : '';
   [].forEach.call(document.querySelectorAll('#navMetrics a'), function (a) {
     var g = a.getAttribute('data-g');
-    a.href = g === 'overview' ? ov : (g === 'source' ? ('source.html?p=' + encodeURIComponent(PRODUCT)) : ('detail.html?p=' + encodeURIComponent(PRODUCT) + '&g=' + g));
+    a.href = g === 'overview' ? ov : (g === 'source' ? ('source.html?p=' + encodeURIComponent(PRODUCT)) : (g === 'summary' ? ('summary.html?p=' + encodeURIComponent(PRODUCT)) : ('detail.html?p=' + encodeURIComponent(PRODUCT) + '&g=' + g)));
   });
 
   wireChrome(); wireControls();

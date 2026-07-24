@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Report Summary · Cabal Dashboard</title>
+  <link rel="icon" href="logo_CBPC_TH.png">
+  <link rel="stylesheet" href="styles.css?v=22">
+  <script src="auth.js?v=2"></script>
+  <style>
+    .srv-toggle{display:flex;gap:8px}
+    .srv-toggle button{background:var(--panel);border:1px solid var(--border);color:var(--muted);
+      font-weight:700;padding:8px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px}
+    .srv-toggle button.active{background:var(--accent);color:#05140d;border-color:var(--accent)}
+
+    /* ---- hero: เดือนที่ผ่านมา ---- */
+    .hero-mo{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:24px 26px;margin-bottom:16px;
+      border-left:4px solid var(--accent)}
+    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .hero-eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+    .hero-mo h2{font-size:30px;font-weight:800;margin:4px 0 0}
+    .hero-rev{text-align:right}
+    .hero-rev .big{font-size:38px;font-weight:800;line-height:1.1;color:var(--accent)}
+    .hero-rev .sub{font-size:13px;color:var(--muted);margin-top:2px}
+    .hero-bar{height:12px;border-radius:6px;background:var(--panel-2);overflow:hidden;margin:16px 0 6px}
+    .hero-bar span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+    .hero-bar-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+    .hero-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
+      background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:18px}
+    .hk{background:var(--panel);padding:12px 14px}
+    .hk .l{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+    .hk .v{font-size:21px;font-weight:800;margin-top:3px}
+    .hk .d{font-size:11px;font-weight:700;margin-top:2px}
+    .hk .d.up{color:#38e08a} .hk .d.dn{color:#ff5d5d} .hk .d.flat{color:var(--muted)}
+
+    /* ---- เดือนปัจจุบัน ---- */
+    .now-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:20px 24px;margin-bottom:18px;border-left:4px solid #37c6ff}
+    .now-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .now-head .t{font-size:17px;font-weight:800}
+    .now-head .date{font-size:12px;color:var(--muted);font-family:ui-monospace,Consolas,monospace}
+    .now-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:14px}
+    .now-grid .ng .l{font-size:11px;color:var(--muted);font-weight:700}
+    .now-grid .ng .v{font-size:22px;font-weight:800;margin-top:2px}
+    .now-bar{height:10px;border-radius:5px;background:var(--panel-2);overflow:hidden;margin-top:14px}
+    .now-bar span{display:block;height:100%;border-radius:5px;background:#37c6ff}
+
+    .baht{display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-top:2px}
+    .chart-wrap.tall{height:300px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:1000px){.grid2{grid-template-columns:1fr}}
+    table.data td.num{text-align:right;font-variant-numeric:tabular-nums}
+    table.data th{white-space:nowrap}
+    .tw-scroll{overflow-x:auto}
+  </style>
+</head>
+<body data-theme="th">
+  <button id="showSide" title="แสดงเมนู">☰</button>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><img id="brandLogo" src="logo_CBPC_TH.png" alt="CABAL"><div class="sub" id="brandSub">CBPC-TH</div></div>
+      <div class="nav-section">Servers</div>
+      <nav class="nav"><a id="navTH"><span class="dot"></span> CBPC-TH</a><a id="navSEA"><span class="dot"></span> CBPC-SEA</a></nav>
+      <div class="nav-section">Metrics</div>
+      <nav class="nav" id="navMetrics">
+        <a data-g="overview">Overview</a>
+        <a data-g="dauccu">DAU / CCU Trend</a>
+        <a data-g="alzfg">ALZ / FG</a>
+        <a data-g="revenue">Revenue</a>
+        <a data-g="source">ALZ/FG Source</a>
+        <a data-g="summary" class="active">Report Summary</a>
+      </nav>
+      <div class="side-foot">
+        <button id="toggleSide" class="side-btn">« ซ่อนเมนู</button>
+        <div class="profile"><span class="avatar">🛡️</span><div><div class="pname">Admin</div><div class="prole">Administrator</div></div></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-head">
+        <div class="head-title">
+          <h2 id="title">Report Summary</h2>
+          <div class="updated" id="updatedAt">—</div>
+        </div>
+        <div class="head-actions">
+          <div class="srv-toggle" id="srvToggle">
+            <button data-p="CBPC-TH" class="active">CBPC-TH</button>
+            <button data-p="CBPC-SEA">CBPC-SEA</button>
+          </div>
+          <button id="refresh" class="icon-btn" title="ดึงข้อมูลสดจากชีต">⟳</button>
+          <a class="dl-btn sm" href="#" onclick="window.print();return false;">⬇ Export PDF</a>
+        </div>
+      </div>
+
+      <div id="status"><div class="skeleton"></div><div class="skeleton"></div></div>
+
+      <section id="heroWrap"></section>
+      <section id="nowWrap"></section>
+
+      <section class="grid2" id="charts1">
+        <div class="card">
+          <div class="card-head"><h3>Revenue vs Target</h3>
+            <div class="legend inline"><span><i style="background:#ffce5c"></i> Revenue</span><span><i style="background:#ff5d5d"></i> Target</span></div>
+          </div>
+          <div class="cap">รายได้จริงเทียบเป้าหมายรายเดือน</div>
+          <div class="chart-wrap tall"><canvas id="revChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>MAU / DAU / Peak CCU</h3>
+            <div class="legend inline"><span><i style="background:#2ee59d"></i> MAU</span><span><i style="background:#37c6ff"></i> DAU</span><span><i style="background:#b98bff"></i> Peak CCU</span></div>
+          </div>
+          <div class="cap">แนวโน้มผู้เล่นตั้งแต่เปิดเซิร์ฟ</div>
+          <div class="chart-wrap tall"><canvas id="userChart"></canvas></div>
+        </div>
+      </section>
+
+      <section class="grid2" id="charts2" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head"><h3>Paying User &amp; % Paying</h3>
+            <div class="legend inline"><span><i style="background:#25d3c0"></i> Paying User</span><span><i style="background:#ffce5c"></i> % Paying</span></div>
+          </div>
+          <div class="cap">จำนวนคนจ่ายเงิน และสัดส่วนต่อผู้เล่นทั้งหมด</div>
+          <div class="chart-wrap tall"><canvas id="payChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>ARPU / ARPPU</h3>
+            <div class="legend inline"><span><i style="background:#37c6ff"></i> ARPU</span><span><i style="background:#ff9f45"></i> ARPPU</span></div>
+          </div>
+          <div class="cap">รายได้เฉลี่ยต่อผู้เล่น / ต่อคนจ่ายเงิน</div>
+          <div class="chart-wrap tall"><canvas id="arpuChart"></canvas></div>
+        </div>
+      </section>
+
+      <section class="full" style="margin-top:16px">
+        <div class="card">
+          <h3>ตารางข้อมูลรายเดือน</h3>
+          <div class="cap" id="tblCap">ทุกเดือนตั้งแต่เปิดเซิร์ฟ (ล่าสุดอยู่บน)</div>
+          <div class="tw-scroll"><table class="data" id="sumTable"></table></div>
+        </div>
+      </section>
+
+      <section class="full" style="margin-top:16px" id="yearWrap"></section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="summary.js?v=1"></script>
+</body>
+</html>
