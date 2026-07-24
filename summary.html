@@ -55,6 +55,20 @@
     .pctcell .pv{font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
     .pbar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:6px}
     .pbar span{display:block;height:100%;border-radius:4px}
+
+    /* ถึงเป้า 100%+ = สีรุ้ง */
+    .pctcell.rainbow .pv{
+      background:linear-gradient(90deg,#ff4d4d,#ff9f45,#ffe14d,#38e08a,#37c6ff,#b98bff,#ff4d4d);
+      background-size:200% 100%;
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      font-weight:800;animation:rainbowSlide 4s linear infinite}
+    .pctcell.rainbow .pbar span{
+      background:linear-gradient(90deg,#ff4d4d,#ff9f45,#ffe14d,#38e08a,#37c6ff,#b98bff,#ff4d4d);
+      background-size:200% 100%;
+      animation:rainbowSlide 4s linear infinite}
+    @keyframes rainbowSlide{from{background-position:0 0}to{background-position:200% 0}}
+    @media(prefers-reduced-motion:reduce){
+      .pctcell.rainbow .pv,.pctcell.rainbow .pbar span{animation:none}}
     table.data th{white-space:nowrap}
 
     /* ตัวใหญ่ขึ้น 30% — อ่านง่ายตอนพรีเซนบนจอโปรเจกเตอร์ */
@@ -155,6 +169,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="summary.js?v=3"></script>
+  <script src="summary.js?v=4"></script>
 </body>
 </html>
