@@ -60,8 +60,17 @@ header h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
 .links{display:flex;gap:8px;margin-top:10px}
 .links a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:10px;padding:7px 4px;color:var(--ink)}
 .rate{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
-.rate button{border-radius:12px;padding:8px 0 6px;background:#f5f1ea;font-weight:700;font-size:18px;line-height:1.1;transition:transform .1s}
-.rate button small{display:block;font-size:10px;font-weight:500;color:var(--muted)}
+.rate{grid-template-columns:1.5fr 1.25fr 1.05fr .9fr .8fr!important;align-items:end}
+.rate button{border-radius:14px;padding:6px 0 5px;background:#f5f1ea;line-height:1.1;transition:transform .1s}
+.rate button .e{display:block;line-height:1.15}
+.rate button[data-s="5"]{padding:10px 0 7px}.rate button[data-s="5"] .e{font-size:38px}
+.rate button[data-s="4"]{padding:8px 0 6px}.rate button[data-s="4"] .e{font-size:31px}
+.rate button[data-s="3"] .e{font-size:26px}
+.rate button[data-s="2"] .e{font-size:22px}
+.rate button[data-s="1"] .e{font-size:19px}
+.rate button small{display:block;font-size:10px;font-weight:500;color:var(--muted);margin-top:2px;white-space:nowrap}
+.rate button[data-s="5"] small{font-size:12px;font-weight:700;color:var(--s5)}
+.rate button[data-s="5"]:hover small,.rate button[data-s="5"].on small{color:#fff}
 .rate button:active{transform:scale(.94)}
 .rate button[data-s="1"]:hover,.rate button.on[data-s="1"]{background:var(--s1);color:#fff}
 .rate button[data-s="2"]:hover,.rate button.on[data-s="2"]{background:var(--s2);color:#fff}
@@ -576,11 +585,11 @@ function pickGo(day){
 }
 // ---------- Views ----------
 const SCORE_META = {
-  1:{t:'ห่วย',     c:'var(--s1)', dest:'🚫 ทิ้ง · จะไม่ส่งแนวนี้มาอีก'},
-  2:{t:'ถ้าจำเป็น', c:'var(--s2)', dest:'📦 เข้าคลัง'},
-  3:{t:'ก็โอเค',   c:'var(--s3)', dest:'📋 เข้าลิสต์: สำรอง'},
-  4:{t:'น่าสนใจ',  c:'var(--s4)', dest:'📋 เข้าลิสต์: น่าสนใจ'},
-  5:{t:'ไปแน่!',   c:'var(--s5)', dest:'📋 เข้าลิสต์: ไปแน่'},
+  1:{e:'😱', t:'ห่วย',     c:'var(--s1)', dest:'😱 ทิ้ง · จะไม่ส่งแนวนี้มาอีก'},
+  2:{e:'🤔', t:'ถ้าจำเป็น', c:'var(--s2)', dest:'🤔 เข้าคลัง'},
+  3:{e:'😳', t:'ก็โอเค',   c:'var(--s3)', dest:'😳 เข้าลิสต์: สำรอง'},
+  4:{e:'😃', t:'น่าสนใจ',  c:'var(--s4)', dest:'😃 เข้าลิสต์: น่าสนใจ'},
+  5:{e:'🥰', t:'ไปแน่!',   c:'var(--s5)', dest:'🥰 เข้าลิสต์: ไปแน่'},
 };
 const ui = {tab:'inbox', tagFilter:'all', showBlocked:false, listSeg:'list', goDay:'sat', goIdx:0};
 
@@ -641,7 +650,10 @@ function observePhotos(){
 const thumb = p => p.photo
   ? `<div class="thumb" data-photo="${esc(p.id)}"><span class="temo">${emojiOf(p)}</span></div>`
   : `<div class="thumb">${emojiOf(p)}</div>`;
-const rateButtons = (cur) => `<div class="rate">${[1,2,3,4,5].map(s => `<button data-act="rate" data-s="${s}" class="${cur===s?'on':''}">${s}<small>${SCORE_META[s].t}</small></button>`).join('')}</div>`;
+// 5 → 1, left to right, biggest first
+const SCORES_DESC = [5, 4, 3, 2, 1];
+const rateBtn = (s, attrs, cur) => `<button ${attrs} data-s="${s}" class="${cur===s?'on':''}" title="${s} · ${SCORE_META[s].t}"><span class="e">${SCORE_META[s].e}</span><small>${SCORE_META[s].t}</small></button>`;
+const rateButtons = (cur) => `<div class="rate">${SCORES_DESC.map(s => rateBtn(s, 'data-act="rate"', cur)).join('')}</div>`;
 
 function cafeCard(x, opts={}){
   const p = x.p, nw = newness(p), d = distOf(p), s = x.s ?? scoreOf(p), pt = prioTagOf(p);
@@ -696,10 +708,10 @@ function viewInbox(){
       <div class="progress" style="margin:8px 0 4px"><i style="width:${total ? done / total * 100 : 0}%"></i></div>
       <div class="hint" style="margin:0">${pool ? `รออยู่นอกชุดอีก ${pool} ร้าน · <a href="#" data-act="newFeed">🔄 จัดชุดใหม่</a>` : 'ไม่มีร้านรอนอกชุดนี้ · กด 🔍 สแกน เพื่อหาเพิ่ม'}</div>
     </div>
-    <details class="legend"><summary>ความหมายคะแนน 1–5</summary>
-    <p><b>5</b> ไปแน่ เสาร์-อาทิตย์/วันหยุดไปที่นี่ก่อน → ลิสต์</p><p><b>4</b> น่าสนใจมาก แต่รอดูเผื่อมี 5 → ลิสต์</p>
-    <p><b>3</b> ก็โอเค ถ้าไม่มีตัวเลือกดีกว่าก็ไป → ลิสต์ (สำรอง)</p><p><b>2</b> ไม่น่าไป เว้นแต่ไม่มีที่ไปจริงๆ/ใกล้บ้านมาก → คลัง</p>
-    <p><b>1</b> ห่วย ไม่ใช่ type → ทิ้ง + ไม่ส่งแนวนี้มาอีก</p><p><b>✅ เคยไปแล้ว</b> → ไม่ขึ้นฟีดอีก ดูได้ที่ 📋 ลิสต์ → ไปแล้ว</p></details>
+    <details class="legend"><summary>ความหมาย 🥰 😃 😳 🤔 😱</summary>
+    <p>🥰 <b>ไปแน่</b> เสาร์-อาทิตย์/วันหยุดไปที่นี่ก่อน → ลิสต์</p><p>😃 <b>น่าสนใจ</b> มาก แต่รอดูเผื่อมี 🥰 → ลิสต์</p>
+    <p>😳 <b>ก็โอเค</b> ถ้าไม่มีตัวเลือกดีกว่าก็ไป → ลิสต์ (สำรอง)</p><p>🤔 <b>ถ้าจำเป็น</b> ไม่มีที่ไปจริงๆ/ใกล้บ้านมาก → คลัง</p>
+    <p>😱 <b>ห่วย</b> ไม่ใช่ type → ทิ้ง + ไม่ส่งแนวนี้มาอีก</p><p><b>✅ เคยไปแล้ว</b> → ไม่ขึ้นฟีดอีก ดูได้ที่ 📋 ลิสต์ → ไปแล้ว</p></details>
     ${items.length ? `<div class="chips">${chips}</div>` : ''}`;
   if(!items.length) html += total && pool
     ? `<div class="empty"><b>🎉</b>ครบชุด ${total} ร้านแล้ว!<br><button class="btn" style="margin-top:12px" data-act="newFeed">ขอชุดใหม่ (${Math.min(pool, S.settings.feedSize)} ร้าน)</button></div>`
@@ -716,11 +728,11 @@ function row(p, r, extra=''){
   return `<div class="row ${r.visited ? 'visited' : ''}" data-id="${esc(p.id)}">${thumb(p)}
     <div class="info"><b>${esc(p.name)}</b><span>📍 ${d.toFixed(1)} กม. · ${p.tags.map(t => TAGS[t].label.split(' ')[0]).join(' ')} ${r.visited ? '· ✅ ไปแล้ว' + (r.visitScore ? ` (${r.visitScore}/5)` : '') : ''}</span>
       <div class="flex" style="margin-top:4px">
-        <select class="mini" data-act="rescore">${r.score ? '' : '<option selected disabled>– ยังไม่ให้คะแนน</option>'}${[1,2,3,4,5].map(s => `<option value="${s}" ${r.score===s?'selected':''}>${s} · ${SCORE_META[s].t}</option>`).join('')}</select>
+        <select class="mini" data-act="rescore">${r.score ? '' : '<option selected disabled>– ยังไม่ให้คะแนน</option>'}${SCORES_DESC.map(s => `<option value="${s}" ${r.score===s?'selected':''}>${SCORE_META[s].e} ${SCORE_META[s].t}</option>`).join('')}</select>
         ${r.visited ? `<button class="mini" data-act="unvisit">↩︎ ยังไม่ได้ไป</button>` : `<button class="mini" data-act="visit">✅ ไปแล้ว</button>`}
         <a class="mini" href="${esc(mapsLink(p))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">🗺</a>${extra}
       </div></div>
-    <div class="score" style="background:${r.score ? SCORE_META[r.score].c : '#cfc6b8'}">${r.score || '–'}</div></div>`;
+    <div class="score" style="background:${r.score ? SCORE_META[r.score].c : '#cfc6b8'}" title="${r.score || ''}">${r.score ? SCORE_META[r.score].e : '–'}</div></div>`;
 }
 
 function viewList(){
@@ -738,7 +750,7 @@ function viewList(){
   if(ui.listSeg === 'list'){
     [[5,'ไปแน่ (วันหยุดไปก่อน)'],[4,'น่าสนใจมาก'],[3,'สำรอง']].forEach(([s, t]) => {
       const g = cur.filter(x => x.r.score === s);
-      if(g.length) html += `<h2><span class="score" style="background:${SCORE_META[s].c};width:24px;height:24px;font-size:13px">${s}</span>${t}<span class="count">${g.length} ร้าน</span></h2>` + g.map(x => row(x.p, x.r)).join('');
+      if(g.length) html += `<h2><span class="score" style="background:${SCORE_META[s].c};width:28px;height:28px;font-size:16px">${SCORE_META[s].e}</span>${t}<span class="count">${g.length} ร้าน</span></h2>` + g.map(x => row(x.p, x.r)).join('');
     });
   }else{
     if(ui.listSeg === 'archive') html += `<p class="hint">ไว้ใช้ตอนลิสต์หมด หรือร้านอยู่ใกล้บ้านมาก — แท็บ 🎯 จะหยิบจากตรงนี้ให้อัตโนมัติ</p>`;
@@ -762,7 +774,7 @@ function viewGo(){
   const first = top[ui.goIdx % top.length];
   const rest = items.filter(x => x !== first).slice(0, 3);
   if(from === 'archive') html += `<p class="reason">📦 ลิสต์หมดแล้ว — หยิบจากคลังให้ (เรียงร้านใกล้บ้านก่อน)</p>`;
-  const why = from === 'list' ? `คุณให้ ${first.r.score} · ${SCORE_META[first.r.score].t}` : 'จากคลัง · ใกล้บ้านสุด';
+  const why = from === 'list' ? `คุณให้ ${SCORE_META[first.r.score].e} ${SCORE_META[first.r.score].t}` : 'จากคลัง · ใกล้บ้านสุด';
   const hours = first.p.hoursText ? `<p class="hint">🕐 ${esc(first.p.hoursText.join(' · '))}</p>` : '';
   html += `<h2>🎯 ${days[ui.goDay]}นี้ไป</h2>` + cafeCard(first, {cls:'pick', noRate:true, noMatch:true, reason:why,
     extra:`${hours}<div class="flex" style="margin-top:10px">${top.length > 1 ? `<button class="btn ghost" data-act="reroll">🔀 สุ่มร้านอื่น (${top.length})</button>` : ''}<button class="btn" data-act="visit" data-id="${esc(first.p.id)}">✅ ไปแล้ว</button></div>`});
@@ -873,7 +885,7 @@ let sheetId = null;
 function markVisited(id){
   sheetId = id;
   $('#sheetTitle').textContent = `✅ ไป “${S.places[id]?.name || ''}” มาแล้ว`;
-  $('#sheetRate').innerHTML = [1,2,3,4,5].map(s => `<button data-sheet="${s}" data-s="${s}">${s}<small>${SCORE_META[s].t}</small></button>`).join('');
+  $('#sheetRate').innerHTML = SCORES_DESC.map(s => rateBtn(s, `data-sheet="${s}"`)).join('');
   $('#sheet').hidden = false;
 }
 function closeSheet(){ $('#sheet').hidden = true; sheetId = null; }
