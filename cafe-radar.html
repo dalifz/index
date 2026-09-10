@@ -86,6 +86,11 @@ header h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
 .sheet-bg{position:fixed;inset:0;z-index:30;background:rgba(43,38,32,.45);display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--card);width:100%;max-width:460px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
 .sheet h3{margin:0 0 2px;font-size:17px}
+.sheet textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fffdf9;font-size:14px;margin-top:10px;resize:vertical}
+.reasons{display:flex;flex-wrap:wrap;gap:6px}
+.reasons button{border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;background:var(--card)}
+.reasons button.on{background:var(--s1);border-color:var(--s1);color:#fff}
+.note{font-size:12px;color:#7a5a4a;background:#fbf1ec;border-radius:8px;padding:3px 8px;margin-top:4px;display:inline-block}
 .legend{font-size:12px;color:var(--muted);background:var(--card);border-radius:12px;padding:8px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
 .legend summary{cursor:pointer;font-weight:600;color:var(--ink)}
 .legend p{margin:4px 0}
@@ -160,6 +165,13 @@ nav .dot{position:absolute;top:4px;left:calc(50% + 8px);background:var(--s1);col
   <p class="hint" style="margin:0 0 4px">ให้คะแนนหลังไปจริงไหม? คะแนนนี้สอนสไตล์คุณได้แม่นกว่า (นับหนัก 1.5 เท่า)</p>
   <div class="rate" id="sheetRate"></div>
   <div class="flex" style="justify-content:center;gap:22px;margin-top:10px"><button class="skip" data-sheet="none">ไม่ให้คะแนน · แค่จำว่าไปแล้ว</button><button class="skip" data-sheet="cancel">ยกเลิก</button></div>
+</div></div>
+<div class="sheet-bg" id="noteSheet" hidden><div class="sheet">
+  <h3 id="noteTitle">😱 ห่วยเพราะอะไร?</h3>
+  <p class="hint" id="noteHint" style="margin:0 0 8px">เลือกได้หลายข้อ · เก็บไว้ใน Export ให้ Claude อ่านตอนวิเคราะห์สไตล์</p>
+  <div class="reasons" id="noteChips"></div>
+  <textarea id="noteText" rows="3" placeholder="พิมพ์เพิ่มได้ เช่น มัทฉะใช้ผงชง ไม่ได้ตีสด / รูปสวยแต่ร้านจริงเล็กมาก"></textarea>
+  <div class="flex" style="justify-content:flex-end;gap:10px;margin-top:10px"><button class="btn ghost" data-note="skip" id="noteSkip">ข้าม ไม่ใส่เหตุผล</button><button class="btn" data-note="save">บันทึก</button></div>
 </div></div>
 <script>
 // ---------- Core: state, storage, helpers ----------
@@ -475,7 +487,7 @@ let MODEL = {n:0, w:{}, mean:3};
 const effScore = r => r.visitScore ?? r.score;
 function train(){
   const rows = Object.entries(S.ratings)
-    .filter(([id, r]) => S.places[id] && r.score)
+    .filter(([id, r]) => S.places[id] && r.score && !r.noTaste)
     .map(([id, r]) => ({f:features(S.places[id]), y:effScore(r), wt:r.visitScore ? 1.5 : 1}));
   const n = rows.length;
   if(!n){ MODEL = {n:0, w:{}, mean:3}; return; }
@@ -528,7 +540,7 @@ function similarRated(p, test){
   }
   return best;
 }
-const blockedBy = p => { const s = similarRated(p, r => r.score === 1); return s && s.sim >= 0.67 ? s.place : null; };
+const blockedBy = p => { const s = similarRated(p, r => r.score === 1 && !r.noTaste);return s && s.sim >= 0.67 ? s.place : null; };
 
 function reasons(p){
   const out = [];
@@ -730,8 +742,9 @@ function row(p, r, extra=''){
       <div class="flex" style="margin-top:4px">
         <select class="mini" data-act="rescore">${r.score ? '' : '<option selected disabled>– ยังไม่ให้คะแนน</option>'}${SCORES_DESC.map(s => `<option value="${s}" ${r.score===s?'selected':''}>${SCORE_META[s].e} ${SCORE_META[s].t}</option>`).join('')}</select>
         ${r.visited ? `<button class="mini" data-act="unvisit">↩︎ ยังไม่ได้ไป</button>` : `<button class="mini" data-act="visit">✅ ไปแล้ว</button>`}
+        <button class="mini" data-act="note" title="โน้ต">📝</button>
         <a class="mini" href="${esc(mapsLink(p))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">🗺</a>${extra}
-      </div></div>
+      </div>${noteLine(r)}</div>
     <div class="score" style="background:${r.score ? SCORE_META[r.score].c : '#cfc6b8'}" title="${r.score || ''}">${r.score ? SCORE_META[r.score].e : '–'}</div></div>`;
 }
 
@@ -880,6 +893,46 @@ function rate(id, s){
   delete S.skipped[id];
   save(); train(); toast(SCORE_META[s].dest); render();
 }
+// "ห่วยเพราะอะไร" sheet: quick reasons + free text, saved with the rating (and in Export)
+const BAD_REASONS = {
+  far:'📍 ไกลเกิน', pricey:'💸 น่าจะแพง', menu:'🍵 เมนูไม่ตรง', vibe:'🏚 ไม่ใช่ vibe',
+  photo:'📸 รูปไม่น่าไป', crowd:'👥 คนเยอะ/วุ่นวาย', parking:'🅿️ จอดรถยาก',
+  notcafe:'🧋 ไม่ใช่คาเฟ่', closed:'🚫 ปิดแล้ว/ข้อมูลผิด',
+};
+// Data-quality reasons say nothing about your taste, so those ratings are left out of learning and hiding
+const NO_TASTE = ['notcafe', 'closed'];
+let noteCtx = null;   // {id, mode:'rate1' | 'edit'}
+function openNote(id, mode){
+  const r = S.ratings[id] || {}, isBad = mode === 'rate1' || r.score === 1;
+  noteCtx = {id, mode, picked:new Set(r.reasons || [])};
+  $('#noteTitle').textContent = isBad ? `😱 “${S.places[id]?.name || ''}” ห่วยเพราะอะไร?` : `📝 โน้ต “${S.places[id]?.name || ''}”`;
+  $('#noteChips').innerHTML = isBad ? Object.entries(BAD_REASONS).map(([k, v]) => `<button data-reason="${k}" class="${noteCtx.picked.has(k) ? 'on' : ''}">${v}</button>`).join('') : '';
+  $('#noteText').value = r.note || '';
+  $('#noteSkip').textContent = mode === 'rate1' ? 'ข้าม ไม่ใส่เหตุผล' : 'ยกเลิก';
+  $('#noteSheet').hidden = false;
+}
+function closeNote(){ $('#noteSheet').hidden = true; noteCtx = null; render(); }
+$('#noteSheet').addEventListener('click', e => {
+  if(!noteCtx) return;
+  if(e.target === $('#noteSheet')) return closeNote();
+  const chip = e.target.closest('[data-reason]');
+  if(chip){ const k = chip.dataset.reason; noteCtx.picked.has(k) ? noteCtx.picked.delete(k) : noteCtx.picked.add(k); chip.classList.toggle('on'); return; }
+  const b = e.target.closest('[data-note]'); if(!b) return;
+  const {id, mode, picked} = noteCtx, prev = S.ratings[id] || {};
+  if(b.dataset.note === 'skip' && mode === 'edit') return closeNote();
+  const withNote = b.dataset.note === 'save';
+  const reasons = withNote ? [...picked] : [], note = withNote ? $('#noteText').value.trim() : '';
+  const rec = {...prev, reasons, note, noTaste:reasons.some(k => NO_TASTE.includes(k))};
+  if(!rec.reasons.length) delete rec.reasons;
+  if(!rec.note) delete rec.note;
+  if(!rec.noTaste) delete rec.noTaste;
+  if(mode === 'rate1'){ rec.score = 1; rec.ts = Date.now(); delete S.skipped[id]; }
+  S.ratings[id] = rec;
+  save(); train(); closeNote();
+  toast(mode === 'rate1' ? (rec.noTaste ? '😱 ทิ้ง · ไม่นับเป็นสไตล์ (ข้อมูลผิด)' : SCORE_META[1].dest) : '📝 บันทึกโน้ตแล้ว');
+});
+const noteLine = r => (r.reasons?.length || r.note) ? `<div class="note">📝 ${[...(r.reasons || []).map(k => BAD_REASONS[k]), r.note ? esc(r.note) : ''].filter(Boolean).join(' · ')}</div>` : '';
+
 // "ไปแล้ว" bottom sheet: optional post-visit score; visited cafes never return to the feed
 let sheetId = null;
 function markVisited(id){
@@ -897,7 +950,8 @@ $('#sheet').addEventListener('click', e => {
   const prev = S.ratings[id] || {}, n = +v;
   S.ratings[id] = {...prev, visited:Date.now(), ts:prev.ts || Date.now(), ...(n ? {visitScore:n, score:prev.score ?? n} : {})};
   delete S.skipped[id];
-  closeSheet(); save(); train(); toast(n ? `✅ ไปแล้ว · ให้ ${n} คะแนน` : '✅ จำไว้แล้วว่าไปแล้ว'); render();
+  closeSheet(); save(); train(); toast(n ? `✅ ไปแล้ว · ${SCORE_META[n].e} ${SCORE_META[n].t}` : '✅ จำไว้แล้วว่าไปแล้ว'); render();
+  if(n === 1) openNote(id, 'edit');   // went and it was bad → ask why
 });
 
 document.querySelector('nav').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if(b) go(b.dataset.tab); });
@@ -905,7 +959,7 @@ $('#scanBtn').addEventListener('click', runScan);
 
 $('#view').addEventListener('change', e => {
   const t = e.target, id = t.closest('[data-id]')?.dataset.id;
-  if(t.dataset.act === 'rescore' && id){ rate(id, +t.value); }
+  if(t.dataset.act === 'rescore' && id){ +t.value === 1 ? openNote(id, 'rate1') : rate(id, +t.value); }
   if(t.dataset.act === 'zone'){ S.settings.zones[+t.dataset.i].on = t.checked; save(); render(); }
   if(t.dataset.act === 'autoPhoto'){ S.settings.autoPhoto = t.checked; save(); }
   if(t.id === 'importFile' && t.files[0]){
@@ -922,7 +976,8 @@ $('#view').addEventListener('click', e => {
   if(b.tagName === 'A') e.preventDefault();
   const st = S.settings;
   switch(act){
-    case 'rate': rate(id, +b.dataset.s); break;
+    case 'rate': +b.dataset.s === 1 ? openNote(id, 'rate1') : rate(id, +b.dataset.s); break;
+    case 'note': openNote(id, 'edit'); break;
     case 'photo': { const el = b.closest('[data-photo]'); b.remove(); if(el) hydratePhoto(el); break; }
     case 'skip': S.skipped[id] = Date.now(); save(); toast('ข้ามไว้ก่อน'); render(); break;
     case 'unskip': S.skipped = {}; save(); render(); break;
