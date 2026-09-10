@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf6ef">
+<title>Cafe Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf6ef;--card:#fff;--ink:#2b2620;--muted:#8a8074;--line:#ece4d8;
+  --brand:#5a7d3a;--brand-soft:#e7efdc;--accent:#c8864b;--accent-soft:#f6e8da;
+  --s1:#b5483b;--s2:#c98a3f;--s3:#9a9a8a;--s4:#6f9a45;--s5:#3f6d22;
+  --radius:16px;--shadow:0 2px 10px rgba(60,45,30,.07);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+.app{max-width:460px;margin:0 auto;min-height:100vh;padding:0 14px calc(84px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 0 10px;display:flex;align-items:center;gap:10px}
+header h1{font-size:20px;margin:0;flex:1;letter-spacing:-.2px}
+header h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.btn{background:var(--brand);color:#fff;border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;white-space:nowrap}
+.btn.ghost{background:var(--brand-soft);color:var(--brand)}
+.btn.warn{background:#f3dcd8;color:var(--s1)}
+.btn:disabled{opacity:.5;cursor:default}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin:-4px 0 10px}
+.progress>i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px;font-size:13px;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.empty{text-align:center;color:var(--muted);padding:48px 16px}
+.empty b{display:block;font-size:40px;margin-bottom:6px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.photo{position:relative;height:190px;background:linear-gradient(135deg,#dfe9cf,#f1e2cc);display:flex;align-items:center;justify-content:center;font-size:56px}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo .badges{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.photo .credit{position:absolute;right:8px;bottom:6px;font-size:10px;color:#fff;text-shadow:0 1px 2px #000a}
+.photo .avatar{position:absolute;left:14px;bottom:-22px;width:50px;height:50px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(60,45,30,.2);display:flex;align-items:center;justify-content:center;font-size:28px;z-index:2}
+.photo .see{position:absolute;left:50%;bottom:12px;transform:translateX(-50%)}
+.photo img{opacity:0;transition:opacity .3s}
+.photo img.in{opacity:1}
+.badge{background:rgba(255,255,255,.93);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600}
+.badge.new{background:var(--brand);color:#fff}
+.badge.explore{background:var(--accent);color:#fff}
+.badge.prio{background:var(--ink);color:#fff}
+.match{position:absolute;right:10px;top:10px;background:rgba(43,38,32,.82);color:#fff;border-radius:12px;padding:4px 9px;font-size:12px;text-align:center;line-height:1.2}
+.match b{display:block;font-size:17px}
+.body{padding:12px 14px 14px}
+.name{font-size:17px;font-weight:700;margin:0 0 4px 60px;line-height:1.3}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0 4px}
+.tag{font-size:12px;border-radius:8px;padding:2px 8px;background:var(--brand-soft);color:var(--brand);font-weight:500}
+.tag.vibe{background:var(--accent-soft);color:#8a5a2b}
+.reason{font-size:13px;color:#5c5448;background:#faf7f2;border-radius:10px;padding:7px 10px;margin:8px 0 0}
+.links{display:flex;gap:8px;margin-top:10px}
+.links a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:10px;padding:7px 4px;color:var(--ink)}
+.rate{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
+.rate button{border-radius:12px;padding:8px 0 6px;background:#f5f1ea;font-weight:700;font-size:18px;line-height:1.1;transition:transform .1s}
+.rate button small{display:block;font-size:10px;font-weight:500;color:var(--muted)}
+.rate button:active{transform:scale(.94)}
+.rate button[data-s="1"]:hover,.rate button.on[data-s="1"]{background:var(--s1);color:#fff}
+.rate button[data-s="2"]:hover,.rate button.on[data-s="2"]{background:var(--s2);color:#fff}
+.rate button[data-s="3"]:hover,.rate button.on[data-s="3"]{background:var(--s3);color:#fff}
+.rate button[data-s="4"]:hover,.rate button.on[data-s="4"]{background:var(--s4);color:#fff}
+.rate button[data-s="5"]:hover,.rate button.on[data-s="5"]{background:var(--s5);color:#fff}
+.rate button:hover small,.rate button.on small{color:#fffc}
+.skip{display:block;margin:8px auto 0;font-size:13px;color:var(--muted)}
+.feedbar{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;margin-bottom:10px}
+.segs{display:inline-flex;background:#f5f1ea;border-radius:999px;padding:2px}
+.seg{border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg.on{background:var(--brand);color:#fff}
+.sheet-bg{position:fixed;inset:0;z-index:30;background:rgba(43,38,32,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:460px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 2px;font-size:17px}
+.legend{font-size:12px;color:var(--muted);background:var(--card);border-radius:12px;padding:8px 12px;margin-bottom:12px;box-shadow:var(--shadow)}
+.legend summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.legend p{margin:4px 0}
+h2{font-size:15px;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+h2 .count{font-size:12px;font-weight:500;color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:9px;margin-bottom:8px}
+.row .thumb{position:relative;width:58px;height:58px;border-radius:10px;flex:none;background:linear-gradient(135deg,#dfe9cf,#f1e2cc);display:flex;align-items:center;justify-content:center;font-size:24px}
+.row .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;opacity:0;transition:opacity .3s}
+.row .thumb img.in{opacity:1}
+.row .thumb .temo{position:absolute;right:-6px;bottom:-6px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(60,45,30,.25);font-size:15px;display:flex;align-items:center;justify-content:center;z-index:1}
+.row .info{flex:1;min-width:0}
+.row .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .info span{font-size:12px;color:var(--muted)}
+.score{width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.mini{font-size:12px;border-radius:8px;padding:4px 8px;background:#f5f1ea;font-weight:600}
+.visited{opacity:.55}
+.pick{border:2px solid var(--brand)}
+.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.panel label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+.panel label:first-child{margin-top:0}
+.panel input[type=text],.panel input[type=number],.panel input[type=password],.panel select,.panel textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fffdf9}
+.panel textarea{min-height:90px;font-size:13px}
+.hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+.flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.zone{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.zone:last-child{border:0}
+.zone input{width:18px;height:18px;accent-color:var(--brand)}
+.zone span{flex:1}
+.zone small{color:var(--muted)}
+.bar{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}
+.bar .lbl{width:118px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .track{flex:1;height:10px;position:relative;background:#f5f1ea;border-radius:5px}
+.bar .track i{position:absolute;top:0;bottom:0;border-radius:5px}
+.bar .track::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#cfc6b8}
+.bar .v{width:38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat div{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:10px;text-align:center}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--muted)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .in{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav button{padding:8px 0 7px;font-size:11px;color:var(--muted);position:relative}
+nav button b{display:block;font-size:21px;line-height:1.2}
+nav button.on{color:var(--brand);font-weight:700}
+nav .dot{position:absolute;top:4px;left:calc(50% + 8px);background:var(--s1);color:#fff;border-radius:999px;font-size:10px;padding:0 5px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:999px;padding:8px 16px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.foot{text-align:center;font-size:11px;color:var(--muted);margin:20px 0 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>☕ Cafe Radar<small id="subtitle">หาคาเฟ่เปิดใหม่ รีวิวน้อย</small></h1>
+    <button class="btn" id="scanBtn">🔍 สแกน</button>
+  </header>
+  <div class="progress" id="progress" hidden><i></i></div>
+  <main id="view"></main>
+  <p class="foot">Place data © Google · Powered by Google</p>
+</div>
+<nav><div class="in">
+  <button data-tab="inbox" class="on"><b>📥</b>ร้านใหม่</button>
+  <button data-tab="list"><b>📋</b>ลิสต์</button>
+  <button data-tab="go"><b>🎯</b>ไปไหนดี</button>
+  <button data-tab="style"><b>🧠</b>สไตล์ฉัน</button>
+  <button data-tab="settings"><b>⚙️</b>ตั้งค่า</button>
+</div></nav>
+<div class="toast" id="toast"></div>
+<div class="sheet-bg" id="sheet" hidden><div class="sheet">
+  <h3 id="sheetTitle">ไปมาแล้ว!</h3>
+  <p class="hint" style="margin:0 0 4px">ให้คะแนนหลังไปจริงไหม? คะแนนนี้สอนสไตล์คุณได้แม่นกว่า (นับหนัก 1.5 เท่า)</p>
+  <div class="rate" id="sheetRate"></div>
+  <div class="flex" style="justify-content:center;gap:22px;margin-top:10px"><button class="skip" data-sheet="none">ไม่ให้คะแนน · แค่จำว่าไปแล้ว</button><button class="skip" data-sheet="cancel">ยกเลิก</button></div>
+</div></div>
+<script>
+// ---------- Core: state, storage, helpers ----------
+const STORE_KEY = 'cafeRadar.v1';
+const DAY = 864e5;
+
+const DEFAULT_ZONES = [
+  {id:'home',            name:'รอบบ้าน จรัญฯ-บางพลัด',        lat:13.7862, lng:100.5037, r:3,   on:true},
+  {id:'pinklao',         name:'ปิ่นเกล้า-บางยี่ขัน',             lat:13.7760, lng:100.4800, r:3,   on:true},
+  {id:'talingchan',      name:'บรมราชชนนี ช่วงตลิ่งชัน',       lat:13.7790, lng:100.4550, r:3.5, on:true},
+  {id:'ratchaphruek',    name:'ราชพฤกษ์ ช่วงตลิ่งชัน',         lat:13.7900, lng:100.4430, r:3.5, on:true},
+  {id:'ratchaphruek_n',  name:'ราชพฤกษ์ ช่วงนนทบุรี',          lat:13.8350, lng:100.4480, r:4,   on:true},
+  {id:'pm13',            name:'พุทธมณฑลสาย 1-3',              lat:13.7820, lng:100.4020, r:4,   on:true},
+  {id:'pm45',            name:'พุทธมณฑลสาย 4-5',              lat:13.7880, lng:100.3480, r:4,   on:true},
+  {id:'bangkruai',       name:'บางกรวย-บางใหญ่',               lat:13.8200, lng:100.4800, r:4,   on:true},
+  {id:'nonthaburi',      name:'นนทบุรี ท่าน้ำ-งามวงศ์วาน',      lat:13.8600, lng:100.5100, r:4.5, on:true},
+  {id:'ari',             name:'อารีย์-สะพานควาย',              lat:13.7850, lng:100.5450, r:3,   on:false},
+  {id:'oldtown',         name:'เกาะรัตนโกสินทร์-บางลำพู',       lat:13.7580, lng:100.4980, r:3,   on:false},
+  {id:'thonglor',        name:'ทองหล่อ-เอกมัย',                lat:13.7300, lng:100.5850, r:3,   on:false},
+];
+const DEFAULT_QUERIES = ['matcha cafe','มัทฉะ คาเฟ่','sourdough bakery','bagel','คาเฟ่ เค้ก','specialty coffee','คาเฟ่เปิดใหม่','กาแฟมะพร้าว'];
+
+const DEFAULT_STATE = () => ({
+  settings:{
+    apiKey:'',
+    home:{lat:13.7862, lng:100.5037, label:'จรัญสนิทวงศ์ 75 (ประมาณ)'},
+    maxKm:30,
+    newMaxReviews:50,
+    feedSize:20,
+    priority:['matcha','bagel','sourdough','coconut','cake'],
+    useNearby:true,
+    zones:DEFAULT_ZONES.map(z=>({...z})),
+    queries:[...DEFAULT_QUERIES],
+  },
+  places:{},   // id -> full record, only for cafes that can show in the feed (few reviews) or that you rated
+  seen:{},     // id -> firstSeen ts, for every place any scan returned (tiny; powers "เพิ่งโผล่ในสแกน")
+  feed:null,   // current batch: {ids, at, size}
+  ratings:{},  // id -> {score, ts, visited, visitScore}
+  skipped:{},  // id -> ts
+  meta:{apiCalls:{}, scans:[], baselineAt:null},
+});
+
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const s = JSON.parse(raw), d = DEFAULT_STATE();
+      const st = {...d, ...s, settings:{...d.settings, ...s.settings}, meta:{...d.meta, ...s.meta}};
+      // Migration: coconut coffee query added after v1 settings were saved
+      if(!st.settings.queries.includes('กาแฟมะพร้าว')) st.settings.queries.push('กาแฟมะพร้าว');
+      Object.values(st.places).forEach(p => { if(!p.demo) st.seen[p.id] ||= p.firstSeen; });
+      return st;
+    }
+  }catch(e){}
+  return DEFAULT_STATE();
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){ toast('บันทึกไม่ได้: storage เต็มหรือถูกบล็อก'); } }
+
+const $ = (sel, el=document) => el.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+function monthKey(d=new Date()){ return d.toISOString().slice(0,7); }
+
+function km(a, b){
+  const R=6371, rad=x=>x*Math.PI/180;
+  const dLat=rad(b.lat-a.lat), dLng=rad(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+const distOf = p => km(S.settings.home, p);
+function fmtAge(ms){
+  const d = Math.round((Date.now()-ms)/DAY);
+  if(d < 14) return `${d} วันก่อน`;
+  if(d < 60) return `${Math.round(d/7)} สัปดาห์ก่อน`;
+  if(d < 365) return `${Math.round(d/30)} เดือนก่อน`;
+  return `${(d/365).toFixed(1)} ปีก่อน`;
+}
+
+// ---------- Menu tags & vibes (keyword matching on name/summary/reviews) ----------
+const TAGS = {
+  matcha:    {label:'🍵 มัทฉะ',    re:/matcha|มัทฉะ|มัจฉะ|抹茶|hojicha|โฮจิฉะ|ชาเขียว|genmai/i},
+  coffee:    {label:'☕ กาแฟ',     re:/coffee|กาแฟ|espresso|latte|ลาเต้|drip|ดริป|americano|อเมริกาโน่|roast|specialty|pour.?over/i},
+  bagel:     {label:'🥯 เบเกิล',   re:/bagel|เบเกิล|เบเกิ้ล|เบเกล/i},
+  sourdough: {label:'🍞 ซาวร์โดว์', re:/sourdough|ซาวโดว์|ซาวร์โดว์|ซาวโด|ซาวเออร์|ซาวร์โด|ซาเวอโด/i},
+  coconut:   {label:'🥥 กาแฟมะพร้าว', re:/coconut.{0,12}(coffee|latte|americano|espresso|brew)|(coffee|latte|americano|espresso).{0,12}coconut|(กาแฟ|อเมริกาโน่|ลาเต้|เอสเปรสโซ่).{0,12}มะพร้าว|มะพร้าว.{0,12}(กาแฟ|อเมริกาโน่|ลาเต้|เอสเปรสโซ่)/i},
+  cake:      {label:'🍰 เค้ก',     re:/cake|เค้ก|cheesecake|ชีสเค้ก|tart|ทาร์ต|dessert|ขนมหวาน|tiramisu|ทีรามิสุ/i},
+  pastry:    {label:'🥐 ครัวซองต์', re:/croissant|ครัวซองต์|ครัวซอง|pastry|เพสทรี|danish|cinnamon roll|ซินนาม่อน/i},
+};
+const VIBES = {
+  garden:  {label:'🌿 สวน/ต้นไม้',  re:/garden|สวน|ต้นไม้|ธรรมชาติ|green ?house|กรีนเฮาส์/i},
+  minimal: {label:'⬜ มินิมอล',     re:/minimal|มินิมอล|มินิมัล|คลีน|clean/i},
+  japan:   {label:'🎌 ญี่ปุ่น',      re:/japan|ญี่ปุ่น|เกียวโต|kyoto|zen|เซน/i},
+  river:   {label:'🌊 ริมน้ำ',      re:/river|ริมน้ำ|ริมแม่น้ำ|ริมคลอง|เจ้าพระยา|lake|ริมทะเลสาบ/i},
+  work:    {label:'💻 นั่งทำงาน',   re:/wifi|ไวไฟ|ปลั๊ก|นั่งทำงาน|ทำงาน|work|อ่านหนังสือ/i},
+  photo:   {label:'📸 มุมถ่ายรูป',  re:/มุมถ่ายรูป|ถ่ายรูปสวย|instagram|photogenic|ถ่ายรูป/i},
+  loft:    {label:'🏭 ลอฟท์/ดิบ',   re:/loft|ลอฟท์|industrial|ปูนเปลือย/i},
+  vintage: {label:'🕰 วินเทจ',     re:/vintage|วินเทจ|retro|เรโทร|บ้านเก่า|โคโลเนียล/i},
+  pet:     {label:'🐶 Pet friendly', re:/pet.?friendly|สัตว์เลี้ยง|หมา|น้องหมา|แมว|dog|cat/i},
+  parking: {label:'🅿️ ที่จอดรถ',    re:/ที่จอดรถ|จอดรถสะดวก|parking|ลานจอด/i},
+};
+const TYPE_TAG = {coffee_shop:'coffee', cafe:'coffee', bakery:'pastry', dessert_shop:'cake', bagel_shop:'bagel', tea_house:'matcha'};
+
+function extractTags(text, types=[]){
+  const tags = Object.keys(TAGS).filter(k => TAGS[k].re.test(text));
+  types.forEach(t => { const k=TYPE_TAG[t]; if(k && !tags.includes(k) && t!=='cafe') tags.push(k); });
+  const vibes = Object.keys(VIBES).filter(k => VIBES[k].re.test(text));
+  return {tags, vibes};
+}
+
+// ---------- Newness ----------
+function newness(p){
+  const seenNew = S.meta.baselineAt && p.firstSeen > S.meta.baselineAt + 3600e3 && !p.demo;
+  const age = p.oldestReviewAt ? (Date.now()-p.oldestReviewAt)/DAY : null;
+  let pts = 0;
+  if(p.count <= 20) pts += 2; else if(p.count <= 50) pts += 1;
+  if(age !== null && age <= 90) pts += 2; else if(age !== null && age <= 180) pts += 1;
+  if(seenNew || p.demoNew) pts += 2;
+  let label = '';
+  if(seenNew || p.demoNew) label = '🆕 เพิ่งโผล่ในสแกน';
+  else if(age !== null && age <= 180) label = `🆕 รีวิวแรก ~${fmtAge(p.oldestReviewAt)}`;
+  else if(p.count <= S.settings.newMaxReviews) label = '💎 รีวิวน้อย';
+  return {pts, label, seenNew:!!(seenNew||p.demoNew)};
+}
+// ---------- Scan: Google Maps JS API (Places, new Place class) ----------
+const FIELDS = ['id','displayName','location','formattedAddress','rating','userRatingCount','types','primaryType',
+  'businessStatus','priceLevel','editorialSummary','googleMapsURI','photos','reviews','regularOpeningHours'];
+const NEARBY_TYPES = ['cafe','coffee_shop','bakery','dessert_shop','tea_house'];
+const NEARBY_TYPES_SAFE = ['cafe','coffee_shop','bakery'];
+let placesLib = null, scanning = false;
+
+async function ensureMaps(){
+  if(placesLib) return placesLib;
+  const key = (S.settings.apiKey||'').trim();
+  if(!key) throw new Error('ยังไม่ได้ใส่ Google API key (ไปที่ ⚙️ ตั้งค่า)');
+  if(!window.google?.maps?.importLibrary){
+    await new Promise((res, rej) => {
+      window.__gmReady = res;
+      window.gm_authFailure = () => toast('API key ใช้ไม่ได้ หรือยังไม่เปิด Maps JavaScript API');
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&v=weekly&loading=async&language=th&region=TH&callback=__gmReady`;
+      s.async = true;
+      s.onerror = () => rej(new Error('โหลด Google Maps ไม่ได้'));
+      document.head.appendChild(s);
+    });
+  }
+  placesLib = await google.maps.importLibrary('places');
+  return placesLib;
+}
+
+function boundsOf(z){
+  const dLat = z.r/111, dLng = z.r/(111*Math.cos(z.lat*Math.PI/180));
+  return {north:z.lat+dLat, south:z.lat-dLat, east:z.lng+dLng, west:z.lng-dLng};
+}
+function countCall(){ const k=monthKey(); S.meta.apiCalls[k]=(S.meta.apiCalls[k]||0)+1; }
+
+function upsert(pl, zone){
+  if(!pl?.id || !pl.location) return false;
+  const now = Date.now(), old = S.places[pl.id];
+  const firstSeen = S.seen[pl.id] || old?.firstSeen || now;
+  S.seen[pl.id] = firstSeen;
+  // Popular cafes can never reach the feed, so keep only their id in `seen`, not a full record
+  if(!old && !S.ratings[pl.id] && (pl.userRatingCount ?? 0) > S.settings.newMaxReviews * 2) return false;
+  const reviews = pl.reviews || [];
+  const text = [pl.displayName, pl.editorialSummary, ...reviews.map(r => r.text||'')].join(' \n ');
+  const {tags, vibes} = extractTags(text, pl.types||[]);
+  const times = reviews.map(r => r.publishTime ? +new Date(r.publishTime) : null).filter(Boolean);
+  let hours = null, hoursText = null;
+  const oh = pl.regularOpeningHours;
+  if(oh?.periods?.length){
+    hours = oh.periods.length===1 && !oh.periods[0].close ? [0,1,2,3,4,5,6] : [...new Set(oh.periods.map(p => p.open?.day).filter(d => d!=null))];
+    hoursText = oh.weekdayDescriptions || null;
+  }
+  const photo = pl.photos?.[0];
+  const rec = {
+    id:pl.id, name:pl.displayName||'(ไม่มีชื่อ)', lat:pl.location.lat(), lng:pl.location.lng(),
+    address:pl.formattedAddress||'', rating:pl.rating??null, count:pl.userRatingCount??0,
+    types:pl.types||[], primaryType:pl.primaryType||'', status:pl.businessStatus||'', price:pl.priceLevel||'',
+    mapsUri:pl.googleMapsURI||'', tags, vibes, hours, hoursText,
+    photo: photo ? photo.getURI({maxWidth:700}) : (old?.photo||null),
+    photoCredit: photo?.authorAttributions?.[0]?.displayName || '',
+    oldestReviewAt: times.length ? Math.min(...times) : (old?.oldestReviewAt||null),
+    zone: old?.zone || zone.name,
+    firstSeen, lastSeen: now,
+  };
+  S.places[pl.id] = rec;
+  return !old;
+}
+
+// Drop full records of unrated cafes that got too popular to ever show (their id stays in `seen`)
+function prune(){
+  const lim = S.settings.newMaxReviews * 2;
+  for(const [id, p] of Object.entries(S.places)) if(!p.demo && !S.ratings[id] && p.count > lim) delete S.places[id];
+}
+
+async function runScan(){
+  if(scanning) return;
+  const zones = S.settings.zones.filter(z => z.on);
+  const queries = S.settings.queries.filter(Boolean);
+  const jobs = [];
+  zones.forEach(z => {
+    queries.forEach(q => jobs.push({z, q}));
+    if(S.settings.useNearby) jobs.push({z, nearby:true});
+  });
+  if(!jobs.length) return toast('ยังไม่ได้เลือกโซน');
+  const used = S.meta.apiCalls[monthKey()]||0;
+  if(!confirm(`จะเรียก Places API ${jobs.length} ครั้ง\n(เดือนนี้ใช้ไปแล้ว ${used} ครั้ง)\n\nเริ่มสแกนเลยไหม?`)) return;
+
+  let lib;
+  try{ lib = await ensureMaps(); }catch(e){ return toast(e.message); }
+  const {Place, SearchNearbyRankPreference} = lib;
+  scanning = true;
+  const btn = $('#scanBtn'), bar = $('#progress');
+  btn.disabled = true; bar.hidden = false;
+  let added = 0, errors = 0, safeTypes = false;
+  for(let i=0; i<jobs.length; i++){
+    const {z, q, nearby} = jobs[i];
+    btn.textContent = `⏳ ${i+1}/${jobs.length}`;
+    bar.firstElementChild.style.width = `${(i+1)/jobs.length*100}%`;
+    try{
+      let res;
+      if(nearby){
+        const req = {fields:FIELDS, locationRestriction:{center:{lat:z.lat, lng:z.lng}, radius:z.r*1000},
+          includedTypes: safeTypes ? NEARBY_TYPES_SAFE : NEARBY_TYPES, maxResultCount:20,
+          rankPreference:SearchNearbyRankPreference.DISTANCE, language:'th', region:'th'};
+        countCall();
+        try{ res = await Place.searchNearby(req); }
+        catch(e){ if(safeTypes) throw e; safeTypes = true; req.includedTypes = NEARBY_TYPES_SAFE; countCall(); res = await Place.searchNearby(req); }
+      }else{
+        countCall();
+        res = await Place.searchByText({textQuery:q, fields:FIELDS, locationRestriction:boundsOf(z), maxResultCount:20, language:'th', region:'th'});
+      }
+      (res.places||[]).forEach(pl => { if(upsert(pl, z)) added++; });
+    }catch(e){ errors++; console.warn('scan error', z.name, q, e); }
+    await new Promise(r => setTimeout(r, 120));
+  }
+  if(!S.meta.baselineAt) S.meta.baselineAt = Date.now();
+  prune();
+  S.meta.scans.push({at:Date.now(), calls:jobs.length, added, errors});
+  save();
+  scanning = false; btn.disabled = false; btn.textContent = '🔍 สแกน'; bar.hidden = true;
+  toast(errors ? `เจอร้านใหม่ ${added} ร้าน (error ${errors} ครั้ง ดู console)` : `เจอร้านใหม่ ${added} ร้าน`);
+  render();
+}
+
+// ---------- Demo data (fictional cafes, for trying the UI without an API key) ----------
+function loadDemo(){
+  const d = (days) => Date.now() - days*DAY;
+  const list = [
+    ['Moss & Matcha',            13.7905,100.4452,'ราชพฤกษ์ ช่วงตลิ่งชัน', 4.9, 14, 'Matcha latte เข้มข้น สวนหลังร้าน ต้นไม้เยอะ มุมถ่ายรูปสวย', 25, true],
+    ['Kobo Sourdough House',     13.7801,100.4031,'พุทธมณฑลสาย 1-3',      4.7, 31, 'Sourdough อบสดทุกเช้า ครัวซองต์ กาแฟดริป มินิมอล ที่จอดรถเยอะ', 70],
+    ['Bagel Garage',             13.7768,100.4795,'ปิ่นเกล้า-บางยี่ขัน',    4.6, 9,  'Bagel ไส้แน่น espresso ร้านสไตล์ loft ปูนเปลือย', 18, true],
+    ['บ้านเค้กยายนิ่ม',             13.7875,100.5010,'รอบบ้าน จรัญฯ-บางพลัด', 4.5, 22, 'เค้กโฮมเมด ชีสเค้กหน้าไหม้ บ้านเก่า วินเทจ', 120],
+    ['Hojicha Lab',              13.8588,100.5122,'นนทบุรี ท่าน้ำ-งามวงศ์วาน', 4.8, 17, 'มัทฉะ โฮจิฉะ พิธีชงแบบญี่ปุ่น เซน มินิมอล', 40],
+    ['Riverside Roastery',       13.8615,100.4948,'นนทบุรี ท่าน้ำ-งามวงศ์วาน', 4.4, 46, 'Specialty coffee ริมแม่น้ำเจ้าพระยา คั่วเอง', 160],
+    ['Salaya Crumb',             13.7893,100.3470,'พุทธมณฑลสาย 4-5',      4.3, 12, 'ขนมปัง sourdough เบเกิล ร้านเล็กในสวน', 35],
+    ['Glasshouse Tart Co.',      13.8342,100.4491,'ราชพฤกษ์ ช่วงนนทบุรี',   4.9, 8,  'ทาร์ตผลไม้ เค้ก กรีนเฮาส์ ต้นไม้ ถ่ายรูปสวย', 12, true],
+    ['Workbench Coffee',         13.8195,100.4812,'บางกรวย-บางใหญ่',       4.5, 27, 'กาแฟ americano ปลั๊กเยอะ wifi แรง นั่งทำงานได้ทั้งวัน', 85],
+    ['Neko Matcha Stand',        13.7792,100.4561,'บรมราชชนนี ช่วงตลิ่งชัน',  4.2, 19, 'ชาเขียวมัทฉะ แมว pet friendly คนเยอะ', 60],
+    ['Old Town Bagelry',         13.7590,100.4975,'เกาะรัตนโกสินทร์-บางลำพู', 4.7, 38, 'Bagel sourdough บ้านเก่าโคโลเนียล', 140],
+    ['Sunday Cheesecake Club',   13.7840,100.4990,'รอบบ้าน จรัญฯ-บางพลัด', 4.8, 11, 'Basque cheesecake ทีรามิสุ latte ร้านเล็กคลีน', 20, true],
+  ];
+  list.forEach(([name,lat,lng,zone,rating,count,desc,age,fresh], i) => {
+    const id = 'demo_'+i;
+    const {tags, vibes} = extractTags(name+' '+desc, []);
+    S.places[id] = {id, name, lat, lng, address:zone, rating, count, types:[], primaryType:'cafe', status:'OPERATIONAL',
+      price:'', mapsUri:'', tags, vibes, hours:[0,2,3,4,5,6], hoursText:null, photo:null, photoCredit:'',
+      oldestReviewAt:d(age), zone, firstSeen:Date.now(), lastSeen:Date.now(), demo:true, demoNew:!!fresh};
+  });
+  save(); toast('โหลดร้านตัวอย่าง 12 ร้าน (สมมติ)'); render();
+}
+function clearDemo(){
+  Object.keys(S.places).filter(id => id.startsWith('demo_')).forEach(id => { delete S.places[id]; delete S.ratings[id]; delete S.skipped[id]; });
+  save(); toast('ลบร้านตัวอย่างแล้ว'); render();
+}
+// ---------- Taste model: ridge regression over binary features, learned from your 1-5 scores ----------
+const CORE_TAGS = ['matcha','coffee','bagel','sourdough','coconut','cake'];
+// Menu priority tier: index of the cafe's highest-priority tag (0 = matcha by default); untiered cafes go last
+function tierOf(p){
+  const pr = S.settings.priority;
+  const idx = p.tags.map(t => pr.indexOf(t)).filter(i => i >= 0);
+  return idx.length ? Math.min(...idx) : pr.length;
+}
+const prioTagOf = p => { const t = tierOf(p); return S.settings.priority[t] || null; };
+function features(p){
+  const f = [];
+  p.tags.forEach(t => f.push('tag:'+t));
+  p.vibes.forEach(v => f.push('vibe:'+v));
+  const d = distOf(p);
+  f.push('dist:'+(d<5?'a':d<10?'b':d<20?'c':'d'));
+  if(p.rating!=null) f.push('grat:'+(p.rating<4.3?'a':p.rating<4.6?'b':p.rating<4.8?'c':'d'));
+  f.push('rev:'+(p.count<=20?'a':p.count<=50?'b':p.count<=150?'c':'d'));
+  if(p.price) f.push('price:'+p.price);
+  if(p.primaryType) f.push('type:'+p.primaryType);
+  if(p.zone) f.push('zone:'+p.zone);
+  return f;
+}
+const contentFeats = p => features(p).filter(f => /^(tag|vibe|type):/.test(f));
+function featLabel(f){
+  const i = f.indexOf(':'), k = f.slice(0,i), v = f.slice(i+1);
+  if(k==='tag') return TAGS[v]?.label || v;
+  if(k==='vibe') return VIBES[v]?.label || v;
+  if(k==='dist') return {a:'📍 ใกล้บ้าน <5 กม.', b:'📍 5–10 กม.', c:'📍 10–20 กม.', d:'📍 ไกล 20+ กม.'}[v];
+  if(k==='grat') return {a:'⭐ Google <4.3', b:'⭐ Google 4.3–4.6', c:'⭐ Google 4.6–4.8', d:'⭐ Google 4.8+'}[v];
+  if(k==='rev') return {a:'💬 รีวิว ≤20', b:'💬 รีวิว 21–50', c:'💬 รีวิว 51–150', d:'💬 รีวิว 150+'}[v];
+  if(k==='price') return '💰 '+({FREE:'ฟรี', INEXPENSIVE:'ถูก', MODERATE:'ราคากลาง', EXPENSIVE:'แพง', VERY_EXPENSIVE:'แพงมาก'}[v] || v);
+  if(k==='type') return '🏷 '+v.replace(/_/g,' ');
+  if(k==='zone') return '🗺 '+v;
+  return f;
+}
+
+let MODEL = {n:0, w:{}, mean:3};
+const effScore = r => r.visitScore ?? r.score;
+function train(){
+  const rows = Object.entries(S.ratings)
+    .filter(([id, r]) => S.places[id] && r.score)
+    .map(([id, r]) => ({f:features(S.places[id]), y:effScore(r), wt:r.visitScore ? 1.5 : 1}));
+  const n = rows.length;
+  if(!n){ MODEL = {n:0, w:{}, mean:3}; return; }
+  const mean = rows.reduce((s, r) => s + r.y, 0) / n;
+  const w = {}, cnt = {}, lambda = 1.5, lr = 0.08;
+  rows.forEach(r => r.f.forEach(f => { w[f] = 0; cnt[f] = (cnt[f]||0) + 1; }));
+  for(let it = 0; it < 300; it++){
+    const g = {};
+    rows.forEach(r => {
+      const err = (mean + r.f.reduce((s, f) => s + w[f], 0) - r.y) * r.wt;
+      r.f.forEach(f => g[f] = (g[f]||0) + err);
+    });
+    for(const f in w) w[f] -= lr * (g[f] + lambda * w[f]) / (cnt[f] + lambda);
+  }
+  MODEL = {n, w, mean, cnt};
+}
+function predict(p){
+  const f = features(p);
+  return Math.max(1, Math.min(5, MODEL.mean + f.reduce((s, x) => s + (MODEL.w[x]||0), 0)));
+}
+function prior(p){
+  const nw = newness(p), d = distOf(p);
+  const menu = p.tags.filter(t => CORE_TAGS.includes(t)).length;
+  let s = 2.5 + nw.pts*0.12 + Math.min(menu, 2)*0.25;
+  if(p.rating != null) s += Math.max(-0.5, Math.min(0.3, (p.rating - 4.5)*0.8));
+  s += d < 5 ? 0.25 : d > 20 ? -0.4 : 0;
+  return Math.max(1, Math.min(5, s));
+}
+function scoreOf(p){
+  const a = Math.min(0.85, MODEL.n / 20);
+  const s = a * predict(p) + (1 - a) * prior(p) + newness(p).pts * 0.05;
+  return Math.max(1, Math.min(5, s));
+}
+const matchPct = s => Math.round((s - 1) / 4 * 100);
+
+function jaccard(a, b){
+  const A = new Set(a), B = new Set(b); let inter = 0;
+  A.forEach(x => { if(B.has(x)) inter++; });
+  return inter / (A.size + B.size - inter || 1);
+}
+function similarRated(p, test){
+  let best = null, bestSim = 0; const cf = contentFeats(p);
+  if(cf.length < 2) return null;
+  for(const [id, r] of Object.entries(S.ratings)){
+    const q = S.places[id];
+    if(!q || id === p.id || !test(r)) continue;
+    const qf = contentFeats(q); if(qf.length < 2) continue;
+    const sim = jaccard(cf, qf);
+    if(sim > bestSim){ bestSim = sim; best = {place:q, rating:r, sim}; }
+  }
+  return best;
+}
+const blockedBy = p => { const s = similarRated(p, r => r.score === 1); return s && s.sim >= 0.67 ? s.place : null; };
+
+function reasons(p){
+  const out = [];
+  if(MODEL.n >= 3){
+    const contrib = features(p).map(f => [f, MODEL.w[f]||0]).filter(([f]) => (MODEL.cnt?.[f]||0) >= (MODEL.n >= 10 ? 2 : 1));
+    const pos = contrib.filter(([, v]) => v >= 0.12).sort((a, b) => b[1] - a[1]).slice(0, 2);
+    const neg = contrib.filter(([, v]) => v <= -0.12).sort((a, b) => a[1] - b[1]).slice(0, 1);
+    if(pos.length) out.push('ชอบ: ' + pos.map(([f]) => featLabel(f)).join(', '));
+    if(neg.length) out.push('ไม่ค่อยชอบ: ' + neg.map(([f]) => featLabel(f)).join(', '));
+  }
+  const like = similarRated(p, r => r.score >= 4);
+  if(like && like.sim >= 0.45) out.push(`คล้าย “${like.place.name}” ที่ให้ ${like.rating.score}`);
+  if(!out.length) out.push(MODEL.n < 3 ? `ยังเรียนรู้อยู่ (ให้คะแนนแล้ว ${MODEL.n} ร้าน) · จัดอันดับจากความใหม่ + เมนู + ระยะ` : 'ยังไม่มีข้อมูลพอจะเทียบ');
+  return out.join(' · ');
+}
+
+// Stable per-day pseudo-random, so exploration picks don't reshuffle on every render
+function hashRand(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; }
+
+function inboxList(){
+  const maxKm = S.settings.maxKm, maxRev = S.settings.newMaxReviews;
+  const all = Object.values(S.places).filter(p =>
+    !S.ratings[p.id] && !S.skipped[p.id] && p.status !== 'CLOSED_PERMANENTLY' &&
+    distOf(p) <= maxKm && (p.count <= maxRev || newness(p).seenNew));
+  const blocked = [], ok = [];
+  all.forEach(p => { const b = blockedBy(p); (b ? blocked : ok).push({p, b}); });
+  ok.forEach(x => { x.s = scoreOf(x.p); x.tier = tierOf(x.p); });
+  // Menu priority always wins (matcha group first, ...); within a group, sort by taste match
+  const groups = {};
+  ok.forEach(x => (groups[x.tier] ||= []).push(x));
+  const sorted = Object.keys(groups).map(Number).sort((a, b) => a - b)
+    .flatMap(t => explore(groups[t].sort((a, b) => b.s - a.s)));
+  return {ok:sorted, blocked};
+}
+// Exploration: every 5th slot in a group shows a lower-ranked cafe outside your usual style
+function explore(arr){
+  if(MODEL.n < 5 || arr.length <= 6) return arr;
+  const day = new Date().toISOString().slice(0, 10);
+  const tail = arr.slice(Math.ceil(arr.length / 2)).sort((a, b) => hashRand(a.p.id+day) - hashRand(b.p.id+day));
+  for(let slot = 4; slot < arr.length && tail.length; slot += 5){
+    const x = tail.shift(); x.explore = true;
+    arr.splice(arr.indexOf(x), 1); arr.splice(slot, 0, x);
+  }
+  return arr;
+}
+
+function isOpenOn(p, day){ return day == null || !p.hours || p.hours.includes(day); }
+function pickGo(day){
+  const rated = Object.entries(S.ratings).map(([id, r]) => ({p:S.places[id], r})).filter(x => x.p && !x.r.visited && isOpenOn(x.p, day));
+  const list = rated.filter(x => x.r.score >= 3).sort((a, b) => b.r.score - a.r.score || tierOf(a.p) - tierOf(b.p) || distOf(a.p) - distOf(b.p));
+  if(list.length) return {from:'list', items:list};
+  const archive = rated.filter(x => x.r.score === 2).sort((a, b) => distOf(a.p) - distOf(b.p));
+  return {from:'archive', items:archive};
+}
+// ---------- Views ----------
+const SCORE_META = {
+  1:{t:'ห่วย',     c:'var(--s1)', dest:'🚫 ทิ้ง · จะไม่ส่งแนวนี้มาอีก'},
+  2:{t:'ถ้าจำเป็น', c:'var(--s2)', dest:'📦 เข้าคลัง'},
+  3:{t:'ก็โอเค',   c:'var(--s3)', dest:'📋 เข้าลิสต์: สำรอง'},
+  4:{t:'น่าสนใจ',  c:'var(--s4)', dest:'📋 เข้าลิสต์: น่าสนใจ'},
+  5:{t:'ไปแน่!',   c:'var(--s5)', dest:'📋 เข้าลิสต์: ไปแน่'},
+};
+const ui = {tab:'inbox', tagFilter:'all', showBlocked:false, listSeg:'list', goDay:'sat', goIdx:0};
+
+const emojiOf = p => p.tags.includes('matcha') ? '🍵' : p.tags.includes('bagel') ? '🥯' : p.tags.includes('sourdough') ? '🍞' : p.tags.includes('cake') ? '🍰' : p.tags.includes('pastry') ? '🥐' : '☕';
+const mapsLink = p => p.mapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' ' + (p.zone||''))}`;
+const dirLink = p => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.name)}${p.demo ? '' : '&destination_place_id=' + encodeURIComponent(p.id)}`;
+const byPrio = tags => [...tags].sort((a, b) => { const pr = S.settings.priority, i = pr.indexOf(a), j = pr.indexOf(b); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j); });
+const tagsHtml = p => byPrio(p.tags).map(t => `<span class="tag">${TAGS[t].label}</span>`).join('') + p.vibes.map(v => `<span class="tag vibe">${VIBES[v].label}</span>`).join('');
+// ---------- Photos ----------
+// Each Places photo media request is billed, so: resolve the final image URL once per place
+// (skipHttpRedirect → googleusercontent URL), cache it for a few days, and only for cards scrolled into view.
+const PHOTO_KEY = 'cafeRadar.photos', PHOTO_TTL = 5 * DAY;
+const autoPhoto = () => S.settings.autoPhoto !== false;
+let photoCache = {};
+try{ photoCache = JSON.parse(localStorage.getItem(PHOTO_KEY)) || {}; }catch(e){}
+const photoPending = {};
+function savePhotoCache(){ try{ localStorage.setItem(PHOTO_KEY, JSON.stringify(photoCache)); }catch(e){} }
+function countPhoto(){ const k = monthKey(); S.meta.photoCalls = S.meta.photoCalls || {}; S.meta.photoCalls[k] = (S.meta.photoCalls[k]||0) + 1; save(); }
+function resolvePhoto(p, force){
+  if(!/^https:\/\/places\.googleapis\.com\//.test(p.photo || '')) return Promise.resolve(p.photo || null);
+  const c = photoCache[p.id];
+  if(!force && c && Date.now() - c.t < PHOTO_TTL) return Promise.resolve(c.u);
+  if(photoPending[p.id]) return photoPending[p.id];
+  return photoPending[p.id] = (async () => {
+    try{
+      const url = new URL(p.photo); url.searchParams.set('skipHttpRedirect', 'true');
+      countPhoto();
+      const r = await fetch(url); if(!r.ok) throw new Error(r.status);
+      const j = await r.json(); if(!j.photoUri) throw new Error('no photoUri');
+      photoCache[p.id] = {u:j.photoUri, t:Date.now()}; savePhotoCache();
+      return j.photoUri;
+    }catch(e){ console.warn('photo', p.name, e); return null; }
+    finally{ delete photoPending[p.id]; }
+  })();
+}
+async function hydratePhoto(el){
+  const p = S.places[el.dataset.photo];
+  if(!p?.photo || el.querySelector('img')) return;
+  const u = await resolvePhoto(p);
+  if(!u || !el.isConnected) return;
+  const img = new Image(); img.alt = '';
+  img.onload = () => img.classList.add('in');
+  img.onerror = async () => {
+    delete photoCache[p.id];
+    if(img.dataset.retry){ img.remove(); return; }
+    img.dataset.retry = 1; const u2 = await resolvePhoto(p, true);
+    u2 ? img.src = u2 : img.remove();
+  };
+  img.src = u; el.prepend(img);
+}
+const photoObserver = 'IntersectionObserver' in window
+  ? new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ photoObserver.unobserve(e.target); hydratePhoto(e.target); } }), {rootMargin:'300px'})
+  : null;
+function observePhotos(){
+  if(!autoPhoto()) return;
+  document.querySelectorAll('#view [data-photo]').forEach(el => photoObserver ? photoObserver.observe(el) : hydratePhoto(el));
+}
+const thumb = p => p.photo
+  ? `<div class="thumb" data-photo="${esc(p.id)}"><span class="temo">${emojiOf(p)}</span></div>`
+  : `<div class="thumb">${emojiOf(p)}</div>`;
+const rateButtons = (cur) => `<div class="rate">${[1,2,3,4,5].map(s => `<button data-act="rate" data-s="${s}" class="${cur===s?'on':''}">${s}<small>${SCORE_META[s].t}</small></button>`).join('')}</div>`;
+
+function cafeCard(x, opts={}){
+  const p = x.p, nw = newness(p), d = distOf(p), s = x.s ?? scoreOf(p), pt = prioTagOf(p);
+  return `<article class="card ${opts.cls||''}" data-id="${esc(p.id)}">
+    <div class="photo" ${p.photo ? `data-photo="${esc(p.id)}"` : ''}>${p.photo ? '' : emojiOf(p)}${p.photo && !autoPhoto() ? `<button class="badge see" data-act="photo">📷 ดูรูป</button>` : ''}
+      <div class="avatar">${emojiOf(p)}</div>
+      <div class="badges">${pt ? `<span class="badge prio">#${tierOf(p) + 1} ${TAGS[pt].label}</span>` : ''}${nw.label ? `<span class="badge new">${esc(nw.label)}</span>` : ''}${x.explore ? '<span class="badge explore">🎲 ลองแนวใหม่</span>' : ''}${p.demo ? '<span class="badge">ร้านสมมติ</span>' : ''}</div>
+      ${opts.noMatch ? '' : `<div class="match"><b>${matchPct(s)}%</b>ตรงสไตล์</div>`}
+      ${p.photoCredit ? `<div class="credit">📷 ${esc(p.photoCredit)}</div>` : ''}
+    </div>
+    <div class="body">
+      <h3 class="name">${esc(p.name)}</h3>
+      <div class="meta"><span>📍 ${d.toFixed(1)} กม.</span><span>🗺 ${esc(p.zone)}</span>${p.rating != null ? `<span>⭐ ${p.rating.toFixed(1)} (${p.count} รีวิว)</span>` : `<span>ยังไม่มีคะแนน</span>`}</div>
+      <div class="tags">${tagsHtml(p)}</div>
+      ${opts.reason === false ? '' : `<p class="reason">💡 ${esc(opts.reason || reasons(p))}</p>`}
+      <div class="links"><a href="${esc(mapsLink(p))}" target="_blank" rel="noopener">🗺 เปิด Maps</a><a href="${esc(dirLink(p))}" target="_blank" rel="noopener">🚗 นำทาง</a></div>
+      ${opts.noRate ? '' : rateButtons(S.ratings[p.id]?.score) + `<div class="flex" style="justify-content:center;gap:22px"><button class="skip" data-act="skip">⏭ ข้ามไปก่อน</button><button class="skip" data-act="visit">✅ เคยไปแล้ว</button></div>`}
+      ${opts.extra || ''}
+    </div></article>`;
+}
+
+// Feed = a fixed batch of top-ranked cafes, so cards don't reshuffle while you rate; next batch on demand
+function newFeed(ok){
+  S.feed = {ids:ok.slice(0, S.settings.feedSize).map(x => x.p.id), at:Date.now(), size:S.settings.feedSize};
+  save();
+}
+function currentFeed(){
+  const {ok, blocked} = inboxList();
+  const byId = Object.fromEntries(ok.map(x => [x.p.id, x]));
+  const f = S.feed;
+  // Start a batch if there is none (or it was empty and cafes arrived); a finished batch waits for "ขอชุดใหม่"
+  if(!f || f.size !== S.settings.feedSize || (!f.ids.length && ok.length)) newFeed(ok);
+  const ids = S.feed.ids, inFeed = new Set(ids);
+  const items = ids.map(id => byId[id]).filter(Boolean);
+  return {items, done:ids.length - items.length, total:ids.length, pool:ok.filter(x => !inFeed.has(x.p.id)).length, blocked};
+}
+
+function viewInbox(){
+  if(!Object.keys(S.places).length) return `<div class="empty"><b>☕</b>ยังไม่มีร้าน<br>ใส่ Google API key แล้วกด 🔍 สแกน<br>หรือลองเล่นด้วยร้านสมมติก่อน
+    <div class="flex" style="justify-content:center;margin-top:14px"><button class="btn" data-act="goto" data-tab="settings">⚙️ ใส่ API key</button><button class="btn ghost" data-act="demo">ลองร้านสมมติ</button></div></div>`;
+  const {items, done, total, pool, blocked} = currentFeed();
+  const filtered = ui.tagFilter === 'all' ? items : items.filter(x => x.p.tags.includes(ui.tagFilter));
+  const skippedN = Object.keys(S.skipped).filter(id => S.places[id]).length;
+  const tagKeys = byPrio(Object.keys(TAGS)).filter(t => items.some(x => x.p.tags.includes(t)));
+  const chips = ['all', ...tagKeys].map(t => `<button class="chip ${ui.tagFilter===t?'on':''}" data-act="tag" data-t="${t}">${t==='all' ? `ทั้งหมด ${items.length}` : `${TAGS[t].label} ${items.filter(x => x.p.tags.includes(t)).length}`}</button>`).join('');
+  const sizes = [10, 20, 30, 50].map(n => `<button class="seg ${S.settings.feedSize===n?'on':''}" data-act="feedSize" data-n="${n}">${n}</button>`).join('');
+  let html = `<div class="feedbar">
+      <div class="flex" style="justify-content:space-between"><b>📥 ชุดนี้ ${done}/${total} ร้าน</b><span class="segs" title="จำนวนร้านต่อชุด">${sizes}</span></div>
+      <div class="progress" style="margin:8px 0 4px"><i style="width:${total ? done / total * 100 : 0}%"></i></div>
+      <div class="hint" style="margin:0">${pool ? `รออยู่นอกชุดอีก ${pool} ร้าน · <a href="#" data-act="newFeed">🔄 จัดชุดใหม่</a>` : 'ไม่มีร้านรอนอกชุดนี้ · กด 🔍 สแกน เพื่อหาเพิ่ม'}</div>
+    </div>
+    <details class="legend"><summary>ความหมายคะแนน 1–5</summary>
+    <p><b>5</b> ไปแน่ เสาร์-อาทิตย์/วันหยุดไปที่นี่ก่อน → ลิสต์</p><p><b>4</b> น่าสนใจมาก แต่รอดูเผื่อมี 5 → ลิสต์</p>
+    <p><b>3</b> ก็โอเค ถ้าไม่มีตัวเลือกดีกว่าก็ไป → ลิสต์ (สำรอง)</p><p><b>2</b> ไม่น่าไป เว้นแต่ไม่มีที่ไปจริงๆ/ใกล้บ้านมาก → คลัง</p>
+    <p><b>1</b> ห่วย ไม่ใช่ type → ทิ้ง + ไม่ส่งแนวนี้มาอีก</p><p><b>✅ เคยไปแล้ว</b> → ไม่ขึ้นฟีดอีก ดูได้ที่ 📋 ลิสต์ → ไปแล้ว</p></details>
+    ${items.length ? `<div class="chips">${chips}</div>` : ''}`;
+  if(!items.length) html += total && pool
+    ? `<div class="empty"><b>🎉</b>ครบชุด ${total} ร้านแล้ว!<br><button class="btn" style="margin-top:12px" data-act="newFeed">ขอชุดใหม่ (${Math.min(pool, S.settings.feedSize)} ร้าน)</button></div>`
+    : `<div class="empty"><b>🎉</b>ไม่มีร้านรอให้คะแนน<br>กด 🔍 สแกน เพื่อหาร้านใหม่</div>`;
+  html += filtered.map(x => cafeCard(x)).join('');
+  if(blocked.length) html += `<p class="hint" style="text-align:center">ซ่อน ${blocked.length} ร้านที่คล้ายร้านที่ให้ 1 · <a href="#" data-act="toggleBlocked">${ui.showBlocked ? 'ซ่อน' : 'ดู'}</a></p>`;
+  if(ui.showBlocked) html += blocked.map(x => cafeCard({p:x.p}, {reason:`ซ่อนเพราะคล้าย “${x.b.name}” ที่ให้ 1`})).join('');
+  if(skippedN) html += `<p class="hint" style="text-align:center">ข้ามไว้ ${skippedN} ร้าน · <a href="#" data-act="unskip">เอากลับมา</a></p>`;
+  return html;
+}
+
+function row(p, r, extra=''){
+  const d = distOf(p);
+  return `<div class="row ${r.visited ? 'visited' : ''}" data-id="${esc(p.id)}">${thumb(p)}
+    <div class="info"><b>${esc(p.name)}</b><span>📍 ${d.toFixed(1)} กม. · ${p.tags.map(t => TAGS[t].label.split(' ')[0]).join(' ')} ${r.visited ? '· ✅ ไปแล้ว' + (r.visitScore ? ` (${r.visitScore}/5)` : '') : ''}</span>
+      <div class="flex" style="margin-top:4px">
+        <select class="mini" data-act="rescore">${r.score ? '' : '<option selected disabled>– ยังไม่ให้คะแนน</option>'}${[1,2,3,4,5].map(s => `<option value="${s}" ${r.score===s?'selected':''}>${s} · ${SCORE_META[s].t}</option>`).join('')}</select>
+        ${r.visited ? `<button class="mini" data-act="unvisit">↩︎ ยังไม่ได้ไป</button>` : `<button class="mini" data-act="visit">✅ ไปแล้ว</button>`}
+        <a class="mini" href="${esc(mapsLink(p))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">🗺</a>${extra}
+      </div></div>
+    <div class="score" style="background:${r.score ? SCORE_META[r.score].c : '#cfc6b8'}">${r.score || '–'}</div></div>`;
+}
+
+function viewList(){
+  const items = Object.entries(S.ratings).map(([id, r]) => ({p:S.places[id], r})).filter(x => x.p);
+  const segs = {list:'📋 ลิสต์', archive:'📦 คลัง', trash:'🚫 ทิ้ง', visited:'✅ ไปแล้ว'};
+  const pick = {
+    list: x => x.r.score >= 3 && !x.r.visited,
+    archive: x => x.r.score === 2 && !x.r.visited,
+    trash: x => x.r.score === 1,
+    visited: x => x.r.visited,
+  };
+  let html = `<div class="chips">${Object.entries(segs).map(([k, v]) => `<button class="chip ${ui.listSeg===k?'on':''}" data-act="seg" data-k="${k}">${v} ${items.filter(pick[k]).length}</button>`).join('')}</div>`;
+  const cur = items.filter(pick[ui.listSeg]).sort((a, b) => b.r.score - a.r.score || tierOf(a.p) - tierOf(b.p) || distOf(a.p) - distOf(b.p));
+  if(!cur.length) return html + `<div class="empty"><b>${segs[ui.listSeg].split(' ')[0]}</b>ยังว่างอยู่</div>`;
+  if(ui.listSeg === 'list'){
+    [[5,'ไปแน่ (วันหยุดไปก่อน)'],[4,'น่าสนใจมาก'],[3,'สำรอง']].forEach(([s, t]) => {
+      const g = cur.filter(x => x.r.score === s);
+      if(g.length) html += `<h2><span class="score" style="background:${SCORE_META[s].c};width:24px;height:24px;font-size:13px">${s}</span>${t}<span class="count">${g.length} ร้าน</span></h2>` + g.map(x => row(x.p, x.r)).join('');
+    });
+  }else{
+    if(ui.listSeg === 'archive') html += `<p class="hint">ไว้ใช้ตอนลิสต์หมด หรือร้านอยู่ใกล้บ้านมาก — แท็บ 🎯 จะหยิบจากตรงนี้ให้อัตโนมัติ</p>`;
+    html += cur.map(x => row(x.p, x.r)).join('');
+  }
+  return html;
+}
+
+function targetDay(k){
+  const t = new Date().getDay();
+  return {today:t, sat:6, sun:0, any:null}[k];
+}
+function viewGo(){
+  const days = {today:'วันนี้', sat:'เสาร์', sun:'อาทิตย์', any:'ไม่สนวัน'};
+  let html = `<div class="chips">${Object.entries(days).map(([k, v]) => `<button class="chip ${ui.goDay===k?'on':''}" data-act="day" data-k="${k}">${v}</button>`).join('')}</div>`;
+  const {from, items} = pickGo(targetDay(ui.goDay));
+  if(!items.length) return html + `<div class="empty"><b>🤷</b>ยังไม่มีร้านในลิสต์หรือคลังที่เปิด${days[ui.goDay]}<br>ไปให้คะแนนร้านที่แท็บ 📥 ก่อน</div>`;
+  // Cycle "สุ่มใหม่" within the top score group only
+  const topScore = items[0].r.score;
+  const top = items.filter(x => x.r.score === topScore);
+  const first = top[ui.goIdx % top.length];
+  const rest = items.filter(x => x !== first).slice(0, 3);
+  if(from === 'archive') html += `<p class="reason">📦 ลิสต์หมดแล้ว — หยิบจากคลังให้ (เรียงร้านใกล้บ้านก่อน)</p>`;
+  const why = from === 'list' ? `คุณให้ ${first.r.score} · ${SCORE_META[first.r.score].t}` : 'จากคลัง · ใกล้บ้านสุด';
+  const hours = first.p.hoursText ? `<p class="hint">🕐 ${esc(first.p.hoursText.join(' · '))}</p>` : '';
+  html += `<h2>🎯 ${days[ui.goDay]}นี้ไป</h2>` + cafeCard(first, {cls:'pick', noRate:true, noMatch:true, reason:why,
+    extra:`${hours}<div class="flex" style="margin-top:10px">${top.length > 1 ? `<button class="btn ghost" data-act="reroll">🔀 สุ่มร้านอื่น (${top.length})</button>` : ''}<button class="btn" data-act="visit" data-id="${esc(first.p.id)}">✅ ไปแล้ว</button></div>`});
+  if(rest.length) html += `<h2>ตัวเลือกถัดไป</h2>` + rest.map(x => row(x.p, x.r)).join('');
+  return html;
+}
+
+function viewStyle(){
+  const rs = Object.values(S.ratings);
+  const inList = rs.filter(r => r.score >= 3).length, inArch = rs.filter(r => r.score === 2).length;
+  let html = `<div class="stat"><div><b>${MODEL.n}</b><span>ให้คะแนนแล้ว</span></div><div><b>${inList}</b><span>ในลิสต์</span></div><div><b>${inArch}</b><span>ในคลัง</span></div></div>`;
+  if(MODEL.n < 3) return html + `<div class="empty"><b>🧠</b>ให้คะแนนอีก ${3 - MODEL.n} ร้าน บอทจะเริ่มเห็นสไตล์<br><span class="hint">ยิ่งให้เยอะ ยิ่งแม่น · ~20 ร้านขึ้นไปจะใช้สไตล์คุณเป็นหลัก</span></div>`;
+  const feats = Object.entries(MODEL.w).filter(([f]) => (MODEL.cnt[f]||0) >= 2 && !f.startsWith('zone:')).sort((a, b) => b[1] - a[1]);
+  const bar = ([f, v]) => {
+    const pct = Math.min(50, Math.abs(v) / 1.5 * 50);
+    const style = v >= 0 ? `left:50%;width:${pct}%;background:var(--s4)` : `right:50%;width:${pct}%;background:var(--s1)`;
+    return `<div class="bar"><span class="lbl">${esc(featLabel(f))}</span><span class="track"><i style="${style}"></i></span><span class="v">${v >= 0 ? '+' : ''}${v.toFixed(2)}</span></div>`;
+  };
+  const likes = feats.filter(([, v]) => v > 0.05), dislikes = feats.filter(([, v]) => v < -0.05).reverse();
+  html += `<div class="panel"><b>💚 สิ่งที่ทำให้คุณให้คะแนนสูง</b>${likes.length ? likes.slice(0, 8).map(bar).join('') : '<p class="hint">ยังไม่ชัด</p>'}</div>`;
+  html += `<div class="panel"><b>💔 สิ่งที่ทำให้คะแนนตก</b>${dislikes.length ? dislikes.slice(0, 6).map(bar).join('') : '<p class="hint">ยังไม่ชัด</p>'}</div>`;
+  const zones = Object.entries(MODEL.w).filter(([f]) => f.startsWith('zone:') && (MODEL.cnt[f]||0) >= 2).sort((a, b) => b[1] - a[1]);
+  if(zones.length) html += `<div class="panel"><b>🗺 โซนที่ชอบ</b>${zones.map(bar).join('')}</div>`;
+  html += `<p class="hint">ตัวเลข = คะแนนที่บวก/ลบจากค่าเฉลี่ย ${MODEL.mean.toFixed(1)} ของคุณ · เรียนใหม่ทุกครั้งที่ให้คะแนน · คะแนนหลังไปจริงมีน้ำหนักมากกว่า 1.5 เท่า</p>`;
+  return html;
+}
+
+function viewSettings(){
+  const st = S.settings, used = S.meta.apiCalls[monthKey()] || 0;
+  const perScan = st.zones.filter(z => z.on).length * (st.queries.filter(Boolean).length + (st.useNearby ? 1 : 0));
+  const last = S.meta.scans.slice(-1)[0];
+  const hasDemo = Object.keys(S.places).some(id => id.startsWith('demo_'));
+  return `
+  <div class="panel">
+    <label>🔑 Google Maps API key</label>
+    <input type="password" id="apiKey" value="${esc(st.apiKey)}" placeholder="AIza..." autocomplete="off">
+    <p class="hint">เก็บใน browser เครื่องนี้เท่านั้น · ต้องเปิด <b>Maps JavaScript API</b> + <b>Places API (New)</b> ใน Google Cloud และจำกัด key ด้วย HTTP referrer (โดเมนที่ host หน้านี้)</p>
+    <div class="flex" style="margin-top:8px"><button class="btn" data-act="saveKey">บันทึก key</button></div>
+  </div>
+  <div class="panel">
+    <label>🏠 บ้าน (จุดคำนวณระยะ)</label>
+    <div class="flex"><input type="text" id="homeLL" value="${st.home.lat.toFixed(5)}, ${st.home.lng.toFixed(5)}" style="flex:1"><button class="btn ghost" data-act="geo">📍 ใช้ตำแหน่งนี้</button></div>
+    <p class="hint">${esc(st.home.label)} · วาง lat, lng จาก Google Maps ได้ (คลิกขวาที่บ้าน → copy พิกัด)</p>
+    <label>ระยะไกลสุด (กม.)</label><input type="number" id="maxKm" value="${st.maxKm}" min="1" max="60">
+    <label>นับเป็น “ร้านใหม่/รีวิวน้อย” ถ้ารีวิว ≤</label><input type="number" id="newMax" value="${st.newMaxReviews}" min="5" max="500">
+    <div class="flex" style="margin-top:10px"><button class="btn" data-act="saveHome">บันทึก</button></div>
+  </div>
+  <div class="panel">
+    <label>⭐ ลำดับความสำคัญเมนู</label>
+    <p class="hint" style="margin-bottom:6px">ร้านที่มีเมนูลำดับบนกว่าขึ้นก่อนเสมอ แล้วค่อยเรียงตาม % ตรงสไตล์ในกลุ่มเดียวกัน</p>
+    ${st.priority.map((t, i) => `<div class="zone"><b style="width:26px">#${i + 1}</b><span>${TAGS[t].label}</span>${i ? `<button class="mini" data-act="prioUp" data-t="${t}">↑</button>` : ''}<button class="mini" data-act="prioDel" data-t="${t}">✕</button></div>`).join('')}
+    <div class="flex" style="margin-top:8px">${Object.keys(TAGS).filter(t => !st.priority.includes(t)).map(t => `<button class="mini" data-act="prioAdd" data-t="${t}">+ ${TAGS[t].label}</button>`).join('')}</div>
+  </div>
+  <div class="panel">
+    <label>🗺 โซนที่สแกน</label>
+    ${st.zones.map((z, i) => `<div class="zone"><input type="checkbox" data-act="zone" data-i="${i}" ${z.on ? 'checked' : ''}><span>${esc(z.name)}<br><small>รัศมี ${z.r} กม. · ห่างบ้าน ${km(st.home, z).toFixed(1)} กม.</small></span>${z.custom ? `<button class="mini" data-act="delZone" data-i="${i}">ลบ</button>` : ''}</div>`).join('')}
+    <label>เพิ่มโซน (ชื่อ, lat, lng, รัศมี กม.)</label>
+    <div class="flex"><input type="text" id="newZone" placeholder="เช่น ศาลายา, 13.800, 100.320, 3" style="flex:1"><button class="btn ghost" data-act="addZone">เพิ่ม</button></div>
+    <label>🔎 คำค้น (บรรทัดละคำ)</label>
+    <textarea id="queries">${esc(st.queries.join('\n'))}</textarea>
+    <label class="flex" style="font-weight:500"><input type="checkbox" id="useNearby" ${st.useNearby ? 'checked' : ''}> ค้นร้านใกล้จุดกลางโซนเพิ่ม (cafe/coffee/bakery)</label>
+    <div class="flex" style="margin-top:10px"><button class="btn" data-act="saveScan">บันทึก</button></div>
+  </div>
+  <div class="panel">
+    <label>📊 การใช้ API</label>
+    <p style="margin:0">เดือนนี้ค้นหาไปแล้ว <b>${used}</b> ครั้ง · สแกน 1 รอบ ≈ <b>${perScan}</b> ครั้ง · ดูรูป <b>${S.meta.photoCalls?.[monthKey()] || 0}</b> ครั้ง</p>
+    <label class="flex" style="font-weight:500"><input type="checkbox" id="autoPhoto" data-act="autoPhoto" ${autoPhoto() ? 'checked' : ''}> โหลดรูปอัตโนมัติ (1 ร้าน ≈ 1 request / 5 วัน · ปิดแล้วต้องกด 📷 ดูรูป เอง)</label>
+    <p class="hint">Places ฟรีเป็นโควตาต่อ SKU ต่อเดือน (field แบบ reviews/rating อยู่ SKU แพง) — เช็คราคาล่าสุดที่หน้า Google Maps Platform pricing และตั้ง budget alert ใน Cloud Console</p>
+    ${last ? `<p class="hint">สแกนล่าสุด ${new Date(last.at).toLocaleString('th-TH')} · เจอร้านใหม่ ${last.added} · ร้านทั้งหมด ${Object.keys(S.places).length}</p>` : ''}
+  </div>
+  <div class="panel">
+    <label>💾 ข้อมูล</label>
+    <div class="flex"><button class="btn ghost" data-act="export">⬇️ Export</button><button class="btn ghost" data-act="import">⬆️ Import</button>
+      ${hasDemo ? `<button class="btn ghost" data-act="clearDemo">ลบร้านสมมติ</button>` : `<button class="btn ghost" data-act="demo">ลองร้านสมมติ</button>`}
+      <button class="btn warn" data-act="reset">ล้างทั้งหมด</button></div>
+    <p class="hint">ข้อมูลอยู่ใน browser นี้ (localStorage) ไม่ได้อยู่ในไฟล์ HTML · ใช้พื้นที่ <b>${storageKB()} KB</b> จาก ~5,000 KB · เก็บเต็ม ${Object.keys(S.places).length} ร้าน · จำ id ที่เคยเห็น ${Object.keys(S.seen).length} ร้าน · Export เก็บไว้กันหาย / ย้ายเครื่อง</p>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>`;
+}
+
+function storageKB(){
+  const size = k => { try{ return new Blob([localStorage.getItem(k) || '']).size; }catch(e){ return 0; } };
+  return Math.round((size(STORE_KEY) + size(PHOTO_KEY)) / 1024);
+}
+
+// ---------- Render & events ----------
+function render(){
+  const views = {inbox:viewInbox, list:viewList, go:viewGo, style:viewStyle, settings:viewSettings};
+  $('#view').innerHTML = views[ui.tab]();
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === ui.tab));
+  const pending = currentFeed().items.length, navIn = $('nav button[data-tab="inbox"]');
+  navIn.querySelector('.dot')?.remove();
+  if(pending) navIn.insertAdjacentHTML('beforeend', `<span class="dot">${pending > 99 ? '99+' : pending}</span>`);
+  const last = S.meta.scans.slice(-1)[0];
+  observePhotos();
+  $('#subtitle').textContent = last ? `สแกนล่าสุด ${fmtAge(last.at).replace('0 วันก่อน', 'วันนี้')}` : 'หาคาเฟ่เปิดใหม่ รีวิวน้อย';
+}
+function go(tab){ ui.tab = tab; render(); window.scrollTo(0, 0); }
+
+function rate(id, s){
+  const prev = S.ratings[id];
+  S.ratings[id] = {...prev, score:s, ts:Date.now()};
+  delete S.skipped[id];
+  save(); train(); toast(SCORE_META[s].dest); render();
+}
+// "ไปแล้ว" bottom sheet: optional post-visit score; visited cafes never return to the feed
+let sheetId = null;
+function markVisited(id){
+  sheetId = id;
+  $('#sheetTitle').textContent = `✅ ไป “${S.places[id]?.name || ''}” มาแล้ว`;
+  $('#sheetRate').innerHTML = [1,2,3,4,5].map(s => `<button data-sheet="${s}" data-s="${s}">${s}<small>${SCORE_META[s].t}</small></button>`).join('');
+  $('#sheet').hidden = false;
+}
+function closeSheet(){ $('#sheet').hidden = true; sheetId = null; }
+$('#sheet').addEventListener('click', e => {
+  if(e.target === $('#sheet')) return closeSheet();
+  const b = e.target.closest('[data-sheet]'); if(!b || !sheetId) return;
+  const v = b.dataset.sheet, id = sheetId;
+  if(v === 'cancel') return closeSheet();
+  const prev = S.ratings[id] || {}, n = +v;
+  S.ratings[id] = {...prev, visited:Date.now(), ts:prev.ts || Date.now(), ...(n ? {visitScore:n, score:prev.score ?? n} : {})};
+  delete S.skipped[id];
+  closeSheet(); save(); train(); toast(n ? `✅ ไปแล้ว · ให้ ${n} คะแนน` : '✅ จำไว้แล้วว่าไปแล้ว'); render();
+});
+
+document.querySelector('nav').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if(b) go(b.dataset.tab); });
+$('#scanBtn').addEventListener('click', runScan);
+
+$('#view').addEventListener('change', e => {
+  const t = e.target, id = t.closest('[data-id]')?.dataset.id;
+  if(t.dataset.act === 'rescore' && id){ rate(id, +t.value); }
+  if(t.dataset.act === 'zone'){ S.settings.zones[+t.dataset.i].on = t.checked; save(); render(); }
+  if(t.dataset.act === 'autoPhoto'){ S.settings.autoPhoto = t.checked; save(); }
+  if(t.id === 'importFile' && t.files[0]){
+    t.files[0].text().then(txt => {
+      try{ const d = JSON.parse(txt); if(!d.places || !d.ratings) throw 0; const key = S.settings.apiKey; S = {...DEFAULT_STATE(), ...d}; S.settings.apiKey = key; save(); train(); toast('Import สำเร็จ'); render(); }
+      catch(err){ toast('ไฟล์ไม่ถูกต้อง'); }
+    });
+  }
+});
+
+$('#view').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b || b.tagName === 'SELECT' || b.type === 'checkbox') return;
+  const act = b.dataset.act, id = b.dataset.id || b.closest('[data-id]')?.dataset.id;
+  if(b.tagName === 'A') e.preventDefault();
+  const st = S.settings;
+  switch(act){
+    case 'rate': rate(id, +b.dataset.s); break;
+    case 'photo': { const el = b.closest('[data-photo]'); b.remove(); if(el) hydratePhoto(el); break; }
+    case 'skip': S.skipped[id] = Date.now(); save(); toast('ข้ามไว้ก่อน'); render(); break;
+    case 'unskip': S.skipped = {}; save(); render(); break;
+    case 'tag': ui.tagFilter = b.dataset.t; ui.limit = 15; render(); break;
+    case 'feedSize': S.settings.feedSize = +b.dataset.n; ui.tagFilter = 'all'; newFeed(inboxList().ok); render(); break;
+    case 'newFeed': ui.tagFilter = 'all'; newFeed(inboxList().ok); render(); window.scrollTo(0, 0); break;
+    case 'toggleBlocked': ui.showBlocked = !ui.showBlocked; render(); break;
+    case 'seg': ui.listSeg = b.dataset.k; render(); break;
+    case 'day': ui.goDay = b.dataset.k; ui.goIdx = 0; render(); break;
+    case 'reroll': ui.goIdx++; render(); break;
+    case 'visit': markVisited(id); break;
+    case 'unvisit': {
+      const r = S.ratings[id]; delete r.visited; delete r.visitScore;
+      if(!r.score) delete S.ratings[id];   // never scored → goes back to the feed pool
+      save(); train(); render(); break;
+    }
+    case 'goto': go(b.dataset.tab); break;
+    case 'demo': loadDemo(); break;
+    case 'clearDemo': clearDemo(); break;
+    case 'saveKey': st.apiKey = $('#apiKey').value.trim(); placesLib = null; save(); toast('บันทึก key แล้ว'); break;
+    case 'geo':
+      if(!navigator.geolocation) return toast('browser นี้ไม่รองรับ');
+      navigator.geolocation.getCurrentPosition(pos => {
+        st.home = {lat:pos.coords.latitude, lng:pos.coords.longitude, label:'ตำแหน่งจาก GPS'}; save(); toast('ตั้งบ้านจาก GPS แล้ว'); render();
+      }, () => toast('ขอตำแหน่งไม่ได้'));
+      break;
+    case 'saveHome': {
+      const m = $('#homeLL').value.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+      if(!m) return toast('รูปแบบพิกัดไม่ถูก (lat, lng)');
+      const lat = +m[1], lng = +m[2];
+      if(lat !== +st.home.lat.toFixed(5) || lng !== +st.home.lng.toFixed(5)) st.home = {lat, lng, label:'ตั้งเอง'};
+      st.maxKm = Math.max(1, +$('#maxKm').value || 30);
+      st.newMaxReviews = Math.max(5, +$('#newMax').value || 50);
+      save(); train(); toast('บันทึกแล้ว'); render(); break;
+    }
+    case 'addZone': {
+      const parts = $('#newZone').value.split(',').map(s => s.trim());
+      const [name, lat, lng, r] = [parts[0], +parts[1], +parts[2], +parts[3] || 3];
+      if(!name || !lat || !lng) return toast('ใส่: ชื่อ, lat, lng, รัศมี');
+      st.zones.push({id:'c'+Date.now(), name, lat, lng, r:Math.min(r, 10), on:true, custom:true}); save(); render(); break;
+    }
+    case 'delZone': st.zones.splice(+b.dataset.i, 1); save(); render(); break;
+    case 'prioUp': { const i = st.priority.indexOf(b.dataset.t); if(i > 0){ [st.priority[i - 1], st.priority[i]] = [st.priority[i], st.priority[i - 1]]; save(); render(); } break; }
+    case 'prioDel': st.priority = st.priority.filter(t => t !== b.dataset.t); save(); render(); break;
+    case 'prioAdd': st.priority.push(b.dataset.t); save(); render(); break;
+    case 'saveScan':
+      st.queries = $('#queries').value.split('\n').map(s => s.trim()).filter(Boolean);
+      st.useNearby = $('#useNearby').checked; save(); toast('บันทึกแล้ว'); render(); break;
+    case 'export': {
+      const blob = new Blob([JSON.stringify({...S, settings:{...S.settings, apiKey:''}}, null, 1)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = `cafe-radar-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href); break;
+    }
+    case 'import': $('#importFile').click(); break;
+    case 'reset':
+      if(confirm('ล้างร้าน คะแนน และลิสต์ทั้งหมด? (API key กับตั้งค่ายังอยู่)')){ const keep = S.settings; S = DEFAULT_STATE(); S.settings = keep; save(); train(); render(); }
+      break;
+  }
+});
+
+train();
+render();
+</script>
+</body>
+</html>
