@@ -680,8 +680,11 @@ function currentFeed(){
 }
 
 function viewInbox(){
-  if(!Object.keys(S.places).length) return `<div class="empty"><b>☕</b>ยังไม่มีร้าน<br>ใส่ Google API key แล้วกด 🔍 สแกน<br>หรือลองเล่นด้วยร้านสมมติก่อน
-    <div class="flex" style="justify-content:center;margin-top:14px"><button class="btn" data-act="goto" data-tab="settings">⚙️ ใส่ API key</button><button class="btn ghost" data-act="demo">ลองร้านสมมติ</button></div></div>`;
+  if(!Object.keys(S.places).length) return S.settings.apiKey
+    ? `<div class="empty"><b>☕</b>✅ API key พร้อมแล้ว<br>กดสแกนเพื่อหาคาเฟ่รอบบ้านได้เลย
+      <div class="flex" style="justify-content:center;margin-top:14px"><button class="btn" data-act="scan">🔍 สแกนเลย</button><button class="btn ghost" data-act="demo">ลองร้านสมมติ</button></div></div>`
+    : `<div class="empty"><b>☕</b>ยังไม่มีร้าน<br>ใส่ Google API key แล้วกด 🔍 สแกน<br>หรือลองเล่นด้วยร้านสมมติก่อน
+      <div class="flex" style="justify-content:center;margin-top:14px"><button class="btn" data-act="goto" data-tab="settings">⚙️ ใส่ API key</button><button class="btn ghost" data-act="demo">ลองร้านสมมติ</button></div></div>`;
   const {items, done, total, pool, blocked} = currentFeed();
   const filtered = ui.tagFilter === 'all' ? items : items.filter(x => x.p.tags.includes(ui.tagFilter));
   const skippedN = Object.keys(S.skipped).filter(id => S.places[id]).length;
@@ -794,7 +797,7 @@ function viewSettings(){
   const hasDemo = Object.keys(S.places).some(id => id.startsWith('demo_'));
   return `
   <div class="panel">
-    <label>🔑 Google Maps API key</label>
+    <label>🔑 Google Maps API key ${st.apiKey ? '<span class="tag" style="margin-left:6px">✅ บันทึกแล้ว · ไม่ต้องใส่ใหม่</span>' : ''}</label>
     <input type="password" id="apiKey" value="${esc(st.apiKey)}" placeholder="AIza..." autocomplete="off">
     <p class="hint">เก็บใน browser เครื่องนี้เท่านั้น · ต้องเปิด <b>Maps JavaScript API</b> + <b>Places API (New)</b> ใน Google Cloud และจำกัด key ด้วย HTTP referrer (โดเมนที่ host หน้านี้)</p>
     <div class="flex" style="margin-top:8px"><button class="btn" data-act="saveKey">บันทึก key</button></div>
@@ -925,9 +928,17 @@ $('#view').addEventListener('click', e => {
       save(); train(); render(); break;
     }
     case 'goto': go(b.dataset.tab); break;
+    case 'scan': runScan(); break;
     case 'demo': loadDemo(); break;
     case 'clearDemo': clearDemo(); break;
-    case 'saveKey': st.apiKey = $('#apiKey').value.trim(); placesLib = null; save(); toast('บันทึก key แล้ว'); break;
+    case 'saveKey': {
+      const k = $('#apiKey').value.trim(), changed = k !== st.apiKey;
+      st.apiKey = k; save(); render();
+      // Maps JS is loaded once per page with the old key; a changed key needs a reload to take effect
+      if(changed && placesLib){ toast('บันทึก key ใหม่แล้ว · กำลังรีโหลด'); setTimeout(() => location.reload(), 900); }
+      else toast(k ? 'บันทึก key แล้ว ✅' : 'ลบ key แล้ว');
+      break;
+    }
     case 'geo':
       if(!navigator.geolocation) return toast('browser นี้ไม่รองรับ');
       navigator.geolocation.getCurrentPosition(pos => {
