@@ -194,6 +194,20 @@ const DEFAULT_ZONES = [
 ];
 const DEFAULT_QUERIES = ['matcha cafe','มัทฉะ คาเฟ่','sourdough bakery','bagel','คาเฟ่ เค้ก','specialty coffee','คาเฟ่เปิดใหม่','กาแฟมะพร้าว'];
 
+// Chains: matched against the shop name. Malls/stations: matched against the address Google returns.
+const DEFAULT_CHAINS = ['Starbucks','สตาร์บัค','Amazon','อเมซอน','Punthai','พันธุ์ไทย','Inthanin','อินทนิล','All Cafe','ออลคาเฟ่',
+  'Black Canyon','แบล็คแคนยอน','True Coffee','ทรูคอฟฟี่','ทรู คอฟฟี่','Coffee World','Doi Chaang','ดอยช้าง','Wawee','วาวี',
+  'Chao Doi','ชาวดอย','The Coffee Club','Tim Hortons','Dunkin','ดังกิ้น','Mister Donut','มิสเตอร์ โดนัท','Au Bon Pain',
+  'Kamu','คามุ','Cha Tra Mue','ชาตรามือ','Yamazaki','ยามาซากิ','After You','อาฟเตอร์ ยู','Swensen','สเวนเซ่น',
+  '%Arabica','% Arabica','Gong cha','ก๊องชา','Chagee','Mixue','มี่เสวี่ย'];
+const DEFAULT_MALLS = ['Central','เซ็นทรัล','The Mall','เดอะมอลล์','เดอะ มอลล์','ICONSIAM','ไอคอนสยาม','Robinson','โรบินสัน',
+  'Big C','บิ๊กซี','Lotus','โลตัส','Tesco','Makro','แม็คโคร','Terminal 21','เทอร์มินอล 21','Future Park','ฟิวเจอร์พาร์ค',
+  'Seacon','ซีคอน','MBK','เอ็มบีเค','Paragon','พารากอน','EmQuartier','เอ็มควอเทียร์','Emporium','เอ็มโพเรียม','Emsphere',
+  'Mega Bangna','เมกา บางนา','Fashion Island','แฟชั่นไอส์แลนด์','Esplanade','เอสพลานาด','Westgate','เวสต์เกต','Gateway','เกตเวย์',
+  'Siam Center','Siam Discovery','Shopping Mall','Shopping Center','Department Store','ศูนย์การค้า','ห้างสรรพสินค้า',
+  'PTT','ปตท','Bangchak','บางจาก','Shell','เชลล์','Caltex','คาลเท็กซ์','Esso','เอสโซ่'];
+const EXCLUDE_TYPES = ['shopping_mall','department_store','supermarket','convenience_store','gas_station'];
+
 const DEFAULT_STATE = () => ({
   settings:{
     apiKey:'',
@@ -201,6 +215,9 @@ const DEFAULT_STATE = () => ({
     maxKm:30,
     newMaxReviews:50,
     feedSize:20,
+    excludeOn:true,
+    excludeChains:[...DEFAULT_CHAINS],
+    excludeMalls:[...DEFAULT_MALLS],
     priority:['matcha','bagel','sourdough','coconut','cake'],
     useNearby:true,
     zones:DEFAULT_ZONES.map(z=>({...z})),
@@ -301,7 +318,7 @@ const FIELDS = ['id','displayName','location','formattedAddress','rating','userR
   'businessStatus','priceLevel','editorialSummary','googleMapsURI','photos','reviews','regularOpeningHours'];
 const NEARBY_TYPES = ['cafe','coffee_shop','bakery','dessert_shop','tea_house'];
 const NEARBY_TYPES_SAFE = ['cafe','coffee_shop','bakery'];
-let placesLib = null, scanning = false;
+let placesLib = null, scanning = false, scanExcluded = new Set();
 
 async function ensureMaps(){
   if(placesLib) return placesLib;
@@ -335,6 +352,11 @@ function upsert(pl, zone){
   S.seen[pl.id] = firstSeen;
   // Popular cafes can never reach the feed, so keep only their id in `seen`, not a full record
   if(!old && !S.ratings[pl.id] && (pl.userRatingCount ?? 0) > S.settings.newMaxReviews * 2) return false;
+  if(!S.ratings[pl.id] && excludeReason(pl.displayName, pl.formattedAddress, pl.types)){
+    if(old) delete S.places[pl.id];
+    scanExcluded.add(pl.id);
+    return false;
+  }
   const reviews = pl.reviews || [];
   const text = [pl.displayName, pl.editorialSummary, ...reviews.map(r => r.text||'')].join(' \n ');
   const {tags, vibes} = extractTags(text, pl.types||[]);
@@ -361,10 +383,36 @@ function upsert(pl, zone){
   return !old;
 }
 
-// Drop full records of unrated cafes that got too popular to ever show (their id stays in `seen`)
+// ---------- Exclusions: chains (by name) and cafes inside malls / gas stations (by address) ----------
+let exclCache = null;
+function exclRules(){
+  const st = S.settings, sig = JSON.stringify([st.excludeChains, st.excludeMalls]);
+  if(exclCache?.sig === sig) return exclCache;
+  // English words match whole words (so "Mall" ≠ "Mallow"); Thai has no spaces, so substring match
+  const toRe = w => /^[\x00-\x7F]+$/.test(w)
+    ? new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z0-9])', 'i')
+    : {test:s => s.includes(w)};
+  const clean = arr => (arr || []).map(w => w.trim()).filter(Boolean);
+  return exclCache = {sig, chains:clean(st.excludeChains).map(toRe), malls:clean(st.excludeMalls).map(toRe)};
+}
+const FLOOR_RE = /ชั้น\s?(G|\d)|\b(\d+(st|nd|rd|th)|G)\s?(floor|fl\.?)(?![a-z])/i;
+function excludeReason(name, address, types){
+  if(S.settings.excludeOn === false) return null;
+  const R = exclRules();
+  if(R.chains.some(re => re.test(name || ''))) return 'chain';
+  if((types || []).some(t => EXCLUDE_TYPES.includes(t))) return 'mall';
+  if(R.malls.some(re => re.test(address || '')) || FLOOR_RE.test(address || '')) return 'mall';
+  return null;
+}
+
+// Drop full records of unrated cafes that got too popular or are excluded (their id stays in `seen`)
 function prune(){
-  const lim = S.settings.newMaxReviews * 2;
-  for(const [id, p] of Object.entries(S.places)) if(!p.demo && !S.ratings[id] && p.count > lim) delete S.places[id];
+  const lim = S.settings.newMaxReviews * 2; let n = 0;
+  for(const [id, p] of Object.entries(S.places)){
+    if(p.demo || S.ratings[id]) continue;
+    if(p.count > lim || excludeReason(p.name, p.address, p.types)){ delete S.places[id]; n++; }
+  }
+  return n;
 }
 
 async function runScan(){
@@ -383,7 +431,7 @@ async function runScan(){
   let lib;
   try{ lib = await ensureMaps(); }catch(e){ return toast(e.message); }
   const {Place, SearchNearbyRankPreference} = lib;
-  scanning = true;
+  scanning = true; scanExcluded = new Set();
   const btn = $('#scanBtn'), bar = $('#progress');
   btn.disabled = true; bar.hidden = false;
   let added = 0, errors = 0, safeTypes = false;
@@ -410,10 +458,11 @@ async function runScan(){
   }
   if(!S.meta.baselineAt) S.meta.baselineAt = Date.now();
   prune();
-  S.meta.scans.push({at:Date.now(), calls:jobs.length, added, errors});
+  S.meta.scans.push({at:Date.now(), calls:jobs.length, added, errors, excluded:scanExcluded.size});
   save();
   scanning = false; btn.disabled = false; btn.textContent = '🔍 สแกน'; bar.hidden = true;
-  toast(errors ? `เจอร้านใหม่ ${added} ร้าน (error ${errors} ครั้ง ดู console)` : `เจอร้านใหม่ ${added} ร้าน`);
+  const exTxt = scanExcluded.size ? ` · ตัดเชน/ในห้าง ${scanExcluded.size}` : '';
+  toast(errors ? `เจอร้านใหม่ ${added} ร้าน${exTxt} (error ${errors} ครั้ง ดู console)` : `เจอร้านใหม่ ${added} ร้าน${exTxt}`);
   render();
 }
 
@@ -842,6 +891,17 @@ function viewSettings(){
     <div class="flex" style="margin-top:8px">${Object.keys(TAGS).filter(t => !st.priority.includes(t)).map(t => `<button class="mini" data-act="prioAdd" data-t="${t}">+ ${TAGS[t].label}</button>`).join('')}</div>
   </div>
   <div class="panel">
+    <label class="flex" style="justify-content:space-between">🚫 ตัดร้านเชน / ร้านในห้าง / ปั๊ม
+      <input type="checkbox" data-act="excludeOn" ${st.excludeOn !== false ? 'checked' : ''} style="width:20px;height:20px;accent-color:var(--brand)"></label>
+    <p class="hint" style="margin-bottom:4px">ร้านที่ตัดจะไม่ถูกเก็บและไม่ขึ้นฟีด (ยกเว้นร้านที่คุณเคยให้คะแนนแล้ว)${last?.excluded != null ? ` · สแกนล่าสุดตัดไป ${last.excluded} ร้าน` : ''}</p>
+    <label>ชื่อร้านเชน (ดูจากชื่อร้าน · คั่นด้วย , หรือขึ้นบรรทัดใหม่)</label>
+    <textarea id="exChains">${esc((st.excludeChains || []).join(', '))}</textarea>
+    <label>คำในที่อยู่ = อยู่ในห้าง/ปั๊ม</label>
+    <textarea id="exMalls">${esc((st.excludeMalls || []).join(', '))}</textarea>
+    <p class="hint">ที่อยู่ที่มี “ชั้น 2 / 3rd Floor” จะถือว่าอยู่ในห้าง/อาคารด้วย</p>
+    <div class="flex" style="margin-top:8px"><button class="btn" data-act="saveExclude">บันทึก + ใช้กับร้านที่เก็บไว้</button><button class="btn ghost" data-act="resetExclude">คืนค่าเริ่มต้น</button></div>
+  </div>
+  <div class="panel">
     <label>🗺 โซนที่สแกน</label>
     ${st.zones.map((z, i) => `<div class="zone"><input type="checkbox" data-act="zone" data-i="${i}" ${z.on ? 'checked' : ''}><span>${esc(z.name)}<br><small>รัศมี ${z.r} กม. · ห่างบ้าน ${km(st.home, z).toFixed(1)} กม.</small></span>${z.custom ? `<button class="mini" data-act="delZone" data-i="${i}">ลบ</button>` : ''}</div>`).join('')}
     <label>เพิ่มโซน (ชื่อ, lat, lng, รัศมี กม.)</label>
@@ -896,11 +956,11 @@ function rate(id, s){
 // "ห่วยเพราะอะไร" sheet: quick reasons + free text, saved with the rating (and in Export)
 const BAD_REASONS = {
   far:'📍 ไกลเกิน', pricey:'💸 น่าจะแพง', menu:'🍵 เมนูไม่ตรง', vibe:'🏚 ไม่ใช่ vibe',
-  photo:'📸 รูปไม่น่าไป', crowd:'👥 คนเยอะ/วุ่นวาย', parking:'🅿️ จอดรถยาก',
+  photo:'📸 รูปไม่น่าไป', crowd:'👥 คนเยอะ/วุ่นวาย', parking:'🅿️ จอดรถยาก', mall:'🏬 ในห้าง/ร้านเชน',
   notcafe:'🧋 ไม่ใช่คาเฟ่', closed:'🚫 ปิดแล้ว/ข้อมูลผิด',
 };
 // Data-quality reasons say nothing about your taste, so those ratings are left out of learning and hiding
-const NO_TASTE = ['notcafe', 'closed'];
+const NO_TASTE = ['notcafe', 'closed', 'mall'];
 let noteCtx = null;   // {id, mode:'rate1' | 'edit'}
 function openNote(id, mode){
   const r = S.ratings[id] || {}, isBad = mode === 'rate1' || r.score === 1;
@@ -962,6 +1022,7 @@ $('#view').addEventListener('change', e => {
   if(t.dataset.act === 'rescore' && id){ +t.value === 1 ? openNote(id, 'rate1') : rate(id, +t.value); }
   if(t.dataset.act === 'zone'){ S.settings.zones[+t.dataset.i].on = t.checked; save(); render(); }
   if(t.dataset.act === 'autoPhoto'){ S.settings.autoPhoto = t.checked; save(); }
+  if(t.dataset.act === 'excludeOn'){ S.settings.excludeOn = t.checked; const n = prune(); save(); render(); if(n) toast(`ตัดออก ${n} ร้าน`); }
   if(t.id === 'importFile' && t.files[0]){
     t.files[0].text().then(txt => {
       try{ const d = JSON.parse(txt); if(!d.places || !d.ratings) throw 0; const key = S.settings.apiKey; S = {...DEFAULT_STATE(), ...d}; S.settings.apiKey = key; save(); train(); toast('Import สำเร็จ'); render(); }
@@ -1031,6 +1092,14 @@ $('#view').addEventListener('click', e => {
     case 'prioUp': { const i = st.priority.indexOf(b.dataset.t); if(i > 0){ [st.priority[i - 1], st.priority[i]] = [st.priority[i], st.priority[i - 1]]; save(); render(); } break; }
     case 'prioDel': st.priority = st.priority.filter(t => t !== b.dataset.t); save(); render(); break;
     case 'prioAdd': st.priority.push(b.dataset.t); save(); render(); break;
+    case 'saveExclude': case 'resetExclude': {
+      const split = s => s.split(/[,\n]/).map(w => w.trim()).filter(Boolean);
+      const reset = act === 'resetExclude';
+      st.excludeChains = reset ? [...DEFAULT_CHAINS] : split($('#exChains').value);
+      st.excludeMalls = reset ? [...DEFAULT_MALLS] : split($('#exMalls').value);
+      const n = prune(); save(); render();
+      toast(n ? `ตัดออกจากที่เก็บไว้ ${n} ร้าน` : 'บันทึกแล้ว'); break;
+    }
     case 'saveScan':
       st.queries = $('#queries').value.split('\n').map(s => s.trim()).filter(Boolean);
       st.useNearby = $('#useNearby').checked; save(); toast('บันทึกแล้ว'); render(); break;
@@ -1046,6 +1115,7 @@ $('#view').addEventListener('click', e => {
   }
 });
 
+if(prune()) save();   // apply exclusion rules to cafes stored before they existed
 train();
 render();
 </script>
