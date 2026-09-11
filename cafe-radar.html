@@ -199,14 +199,17 @@ const DEFAULT_CHAINS = ['Starbucks','สตาร์บัค','Amazon','อเ�
   'Black Canyon','แบล็คแคนยอน','True Coffee','ทรูคอฟฟี่','ทรู คอฟฟี่','Coffee World','Doi Chaang','ดอยช้าง','Wawee','วาวี',
   'Chao Doi','ชาวดอย','The Coffee Club','Tim Hortons','Dunkin','ดังกิ้น','Mister Donut','มิสเตอร์ โดนัท','Au Bon Pain',
   'Kamu','คามุ','Cha Tra Mue','ชาตรามือ','Yamazaki','ยามาซากิ','After You','อาฟเตอร์ ยู','Swensen','สเวนเซ่น',
-  '%Arabica','% Arabica','Gong cha','ก๊องชา','Chagee','Mixue','มี่เสวี่ย'];
+  '%Arabica','% Arabica','Gong cha','ก๊องชา','Chagee','Mixue','มี่เสวี่ย',
+  'Class Cafe','คลาสคาเฟ่','Cotti','Luckin','ZUS Coffee','Dean & DeLuca','PAUL Bakery','Bread Talk','เบรดทอล์ค','Bake Cheese Tart',
+  'Krispy Kreme','Auntie Anne','Tous les Jours','Paris Baguette'];
 const DEFAULT_MALLS = ['Central','เซ็นทรัล','The Mall','เดอะมอลล์','เดอะ มอลล์','ICONSIAM','ไอคอนสยาม','Robinson','โรบินสัน',
   'Big C','บิ๊กซี','Lotus','โลตัส','Tesco','Makro','แม็คโคร','Terminal 21','เทอร์มินอล 21','Future Park','ฟิวเจอร์พาร์ค',
   'Seacon','ซีคอน','MBK','เอ็มบีเค','Paragon','พารากอน','EmQuartier','เอ็มควอเทียร์','Emporium','เอ็มโพเรียม','Emsphere',
   'Mega Bangna','เมกา บางนา','Fashion Island','แฟชั่นไอส์แลนด์','Esplanade','เอสพลานาด','Westgate','เวสต์เกต','Gateway','เกตเวย์',
-  'Siam Center','Siam Discovery','Shopping Mall','Shopping Center','Department Store','ศูนย์การค้า','ห้างสรรพสินค้า',
-  'PTT','ปตท','Bangchak','บางจาก','Shell','เชลล์','Caltex','คาลเท็กซ์','Esso','เอสโซ่'];
-const EXCLUDE_TYPES = ['shopping_mall','department_store','supermarket','convenience_store','gas_station'];
+  'Siam Center','Siam Discovery','Shopping Mall','Shopping Center','Department Store','ศูนย์การค้า','ห้างสรรพสินค้า'];
+// Removed in v2 at the user's request: cafes at gas stations are fine (chain ones are still caught by name)
+const STATION_WORDS = ['PTT','ปตท','Bangchak','บางจาก','Shell','เชลล์','Caltex','คาลเท็กซ์','Esso','เอสโซ่'];
+const EXCLUDE_TYPES = ['shopping_mall','department_store','supermarket'];
 
 const DEFAULT_STATE = () => ({
   settings:{
@@ -216,6 +219,7 @@ const DEFAULT_STATE = () => ({
     newMaxReviews:50,
     feedSize:20,
     excludeOn:true,
+    excludeVer:2,
     excludeChains:[...DEFAULT_CHAINS],
     excludeMalls:[...DEFAULT_MALLS],
     priority:['matcha','bagel','sourdough','coconut','cake'],
@@ -241,6 +245,13 @@ function load(){
       // Migration: coconut coffee query added after v1 settings were saved
       if(!st.settings.queries.includes('กาแฟมะพร้าว')) st.settings.queries.push('กาแฟมะพร้าว');
       Object.values(st.places).forEach(p => { if(!p.demo) st.seen[p.id] ||= p.firstSeen; });
+      // Migration v2: keep gas-station cafes, add new chain names (keeps any words the user added)
+      // (check the raw saved settings: the merged defaults already carry the current excludeVer)
+      if(s.settings?.excludeChains && (s.settings.excludeVer || 1) < 2){
+        st.settings.excludeMalls = st.settings.excludeMalls.filter(w => !STATION_WORDS.includes(w));
+        st.settings.excludeChains = [...new Set([...st.settings.excludeChains, ...DEFAULT_CHAINS])];
+        st.settings.excludeVer = 2;
+      }
       return st;
     }
   }catch(e){}
@@ -395,13 +406,12 @@ function exclRules(){
   const clean = arr => (arr || []).map(w => w.trim()).filter(Boolean);
   return exclCache = {sig, chains:clean(st.excludeChains).map(toRe), malls:clean(st.excludeMalls).map(toRe)};
 }
-const FLOOR_RE = /ชั้น\s?(G|\d)|\b(\d+(st|nd|rd|th)|G)\s?(floor|fl\.?)(?![a-z])/i;
 function excludeReason(name, address, types){
   if(S.settings.excludeOn === false) return null;
   const R = exclRules();
   if(R.chains.some(re => re.test(name || ''))) return 'chain';
   if((types || []).some(t => EXCLUDE_TYPES.includes(t))) return 'mall';
-  if(R.malls.some(re => re.test(address || '')) || FLOOR_RE.test(address || '')) return 'mall';
+  if(R.malls.some(re => re.test(address || ''))) return 'mall';
   return null;
 }
 
@@ -891,14 +901,14 @@ function viewSettings(){
     <div class="flex" style="margin-top:8px">${Object.keys(TAGS).filter(t => !st.priority.includes(t)).map(t => `<button class="mini" data-act="prioAdd" data-t="${t}">+ ${TAGS[t].label}</button>`).join('')}</div>
   </div>
   <div class="panel">
-    <label class="flex" style="justify-content:space-between">🚫 ตัดร้านเชน / ร้านในห้าง / ปั๊ม
+    <label class="flex" style="justify-content:space-between">🚫 ตัดร้านเชน / ร้านในห้าง
       <input type="checkbox" data-act="excludeOn" ${st.excludeOn !== false ? 'checked' : ''} style="width:20px;height:20px;accent-color:var(--brand)"></label>
     <p class="hint" style="margin-bottom:4px">ร้านที่ตัดจะไม่ถูกเก็บและไม่ขึ้นฟีด (ยกเว้นร้านที่คุณเคยให้คะแนนแล้ว)${last?.excluded != null ? ` · สแกนล่าสุดตัดไป ${last.excluded} ร้าน` : ''}</p>
     <label>ชื่อร้านเชน (ดูจากชื่อร้าน · คั่นด้วย , หรือขึ้นบรรทัดใหม่)</label>
     <textarea id="exChains">${esc((st.excludeChains || []).join(', '))}</textarea>
-    <label>คำในที่อยู่ = อยู่ในห้าง/ปั๊ม</label>
+    <label>คำในที่อยู่ = อยู่ในห้าง</label>
     <textarea id="exMalls">${esc((st.excludeMalls || []).join(', '))}</textarea>
-    <p class="hint">ที่อยู่ที่มี “ชั้น 2 / 3rd Floor” จะถือว่าอยู่ในห้าง/อาคารด้วย</p>
+    <p class="hint">ร้านในปั๊มกับในอาคารไม่ถูกตัด (ยกเว้นเป็นร้านเชน)</p>
     <div class="flex" style="margin-top:8px"><button class="btn" data-act="saveExclude">บันทึก + ใช้กับร้านที่เก็บไว้</button><button class="btn ghost" data-act="resetExclude">คืนค่าเริ่มต้น</button></div>
   </div>
   <div class="panel">
