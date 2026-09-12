@@ -192,6 +192,18 @@ const DEFAULT_ZONES = [
   {id:'oldtown',         name:'เกาะรัตนโกสินทร์-บางลำพู',       lat:13.7580, lng:100.4980, r:3,   on:false},
   {id:'thonglor',        name:'ทองหล่อ-เอกมัย',                lat:13.7300, lng:100.5850, r:3,   on:false},
 ];
+// Nearby Search covers only the 20 nearest places per call, so split a zone into a grid of points
+function nearbyPoints(z){
+  const n = Math.round(Math.sqrt(S.settings.nearbyDepth || 1));
+  if(n <= 1) return [{lat:z.lat, lng:z.lng, r:z.r}];
+  const r = z.r / n, step = (z.r * 2) / n, pts = [];
+  for(let i = 0; i < n; i++) for(let j = 0; j < n; j++){
+    const dLat = (-z.r + step * (i + 0.5)) / 111;
+    const dLng = (-z.r + step * (j + 0.5)) / (111 * Math.cos(z.lat * Math.PI / 180));
+    pts.push({lat:z.lat + dLat, lng:z.lng + dLng, r:r * 1.15});
+  }
+  return pts;
+}
 const DEFAULT_QUERIES = ['matcha cafe','มัทฉะ คาเฟ่','sourdough bakery','bagel','คาเฟ่ เค้ก','specialty coffee','คาเฟ่เปิดใหม่','กาแฟมะพร้าว'];
 
 // Chains: matched against the shop name. Malls/stations: matched against the address Google returns.
@@ -227,6 +239,7 @@ const DEFAULT_STATE = () => ({
     excludeMalls:[...DEFAULT_MALLS],
     priority:['matcha','bagel','sourdough','coconut','cake'],
     useNearby:true,
+    nearbyDepth:4,   // sub-points per zone for Nearby Search (1 / 4 / 9)
     zones:DEFAULT_ZONES.map(z=>({...z})),
     queries:[...DEFAULT_QUERIES],
   },
@@ -450,7 +463,7 @@ async function runScan(){
   const jobs = [];
   zones.forEach(z => {
     queries.forEach(q => jobs.push({z, q}));
-    if(S.settings.useNearby) jobs.push({z, nearby:true});
+    if(S.settings.useNearby) nearbyPoints(z).forEach(pt => jobs.push({z, nearby:true, pt}));
   });
   if(!jobs.length) return toast('ยังไม่ได้เลือกโซน');
   const nText = jobs.filter(j => !j.nearby).length, nNear = jobs.length - nText;
@@ -471,13 +484,13 @@ async function runScan(){
   btn.disabled = true; bar.hidden = false;
   let added = 0, errors = 0, safeTypes = false;
   for(let i=0; i<jobs.length; i++){
-    const {z, q, nearby} = jobs[i];
+    const {z, q, nearby, pt} = jobs[i];
     btn.textContent = `⏳ ${i+1}/${jobs.length}`;
     bar.firstElementChild.style.width = `${(i+1)/jobs.length*100}%`;
     try{
       let res;
       if(nearby){
-        const req = {fields:FIELDS, locationRestriction:{center:{lat:z.lat, lng:z.lng}, radius:z.r*1000},
+        const req = {fields:FIELDS, locationRestriction:{center:{lat:pt.lat, lng:pt.lng}, radius:pt.r*1000},
           includedTypes: safeTypes ? NEARBY_TYPES_SAFE : NEARBY_TYPES, maxResultCount:20,
           rankPreference:SearchNearbyRankPreference.DISTANCE, language:'th', region:'th'};
         countCall('nearby');
@@ -902,7 +915,7 @@ function viewStyle(){
 function viewSettings(){
   const st = S.settings;
   const perScanText = st.zones.filter(z => z.on).length * st.queries.filter(Boolean).length;
-  const perScanNear = st.useNearby ? st.zones.filter(z => z.on).length : 0;
+  const perScanNear = st.useNearby ? st.zones.filter(z => z.on).length * (st.nearbyDepth || 1) : 0;
   const last = S.meta.scans.slice(-1)[0];
   const hasDemo = Object.keys(S.places).some(id => id.startsWith('demo_'));
   return `
@@ -944,7 +957,9 @@ function viewSettings(){
     <div class="flex"><input type="text" id="newZone" placeholder="เช่น ศาลายา, 13.800, 100.320, 3" style="flex:1"><button class="btn ghost" data-act="addZone">เพิ่ม</button></div>
     <label>🔎 คำค้น (บรรทัดละคำ)</label>
     <textarea id="queries">${esc(st.queries.join('\n'))}</textarea>
-    <label class="flex" style="font-weight:500"><input type="checkbox" id="useNearby" ${st.useNearby ? 'checked' : ''}> ค้นร้านใกล้จุดกลางโซนเพิ่ม (cafe/coffee/bakery)</label>
+    <label class="flex" style="font-weight:500"><input type="checkbox" id="useNearby" ${st.useNearby ? 'checked' : ''}> 📍 Nearby Search: กวาดร้าน cafe/coffee/bakery ในโซน (ใช้โควตาคนละก้อนกับ Text Search)</label>
+    <div class="flex" style="margin-top:6px">ความละเอียด <span class="segs">${[1,4,9].map(n => `<button class="seg ${(st.nearbyDepth||1)===n?'on':''}" data-act="nearbyDepth" data-n="${n}">${n} จุด/โซน</button>`).join('')}</span></div>
+    <p class="hint">1 call ได้ร้านใกล้จุดนั้นสูงสุด 20 ร้าน ยิ่งแบ่งจุดย่อยยิ่งเจอร้านเล็กครบ · ตอนนี้ ${st.zones.filter(z=>z.on).length * (st.nearbyDepth||1)} call/รอบ จากโควตาฟรี ${quotaOf('nearby')}</p>
     <div class="flex" style="margin-top:10px"><button class="btn" data-act="saveScan">บันทึก</button></div>
   </div>
   <div class="panel">
@@ -981,7 +996,7 @@ function quotaBars(){
 }
 function scansLeftNow(){
   const st = S.settings, zones = st.zones.filter(z => z.on).length;
-  const nText = zones * st.queries.filter(Boolean).length, nNear = st.useNearby ? zones : 0;
+  const nText = zones * st.queries.filter(Boolean).length, nNear = st.useNearby ? zones * (st.nearbyDepth || 1) : 0;
   return Math.min(nText ? Math.floor(remaining('text') / nText) : 99, nNear ? Math.floor(remaining('nearby') / nNear) : 99);
 }
 
@@ -1157,6 +1172,7 @@ $('#view').addEventListener('click', e => {
       const n = prune(); save(); render();
       toast(n ? `ตัดออกจากที่เก็บไว้ ${n} ร้าน` : 'บันทึกแล้ว'); break;
     }
+    case 'nearbyDepth': st.nearbyDepth = +b.dataset.n; st.useNearby = true; save(); render(); break;
     case 'saveQuota': {
       st.freeQuota = {text:+$('#q_text').value || FREE_QUOTA.text, nearby:+$('#q_nearby').value || FREE_QUOTA.nearby, photo:+$('#q_photo').value || FREE_QUOTA.photo};
       save(); render(); toast('บันทึกโควตาแล้ว'); break;
