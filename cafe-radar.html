@@ -211,6 +211,8 @@ const DEFAULT_MALLS = ['Central','เซ็นทรัล','The Mall','เด�
 const STATION_WORDS = ['PTT','ปตท','Bangchak','บางจาก','Shell','เชลล์','Caltex','คาลเท็กซ์','Esso','เอสโซ่'];
 const EXCLUDE_TYPES = ['shopping_mall','department_store','supermarket'];
 
+// Google's free allowance is per SKU per month, so count Text Search / Nearby / Photos separately
+const FREE_QUOTA = {text:1000, nearby:1000, photo:1000};
 const DEFAULT_STATE = () => ({
   settings:{
     apiKey:'',
@@ -218,6 +220,7 @@ const DEFAULT_STATE = () => ({
     maxKm:30,
     newMaxReviews:50,
     feedSize:20,
+    freeQuota:{...FREE_QUOTA},
     excludeOn:true,
     excludeVer:2,
     excludeChains:[...DEFAULT_CHAINS],
@@ -232,7 +235,7 @@ const DEFAULT_STATE = () => ({
   feed:null,   // current batch: {ids, at, size}
   ratings:{},  // id -> {score, ts, visited, visitScore}
   skipped:{},  // id -> ts
-  meta:{apiCalls:{}, scans:[], baselineAt:null},
+  meta:{apiCalls:{}, usage:{}, scans:[], baselineAt:null},
 });
 
 let S = load();
@@ -245,6 +248,11 @@ function load(){
       // Migration: coconut coffee query added after v1 settings were saved
       if(!st.settings.queries.includes('กาแฟมะพร้าว')) st.settings.queries.push('กาแฟมะพร้าว');
       Object.values(st.places).forEach(p => { if(!p.demo) st.seen[p.id] ||= p.firstSeen; });
+      // Old builds kept one lumped counter; treat it as Text Search (the SKU that runs out first)
+      if(!st.meta.usage || !Object.keys(st.meta.usage).length){
+        st.meta.usage = {};
+        Object.entries(st.meta.apiCalls || {}).forEach(([k, v]) => st.meta.usage[k] = {text:v, nearby:0, photo:(st.meta.photoCalls || {})[k] || 0});
+      }
       // Migration v2: keep gas-station cafes, add new chain names (keeps any words the user added)
       // (check the raw saved settings: the merged defaults already carry the current excludeVer)
       if(s.settings?.excludeChains && (s.settings.excludeVer || 1) < 2){
@@ -354,7 +362,17 @@ function boundsOf(z){
   const dLat = z.r/111, dLng = z.r/(111*Math.cos(z.lat*Math.PI/180));
   return {north:z.lat+dLat, south:z.lat-dLat, east:z.lng+dLng, west:z.lng-dLng};
 }
-function countCall(){ const k=monthKey(); S.meta.apiCalls[k]=(S.meta.apiCalls[k]||0)+1; }
+function usage(k = monthKey()){
+  S.meta.usage = S.meta.usage || {};
+  S.meta.usage[k] = S.meta.usage[k] || {text:0, nearby:0, photo:0};
+  return S.meta.usage[k];
+}
+const quotaOf = kind => (S.settings.freeQuota || {})[kind] ?? FREE_QUOTA[kind];
+const remaining = kind => Math.max(0, quotaOf(kind) - (usage()[kind] || 0));
+function countCall(kind){
+  usage()[kind] = (usage()[kind] || 0) + 1;
+  const k = monthKey(); S.meta.apiCalls[k] = (S.meta.apiCalls[k] || 0) + 1;
+}
 
 function upsert(pl, zone){
   if(!pl?.id || !pl.location) return false;
@@ -435,8 +453,15 @@ async function runScan(){
     if(S.settings.useNearby) jobs.push({z, nearby:true});
   });
   if(!jobs.length) return toast('ยังไม่ได้เลือกโซน');
-  const used = S.meta.apiCalls[monthKey()]||0;
-  if(!confirm(`จะเรียก Places API ${jobs.length} ครั้ง\n(เดือนนี้ใช้ไปแล้ว ${used} ครั้ง)\n\nเริ่มสแกนเลยไหม?`)) return;
+  const nText = jobs.filter(j => !j.nearby).length, nNear = jobs.length - nText;
+  const u = usage(), left = {text:remaining('text'), nearby:remaining('nearby')};
+  const scansLeft = Math.min(nText ? Math.floor(left.text / nText) : 99, nNear ? Math.floor(left.nearby / nNear) : 99);
+  const over = left.text < nText || left.nearby < nNear;
+  const msg = `สแกน 1 รอบใช้:\n• Text Search ${nText} ครั้ง — เดือนนี้ใช้ ${u.text}/${quotaOf('text')} เหลือ ${left.text}\n`
+    + (nNear ? `• Nearby Search ${nNear} ครั้ง — ใช้ ${u.nearby}/${quotaOf('nearby')} เหลือ ${left.nearby}\n` : '')
+    + (over ? `\n⚠️ โควตาฟรีเหลือไม่พอ รอบนี้จะเริ่มมีค่าใช้จ่าย\n` : `\nโควตาฟรีเดือนนี้เหลือสแกนได้อีก ~${scansLeft} รอบ\n`)
+    + `\nเริ่มสแกนเลยไหม?`;
+  if(!confirm(msg)) return;
 
   let lib;
   try{ lib = await ensureMaps(); }catch(e){ return toast(e.message); }
@@ -455,11 +480,11 @@ async function runScan(){
         const req = {fields:FIELDS, locationRestriction:{center:{lat:z.lat, lng:z.lng}, radius:z.r*1000},
           includedTypes: safeTypes ? NEARBY_TYPES_SAFE : NEARBY_TYPES, maxResultCount:20,
           rankPreference:SearchNearbyRankPreference.DISTANCE, language:'th', region:'th'};
-        countCall();
+        countCall('nearby');
         try{ res = await Place.searchNearby(req); }
-        catch(e){ if(safeTypes) throw e; safeTypes = true; req.includedTypes = NEARBY_TYPES_SAFE; countCall(); res = await Place.searchNearby(req); }
+        catch(e){ if(safeTypes) throw e; safeTypes = true; req.includedTypes = NEARBY_TYPES_SAFE; countCall('nearby'); res = await Place.searchNearby(req); }
       }else{
-        countCall();
+        countCall('text');
         res = await Place.searchByText({textQuery:q, fields:FIELDS, locationRestriction:boundsOf(z), maxResultCount:20, language:'th', region:'th'});
       }
       (res.places||[]).forEach(pl => { if(upsert(pl, z)) added++; });
@@ -678,7 +703,7 @@ let photoCache = {};
 try{ photoCache = JSON.parse(localStorage.getItem(PHOTO_KEY)) || {}; }catch(e){}
 const photoPending = {};
 function savePhotoCache(){ try{ localStorage.setItem(PHOTO_KEY, JSON.stringify(photoCache)); }catch(e){} }
-function countPhoto(){ const k = monthKey(); S.meta.photoCalls = S.meta.photoCalls || {}; S.meta.photoCalls[k] = (S.meta.photoCalls[k]||0) + 1; save(); }
+function countPhoto(){ countCall('photo'); S.meta.photoCalls = S.meta.photoCalls || {}; const k = monthKey(); S.meta.photoCalls[k] = (S.meta.photoCalls[k]||0) + 1; save(); }
 function resolvePhoto(p, force){
   if(!/^https:\/\/places\.googleapis\.com\//.test(p.photo || '')) return Promise.resolve(p.photo || null);
   const c = photoCache[p.id];
@@ -875,8 +900,9 @@ function viewStyle(){
 }
 
 function viewSettings(){
-  const st = S.settings, used = S.meta.apiCalls[monthKey()] || 0;
-  const perScan = st.zones.filter(z => z.on).length * (st.queries.filter(Boolean).length + (st.useNearby ? 1 : 0));
+  const st = S.settings;
+  const perScanText = st.zones.filter(z => z.on).length * st.queries.filter(Boolean).length;
+  const perScanNear = st.useNearby ? st.zones.filter(z => z.on).length : 0;
   const last = S.meta.scans.slice(-1)[0];
   const hasDemo = Object.keys(S.places).some(id => id.startsWith('demo_'));
   return `
@@ -922,10 +948,13 @@ function viewSettings(){
     <div class="flex" style="margin-top:10px"><button class="btn" data-act="saveScan">บันทึก</button></div>
   </div>
   <div class="panel">
-    <label>📊 การใช้ API</label>
-    <p style="margin:0">เดือนนี้ค้นหาไปแล้ว <b>${used}</b> ครั้ง · สแกน 1 รอบ ≈ <b>${perScan}</b> ครั้ง · ดูรูป <b>${S.meta.photoCalls?.[monthKey()] || 0}</b> ครั้ง</p>
-    <label class="flex" style="font-weight:500"><input type="checkbox" id="autoPhoto" data-act="autoPhoto" ${autoPhoto() ? 'checked' : ''}> โหลดรูปอัตโนมัติ (1 ร้าน ≈ 1 request / 5 วัน · ปิดแล้วต้องกด 📷 ดูรูป เอง)</label>
-    <p class="hint">Places ฟรีเป็นโควตาต่อ SKU ต่อเดือน (field แบบ reviews/rating อยู่ SKU แพง) — เช็คราคาล่าสุดที่หน้า Google Maps Platform pricing และตั้ง budget alert ใน Cloud Console</p>
+    <label>📊 โควตาฟรีเดือนนี้ (${monthKey()})</label>
+    ${quotaBars()}
+    <p class="hint" style="margin-top:8px">สแกน 1 รอบ ≈ Text ${perScanText} + Nearby ${perScanNear} ครั้ง · โควตาฟรีเหลือสแกนได้อีก <b>~${scansLeftNow()}</b> รอบ</p>
+    <label>แก้ตัวเลขโควตาฟรี (ถ้า Google เปลี่ยน)</label>
+    <div class="flex">${['text','nearby','photo'].map(k => `<span class="flex" style="gap:4px">${({text:'Text', nearby:'Nearby', photo:'รูป'})[k]}<input type="number" id="q_${k}" value="${quotaOf(k)}" style="width:80px"></span>`).join('')}
+      <button class="btn ghost" data-act="saveQuota">บันทึก</button></div>
+    <p class="hint">ตัวเลขนี้นับจาก browser เครื่องนี้เท่านั้น · ตัวเลขจริงของ Google ดูที่ Cloud Console → Google Maps Platform → Metrics · โควตารีเซ็ตทุกวันที่ 1</p>
     ${last ? `<p class="hint">สแกนล่าสุด ${new Date(last.at).toLocaleString('th-TH')} · เจอร้านใหม่ ${last.added} · ร้านทั้งหมด ${Object.keys(S.places).length}</p>` : ''}
   </div>
   <div class="panel">
@@ -936,6 +965,24 @@ function viewSettings(){
     <p class="hint">ข้อมูลอยู่ใน browser นี้ (localStorage) ไม่ได้อยู่ในไฟล์ HTML · ใช้พื้นที่ <b>${storageKB()} KB</b> จาก ~5,000 KB · เก็บเต็ม ${Object.keys(S.places).length} ร้าน · จำ id ที่เคยเห็น ${Object.keys(S.seen).length} ร้าน · Export เก็บไว้กันหาย / ย้ายเครื่อง</p>
     <input type="file" id="importFile" accept="application/json" hidden>
   </div>`;
+}
+
+const QUOTA_LABEL = {text:'🔎 Text Search (สแกนด้วยคำค้น)', nearby:'📍 Nearby Search (สแกนรอบจุด)', photo:'📷 รูปร้าน'};
+function quotaBars(){
+  const u = usage();
+  return ['text','nearby','photo'].map(k => {
+    const used = u[k] || 0, q = quotaOf(k), pct = Math.min(100, q ? used / q * 100 : 0);
+    const color = pct >= 100 ? 'var(--s1)' : pct >= 80 ? 'var(--accent)' : 'var(--brand)';
+    return `<div class="flex" style="justify-content:space-between;font-size:13px;margin-top:8px"><span>${QUOTA_LABEL[k]}</span>
+      <b style="color:${color}">${used.toLocaleString()} / ${q.toLocaleString()}</b></div>
+      <div class="progress" style="margin:4px 0 0"><i style="width:${pct}%;background:${color}"></i></div>
+      <div class="hint" style="margin:2px 0 0">เหลือ ${remaining(k).toLocaleString()} ครั้ง</div>`;
+  }).join('');
+}
+function scansLeftNow(){
+  const st = S.settings, zones = st.zones.filter(z => z.on).length;
+  const nText = zones * st.queries.filter(Boolean).length, nNear = st.useNearby ? zones : 0;
+  return Math.min(nText ? Math.floor(remaining('text') / nText) : 99, nNear ? Math.floor(remaining('nearby') / nNear) : 99);
 }
 
 function storageKB(){
@@ -1109,6 +1156,10 @@ $('#view').addEventListener('click', e => {
       st.excludeMalls = reset ? [...DEFAULT_MALLS] : split($('#exMalls').value);
       const n = prune(); save(); render();
       toast(n ? `ตัดออกจากที่เก็บไว้ ${n} ร้าน` : 'บันทึกแล้ว'); break;
+    }
+    case 'saveQuota': {
+      st.freeQuota = {text:+$('#q_text').value || FREE_QUOTA.text, nearby:+$('#q_nearby').value || FREE_QUOTA.nearby, photo:+$('#q_photo').value || FREE_QUOTA.photo};
+      save(); render(); toast('บันทึกโควตาแล้ว'); break;
     }
     case 'saveScan':
       st.queries = $('#queries').value.split('\n').map(s => s.trim()).filter(Boolean);
