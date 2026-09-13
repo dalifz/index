@@ -131,6 +131,13 @@
   .mapwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;padding:6px;-webkit-overflow-scrolling:touch}
   .mapwrap svg{display:block}
   .maphint{font-size:.76rem;color:var(--muted);margin:6px 2px 0}
+  /* train card */
+  .train{background:#fff;border:1px solid var(--line);border-left:6px solid #4a6cf7;border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+  .tfield label{font-size:.72rem;font-weight:700;color:var(--muted);display:block;margin-bottom:3px}
+  .tin{width:100%;font-family:inherit;font-size:.95rem;padding:9px;border:1.5px solid var(--line);border-radius:9px;background:#f8f9ff;color:var(--ink);font-weight:700}
+  .tin:focus{outline:none;border-color:#4a6cf7}
+  .amber{background:#fbeecb;color:#8a6414;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-top:9px}
   .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
   .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
   .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
@@ -320,7 +327,36 @@ const DAYS=[
    {t:'21:00',icon:'🍵',label:'Tea / Dessert',note:'ร้านชาเก๋ๆ โซน Yuyuan'},
    {t:'~22:00',icon:'🏨',label:'กลับโรงแรม'},
   ]},
- {id:'3',tab:'DAY 3',date:'DEC 5',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
+ {id:'3',tab:'DAY 3',date:'DEC 5',emoji:'🚄',cardTitle:'Suzhou Day Trip',
+  summary:'HSR → 苏州 · Crab Noodles · Pingjiang · Matcha · MixC · Shantang Night',
+  title:'Day 3 · ซูโจว (ไป-กลับ HSR)',route:'虹桥 → 苏州 → Pingjiang → MixC → Shantang',
+  slots:[
+   {t:'06:30',icon:'⏰',label:'ตื่น / เตรียมตัว'},
+   {t:'06:50',icon:'🏨',label:'ออกจากโรงแรม'},
+   {t:'~06:55',icon:'🚇',label:'โรงแรม → Hongqiao Railway Station',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('East Xujing','徐泾东'),alight:P('Hongqiao Railway Station','虹桥火车站')}],
+     mins:'~55–65 นาที',note:'ถึง Hongqiao ~07:50–08:00 · เผื่อเวลาแม่เดิน + security + gate'}},
+   {t:'08:00',icon:'🥛',label:'Breakfast ที่ Hongqiao',note:'น้ำเต้าหู้ 豆浆 + ปาท่องโก๋ 油条 · กินในสถานีก่อนขึ้นรถไฟ ~30–40 นาที'},
+   {t:'08:30',icon:'🚄',label:'HSR: Hongqiao → Suzhou',train:{tid:'out',from:P('Shanghai Hongqiao','上海虹桥站'),to:P('Suzhou','苏州站'),dur:'~25–35 นาที'}},
+   {t:'~09:30',icon:'🚄',label:'ถึง Suzhou — เดินตามป้าย 地铁',note:'ไม่ต้องเรียก Didi · เดินตามป้าย 地铁 → Metro'},
+   {t:'~09:40',icon:'🚇',label:'Suzhou Station → Xiangmen',sz:{from:P('Suzhou Railway Station','苏州火车站'),to:P('Xiangmen','相门'),exit:'3',lines:['相门 Xiangmen = Line 1'],mins:'~10–15 นาที',note:'苏州站→相门 · Xiangmen อยู่ Line 1 · เช็คสาย/จุดเปลี่ยนใน AMap'}},
+   {t:'10:00',icon:'🦀',label:'Crab Noodles บะหมี่มันปู',note:'Xiangmen Exit 3 → ออกสถานี → เลี้ยวซ้าย → ร้านบะหมี่มันปู · ชื่อร้านยังไม่ระบุ (Creator ไม่บอก ไม่ใส่มั่ว) · มื้อ local ~30–40 นาที'},
+   {t:'10:40',icon:'🏮',label:'Pingjiang Road (slow walk ~1.5 ชม.)',note:'📸 คลอง · บ้านเก่า · ร้านเล็ก · ร้านชา · ไม่ต้องเร่งเดินครบทุกซอย',places:[P('Pingjiang Road','平江路')]},
+   {t:'12:20',icon:'🛍️',label:'Renheng Cang Street',note:'lifestyle ติดโซน Pingjiang/Xiangmen · ค้น AMap: 仁恒仓街',places:[P('Renheng Cang Street','仁恒仓街')]},
+   {t:'12:40',icon:'🍵',label:'THE MATCHA TOKYO (Suzhou)',note:'ที่ Renheng Cang Street · สาขาแรกใน Jiangsu · matcha / ของหวาน ~40 นาที',places:[P('THE MATCHA TOKYO','THE MATCHA TOKYO 仁恒仓街')]},
+   {t:'13:20',icon:'🚇',label:'Cang Street → MixC (石路)',sz:{from:P('Xiangmen','相门'),to:P('Shilu','石路'),exit:'1',lines:['相门 Line 1 → เปลี่ยน → 石路 Line 2','石路 Exit 1 = 直达 MixC'],mins:'เผื่อ 30–40 นาที',note:'相门(L1) → 石路(L2) ต้องเปลี่ยนสาย · จุดเปลี่ยน+ทิศ ดู AMap · MixC อยู่บน 石路 Exit 1 พอดี'}},
+   {t:'14:00',icon:'🎨',label:'Suzhou MixC World — Art/Lifestyle',note:'苏州万象天地 · mall + outdoor + Art Plaza · เดินตามความสนใจ (14:00–16:30)',places:[P('Suzhou MixC World','苏州万象天地')],cprefix:'d3mx',check:['HONG ART GALLERY','TAGI (L1 艺文广场)','ROAD RHINO','เดินเล่น Art Plaza / High Street']},
+   {t:'16:30',icon:'🌆',label:'MixC → Shantang (เดิน)',note:'MixC อยู่ใกล้ Shantang · เดินได้ ไม่ต้องนั่ง metro ข้ามเมืองอีกครั้ง'},
+   {t:'17:00',icon:'🏮',label:'Shantang Old Street ⭐ (ไฟเปิด)',note:'Highlight เย็น · โคมไฟ + แสงสะท้อนคลอง · เอาเฉพาะโซน Old Street ที่สวย · ทางเข้า 山塘街站 Exit 1',places:[P('Shantang Street','山塘街')]},
+   {t:'19:30',icon:'🍜',label:'Dinner',note:'Suzhou noodles / dumplings / local รอบ Shantang · ไม่เอาร้านหรู ~45 นาที'},
+   {t:'20:15',icon:'🚇',label:'Shantang → Suzhou Station',sz:{from:P('Shantangjie','山塘街'),to:P('Suzhou Railway Station','苏州火车站'),lines:['Line 2'],mins:'~10 นาที',note:'ตั้งเป้า 20:30 ถึงสถานี · เผื่อ security/gate · เช็คสาย/ทิศ AMap'}},
+   {t:'21:00',icon:'🚄',label:'HSR: Suzhou → Hongqiao',train:{tid:'ret',from:P('Suzhou','苏州站'),to:P('Shanghai Hongqiao','上海虹桥站'),dur:'~25–35 นาที'}},
+   {t:'~22:00',icon:'🚇',label:'Hongqiao → โรงแรม',metro:{mc:2,board:P('Hongqiao Railway Station','虹桥火车站'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Gangcheng Road','港城路'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม',note:'กลับถึงโรงแรม ~22:15–22:45'}},
+  ]},
  {id:'4',tab:'DAY 4',date:'DEC 6',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
  {id:'5',tab:'DAY 5',date:'DEC 7',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
  {id:'6',tab:'DAY 6',date:'DEC 8',emoji:'🛫',cardTitle:'กลับบ้าน',summary:'Hotel → Didi → PVG T2',slots:[]},
@@ -384,11 +420,49 @@ function renderDays(){
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
-    const body=s.metro?metroBody(s.metro):bodyFor(s);
-    return `<div class="slot ${s.metro?'metro':''}" id="slot-${i}">
+    const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
+    return `<div class="slot ${s.metro||s.train||s.sz?'metro':''}" id="slot-${i}">
       <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${s.label}</span><span class="chev">›</span></div>
       <div class="sbody">${body}</div></div>`;
   }).join('');
+}
+/* Suzhou metro (different system — verify in AMap) */
+function szBody(z){
+  let h=`<div class="metro" style="--mc:#7a5cc0">`;
+  h+=`<div style="font-weight:800;color:#7a5cc0;font-size:.82rem;margin-bottom:6px">🚇 Suzhou Metro · คนละระบบกับเซี่ยงไฮ้</div>`;
+  h+=`<div class="m-sta"><span class="name">🚉 ${z.from.en}<span class="zh">${z.from.zh}</span></span></div>${cpChip(z.from)}`;
+  h+=`<div class="m-arrow">↓</div>`;
+  h+=`<div class="m-sta"><span class="name">🚉 ${z.to.en}<span class="zh">${z.to.zh}</span></span></div>${cpChip(z.to)}`;
+  const foot=[];
+  if(z.exit)foot.push(`<span class="exit-big">🚪 Exit ${z.exit}</span>`);
+  if(z.mins)foot.push(`<span class="mchip">⏱️ ${z.mins}</span>`);
+  h+=`<div class="m-foot">${foot.join('')}</div>`;
+  if(z.lines)h+=`<div style="margin-top:6px">${z.lines.map(x=>`<span class="mchip" style="display:inline-block;margin:0 6px 6px 0">🚈 ${x}</span>`).join('')}</div>`;
+  h+=`<div class="amber">🔎 เช็คสาย/ทิศ (ปลายทางขบวน)/จุดเปลี่ยน ใน AMap ก่อนออก</div>`;
+  if(z.note)h+=`<div class="p-note" style="margin-top:6px">${z.note}</div>`;
+  return h+`</div>`;
+}
+/* editable train card */
+let trainState=JSON.parse(localStorage.getItem('shhTrain')||'{}');
+function saveTrain(el){trainState[el.dataset.k]=el.value;localStorage.setItem('shhTrain',JSON.stringify(trainState));}
+function trainCard(s){
+  const t=s.train,k=t.tid;
+  const f=(key,ph)=>`<input class="tin" value="${(trainState[k+'-'+key]||'').replace(/"/g,'&quot;')}" data-k="${k}-${key}" oninput="saveTrain(this)" placeholder="${ph}">`;
+  return `<div class="train">
+    <div class="m-sta"><span class="name">🚄 ${t.from.en}<span class="zh">${t.from.zh}</span></span></div>${cpChip(t.from)}
+    <div class="m-arrow">↓ HSR · ${t.dur}</div>
+    <div class="m-sta"><span class="name">🚄 ${t.to.en}<span class="zh">${t.to.zh}</span></span></div>${cpChip(t.to)}
+    <div class="tgrid">
+      <div class="tfield"><label>🚄 车次 Train No.</label>${f('cc','เช่น G7008')}</div>
+      <div class="tfield"><label>🕐 发车 Depart</label>${f('dep','08:30')}</div>
+      <div class="tfield"><label>🕐 到达 Arrive</label>${f('arr','09:05')}</div>
+      <div class="tfield"><label>🚪 检票口 Gate</label>${f('gate','เช็คจอ!')}</div>
+      <div class="tfield"><label>💺 车厢 Car</label>${f('car','5')}</div>
+      <div class="tfield"><label>💺 座位 Seat</label>${f('seat','12A')}</div>
+    </div>
+    <div class="amber">⚠️ Gate เปลี่ยนได้ — ดูจอจริงที่สถานี · 🛂 พก passport ที่ใช้จองตั๋ว · เช็ก 4 อย่างก่อนเข้าชานชาลา</div>
+    <div class="p-note" style="margin-top:6px">รอ Trip.com เปิดจอง (5 ธ.ค.) แล้วมาเติมเลขขบวน/เวลา/gate/ที่นั่ง — บันทึกอัตโนมัติ</div>
+  </div>`;
 }
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
 function bodyFor(s){
@@ -429,10 +503,10 @@ function metroBody(m){
   html+=`<div class="m-sta"><span class="name">🚉 ${m.board.en}<span class="zh">${m.board.zh}</span></span></div>`;
   html+=cpChip(m.board);
   m.legs.forEach((l,i)=>{
-    const c=LC[l.line];
+    const c=l.color||LC[l.line]||'var(--muted)';
     if(i>0)html+=`<div class="m-change">🔄 เปลี่ยนสายที่นี่</div>`;
     html+=`<div class="linepill"><span class="ldot big" style="background:${c}">${l.line}</span>Line ${l.line}</div>`;
-    html+=`<div class="m-dir"><span class="lead">DIRECTION → ปลายทางขบวน</span>${l.dir.en}<span class="zh">${l.dir.zh}</span></div>`;
+    html+=`<div class="m-dir"><span class="lead">DIRECTION → ปลายทางขบวน</span>${l.dir.en}${l.dir.zh?`<span class="zh">${l.dir.zh}</span>`:''}</div>`;
     html+=`<div class="m-arrow">↓</div>`;
     html+=`<div class="m-sta"><span class="name">🚉 ${l.alight.en}<span class="zh">${l.alight.zh}</span></span></div>`;
     html+=cpChip(l.alight);
