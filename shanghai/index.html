@@ -120,6 +120,17 @@
   .mchip{font-size:.8rem;font-weight:700;background:#f3ece2;color:var(--ink);padding:6px 12px;border-radius:99px}
 
   .soon{text-align:center;color:var(--muted);padding:36px 12px}
+  /* check list */
+  .citem{display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px dashed var(--line);cursor:pointer;font-size:.92rem}
+  .citem:first-child{border-top:none}
+  .cbox{width:20px;height:20px;border:2px solid #d8cabb;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .cbox svg{width:11px;height:11px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .citem.on .cbox{background:var(--done);border-color:var(--done)}.citem.on .cbox svg{opacity:1}
+  .citem.on span{color:var(--muted);text-decoration:line-through}
+  /* cute map */
+  .mapwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;padding:6px;-webkit-overflow-scrolling:touch}
+  .mapwrap svg{display:block}
+  .maphint{font-size:.76rem;color:var(--muted);margin:6px 2px 0}
   .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
   .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
   .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
@@ -278,7 +289,37 @@ const DAYS=[
            {line:6,dir:P('Gangcheng Road dir.','港城路 方向'),alight:P('Minsheng Road','民生路')}],
      walk:'~300 m → โรงแรม'}},
   ]},
- {id:'2',tab:'DAY 2',date:'DEC 4',emoji:'🚶',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
+ {id:'2',tab:'DAY 2',date:'DEC 4',emoji:'🚶',cardTitle:'Wukang · Anfu · Zhangyuan · Yuyuan',
+  summary:'武康路 → 安福路 → Jing’an → 张园 → 豫园 Night',
+  title:'Day 2 · เดินย่านเก๋ + Yuyuan กลางคืน',route:'武康路 → 安福路 → 张园 → 豫园',
+  slots:[
+   {t:'~07:15',icon:'🚇',label:'โรงแรม → ย่าน Wukang',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')},
+           {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Jiaotong University','交通大学')}],
+     exit:'7',walk:'~3 นาที → Wukang Mansion',note:'2 ต่อ — ถ้าไม่อยากเปลี่ยนหลายรอบ เรียก Didi ก็ได้'}},
+   {t:'08:00',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้า)',note:'เบเกอรี่/ครัวซองต์ · ธีม Harry Potter · ใกล้ Wukang',places:[P('APOLI ITABAKERY','APOLI ITABAKERY 兴国路380号')]},
+   {t:'08:45',icon:'🍨',label:'AZABUYA',note:'ไอศกรีม/ของหวาน · เช็คพิกัดใน AMap อีกที',places:[P('AZABUYA','AZABUYA')]},
+   {t:'09:15',icon:'☕',label:'Coffee',note:'แวะร้านกาแฟดีๆ ก่อนเริ่มเดิน route'},
+   {t:'09:45',icon:'🏛️',label:'Wukang Mansion — เริ่ม Route',note:'เดิน 武康路 → 安福路 → 常熟路 · ~3 กม. 2–3 ชม.',places:[P('Wukang Mansion','武康大楼')]},
+   {t:'10:00',icon:'🚶',label:'Wukang Road — Walking',cprefix:'d2wk',check:['Wukang Mansion','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary']},
+   {t:'10:00',icon:'🗺️',label:'แผนที่เดินเล่น Wukang–Anfu',map:true},
+   {t:'11:00',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'ไม่ต้องเข้าทุกร้าน ใช้เป็น check-in list',cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
+   {t:'12:30',icon:'👟',label:'adidas Originals Flagship',note:'ช้อป/ถ่ายรูป · 安福路322号',places:[P('adidas Originals','安福路322号')]},
+   {t:'13:00',icon:'🚕',label:'Didi → Jing’an Kerry Centre',note:'ไม่เสียแรงเดินต่อ · ปลายทางใน AMap/Didi',places:[P('Jing An Kerry Centre','静安嘉里中心')]},
+   {t:'13:15',icon:'🍜',label:'Kerry Centre — Food Court + พัก',note:'ข้าวเที่ยง + ห้องน้ำ + พักขา'},
+   {t:'14:15',icon:'🚶',label:'เดิน → Zhangyuan',note:'จาก Kerry Centre ไป 张园 ~15 นาที (เดินดีกว่าเรียก Didi)'},
+   {t:'~14:30',icon:'🏘️',label:'Zhangyuan + Weihai Road',note:'ตึกเก่าเซี่ยงไฮ้ (Shikumen) + แฟชั่น/ไลฟ์สไตล์ · 威海路258号',places:[P('Zhangyuan','张园 威海路258号')],cprefix:'d2zy',check:['Zhangyuan Shikumen','Weihai Road','Fashion/Lifestyle Shops','Cafe/Dessert','Photo Spots']},
+   {t:'16:30',icon:'🚇',label:'Zhangyuan → Yuyuan',metro:{mc:2,board:P('West Nanjing Road','南京西路'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('East Nanjing Road','南京东路')},
+           {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Yuyuan Garden','豫园')}],
+     exit:'1',note:'เดินจาก 张园 ไปสถานี 南京西路 · เปลี่ยน 1 ครั้ง ช่วงสั้น'}},
+   {t:'~17:30',icon:'🏮',label:'Yuyuan — เดินเล่น รอฟ้ามืด',note:'Exit 1 เชื่อม Renmin Rd / Yu Garden ตรง · เข้า Bazaar/Old Street',places:[P('Yuyuan','豫园')]},
+   {t:'18:00',icon:'🌃',label:'Yuyuan Night',note:'⚠️ ไม่เข้าสวนใน (สวนเปิด 09:00–16:30) · มาเพื่อ Bazaar/ไฟกลางคืน',cprefix:'d2yy',check:['Yuyuan Bazaar','Old Street','City God Temple area','Night Lights','Photo Spots']},
+   {t:'20:00',icon:'🍜',label:'Late Dinner',note:'อาหารท้องถิ่น/ของกินเบาๆ รอบ Yuyuan'},
+   {t:'21:00',icon:'🍵',label:'Tea / Dessert',note:'ร้านชาเก๋ๆ โซน Yuyuan'},
+   {t:'~22:00',icon:'🏨',label:'กลับโรงแรม'},
+  ]},
  {id:'3',tab:'DAY 3',date:'DEC 5',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
  {id:'4',tab:'DAY 4',date:'DEC 6',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
  {id:'5',tab:'DAY 5',date:'DEC 7',emoji:'🗺️',cardTitle:'',summary:'ยังไม่มีแผน',slots:[]},
@@ -343,16 +384,44 @@ function renderDays(){
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
-    const body=s.metro?metroBody(s.metro):placeBody(s);
+    const body=s.metro?metroBody(s.metro):bodyFor(s);
     return `<div class="slot ${s.metro?'metro':''}" id="slot-${i}">
       <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${s.label}</span><span class="chev">›</span></div>
       <div class="sbody">${body}</div></div>`;
   }).join('');
 }
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
-function placeBody(s){
-  const chips=(s.places||[]).map(cpChip).join('');
-  return `${s.note?`<div class="p-note">${s.note}</div>`:''}${chips||'<div class="p-note">—</div>'}`;
+function bodyFor(s){
+  let h=s.note?`<div class="p-note">${s.note}</div>`:'';
+  if(s.map)h+=renderMap()+'<div class="maphint">↔ เลื่อนซ้าย-ขวาดูแผนที่ · แตะร้านในลิสต์ด้านล่างเพื่อเช็ค</div>';
+  if(s.places&&s.places.length)h+=`<div>${s.places.map(cpChip).join('')}</div>`;
+  if(s.check)h+=s.check.map((t,i)=>{const k=s.cprefix+'-'+i;return `<div class="citem ${state[k]?'on':''}" onclick="tgCheck('${k}',this)"><span class="cbox">${CHK}</span><span>${t}</span></div>`;}).join('');
+  return h||'<div class="p-note">—</div>';
+}
+function tgCheck(k,el){el.classList.toggle('on');state[k]=el.classList.contains('on');localStorage.setItem('shhChecklist',JSON.stringify(state));}
+function house(x,y,name){return `<g>
+  <path d="M${x-20},${y-40} L${x},${y-56} L${x+20},${y-40} Z" fill="#f3c623" stroke="#dcae43" stroke-width="2"/>
+  <rect x="${x-16}" y="${y-40}" width="32" height="22" rx="3" fill="#fff" stroke="#dcae43" stroke-width="2"/>
+  <rect x="${x-4}" y="${y-31}" width="8" height="13" rx="1" fill="#e9c05a"/>
+  <text x="${x}" y="${y-3}" font-size="11.5" font-weight="700" fill="#3a332e" text-anchor="middle">${name}</text></g>`;}
+function metroPin(x,y){return `<g><circle cx="${x}" cy="${y}" r="15" fill="#fff" stroke="#c85a44" stroke-width="2.5"/><text x="${x}" y="${y+5}" font-size="15" text-anchor="middle">🚇</text></g>`;}
+function renderMap(){
+  const road='#f3c623',sc='#6b4a2b';
+  const stops=[[280,608,1],[300,540,2],[315,470,3],[328,402,4],[340,346,5],[388,332,6],[446,332,7],[504,332,8],[560,332,9],[600,322,10],[600,452,11],[600,540,12]];
+  const houses=[[248,676,'Wukang Mansion'],[212,566,'Gathering'],[196,492,'Looknow'],[190,416,'Project Element'],[200,352,'The Matcha Tokyo'],[240,300,'Fragrance:Diary'],
+   [304,258,'Kapibaba'],[382,242,'13DE MARZO'],[458,242,'Deja vu'],[534,242,'Lost in echo'],[608,242,'Looknow & Flow'],[654,452,'Uodycoco'],[654,548,'MORE THINGS+']];
+  let svg=`<svg viewBox="0 0 720 720" width="700" style="min-width:600px">`;
+  svg+=`<g stroke="${road}" stroke-width="30" stroke-linecap="round" fill="none">
+    <path d="M40,650 H520"/><path d="M280,650 L340,340"/><path d="M340,340 H600"/><path d="M600,340 V620"/></g>`;
+  svg+=`<text x="300" y="656" font-size="17" font-weight="800" fill="${sc}" text-anchor="middle">Huaihai Road</text>`;
+  svg+=`<text x="470" y="337" font-size="17" font-weight="800" fill="${sc}" text-anchor="middle">Anfu Road</text>`;
+  svg+=`<text transform="translate(318,500) rotate(-79)" font-size="14" font-weight="800" fill="${sc}" text-anchor="middle">Wukang Rd</text>`;
+  svg+=`<text transform="translate(608,490) rotate(90)" font-size="13" font-weight="800" fill="${sc}" text-anchor="middle">Wulumuqi Middle Rd</text>`;
+  houses.forEach(h=>svg+=house(h[0],h[1],h[2]));
+  stops.forEach(s=>svg+=`<circle cx="${s[0]}" cy="${s[1]}" r="13" fill="${sc}"/><text x="${s[0]}" y="${s[1]+4}" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">${s[2]}</text>`);
+  svg+=metroPin(40,650)+metroPin(600,628);
+  svg+=`</svg>`;
+  return `<div class="mapwrap">${svg}</div>`;
 }
 function metroBody(m){
   const c0=LC[m.board?m.legs[0].line:2];
