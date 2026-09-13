@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shanghai with Mom 🇨🇳</title>
+<style>
+  :root{
+    --bg:#f7f2ea; --card:#ffffff; --ink:#3a332e; --muted:#9c9088; --line:#ece3d7;
+    --accent:#c85a44; --accent-soft:#f6e5df; --done:#5a9e6f; --done-soft:#e6f1ea;
+    --l2:#4caf50; --l6:#b0338c; --l9:#ef8bb3; --l10:#5b9bd5; --l14:#8b6f4e;
+    --shadow:0 2px 10px rgba(60,45,35,.06); --nav-h:62px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Sarabun','Segoe UI',system-ui,sans-serif;background:#efe7db;color:var(--ink);
+    line-height:1.5;display:flex;justify-content:center}
+  #app{width:100%;max-width:440px;min-height:100vh;background:var(--bg);position:relative;
+    padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+  .pad{padding:16px}
+  .status{height:env(safe-area-inset-top)}
+  a{color:inherit}
+  h1{font-size:1.4rem}h2{font-size:1.15rem}h3{font-size:1rem}
+  .muted{color:var(--muted)}
+  .kicker{font-size:.76rem;font-weight:700;color:var(--accent);letter-spacing:.04em}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);margin-bottom:13px}
+  .between{display:flex;justify-content:space-between;align-items:center}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+  .badge.g{background:var(--done-soft);color:var(--done)}
+
+  /* hero */
+  .hero{background:linear-gradient(135deg,#f3ddd2,#f6e9df);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+  .hero .deco{position:absolute;right:-6px;bottom:-14px;font-size:5rem;opacity:.16}
+  .hero h1{font-weight:800;margin:4px 0 2px}
+  .count{font-size:2rem;font-weight:800;color:var(--accent);line-height:1}
+
+  /* flight */
+  .flight{display:flex;align-items:center;gap:10px;padding:8px 0}
+  .flight .leg{flex:1;text-align:center}
+  .flight .code{font-size:1.15rem;font-weight:800}
+  .flight .city{font-size:.75rem;color:var(--muted)}
+  .flight .arrow{color:var(--accent);font-size:1.1rem}
+  .flight .mid{text-align:center;font-size:.72rem;color:var(--muted);min-width:58px}
+
+  /* buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;
+    font-family:inherit;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;width:100%;text-decoration:none}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-soft{background:var(--accent-soft);color:var(--accent)}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* progress */
+  .bar{height:9px;background:#eaddcf;border-radius:99px;overflow:hidden;margin-top:8px}
+  .bar>div{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),#e07d5f);transition:width .35s}
+
+  /* checklist cards */
+  .ck{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .ck.done{border-color:var(--done)}
+  .chead{display:flex;align-items:center;gap:12px;padding:15px;cursor:pointer;user-select:none}
+  .cnum{font-size:.7rem;font-weight:800;color:var(--muted);width:18px;flex-shrink:0}
+  .cemoji{font-size:1.4rem;width:33px;height:33px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);border-radius:10px;flex-shrink:0}
+  .ck.done .cemoji{background:var(--done-soft)}
+  .ctitle{flex:1;font-weight:700}
+  .cbadge{font-size:.72rem;font-weight:700;color:var(--muted);background:#f3ece2;padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .ck.done .cbadge{background:var(--done-soft);color:var(--done)}
+  .chev{color:var(--muted);font-size:1.1rem;transition:transform .25s}
+  .ck.open .chev{transform:rotate(90deg)}
+  .cbody{display:none;padding:0 15px 14px}
+  .ck.open .cbody{display:block}
+  .task{display:flex;align-items:flex-start;gap:11px;padding:10px 3px;border-top:1px dashed var(--line);cursor:pointer}
+  .task:first-child{border-top:none}
+  .box{width:22px;height:22px;border:2px solid #d8cabb;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .task.on .box{background:var(--done);border-color:var(--done)}
+  .task.on .box svg{opacity:1}
+  .task .label{font-size:.94rem}
+  .task.on .label{color:var(--muted);text-decoration:line-through}
+  .cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.88rem;padding:10px 14px;border-radius:11px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
+  .done-banner{display:none;background:linear-gradient(135deg,#fbeee7,#f6e0d7);border:1px solid var(--accent);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+  .done-banner.show{display:block}
+  .done-banner .big{font-size:2.2rem}.done-banner h2{color:var(--accent);margin:4px 0 2px}
+
+  /* day tabs + timeline */
+  .days{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+  .days::-webkit-scrollbar{display:none}
+  .dtab{flex-shrink:0;background:#fff;border:1px solid var(--line);color:var(--muted);padding:8px 13px;border-radius:99px;font-weight:700;font-size:.82rem;cursor:pointer}
+  .dtab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .dayhead{margin:2px 2px 12px}.dayhead .rt{color:var(--muted);font-size:.85rem;margin-top:2px}
+  .tl{position:relative;padding-left:19px}
+  .tl::before{content:'';position:absolute;left:5px;top:6px;bottom:10px;width:2px;background:var(--line)}
+  .row{position:relative;margin-bottom:11px}
+  .row::before{content:'';position:absolute;left:-17px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+  .row.metro::before{background:var(--muted)}
+  .time{font-size:.79rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .place{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px;box-shadow:var(--shadow);margin-top:3px}
+  .place .p-title{font-weight:700;margin-top:1px}
+  .place .p-note{color:var(--muted);font-size:.83rem;margin-top:4px}
+  .cp{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid transparent;border-radius:9px;padding:5px 9px;margin:5px 5px 0 0;cursor:pointer;font-size:.82rem;font-weight:600}
+  .cp:active{border-color:var(--accent)}.cp .zh{color:var(--ink);font-weight:700}.cp .ic{opacity:.6;font-size:.8rem}
+  .metro-box{background:#fff;border:1px solid var(--line);border-left:5px solid var(--mc,var(--muted));border-radius:13px;padding:11px 12px;box-shadow:var(--shadow);margin-top:3px}
+  .linetag{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:.88rem;margin-bottom:4px}
+  .ldot{width:20px;height:20px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800}
+  .metro-line{display:flex;align-items:flex-start;gap:8px;font-size:.88rem;padding:2px 0}
+  .metro-line .k{color:var(--muted);font-size:.78rem;min-width:64px;flex-shrink:0;font-weight:600}
+  .dir{font-weight:700}
+  .transfer{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.8rem;padding:6px 10px;border-radius:9px;display:inline-block;margin:6px 0}
+  .metro-foot{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .mchip{font-size:.77rem;font-weight:700;background:#f3ece2;color:var(--ink);padding:4px 10px;border-radius:99px}
+  .mchip.exit{background:#fdeee9;color:var(--accent)}
+  .soon{text-align:center;color:var(--muted);padding:36px 12px}
+
+  /* info list */
+  .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+  .irow:last-child{border:none}
+  .irow b{color:var(--ink)}
+  .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
+
+  /* nav */
+  .nav{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;height:calc(var(--nav-h)+env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(255,252,247,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex}
+  .nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:.66rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+  .nav button .ni{font-size:1.25rem}
+  .nav button.on{color:var(--accent)}
+  .view{display:none}.view.on{display:block;animation:fade .2s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+
+  .toast{position:fixed;left:50%;bottom:calc(var(--nav-h)+22px+env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .zh{color:#ffd9cd}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status"></div>
+
+  <!-- ===== HOME ===== -->
+  <section class="view on pad" id="v-home">
+    <div class="hero">
+      <span class="deco">🏮</span>
+      <div class="kicker">SHANGHAI WITH MOM</div>
+      <h1>เซี่ยงไฮ้กับแม่ 🇨🇳❤️</h1>
+      <div class="muted" style="font-size:.9rem">3–8 ธันวาคม 2026 · 2 คน</div>
+      <div style="margin-top:12px"><span class="count" id="countdown">–</span> <span class="muted">จนถึงวันเดินทาง</span></div>
+    </div>
+
+    <div class="card">
+      <div class="between" style="margin-bottom:6px"><h3>✈️ เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
+      <div class="flight">
+        <div class="leg"><div class="code">BKK</div><div class="city">08:50</div></div>
+        <div class="mid">9C7290<br>3 Dec</div>
+        <div class="arrow">→</div>
+        <div class="leg"><div class="code">PVG</div><div class="city">14:05</div></div>
+      </div>
+      <div class="flight" style="border-top:1px dashed var(--line)">
+        <div class="leg"><div class="code">PVG</div><div class="city">12:00</div></div>
+        <div class="mid">9C7283<br>8 Dec</div>
+        <div class="arrow">→</div>
+        <div class="leg"><div class="code">BKK</div><div class="city">15:45</div></div>
+      </div>
+      <div class="muted" style="font-size:.78rem;margin-top:6px">กระเป๋าโหลด 20kg · ถือขึ้น 7kg (40×30×20)</div>
+    </div>
+
+    <div class="card">
+      <div class="between" style="margin-bottom:6px"><h3>🏨 โรงแรม</h3></div>
+      <div style="font-weight:700">Yilong Anyun Hotel</div>
+      <div class="muted" style="font-size:.85rem">艺龙安云酒店(上海陆家嘴民生路地铁站店)<br>1657 Zhangyang Rd, Pudong</div>
+      <div style="margin-top:8px"><span class="badge"><span class="ldot" style="display:inline-flex;width:15px;height:15px;background:var(--l6);vertical-align:middle;margin-right:4px">6</span> สถานีหลัก 民生路 Minsheng Rd · เดิน 300m</span></div>
+    </div>
+
+    <div class="card">
+      <div class="between"><h3>✅ เตรียมตัว</h3><span class="badge" id="home-ck">0/4</span></div>
+      <div class="bar"><div id="home-bar"></div></div>
+    </div>
+
+    <div class="qgrid">
+      <button class="btn btn-soft" onclick="go('chk')">✅ เช็คลิสต์</button>
+      <button class="btn btn-accent" onclick="go('plan')">🗺️ แผนเที่ยว</button>
+    </div>
+  </section>
+
+  <!-- ===== CHECKLIST ===== -->
+  <section class="view pad" id="v-chk">
+    <div class="kicker">PRE-TRIP CHECKLIST</div>
+    <h1 style="margin:2px 0 4px">เตรียมตัวก่อนไป</h1>
+    <p class="muted" style="font-size:.88rem;margin-bottom:14px">กด card เพื่อดูรายละเอียด · ติ๊กแล้ว save เอง</p>
+    <div class="between" style="margin-bottom:4px"><b>ความคืบหน้า</b><span class="muted" id="ck-count" style="font-size:.86rem;font-weight:600">0 / 4</span></div>
+    <div class="bar" style="margin-bottom:18px"><div id="ck-bar"></div></div>
+    <div class="done-banner" id="banner"><div class="big">🎉</div><h2>Ready for Shanghai!</h2><p class="muted">เตรียมครบแล้ว ❤️</p></div>
+    <div id="ck-cards"></div>
+  </section>
+
+  <!-- ===== PLAN ===== -->
+  <section class="view pad" id="v-plan">
+    <div class="kicker">ITINERARY</div>
+    <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
+    <p class="muted" style="font-size:.84rem;margin-bottom:10px">💡 แตะชื่อสถานที่/สถานี = คัดลอกชื่อจีน → วางใน AMap · ดู <b>ปลายทางขบวน</b> เสมอ</p>
+    <div class="days" id="days"></div>
+    <div class="dayhead" id="dayhead"></div>
+    <div class="tl" id="timeline"></div>
+  </section>
+
+  <!-- ===== INFO ===== -->
+  <section class="view pad" id="v-info">
+    <div class="kicker">ข้อมูล</div>
+    <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">🚇 สายรถไฟฟ้าที่ใช้</h3>
+      <div class="legrow">
+        <span class="leg-item"><span class="ldot" style="background:var(--l2)">2</span>Line 2 🟢</span>
+        <span class="leg-item"><span class="ldot" style="background:var(--l6)">6</span>Line 6 🟣</span>
+        <span class="leg-item"><span class="ldot" style="background:var(--l9)">9</span>Line 9 🩷</span>
+        <span class="leg-item"><span class="ldot" style="background:var(--l10)">10</span>Line 10 🔵</span>
+        <span class="leg-item"><span class="ldot" style="background:var(--l14)">14</span>Line 14 🟤</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">🚕 กฎการเดินทาง</h3>
+      <div class="irow">1. <b>Metro 🚇</b> เป็นหลัก</div>
+      <div class="irow">2. <b>เดิน 🚶</b> เมื่อใกล้ + เส้นทางง่าย</div>
+      <div class="irow">3. <b>Didi 🚕</b> เมื่อ: มีกระเป๋า / เปลี่ยนรถหลายต่อ / metro เข้าถึงยาก / ประหยัดเวลามาก (ไม่ใช้แทน metro มั่วๆ)</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">📱 eSIM</h3>
+      <div class="irow"><b>ก่อนออกจากไทย:</b> ติดตั้ง China eSIM · <b>เก็บ AIS ไว้ ห้ามลบ</b> (AIS = เบอร์/OTP, China eSIM = เน็ต)</div>
+      <div class="irow"><b>China eSIM:</b> Cellular Data → China eSIM · Allow Data Switching → OFF · Data Roaming → ตามเงื่อนไข eSIM</div>
+      <div class="irow"><b>AIS:</b> Turn On This Line → ON · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">🛂 China Arrival Card</h3>
+      <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน (Foreigners' Arrival Card)</p>
+      <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:8px">🏨 → 🛫 ขากลับ (8 Dec)</h3>
+      <div class="irow">Hotel → <b>Didi</b> → PVG Terminal 2 (มีแม่ + กระเป๋า)</div>
+    </div>
+
+    <p class="muted" style="text-align:center;font-size:.74rem;margin-top:8px">ข้อมูลเก็บในเครื่อง · ติ๊ก/แผนไม่หาย</p>
+  </section>
+
+  <nav class="nav">
+    <button class="on" data-v="home" onclick="go('home')"><span class="ni">🏠</span>หน้าหลัก</button>
+    <button data-v="chk" onclick="go('chk')"><span class="ni">✅</span>เช็คลิสต์</button>
+    <button data-v="plan" onclick="go('plan')"><span class="ni">🗺️</span>แผนเที่ยว</button>
+    <button data-v="info" onclick="go('info')"><span class="ni">ℹ️</span>ข้อมูล</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== DATA ========== */
+const CARDS=[
+  {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
+  {id:'c2',n:'02',emoji:'🛡️',title:'ซื้อประกันเดินทาง',tasks:['ซื้อประกัน','เช็กความคุ้มครอง','Save กรมธรรม์']},
+  {id:'c3',n:'03',emoji:'🇨🇳',title:'China Arrival Card',tasks:['กรอก Arrival Card'],
+   action:{label:'ดูวิธีกรอก →',href:'https://www.facebook.com/bestconsortium/videos/851860230574810/',external:true}},
+  {id:'c4',n:'04',emoji:'📱',title:'ซื้อ + ติดตั้ง eSIM',tasks:['ซื้อ China eSIM','ติดตั้ง eSIM','เช็กว่า AIS SIM ยังอยู่','เปิด AIS Wi-Fi Calling'],
+   action:{label:'วิธีตั้งค่า eSIM →',view:'info'}},
+];
+const LC={2:'var(--l2)',6:'var(--l6)',9:'var(--l9)',10:'var(--l10)',14:'var(--l14)'};
+const P=(en,zh)=>({en,zh});
+const DAYS=[
+ {id:'1',label:'Day 1 · 3 Dec',title:'Day 1 · ถึงเซี่ยงไฮ้ → The Bund',route:'PVG → โรงแรม → 南京路 → 外滩',
+  blocks:[
+   {t:'14:05',type:'place',emoji:'✈️',ti:'ถึงสนามบิน PVG (Terminal 2)',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
+   {t:'~15:30',type:'metro',mc:2,title:'เข้าเมือง → ไปโรงแรม (มีกระเป๋า ไม่เปลี่ยนสาย)',
+    legs:[{line:2,board:P('Pudong Airport','浦东国际机场'),dir:P('East Xujing','徐泾东'),alight:P('Century Avenue','世纪大道')}],
+    exit:'Exit 5',mins:'~45 นาที',walk:'เดิน ~1.7 km → โรงแรม'},
+   {t:'~17:00',type:'place',emoji:'🏨',ti:'เช็คอิน + เอากระเป๋าเข้าห้อง',places:[P('Yilong Anyun Hotel','艺龙安云酒店(上海陆家嘴民生路地铁站店)')]},
+   {t:'17:15',type:'walk',ti:'ออกจากโรงแรม → สถานี 民生路'},
+   {t:'~17:30',type:'metro',mc:6,title:'ไปกินข้าวเย็น (ย่านหนานจิง)',
+    legs:[
+      {line:6,board:P('Minsheng Road','民生路'),dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+      {line:2,board:P('Century Avenue','世纪大道'),dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')}
+    ],transferAt:P('Century Avenue','世纪大道')},
+   {t:'~18:00',type:'eat',ti:'🍜 มื้อเย็น Local (กินก่อน ไม่เดินเล่นก่อน 😂)',note:'ย่าน 天津路 / 宁波路 / 浙江中路 · เลือก 1 ร้าน',
+    places:[P('Lao Xing Long 老兴隆餐厅','老兴隆餐厅 天津路528号'),P("Yang's Fried Dumpling 小杨生煎",'小杨生煎 宁波路'),P('Lailai Snack Dumpling 来来小吃','来来小吃 天津路504号')]},
+   {t:'~19:00',type:'place',emoji:'🧋',ti:'HEYTEA (หลังกินข้าว)',note:'เลือกสาขาบน 南京东路 ระหว่างทางไป Bund (ไม่ต้องเดินย้อน)',places:[P('HEYTEA','喜茶 南京东路')]},
+   {t:'~19:30',type:'place',emoji:'🛍️',ti:'Nanjing Road (เดินช้อป/ถ่ายรูป)',note:'เริ่มจาก 南京东路 → ค่อยๆ เดินไปทาง The Bund',places:[P('Nanjing Road','南京路步行街')]},
+   {t:'~20:00',type:'place',emoji:'🌃',ti:'THE BUND — ถึงก่อนเปิดไฟ',note:'เดินริมน้ำ ดู 陆家嘴 skyline + 东方明珠 กลางคืน',places:[P('The Bund','外滩'),P('Oriental Pearl Tower','东方明珠')]},
+   {t:'~21:30',type:'metro',mc:2,title:'กลับโรงแรม',
+    legs:[
+      {line:2,board:P('East Nanjing Road','南京东路'),dir:P('Pudong Airport (East)','浦东国际机场 方向'),alight:P('Century Avenue','世纪大道')},
+      {line:6,board:P('Century Avenue','世纪大道'),dir:P('Gangcheng Road (North)','港城路 方向'),alight:P('Minsheng Road','民生路')}
+    ],transferAt:P('Century Avenue','世纪大道'),walk:'เดิน ~300 m → โรงแรม'},
+  ]},
+ {id:'2',label:'Day 2 · 4 Dec',blocks:[]},
+ {id:'3',label:'Day 3 · 5 Dec',blocks:[]},
+ {id:'4',label:'Day 4 · 6 Dec',blocks:[]},
+ {id:'5',label:'Day 5 · 7 Dec',blocks:[]},
+ {id:'6',label:'Day 6 · 8 Dec',blocks:[]},
+];
+
+/* ========== STATE ========== */
+let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
+let activeDay='1';
+
+/* ========== NAV ========== */
+function go(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo(0,0);
+}
+
+/* ========== COUNTDOWN + HOME ========== */
+function updateHome(){
+  const dep=new Date('2026-12-03T00:00:00');
+  const days=Math.ceil((dep-new Date())/86400000);
+  document.getElementById('countdown').textContent=days>0?('อีก '+days+' วัน'):(days===0?'วันนี้!':'—');
+  const done=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length;
+  document.getElementById('home-ck').textContent=done+'/'+CARDS.length;
+  document.getElementById('home-bar').style.width=(done/CARDS.length*100)+'%';
+}
+
+/* ========== CHECKLIST ========== */
+const CHK=`<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>`;
+function renderChk(){
+  document.getElementById('ck-cards').innerHTML=CARDS.map(c=>{
+    const done=c.tasks.filter((_,i)=>state[c.id+'-'+i]).length, full=done===c.tasks.length;
+    const tasks=c.tasks.map((t,i)=>`<div class="task ${state[c.id+'-'+i]?'on':''}" onclick="tgTask(event,'${c.id}',${i})"><span class="box">${CHK}</span><span class="label">${t}</span></div>`).join('');
+    let act='';
+    if(c.action){act=c.action.view?`<button class="cta" onclick="go('${c.action.view}')">${c.action.label}</button>`
+      :`<a class="cta" href="${c.action.href}" target="_blank" rel="noopener">${c.action.label}</a>`;}
+    return `<div class="ck ${full?'done':''}" id="ck-${c.id}">
+      <div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji">${c.emoji}</span>
+        <span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">›</span></div>
+      <div class="cbody">${tasks}${act}</div></div>`;
+  }).join('');
+  const dc=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length;
+  document.getElementById('ck-count').textContent=dc+' / '+CARDS.length;
+  document.getElementById('ck-bar').style.width=(dc/CARDS.length*100)+'%';
+  document.getElementById('banner').classList.toggle('show',dc===CARDS.length);
+}
+function tgCard(id){document.getElementById('ck-'+id).classList.toggle('open');}
+function tgTask(e,cid,i){e.stopPropagation();const k=cid+'-'+i;state[k]=!state[k];
+  localStorage.setItem('shhChecklist',JSON.stringify(state));
+  const open=document.getElementById('ck-'+cid).classList.contains('open');
+  renderChk();if(open)document.getElementById('ck-'+cid).classList.add('open');updateHome();}
+
+/* ========== PLAN ========== */
+function cpChip(p){return `<span class="cp" onclick="cpy(this)" data-zh="${p.zh}" data-en="${p.en}">${p.en?`<span>${p.en}</span> · `:''}<span class="zh">${p.zh}</span><span class="ic">📋</span></span>`;}
+function renderDays(){
+  document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.label}</button>`).join('');
+  const day=DAYS.find(d=>d.id===activeDay);
+  document.getElementById('dayhead').innerHTML=day.title?`<h2>${day.title}</h2><div class="rt">${day.route||''}</div>`:'';
+  const tl=document.getElementById('timeline');
+  if(!day.blocks.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
+  tl.innerHTML=day.blocks.map(b=>{
+    if(b.type==='metro')return metroBlock(b);
+    if(b.type==='walk')return `<div class="row"><span class="time">${b.t||''}</span><div class="place" style="padding:8px 12px">🚶 ${b.ti}</div></div>`;
+    const chips=(b.places||[]).map(cpChip).join('');
+    return `<div class="row"><span class="time">${b.t||''}</span><div class="place">
+      <div class="p-title">${b.emoji?b.emoji+' ':''}${b.ti}</div>${b.note?`<div class="p-note">${b.note}</div>`:''}
+      ${chips?`<div>${chips}</div>`:''}</div></div>`;
+  }).join('');
+}
+function metroBlock(b){
+  const legs=b.legs.map((l,i)=>{
+    const c=LC[l.line];
+    const tr=(i>0)?`<div class="transfer">🔄 เปลี่ยนสายที่ ${b.transferAt.en} ${b.transferAt.zh}</div>`:'';
+    return `${tr}<div><div class="linetag"><span class="ldot" style="background:${c}">${l.line}</span> Line ${l.line}</div>
+      <div class="metro-line"><span class="k">ขึ้น</span>${cpChip(l.board)}</div>
+      <div class="metro-line"><span class="k">ทิศ (ปลายทาง)</span><span class="dir">${l.dir.en} · ${l.dir.zh}</span></div>
+      <div class="metro-line"><span class="k">ลง</span>${cpChip(l.alight)}</div></div>`;
+  }).join('');
+  const foot=[];if(b.exit)foot.push(`<span class="mchip exit">🚪 ${b.exit}</span>`);if(b.mins)foot.push(`<span class="mchip">⏱️ ${b.mins}</span>`);if(b.walk)foot.push(`<span class="mchip">🚶 ${b.walk}</span>`);
+  return `<div class="row metro"><span class="time">${b.t||''}</span><div class="metro-box" style="--mc:${LC[b.mc]}">
+    ${b.title?`<div style="font-weight:700;font-size:.9rem;margin-bottom:5px">🚇 ${b.title}</div>`:''}${legs}
+    ${foot.length?`<div class="metro-foot">${foot.join('')}</div>`:''}</div></div>`;
+}
+function setDay(id){activeDay=id;renderDays();}
+
+/* ========== COPY ========== */
+let toastT;
+function cpy(el){
+  const zh=el.dataset.zh;
+  const done=()=>showToast(zh);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(done).catch(()=>fb(zh,done));
+  else fb(zh,done);
+}
+function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);cb();}
+function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`คัดลอกแล้ว: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ========== INIT ========== */
+renderChk();renderDays();updateHome();
+</script>
+</body>
+</html>
