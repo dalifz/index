@@ -138,6 +138,11 @@
   .tin{width:100%;font-family:inherit;font-size:.95rem;padding:9px;border:1.5px solid var(--line);border-radius:9px;background:#f8f9ff;color:var(--ink);font-weight:700}
   .tin:focus{outline:none;border-color:#4a6cf7}
   .amber{background:#fbeecb;color:#8a6414;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-top:9px}
+  /* slot image + lightbox */
+  .slotimg{width:100%;border-radius:12px;margin-top:8px;cursor:zoom-in;border:1px solid var(--line);display:block}
+  .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:80;align-items:center;justify-content:center;padding:14px}
+  .imgmodal.on{display:flex}
+  .imgmodal img{max-width:100%;max-height:100%;border-radius:8px}
   .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
   .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
   .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
@@ -260,6 +265,7 @@
   </nav>
 </div>
 <div class="toast" id="toast"></div>
+<div class="imgmodal" id="imgmodal" onclick="this.classList.remove('on')"><img id="imgmodal-src" alt=""></div>
 
 <script>
 const P=(en,zh)=>({en,zh});
@@ -286,7 +292,8 @@ const DAYS=[
      legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
            {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')}],
      exitCheck:'ดู Exit ใน AMap (ฝั่ง 天津路)',mins:'~25 นาที'}},
-   {t:'~18:00',icon:'🍜',label:'Dinner — Local',note:'ย่าน 天津路 / 宁波路 · เลือก 1 ร้าน · กินก่อน 😂',
+   {t:'~18:00',icon:'🍜',label:'Dinner — Local',note:'ย่าน 天津路 / 宁波路 · เลือก 1 ร้าน · กินก่อน 😂 · แผนที่ร้านหลัง Jinjiang Inn ด้านล่าง',
+     img:'assets/day1-food-map.png',
      places:[P('Lao Xing Long 老兴隆餐厅','老兴隆餐厅 天津路528号'),P("Yang's 小杨生煎",'小杨生煎 宁波路'),P('Lailai 来来小吃','来来小吃 天津路504号')]},
    {t:'~19:00',icon:'🧋',label:'HEYTEA',note:'สาขาบน 南京东路 (ระหว่างทางไป Bund)',places:[P('HEYTEA','喜茶 南京东路')]},
    {t:'~19:30',icon:'🛍️',label:'Nanjing Road',note:'เดินจาก 南京东路 → ไป Bund',places:[P('Nanjing Road','南京路步行街')]},
@@ -539,12 +546,14 @@ function trainCard(s){
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
 function bodyFor(s){
   let h=s.note?`<div class="p-note">${s.note}</div>`:'';
+  if(s.img)h+=`<img class="slotimg" src="${s.img}" loading="lazy" alt="แผนที่ร้านอาหาร" onclick="zoomImg('${s.img}')" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='none'"><div class="maphint">🗺️ แตะรูปเพื่อดูเต็ม</div>`;
   if(s.map)h+=renderMap()+'<div class="maphint">↔ เลื่อนซ้าย-ขวาดูแผนที่ · แตะร้านในลิสต์ด้านล่างเพื่อเช็ค</div>';
   if(s.places&&s.places.length)h+=`<div>${s.places.map(cpChip).join('')}</div>`;
   if(s.check)h+=s.check.map((t,i)=>{const k=s.cprefix+'-'+i;return `<div class="citem ${state[k]?'on':''}" onclick="tgCheck('${k}',this)"><span class="cbox">${CHK}</span><span>${t}</span></div>`;}).join('');
   return h||'<div class="p-note">—</div>';
 }
 function tgCheck(k,el){el.classList.toggle('on');state[k]=el.classList.contains('on');localStorage.setItem('shhChecklist',JSON.stringify(state));}
+function zoomImg(src){document.getElementById('imgmodal-src').src=src;document.getElementById('imgmodal').classList.add('on');}
 function house(x,y,name){return `<g>
   <path d="M${x-20},${y-40} L${x},${y-56} L${x+20},${y-40} Z" fill="#f3c623" stroke="#dcae43" stroke-width="2"/>
   <rect x="${x-16}" y="${y-40}" width="32" height="22" rx="3" fill="#fff" stroke="#dcae43" stroke-width="2"/>
