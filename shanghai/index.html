@@ -269,7 +269,7 @@
 
 <script>
 const P=(en,zh)=>({en,zh});
-const LC={2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',9:'var(--l9)',10:'var(--l10)',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
+const LC={2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',9:'var(--l9)',10:'var(--l10)',11:'#871c2b',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
 
 const CARDS=[
   {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
@@ -293,9 +293,9 @@ const DAYS=[
      legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
            {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')}],
      exitCheck:'ดู Exit ใน AMap (ฝั่ง 天津路)',mins:'~25 นาที'}},
-   {t:'~18:00',icon:'🍜',label:'Dinner — Autumn Flavor',note:'ย่าน 天津路 (หลัง Jinjiang Inn) · กินก่อน 😂 · แผนที่ด้านล่าง (จุด 5 บนแผนที่)',
+   {t:'~18:00',icon:'🍜',label:'Dinner — Autumn Flavor',note:'ย่าน 天津路 (หลัง Jinjiang Inn) · กินก่อน 😂 · แผนที่ด้านล่าง (จุด 5 บนแผนที่)<br><br>🔁 <b>ร้านสำรอง</b> ถ้า Autumn Flavor ปิด/หาไม่เจอ (เดินจาก 南京东路 East Nanjing Road):<br>① 德兴馆 De Xing Guan (广东路总店) · 广东路 · เดิน ~6–8 นาที ใกล้สุด · เปิด 09:00–14:00 / 17:00–20:30 (ตรงมื้อเย็น)<br>② 鲜得来排骨年糕 Xian De Lai (云南南路总店) · 云南南路 · เดิน ~12 นาที · เปิด 07:00–22:00 ยืดหยุ่นสุด<br>③ 舒蔡记生煎菜饭 Shu Cai Ji (云南中路店) · 云南中路 · เดิน ~10 นาที · เปิด 07:30–19:30',
      img:'assets/day1-food-map.png',
-     places:[P('Autumn Flavor 小秋家常菜','小秋家常菜 天津路')]},
+     places:[P('Autumn Flavor 小秋家常菜','小秋家常菜 天津路'),P('สำรอง① De Xing Guan','德兴馆 广东路'),P('สำรอง② Xian De Lai','鲜得来排骨年糕 云南南路'),P('สำรอง③ Shu Cai Ji','舒蔡记生煎菜饭 云南中路')]},
    {t:'~19:00',icon:'🧋',label:'HEYTEA',note:'สาขาบน 南京东路 (ระหว่างทางไป Bund)',places:[P('HEYTEA','喜茶 南京东路')]},
    {t:'~19:30',icon:'🛍️',label:'Nanjing Road',note:'เดินจาก 南京东路 → ไป Bund',places:[P('Nanjing Road','南京路步行街')]},
    {t:'~19:50',icon:'🌃',label:'THE BUND',note:'ถึงก่อนเปิดไฟ · ดู 陆家嘴 + 东方明珠',places:[P('The Bund','外滩'),P('Oriental Pearl','东方明珠')]},
@@ -308,13 +308,17 @@ const DAYS=[
   summary:'武康路 → 安福路 → Jing’an → 张园 → 豫园 Night',
   title:'Day 2 · เดินย่านเก๋ + Yuyuan กลางคืน',route:'武康路 → 安福路 → 张园 → 豫园',
   slots:[
-   {t:'07:45',icon:'🥛',label:'อาหารเช้าแถวโรงแรม',note:'ร้านเช้าจีนย่าน 民生路 Minsheng Road · เปิด ~06:00–09:00 (豆浆/包子/面)'},
-   {t:'09:15',icon:'🚇',label:'ออกจากโรงแรม → Jiaotong University',metro:{mc:6,board:P('Minsheng Road','民生路'),
-     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
-           {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')},
-           {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Jiaotong University','交通大学')}],
-     exit:'7',mins:'~55 นาที (ถึง ~10:10)',walk:'เดิน ~10–12 นาที (~700–900 m) → Wukang Mansion',note:'2 ต่อ — ถ้าไม่อยากเปลี่ยนหลายรอบ เรียก Didi ก็ได้'}},
-   {t:'10:20',icon:'🏛️',label:'Wukang Mansion — ถ่ายรูป',note:'武康大楼 · เริ่มเดิน route 武康路 → 安福路 → 常熟路',places:[P('Wukang Mansion','武康大楼')]},
+   {t:'07:00',icon:'⏰',label:'ตื่น'},
+   {t:'07:30',icon:'🥟',label:'อาหารเช้าแถวโรงแรม',note:'ร้านเช้าจีนย่าน 民生路 Minsheng Road (豆浆/包子/面) · เปิด ~06:00–09:00'},
+   {t:'08:00',icon:'🚇',label:'โรงแรม → Longhua Temple',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Oriental Sports Center','东方体育中心')},
+           {line:11,dir:P('N. Jiading/Huaqiao','嘉定北/花桥'),alight:P('Longhua','龙华')}],
+     mins:'~35 นาที (ถึง ~08:45)',note:'L6 นั่งสุดสาย 东方体育中心 (ทุกคนลงหมด ขึ้นผิดไม่ได้) → เปลี่ยน L11 · 龙华 = 3 สถานี'}},
+   {t:'08:50',icon:'🛕',label:'Longhua Temple + Pagoda',note:'龙华寺 + 龙华塔 · 龙华路2853号 · เปิด 07:00–16:30 เข้าฟรี · ~50–60 นาที · ⚠️ อย่าเดินครบทุกซอก (ยังต้องเดิน 武康路+安福路 อีก 3 กม.)<br>🏬 龙华会 Longhua Hui ห้างตรงข้ามวัด (เชื่อมสถานี 龙华 ใต้ห้าง) — ห้องน้ำ/แอร์/ที่นั่ง/กาแฟ ให้แม่พัก',places:[P('Longhua Temple','龙华寺'),P('Longhua Hui','龙华会')]},
+   {t:'09:55',icon:'🚇',label:'Longhua → Jiaotong University',metro:{mc:11,board:P('Longhua','龙华'),
+     legs:[{line:11,dir:P('N. Jiading/Huaqiao','嘉定北/花桥'),alight:P('Jiaotong University','交通大学')}],
+     exit:'7',mins:'3 สถานี ~8 นาที (ถึง ~10:10)',walk:'เดิน ~10–12 นาที (~700–900 m) → Wukang Mansion',note:'สายเดิม ไม่ต้องเปลี่ยนสาย · ผ่าน 上海游泳馆 → 徐家汇 → 交通大学'}},
+   {t:'10:25',icon:'🏛️',label:'Wukang Mansion — ถ่ายรูป',note:'武康大楼 · เริ่มเดิน route 武康路 → 安福路 → 常熟路',places:[P('Wukang Mansion','武康大楼')]},
    {t:'10:50',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้าสาย)',note:'兴国路380 · ธีม Harry Potter · เปิด 10:00–20:00 (ไปก่อนหน้านี้ร้านปิด) · ค้น 面包坊 AMap',places:[P('APOLI 面包坊','AP意大利料理面包坊 兴国路380号')]},
    {t:'11:30',icon:'🚶',label:'Wukang Road — Walking',note:'นำทางไป 武康路 แล้วเดินหาร้าน · (+ %Arabica ถ้าต้องการ) · ร้านเล็กบางร้านอาจไม่มีใน AMap',places:[P('Wukang Road','武康路')],cprefix:'d2wk',check:['Wukang Mansion 武康大楼','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary','%Arabica (ถ้าต้องการ)']},
    {t:'',icon:'🗺️',label:'แผนที่เดินเล่น Wukang–Anfu',map:true},
@@ -428,8 +432,8 @@ const DAYS=[
    {t:'18:10',icon:'🚇',label:'The Bund → Jing’an Temple',metro:{mc:2,board:P('East Nanjing Road','南京东路'),
      legs:[{line:2,dir:P('East Xujing','徐泾东'),alight:P('Jing’an Temple','静安寺')}],
      mins:'3 สถานี ~10 นาที',note:'ออกจาก 外滩 → เดินเข้าสถานี 南京东路 · ผ่าน People’s Square → West Nanjing → 静安寺'}},
-   {t:'18:30',icon:'🏯',label:'Jing’an Temple — ถ่ายรูปกลางคืน',note:'静安寺 · ไฟเปิด ~18:00–22:00 · ถ่ายจากนอกวัดฟรี ไม่ต้องซื้อตั๋ว (~45 นาที)<br>📸 3 จุด: ① สะพานลอยข้าม 延安中路 ฝั่งตะวันออกของวัด (คลาสสิก) ② ลานหน้า 久光百货 Jiuguang (ตรงข้ามวัด) ③ ริมบึง 静安公园 (เงาสะท้อนน้ำ)<br>⚠️ ธ.ค. กลางคืน 4–6°C ลมแรง — ให้แม่นั่งรอใน 久光百货 (แอร์/ที่นั่ง/ห้องน้ำ) ระหว่างขึ้นสะพานถ่าย ~15 นาที',places:[P('Jing’an Temple','静安寺')]},
-   {t:'19:20',icon:'🍜',label:'มื้อเย็น ย่าน Jing’an',note:'ย้ายจากย่าน Bund มา 静安寺 · local / Kerry Centre food court'},
+   {t:'18:30',icon:'🍜',label:'มื้อเย็น — Lailai Xiaolong Qiaoai',note:'莱莱小笼·乔艾 (静安直营店) ย่าน 静安寺 · เปิด 08:00–14:00 / 15:00–20:00 · ⚠️ ปิด 20:00 กินก่อน ห้ามเอาไว้ทีหลัง',places:[P('Lailai Xiaolong 莱莱小笼·乔艾','莱莱小笼·乔艾 静安寺')]},
+   {t:'19:20',icon:'🏯',label:'Jing’an Temple — ถ่ายรูปกลางคืน',note:'静安寺 · ไฟเปิด 18:00–22:00 มาถ่าย 19:20 สบายๆ · ถ่ายนอกวัดฟรี (~45 นาที)<br>📸 3 จุด: ① สะพานลอยข้าม 延安中路 ฝั่งตะวันออกของวัด (คลาสสิก) ② ลานหน้า 久光百货 Jiuguang (ตรงข้ามวัด) ③ ริมบึง 静安公园 (เงาสะท้อนน้ำ)<br>⚠️ ธ.ค. กลางคืน 4–6°C ลมแรง — ให้แม่นั่งรอใน 久光百货 (แอร์/ที่นั่ง/ห้องน้ำ) ระหว่างขึ้นสะพานถ่าย ~15 นาที',places:[P('Jing’an Temple','静安寺')]},
    {t:'20:20',icon:'🚇',label:'กลับโรงแรม',metro:{mc:14,board:P('Jing’an Temple','静安寺'),
      legs:[{line:14,dir:P('Guiqiao Road','桂桥路'),alight:P('Changyi Road','昌邑路')},
            {line:18,dir:P('Hangtou','航头'),alight:P('Minsheng Road','民生路')}],
