@@ -418,7 +418,20 @@ const DAYS=[
      walk:'~300 m → โรงแรม'}},
    {t:'~20:30',icon:'🧳',label:'Hotel — จัดกระเป๋า (คืนสุดท้าย)',note:'จัดกระเป๋า + เช็ก Passport + ของฝาก + เตรียมไปสนามบินพรุ่งนี้'},
   ]},
- {id:'6',tab:'DAY 6',date:'DEC 8',emoji:'🛫',cardTitle:'กลับบ้าน',summary:'Hotel → Didi → PVG T2',slots:[]},
+ {id:'6',tab:'DAY 6',date:'DEC 8',emoji:'🛫',cardTitle:'กลับบ้าน · PVG → BKK',
+  summary:'Check-out → PVG T2 · บิน 9C7283 เวลา 12:00',
+  title:'Day 6 · เดินทางกลับ',route:'Hotel → PVG T2 → BKK',
+  slots:[
+   {t:'06:30',icon:'⏰',label:'ตื่น',note:'บินเที่ยง (12:00) แต่ intl เผื่อเวลา ~3 ชม. + มีแม่+กระเป๋า'},
+   {t:'07:00',icon:'🧳',label:'เก็บของ + เช็คเอาท์',note:'คืนคีย์ · เช็ค passport/ของครบ'},
+   {t:'07:30',icon:'🚕',label:'Didi → PVG Terminal 2 (แนะนำ)',note:'มีแม่+กระเป๋า → Didi สะดวกสุด ~40–50 นาที · ปลายทางใน Didi/AMap',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
+   {t:'ทางเลือก',icon:'🚇',label:'Metro → PVG (ถ้าไม่เอา Didi)',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Pudong Airport','浦东国际机场')}],
+     mins:'~70–80 นาที',note:'ถ้าใช้ metro ออกจากโรงแรม ~07:00 · ⚠️ ปลายสาย L2 อาจต้องเปลี่ยนขบวนที่ 广兰路 Guanglan Rd ไปตู้ไปสนามบิน — ดูป้าย'}},
+   {t:'~08:30',icon:'✈️',label:'ถึง PVG T2 · เช็คอิน Spring',note:'เช็คอิน 9C7283 + โหลดกระเป๋า + ตม. + security · เสร็จ ~09:30 → ไป Gate'},
+   {t:'12:00',icon:'🛫',label:'บิน PVG → BKK',note:'Spring 9C7283 · PVG T2 12:00 → BKK 15:45 · เดินทางปลอดภัย ❤️',places:[P('Bangkok Suvarnabhumi','曼谷 素万那普 BKK')]},
+  ]},
 ];
 
 let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
