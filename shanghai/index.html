@@ -219,7 +219,7 @@
   <section class="view pad" id="v-plan">
     <div class="kicker">DAY BY DAY</div>
     <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
-    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลาเพื่อดูรายละเอียด Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap</p>
+    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลา = ดู Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap<br>🧭 <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> (หา AMap เจอแน่) แล้วเดินหาร้านเล็กเอา — ร้าน trendy บางร้าน AMap อาจไม่มี</p>
     <div class="days" id="days"></div>
     <div class="dayhead" id="dayhead"></div>
     <div class="tl" id="timeline"></div>
@@ -305,13 +305,13 @@ const DAYS=[
            {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')},
            {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Jiaotong University','交通大学')}],
      exit:'7',walk:'~3 นาที → Wukang Mansion',note:'2 ต่อ — ถ้าไม่อยากเปลี่ยนหลายรอบ เรียก Didi ก็ได้'}},
-   {t:'08:00',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้า)',note:'เบเกอรี่/ครัวซองต์ · ธีม Harry Potter · ใกล้ Wukang',places:[P('APOLI ITABAKERY','APOLI ITABAKERY 兴国路380号')]},
-   {t:'08:45',icon:'🍨',label:'AZABUYA',note:'ไอศกรีม/ของหวาน · เช็คพิกัดใน AMap อีกที',places:[P('AZABUYA','AZABUYA')]},
+   {t:'08:00',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้า)',note:'เบเกอรี่/ครัวซองต์ · ธีม Harry Potter · ใกล้ Wukang · ค้นชื่อจีน AMap เจอ',places:[P('APOLI 面包坊','AP意大利料理面包坊 兴国路')]},
+   {t:'08:45',icon:'🍨',label:'AZABUYA (麻布屋)',note:'ไอศกรีม/มัทฉะ ญี่ปุ่น · AMap ค้น 麻布屋 · สาขาใกล้ = 乌鲁木齐中路',places:[P('Azabuya 麻布屋','麻布屋 乌鲁木齐中路')]},
    {t:'09:15',icon:'☕',label:'Coffee',note:'แวะร้านกาแฟดีๆ ก่อนเริ่มเดิน route'},
    {t:'09:45',icon:'🏛️',label:'Wukang Mansion — เริ่ม Route',note:'เดิน 武康路 → 安福路 → 常熟路 · ~3 กม. 2–3 ชม.',places:[P('Wukang Mansion','武康大楼')]},
-   {t:'10:00',icon:'🚶',label:'Wukang Road — Walking',cprefix:'d2wk',check:['Wukang Mansion','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary']},
+   {t:'10:00',icon:'🚶',label:'Wukang Road — Walking',note:'นำทางไป 武康路 (หา AMap เจอแน่) แล้วเดินหาร้านเอา · ร้านเล็กบางร้านอาจไม่มีใน AMap',places:[P('Wukang Road','武康路')],cprefix:'d2wk',check:['Wukang Mansion 武康大楼','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary']},
    {t:'10:00',icon:'🗺️',label:'แผนที่เดินเล่น Wukang–Anfu',map:true},
-   {t:'11:00',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'ไม่ต้องเข้าทุกร้าน ใช้เป็น check-in list',cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
+   {t:'11:00',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'นำทางไป 安福路 แล้วเดินหาร้านตามลิสต์ · ไม่ต้องเข้าทุกร้าน · ร้านเล็กบางร้านไม่มีใน AMap เดินดูหน้าร้านเอา',places:[P('Anfu Road','安福路')],cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
    {t:'12:30',icon:'👟',label:'adidas Originals Flagship',note:'ช้อป/ถ่ายรูป · 安福路322号',places:[P('adidas Originals','安福路322号')]},
    {t:'13:00',icon:'🚕',label:'Didi → Jing’an Kerry Centre',note:'ไม่เสียแรงเดินต่อ · ปลายทางใน AMap/Didi',places:[P('Jing An Kerry Centre','静安嘉里中心')]},
    {t:'13:15',icon:'🍜',label:'Kerry Centre — Food Court + พัก',note:'ข้าวเที่ยง + ห้องน้ำ + พักขา'},
