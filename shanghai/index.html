@@ -269,7 +269,7 @@
 
 <script>
 const P=(en,zh)=>({en,zh});
-const LC={2:'var(--l2)',6:'var(--l6)',9:'var(--l9)',10:'var(--l10)',14:'var(--l14)'};
+const LC={2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',9:'var(--l9)',10:'var(--l10)',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
 
 const CARDS=[
   {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
@@ -285,8 +285,9 @@ const DAYS=[
   slots:[
    {t:'14:05',icon:'✈️',label:'ถึงสนามบิน PVG (T2)',note:'ผ่าน ตม. + รับกระเป๋า',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
    {t:'~15:30',icon:'🚇',label:'Metro → โรงแรม',metro:{mc:2,board:P('Pudong Airport','浦东国际机场'),
-     legs:[{line:2,dir:P('East Xujing','徐泾东'),alight:P('Century Avenue','世纪大道')}],
-     exit:'5',mins:'~45 นาที',walk:'~1.7 km',note:'มีกระเป๋า — ไม่เปลี่ยนสาย'}},
+     legs:[{line:2,dir:P('East Xujing','徐泾东'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Minsheng Road','民生路')}],
+     walk:'เดิน ~300 m → โรงแรม',note:'เปลี่ยนสาย 1 ครั้งที่ 世纪大道 · โรงแรมอยู่ 民生路 (ดีกว่าเดิน 1.7 km กับกระเป๋า+ธ.ค. หนาว)'}},
    {t:'~17:00',icon:'🏨',label:'เช็คอิน · ออก 17:15',places:[P('Yilong Anyun Hotel','艺龙安云酒店(上海陆家嘴民生路地铁站店)')]},
    {t:'17:15',icon:'🚇',label:'Metro → Dinner (หนานจิง)',metro:{mc:6,board:P('Minsheng Road','民生路'),
      legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
@@ -307,32 +308,36 @@ const DAYS=[
   summary:'武康路 → 安福路 → Jing’an → 张园 → 豫园 Night',
   title:'Day 2 · เดินย่านเก๋ + Yuyuan กลางคืน',route:'武康路 → 安福路 → 张园 → 豫园',
   slots:[
-   {t:'~07:15',icon:'🚇',label:'โรงแรม → ย่าน Wukang',metro:{mc:6,board:P('Minsheng Road','民生路'),
+   {t:'07:45',icon:'🥛',label:'อาหารเช้าแถวโรงแรม',note:'ร้านเช้าจีนย่าน 民生路 Minsheng Road · เปิด ~06:00–09:00 (豆浆/包子/面)'},
+   {t:'09:15',icon:'🚇',label:'ออกจากโรงแรม → Jiaotong University',metro:{mc:6,board:P('Minsheng Road','民生路'),
      legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
            {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')},
            {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Jiaotong University','交通大学')}],
-     exit:'7',walk:'~3 นาที → Wukang Mansion',note:'2 ต่อ — ถ้าไม่อยากเปลี่ยนหลายรอบ เรียก Didi ก็ได้'}},
-   {t:'08:00',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้า)',note:'เบเกอรี่/ครัวซองต์ · ธีม Harry Potter · ใกล้ Wukang · ค้นชื่อจีน AMap เจอ',places:[P('APOLI 面包坊','AP意大利料理面包坊 兴国路')]},
-   {t:'08:45',icon:'🍨',label:'AZABUYA (麻布屋)',note:'ไอศกรีม/มัทฉะ ญี่ปุ่น · AMap ค้น 麻布屋 · สาขาใกล้ = 乌鲁木齐中路',places:[P('Azabuya 麻布屋','麻布屋 乌鲁木齐中路')]},
-   {t:'09:15',icon:'☕',label:'Coffee',note:'แวะร้านกาแฟดีๆ ก่อนเริ่มเดิน route'},
-   {t:'09:45',icon:'🏛️',label:'Wukang Mansion — เริ่ม Route',note:'เดิน 武康路 → 安福路 → 常熟路 · ~3 กม. 2–3 ชม.',places:[P('Wukang Mansion','武康大楼')]},
-   {t:'10:00',icon:'🚶',label:'Wukang Road — Walking',note:'นำทางไป 武康路 (หา AMap เจอแน่) แล้วเดินหาร้านเอา · ร้านเล็กบางร้านอาจไม่มีใน AMap',places:[P('Wukang Road','武康路')],cprefix:'d2wk',check:['Wukang Mansion 武康大楼','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary']},
+     exit:'7',mins:'~55 นาที (ถึง ~10:10)',walk:'เดิน ~10–12 นาที (~700–900 m) → Wukang Mansion',note:'2 ต่อ — ถ้าไม่อยากเปลี่ยนหลายรอบ เรียก Didi ก็ได้'}},
+   {t:'10:20',icon:'🏛️',label:'Wukang Mansion — ถ่ายรูป',note:'武康大楼 · เริ่มเดิน route 武康路 → 安福路 → 常熟路',places:[P('Wukang Mansion','武康大楼')]},
+   {t:'10:50',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้าสาย)',note:'兴国路380 · ธีม Harry Potter · เปิด 10:00–20:00 (ไปก่อนหน้านี้ร้านปิด) · ค้น 面包坊 AMap',places:[P('APOLI 面包坊','AP意大利料理面包坊 兴国路380号')]},
+   {t:'11:30',icon:'🚶',label:'Wukang Road — Walking',note:'นำทางไป 武康路 แล้วเดินหาร้าน · (+ %Arabica ถ้าต้องการ) · ร้านเล็กบางร้านอาจไม่มีใน AMap',places:[P('Wukang Road','武康路')],cprefix:'d2wk',check:['Wukang Mansion 武康大楼','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary','%Arabica (ถ้าต้องการ)']},
    {t:'10:00',icon:'🗺️',label:'แผนที่เดินเล่น Wukang–Anfu',map:true},
-   {t:'11:00',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'นำทางไป 安福路 แล้วเดินหาร้านตามลิสต์ · ไม่ต้องเข้าทุกร้าน · ร้านเล็กบางร้านไม่มีใน AMap เดินดูหน้าร้านเอา',places:[P('Anfu Road','安福路')],cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
-   {t:'12:30',icon:'👟',label:'adidas Originals Flagship',note:'ช้อป/ถ่ายรูป · 安福路322号',places:[P('adidas Originals','安福路322号')]},
-   {t:'13:00',icon:'🚕',label:'Didi → Jing’an Kerry Centre',note:'ไม่เสียแรงเดินต่อ · ปลายทางใน AMap/Didi',places:[P('Jing An Kerry Centre','静安嘉里中心')]},
-   {t:'13:15',icon:'🍜',label:'Kerry Centre — Food Court + พัก',note:'ข้าวเที่ยง + ห้องน้ำ + พักขา'},
-   {t:'14:15',icon:'🚶',label:'เดิน → Zhangyuan',note:'จาก Kerry Centre ไป 张园 ~15 นาที (เดินดีกว่าเรียก Didi)'},
-   {t:'~14:30',icon:'🏘️',label:'Zhangyuan + Weihai Road',note:'ตึกเก่าเซี่ยงไฮ้ (Shikumen) + แฟชั่น/ไลฟ์สไตล์ · 威海路258号',places:[P('Zhangyuan','张园 威海路258号')],cprefix:'d2zy',check:['Zhangyuan Shikumen','Weihai Road','Fashion/Lifestyle Shops','Cafe/Dessert','Photo Spots']},
-   {t:'16:30',icon:'🚇',label:'Zhangyuan → Yuyuan',metro:{mc:2,board:P('West Nanjing Road','南京西路'),
+   {t:'12:10',icon:'🍨',label:'AZABUYA (麻布屋)',note:'ไอศกรีม/มัทฉะ ญี่ปุ่น · 乌鲁木齐中路315 · เปิด 09:30–22:00 · AMap ค้น 麻布屋',places:[P('Azabuya 麻布屋','麻布屋 乌鲁木齐中路315号')]},
+   {t:'12:40',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'นำทางไป 安福路 แล้วเดินหาร้านตามลิสต์ · ไม่ต้องเข้าทุกร้าน · ร้านบน 安福路 เปิด ~10:00–11:00',places:[P('Anfu Road','安福路')],cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
+   {t:'12:50',icon:'👟',label:'adidas Originals Flagship',note:'ช้อป/ถ่ายรูป · 安福路322号',places:[P('adidas Originals','安福路322号')]},
+   {t:'13:40',icon:'🚇',label:'เดิน → Changshu Road → Jing’an',metro:{mc:7,board:P('Changshu Road','常熟路'),
+     legs:[{line:7,dir:P('Meilan Lake','美兰湖'),alight:P('Jing’an Temple','静安寺')}],
+     mins:'1 สถานี',note:'เดิน ~10 นาที จาก 安福路 → สถานี 常熟路 · ไม่ใช้ Didi'}},
+   {t:'14:00',icon:'🍜',label:'Kerry Centre — ข้าวเที่ยง + พัก',note:'静安嘉里中心 · Food Court + ห้องน้ำ + พักขา · เดินผ่านหน้า 静安寺 กลางวัน ไม่เข้า (เก็บถ่ายกลางคืน Day 5) · Didi เฉพาะถ้าแม่ล้า',places:[P('Jing An Kerry Centre','静安嘉里中心')]},
+   {t:'15:15',icon:'🏘️',label:'Zhangyuan + Weihai Road',note:'ตึกเก่าเซี่ยงไฮ้ (Shikumen) + แฟชั่น/ไลฟ์สไตล์ · 威海路258号 · เดินจาก Kerry ~15 นาที',places:[P('Zhangyuan','张园 威海路258号')],cprefix:'d2zy',check:['Zhangyuan Shikumen','Weihai Road','Fashion/Lifestyle Shops','Cafe/Dessert','Photo Spots']},
+   {t:'16:45',icon:'🚇',label:'Zhangyuan → Yuyuan',metro:{mc:2,board:P('West Nanjing Road','南京西路'),
      legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('East Nanjing Road','南京东路')},
            {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Yuyuan Garden','豫园')}],
      exit:'1',note:'เดินจาก 张园 ไปสถานี 南京西路 · เปลี่ยน 1 ครั้ง ช่วงสั้น'}},
-   {t:'~17:30',icon:'🏮',label:'Yuyuan — เดินเล่น รอฟ้ามืด',note:'Exit 1 เชื่อม Renmin Rd / Yu Garden ตรง · เข้า Bazaar/Old Street',places:[P('Yuyuan','豫园')]},
+   {t:'17:15',icon:'🏮',label:'Yuyuan — เดินเล่น รอฟ้ามืด',note:'ธ.ค. ฟ้ามืด ~16:50 ไฟเปิดพอดี · Exit 1 เชื่อม Renmin Rd / Yu Garden ตรง · เข้า Bazaar/Old Street',places:[P('Yuyuan','豫园')]},
    {t:'18:00',icon:'🌃',label:'Yuyuan Night',note:'⚠️ ไม่เข้าสวนใน (สวนเปิด 09:00–16:30) · มาเพื่อ Bazaar/ไฟกลางคืน',cprefix:'d2yy',check:['Yuyuan Bazaar','Old Street','City God Temple area','Night Lights','Photo Spots']},
    {t:'20:00',icon:'🍜',label:'Late Dinner',note:'อาหารท้องถิ่น/ของกินเบาๆ รอบ Yuyuan'},
    {t:'21:00',icon:'🍵',label:'Tea / Dessert',note:'ร้านชาเก๋ๆ โซน Yuyuan'},
-   {t:'~22:00',icon:'🏨',label:'กลับโรงแรม'},
+   {t:'~22:00',icon:'🚇',label:'กลับโรงแรม',metro:{mc:14,board:P('Yuyuan Garden','豫园'),
+     legs:[{line:14,dir:P('Guiqiao Road','桂桥路'),alight:P('Changyi Road','昌邑路')},
+           {line:18,dir:P('Hangtou','航头'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม',note:'⚠️ 22:00 ใกล้รถเที่ยวสุดท้าย — เช็ค 末班车 (last train) ก่อน · ถ้าไม่ทันใช้ Didi'}},
   ]},
  {id:'3',tab:'DAY 3',date:'DEC 5',emoji:'🚄',cardTitle:'Suzhou Day Trip',
   summary:'HSR → 苏州 · Crab Noodles · Pingjiang · Matcha · MixC · Shantang Night',
@@ -347,13 +352,13 @@ const DAYS=[
    {t:'08:00',icon:'🥛',label:'Breakfast ที่ Hongqiao',note:'น้ำเต้าหู้ 豆浆 + ปาท่องโก๋ 油条 · กินในสถานีก่อนขึ้นรถไฟ ~30–40 นาที'},
    {t:'08:30',icon:'🚄',label:'HSR: Hongqiao → Suzhou',train:{tid:'out',from:P('Shanghai Hongqiao','上海虹桥站'),to:P('Suzhou','苏州站'),dur:'~25–35 นาที'}},
    {t:'~09:30',icon:'🚄',label:'ถึง Suzhou — เดินตามป้าย 地铁',note:'ไม่ต้องเรียก Didi · เดินตามป้าย 地铁 → Metro'},
-   {t:'~09:40',icon:'🚇',label:'Suzhou Station → Xiangmen',sz:{from:P('Suzhou Railway Station','苏州火车站'),to:P('Xiangmen','相门'),exit:'3',lines:['相门 Xiangmen = Line 1'],mins:'~10–15 นาที',note:'苏州站→相门 · Xiangmen อยู่ Line 1 · เช็คสาย/จุดเปลี่ยนใน AMap'}},
+   {t:'~09:40',icon:'🚇',label:'Suzhou Station → Xiangmen',sz:{from:P('Suzhou Railway Station','苏州火车站'),to:P('Xiangmen','相门'),exit:'3',lines:['相门 = Line 1 / 苏州站 = L2+L4','จุดเปลี่ยน 广济南路 South Guangji Rd หรือ 乐桥 Leqiao'],mins:'~20 นาที (ต้องเปลี่ยนสาย)',note:'苏州站→相门 ต้องเปลี่ยนสาย · เช็คสาย/ทิศ/จุดเปลี่ยนใน AMap'}},
    {t:'10:00',icon:'🦀',label:'Crab Noodles บะหมี่มันปู',note:'Xiangmen Exit 3 → ออกสถานี → เลี้ยวซ้าย → ร้านบะหมี่มันปู · ชื่อร้านยังไม่ระบุ (Creator ไม่บอก ไม่ใส่มั่ว) · มื้อ local ~30–40 นาที'},
    {t:'10:40',icon:'🏮',label:'Pingjiang Road (slow walk ~1.5 ชม.)',note:'📸 คลอง · บ้านเก่า · ร้านเล็ก · ร้านชา · ไม่ต้องเร่งเดินครบทุกซอย',places:[P('Pingjiang Road','平江路')]},
    {t:'12:20',icon:'🛍️',label:'Renheng Cang Street',note:'lifestyle ติดโซน Pingjiang/Xiangmen · ค้น AMap: 仁恒仓街',places:[P('Renheng Cang Street','仁恒仓街')]},
    {t:'12:40',icon:'🍵',label:'THE MATCHA TOKYO (Suzhou)',note:'ที่ Renheng Cang Street · สาขาแรกใน Jiangsu · matcha / ของหวาน ~40 นาที',places:[P('THE MATCHA TOKYO','THE MATCHA TOKYO 仁恒仓街')]},
-   {t:'13:20',icon:'🚇',label:'Cang Street → MixC (石路)',sz:{from:P('Xiangmen','相门'),to:P('Shilu','石路'),exit:'1',lines:['相门 Line 1 → เปลี่ยน → 石路 Line 2','石路 Exit 1 = 直达 MixC'],mins:'เผื่อ 30–40 นาที',note:'相门(L1) → 石路(L2) ต้องเปลี่ยนสาย · จุดเปลี่ยน+ทิศ ดู AMap · MixC อยู่บน 石路 Exit 1 พอดี'}},
-   {t:'14:00',icon:'🎨',label:'Suzhou MixC World — Art/Lifestyle',note:'苏州万象天地 · mall + outdoor + Art Plaza · เดินตามความสนใจ (14:00–16:30)',places:[P('Suzhou MixC World','苏州万象天地')],cprefix:'d3mx',check:['HONG ART GALLERY','TAGI (L1 艺文广场)','ROAD RHINO','เดินเล่น Art Plaza / High Street']},
+   {t:'13:20',icon:'🚇',label:'Cang Street → MixC (石路)',sz:{from:P('Xiangmen','相门'),to:P('Shilu','石路'),exitCheck:'เช็ค Exit ใน AMap ที่สถานี',lines:['相门 Line 1 → เปลี่ยน → 石路 Line 2','MixC อยู่ที่สถานี 石路 (Line 2)'],mins:'เผื่อ 30–40 นาที',note:'相门(L1) → 石路(L2) ต้องเปลี่ยนสาย · จุดเปลี่ยน+ทิศ+Exit ดู AMap'}},
+   {t:'14:00',icon:'🎨',label:'Suzhou MixC World — Art/Lifestyle',note:'苏州万象天地 · mall + outdoor + Art Plaza (14:00–16:30) · ⚠️ ตัดได้ถ้าแม่ล้า — ข้ามไป 山塘街 เร็วขึ้น นั่งจิบชารอไฟเปิด (Highlight ซูโจว = คลอง+เมืองเก่า ไม่ใช่ห้าง)',places:[P('Suzhou MixC World','苏州万象天地')],cprefix:'d3mx',check:['HONG ART GALLERY','TAGI (L1 艺文广场)','ROAD RHINO','เดินเล่น Art Plaza / High Street']},
    {t:'16:30',icon:'🌆',label:'MixC → Shantang (เดิน)',note:'MixC อยู่ใกล้ Shantang · เดินได้ ไม่ต้องนั่ง metro ข้ามเมืองอีกครั้ง'},
    {t:'17:00',icon:'🏮',label:'Shantang Old Street ⭐ (ไฟเปิด)',note:'Highlight เย็น · โคมไฟ + แสงสะท้อนคลอง · เอาเฉพาะโซน Old Street ที่สวย · ทางเข้า 山塘街站 Exit 1',places:[P('Shantang Street','山塘街')]},
    {t:'19:30',icon:'🍜',label:'Dinner',note:'Suzhou noodles / dumplings / local รอบ Shantang · ไม่เอาร้านหรู ~45 นาที'},
@@ -399,11 +404,11 @@ const DAYS=[
   title:'Day 5 · City Walk ริมน้ำ + The Bund',route:'马勒别墅 → 乍浦路桥 → 北外滩 → 外滩',
   slots:[
    {t:'08:00',icon:'⏰',label:'ตื่น'},
-   {t:'08:30',icon:'🏨',label:'ออกจากโรงแรม'},
-   {t:'~08:35',icon:'🚇',label:'โรงแรม → Mahler Villa',metro:{mc:6,board:P('Minsheng Road','民生路'),
-     legs:[{line:6,dir:P('Gangcheng Road','港城路'),alight:P('Jufeng Road','巨峰路')},
-           {line:12,color:'#007a5e',dir:P('Qixin Road','七莘路'),alight:P('South Shaanxi Road','陕西南路')}],
-     walk:'เดิน ~10–15 นาที → Mahler Villa',note:'เปลี่ยนสายครั้งเดียวที่ 巨峰路 (จุดเปลี่ยน L6/L12)'}},
+   {t:'09:00',icon:'🏨',label:'ออกจากโรงแรม'},
+   {t:'~09:00',icon:'🚇',label:'โรงแรม → Mahler Villa',metro:{mc:18,board:P('Minsheng Road','民生路'),
+     legs:[{line:18,dir:P('Kangwen Road','康文路'),alight:P('Jiangpu Park','江浦公园')},
+           {line:12,dir:P('Qixin Road','七莘路'),alight:P('South Shaanxi Road','陕西南路')}],
+     walk:'เดิน ~10–15 นาที → Mahler Villa',note:'民生路 L18 → 江浦公园 [4 สถานี] เปลี่ยน L12 → 陕西南路 [8 สถานี] · สั้นกว่าเส้นเดิมมาก (อย่ายึดนาทีตายตัว เช็ค timetable วันจริง)'}},
    {t:'09:30',icon:'🏰',label:'Mahler Villa ⭐ (Photo Stop)',note:'马勒别墅 · ปราสาทอิฐสไตล์ Nordic (1936) · 陕西南路30号 · ถ่ายรูปตัวอาคาร/กำแพงอิฐ/ประตู/มุมสวน ~45–50 นาที · ⚠️ สวนในอาจปรับปรุงเป็นช่วงๆ เน้นอาคารด้านนอก',places:[P('Mahler Villa','马勒别墅 陕西南路30号')]},
    {t:'10:20',icon:'🚇',label:'Mahler → Tiantong Road',metro:{mc:12,board:P('South Shaanxi Road','陕西南路'),
      legs:[{line:12,color:'#007a5e',dir:P('Jinhai Road','金海路'),alight:P('Tiantong Road','天潼路')}],
@@ -414,28 +419,33 @@ const DAYS=[
    {t:'12:20',icon:'🌉',label:'Waibaidu Bridge (ถ่ายรูป)',note:'外白渡桥 · อยู่บนเส้นทางพอดี · สะพาน+skyline ~20–25 นาที',places:[P('Waibaidu Bridge','外白渡桥')]},
    {t:'12:45',icon:'🍜',label:'Lunch (local แถว North Bund)',note:'หาใน AMap · ไม่ล็อกร้าน · ~1 ชม.'},
    {t:'14:00',icon:'🌊',label:'North Bund Greenland',note:'北外滩绿地 · เดินริมแม่น้ำ ถ่าย Pudong skyline · ให้แม่พักทุกจุดชมวิว/ม้านั่ง ~1 ชม.',places:[P('North Bund Greenland','北外滩绿地')]},
-   {t:'15:15',icon:'🚶',label:'North Bund → Rock Bund',note:'ค่อยๆ ย้อนลงใต้เข้าโซน Bund (Final Destination)'},
+   {t:'15:15',icon:'🚇',label:'North Bund → Rock Bund',metro:{mc:12,board:P('International Cruise Terminal','国际客运中心'),
+     legs:[{line:12,dir:P('Qixin Road','七莘路'),alight:P('Tiantong Road','天潼路')}],
+     mins:'1 สถานี',note:'ตัดการเดินซ้ำ ~1.5–2 กม. · ลง 天潼路 แล้วเดินลงใต้ข้าม 外白渡桥 → 外滩源 Rock Bund → Peninsula → 外滩'}},
    {t:'16:00',icon:'🏙️',label:'Rock Bund (อาคารเก่า/สถาปัตย์)',note:'外滩源 · ถ่ายรูปอาคาร/ถนน · ไม่เข้าพิพิธภัณฑ์ (จันทร์ปิด) ~30 นาที',places:[P('Rock Bund','外滩源')]},
    {t:'16:30',icon:'🏨',label:'The Peninsula Shanghai',note:'上海半岛酒店 · ถ่ายรูปด้านนอก ~15–20 นาที',places:[P('The Peninsula Shanghai','上海半岛酒店')]},
    {t:'16:50',icon:'🌆',label:'THE BUND ⭐ (Sunset → ไฟเปิด)',note:'外滩 · Final Photo Spot · จับ Sunset/Blue Hour → ไฟเมืองเปิด (ธ.ค. แสงเปลี่ยนเร็ว ห้ามช้ากว่านี้)',places:[P('The Bund','外滩'),P('Oriental Pearl','东方明珠')]},
-   {t:'18:30',icon:'🍜',label:'Dinner (แถว Bund / 南京东路)',note:'หา local ใกล้ๆ ใน AMap ไม่ต้องเดินไกล'},
-   {t:'19:30',icon:'🚇',label:'กลับโรงแรม',metro:{mc:2,board:P('East Nanjing Road','南京东路'),
-     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Century Avenue','世纪大道')},
-           {line:6,dir:P('Gangcheng Road','港城路'),alight:P('Minsheng Road','民生路')}],
+   {t:'18:10',icon:'🚇',label:'The Bund → Jing’an Temple',metro:{mc:2,board:P('East Nanjing Road','南京东路'),
+     legs:[{line:2,dir:P('East Xujing','徐泾东'),alight:P('Jing’an Temple','静安寺')}],
+     mins:'3 สถานี ~10 นาที',note:'ออกจาก 外滩 → เดินเข้าสถานี 南京东路 · ผ่าน People’s Square → West Nanjing → 静安寺'}},
+   {t:'18:30',icon:'🏯',label:'Jing’an Temple — ถ่ายรูปกลางคืน',note:'静安寺 · ไฟเปิด ~18:00–22:00 · ถ่ายจากนอกวัดฟรี ไม่ต้องซื้อตั๋ว (~45 นาที)<br>📸 3 จุด: ① สะพานลอยข้าม 延安中路 ฝั่งตะวันออกของวัด (คลาสสิก) ② ลานหน้า 久光百货 Jiuguang (ตรงข้ามวัด) ③ ริมบึง 静安公园 (เงาสะท้อนน้ำ)<br>⚠️ ธ.ค. กลางคืน 4–6°C ลมแรง — ให้แม่นั่งรอใน 久光百货 (แอร์/ที่นั่ง/ห้องน้ำ) ระหว่างขึ้นสะพานถ่าย ~15 นาที',places:[P('Jing’an Temple','静安寺')]},
+   {t:'19:20',icon:'🍜',label:'มื้อเย็น ย่าน Jing’an',note:'ย้ายจากย่าน Bund มา 静安寺 · local / Kerry Centre food court'},
+   {t:'20:20',icon:'🚇',label:'กลับโรงแรม',metro:{mc:14,board:P('Jing’an Temple','静安寺'),
+     legs:[{line:14,dir:P('Guiqiao Road','桂桥路'),alight:P('Changyi Road','昌邑路')},
+           {line:18,dir:P('Hangtou','航头'),alight:P('Minsheng Road','民生路')}],
      walk:'~300 m → โรงแรม'}},
-   {t:'~20:30',icon:'🧳',label:'Hotel — จัดกระเป๋า (คืนสุดท้าย)',note:'จัดกระเป๋า + เช็ก Passport + ของฝาก + เตรียมไปสนามบินพรุ่งนี้'},
+   {t:'~21:00',icon:'🧳',label:'Hotel — จัดกระเป๋า (คืนสุดท้าย)',note:'จัดกระเป๋า + เช็ก Passport + ของฝาก + เตรียมไปสนามบินพรุ่งนี้'},
   ]},
  {id:'6',tab:'DAY 6',date:'DEC 8',emoji:'🛫',cardTitle:'กลับบ้าน · PVG → BKK',
   summary:'Check-out → PVG T2 · บิน 9C7283 เวลา 12:00',
   title:'Day 6 · เดินทางกลับ',route:'Hotel → PVG T2 → BKK',
   slots:[
    {t:'06:30',icon:'⏰',label:'ตื่น',note:'บินเที่ยง (12:00) แต่ intl เผื่อเวลา ~3 ชม. + มีแม่+กระเป๋า'},
-   {t:'07:00',icon:'🧳',label:'เก็บของ + เช็คเอาท์',note:'คืนคีย์ · เช็ค passport/ของครบ'},
-   {t:'07:30',icon:'🚕',label:'Didi → PVG Terminal 2 (แนะนำ)',note:'มีแม่+กระเป๋า → Didi สะดวกสุด ~40–50 นาที · ปลายทางใน Didi/AMap',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
-   {t:'ทางเลือก',icon:'🚇',label:'Metro → PVG (ถ้าไม่เอา Didi)',metro:{mc:6,board:P('Minsheng Road','民生路'),
+   {t:'07:00',icon:'🚇',label:'ออกจากโรงแรม → PVG (Metro)',metro:{mc:6,board:P('Minsheng Road','民生路'),
      legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
-           {line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Pudong Airport','浦东国际机场')}],
-     mins:'~70–80 นาที',note:'ถ้าใช้ metro ออกจากโรงแรม ~07:00 · ⚠️ ปลายสาย L2 อาจต้องเปลี่ยนขบวนที่ 广兰路 Guanglan Rd ไปตู้ไปสนามบิน — ดูป้าย'}},
+           {line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Pudong Airport T2','浦东国际机场 T2')}],
+     mins:'~70–80 นาที (ถึง ~08:20)',note:'เช็คเอาท์ก่อน · Line 2 วิ่งตรงถึง Pudong Airport ขบวน 8 ตู้ ไม่ต้องเปลี่ยนขบวน (ตั้งแต่ 19 เม.ย. 2019)'}},
+   {t:'ทางเลือก',icon:'🚕',label:'Didi → PVG T2 (ถ้าตื่นสาย)',note:'เก็บไว้เฉพาะถ้าตื่นสาย/แม่ล้า · ~40–50 นาที · ปลายทางใน Didi/AMap',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
    {t:'~08:30',icon:'✈️',label:'ถึง PVG T2 · เช็คอิน Spring',note:'เช็คอิน 9C7283 + โหลดกระเป๋า + ตม. + security · เสร็จ ~09:30 → ไป Gate'},
    {t:'12:00',icon:'🛫',label:'บิน PVG → BKK',note:'Spring 9C7283 · PVG T2 12:00 → BKK 15:45 · เดินทางปลอดภัย ❤️',places:[P('Bangkok Suvarnabhumi','曼谷 素万那普 BKK')]},
   ]},
@@ -514,6 +524,7 @@ function szBody(z){
   h+=`<div class="m-sta"><span class="name">🚉 ${z.to.en}<span class="zh">${z.to.zh}</span></span></div>${cpChip(z.to)}`;
   const foot=[];
   if(z.exit)foot.push(`<span class="exit-big">🚪 Exit ${z.exit}</span>`);
+  if(z.exitCheck)foot.push(`<span class="exit-big exit-check">🚪 ${z.exitCheck}</span>`);
   if(z.mins)foot.push(`<span class="mchip">⏱️ ${z.mins}</span>`);
   h+=`<div class="m-foot">${foot.join('')}</div>`;
   if(z.lines)h+=`<div style="margin-top:6px">${z.lines.map(x=>`<span class="mchip" style="display:inline-block;margin:0 6px 6px 0">🚈 ${x}</span>`).join('')}</div>`;
@@ -539,8 +550,8 @@ function trainCard(s){
       <div class="tfield"><label>💺 车厢 Car</label>${f('car','5')}</div>
       <div class="tfield"><label>💺 座位 Seat</label>${f('seat','12A')}</div>
     </div>
-    <div class="amber">⚠️ Gate เปลี่ยนได้ — ดูจอจริงที่สถานี · 🛂 พก passport ที่ใช้จองตั๋ว · เช็ก 4 อย่างก่อนเข้าชานชาลา</div>
-    <div class="p-note" style="margin-top:6px">รอ Trip.com เปิดจอง (5 ธ.ค.) แล้วมาเติมเลขขบวน/เวลา/gate/ที่นั่ง — บันทึกอัตโนมัติ</div>
+    <div class="amber">⚠️ Gate เปลี่ยนได้ — ดูจอจริงที่สถานี · 🛂 พก passport ที่ใช้จองตั๋ว · เช็ก 4 อย่างก่อนเข้าชานชาลา · ⚠️ ต้องลง Suzhou 苏州站 เท่านั้น ห้าม Suzhou North 苏州北站</div>
+    <div class="p-note" style="margin-top:6px">จองผ่าน Trip.com ล่วงหน้าได้เลย — ระบบเข้าคิวซื้อให้อัตโนมัติวันที่การรถไฟเปิดขาย ~20 พ.ย. (เปิดขายล่วงหน้า 15 วัน) · เติมเลขขบวน/เวลา/gate/ที่นั่งข้างบน — บันทึกอัตโนมัติ</div>
   </div>`;
 }
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
