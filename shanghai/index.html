@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shanghai with Mom 🇨🇳</title>
+<style>
+  :root{
+    --bg:#f7f2ea; --card:#ffffff; --ink:#3a332e; --muted:#9c9088; --line:#ece3d7;
+    --accent:#c85a44; --accent-soft:#f6e5df; --done:#5a9e6f; --done-soft:#e6f1ea;
+    --l2:#3fae4a; --l6:#b0338c; --l9:#ef8bb3; --l10:#5b9bd5; --l14:#8b6f4e;
+    --shadow:0 2px 10px rgba(60,45,35,.06); --nav-h:62px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Sarabun','Segoe UI',system-ui,sans-serif;background:#efe7db;color:var(--ink);line-height:1.5;display:flex;justify-content:center}
+  #app{width:100%;max-width:440px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:calc(var(--nav-h)+env(safe-area-inset-bottom))}
+  .pad{padding:16px}.status{height:env(safe-area-inset-top)}
+  a{color:inherit}h1{font-size:1.4rem}h2{font-size:1.15rem}h3{font-size:1rem}
+  .muted{color:var(--muted)}
+  .kicker{font-size:.76rem;font-weight:700;color:var(--accent);letter-spacing:.04em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);margin-bottom:13px}
+  .between{display:flex;justify-content:space-between;align-items:center}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+
+  /* hero */
+  .hero{background:linear-gradient(135deg,#f3ddd2,#f6e9df);border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+  .hero .deco{position:absolute;right:-6px;bottom:-14px;font-size:4.6rem;opacity:.16}
+  .hero h1{font-weight:800;margin:4px 0 2px}
+  .count{font-size:1.7rem;font-weight:800;color:var(--accent)}
+
+  /* TODAY card */
+  .today{background:linear-gradient(135deg,var(--accent),#e0764f);color:#fff;border-radius:20px;padding:20px;margin-bottom:14px;box-shadow:0 8px 22px rgba(200,90,68,.32);cursor:pointer;position:relative;overflow:hidden}
+  .today .dot{position:absolute;top:16px;right:16px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.25);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 5px rgba(255,255,255,.25)}50%{box-shadow:0 0 0 9px rgba(255,255,255,.05)}}
+  .today .lbl{font-size:.74rem;font-weight:800;letter-spacing:.08em;opacity:.9}
+  .today h2{font-size:1.35rem;font-weight:800;margin:5px 0 6px}
+  .today .sum{font-size:.9rem;opacity:.95;line-height:1.5}
+  .today .view-btn{display:inline-flex;align-items:center;gap:5px;margin-top:12px;background:rgba(255,255,255,.22);padding:8px 15px;border-radius:11px;font-weight:800;font-size:.9rem}
+
+  /* flight */
+  .flight{display:flex;align-items:center;gap:10px;padding:8px 0}
+  .flight .leg{flex:1;text-align:center}.flight .code{font-size:1.15rem;font-weight:800}
+  .flight .city{font-size:.75rem;color:var(--muted)}.flight .arrow{color:var(--accent);font-size:1.1rem}
+  .flight .mid{text-align:center;font-size:.72rem;color:var(--muted);min-width:58px}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;width:100%;text-decoration:none}
+  .btn-accent{background:var(--accent);color:#fff}.btn-soft{background:var(--accent-soft);color:var(--accent)}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .bar{height:9px;background:#eaddcf;border-radius:99px;overflow:hidden;margin-top:8px}
+  .bar>div{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),#e07d5f);transition:width .35s}
+
+  /* checklist */
+  .ck{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .ck.done{border-color:var(--done)}
+  .chead{display:flex;align-items:center;gap:12px;padding:15px;cursor:pointer;user-select:none}
+  .cnum{font-size:.7rem;font-weight:800;color:var(--muted);width:18px;flex-shrink:0}
+  .cemoji{font-size:1.4rem;width:33px;height:33px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);border-radius:10px;flex-shrink:0}
+  .ck.done .cemoji{background:var(--done-soft)}.ctitle{flex:1;font-weight:700}
+  .cbadge{font-size:.72rem;font-weight:700;color:var(--muted);background:#f3ece2;padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .ck.done .cbadge{background:var(--done-soft);color:var(--done)}
+  .chev{color:var(--muted);font-size:1.1rem;transition:transform .25s}.ck.open .chev,.slot.open .chev{transform:rotate(90deg)}
+  .cbody{display:none;padding:0 15px 14px}.ck.open .cbody{display:block}
+  .task{display:flex;align-items:flex-start;gap:11px;padding:10px 3px;border-top:1px dashed var(--line);cursor:pointer}
+  .task:first-child{border-top:none}
+  .box{width:22px;height:22px;border:2px solid #d8cabb;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .task.on .box{background:var(--done);border-color:var(--done)}.task.on .box svg{opacity:1}
+  .task .label{font-size:.94rem}.task.on .label{color:var(--muted);text-decoration:line-through}
+  .cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.88rem;padding:10px 14px;border-radius:11px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
+  .done-banner{display:none;background:linear-gradient(135deg,#fbeee7,#f6e0d7);border:1px solid var(--accent);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+  .done-banner.show{display:block}.done-banner .big{font-size:2.2rem}.done-banner h2{color:var(--accent);margin:4px 0 2px}
+
+  /* day tabs */
+  .days{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+  .days::-webkit-scrollbar{display:none}
+  .dtab{flex-shrink:0;background:#fff;border:1px solid var(--line);color:var(--muted);padding:9px 15px;border-radius:13px;font-weight:800;font-size:.85rem;cursor:pointer;text-align:center;line-height:1.15}
+  .dtab small{display:block;font-weight:600;font-size:.66rem;opacity:.8}
+  .dtab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .dayhead{margin:2px 2px 12px}.dayhead .rt{color:var(--muted);font-size:.85rem;margin-top:2px}
+
+  /* slot timeline */
+  .tl{position:relative;padding-left:20px}
+  .tl::before{content:'';position:absolute;left:6px;top:8px;bottom:12px;width:2px;background:var(--line)}
+  .slot{position:relative;margin-bottom:10px}
+  .slot::before{content:'';position:absolute;left:-17px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+  .slot.metro::before{background:var(--muted)}
+  .shead{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 13px;box-shadow:var(--shadow);cursor:pointer}
+  .slot.open .shead{border-color:var(--accent)}
+  .sicon{font-size:1.25rem;width:20px;text-align:center;flex-shrink:0}
+  .stime{font-size:.76rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;min-width:46px;flex-shrink:0}
+  .slabel{flex:1;font-weight:700;font-size:.96rem}
+  .sbody{display:none;padding:12px 4px 4px}
+  .slot.open .sbody{display:block;animation:fade .2s}
+  @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
+  .p-note{color:var(--muted);font-size:.86rem;margin-bottom:6px}
+
+  /* copy chip */
+  .cp{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid transparent;border-radius:10px;padding:7px 11px;margin:4px 6px 0 0;cursor:pointer;font-size:.84rem;font-weight:600}
+  .cp:active{border-color:var(--accent)}
+  .cp .zh{color:var(--ink);font-weight:800}.cp .ic{opacity:.65;font-size:.82rem}
+  .cp.copied{background:var(--done-soft);color:var(--done);border-color:var(--done)}
+  .cp.copied .zh{color:var(--done)}
+
+  /* METRO — hero */
+  .metro{background:#fff;border:1px solid var(--line);border-left:6px solid var(--mc,var(--muted));border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .m-sta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:3px 0}
+  .m-sta .name{font-weight:800;font-size:1.05rem}
+  .m-sta .name .zh{color:var(--muted);font-weight:700;margin-left:5px;font-size:.95rem}
+  .linepill{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1rem;margin:9px 0 3px}
+  .ldot{border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+  .ldot.big{width:26px;height:26px;font-size:.9rem}
+  .m-dir{font-size:1.05rem;font-weight:800;padding:4px 0 4px 34px;line-height:1.3}
+  .m-dir .lead{color:var(--muted);font-size:.76rem;font-weight:700;display:block;letter-spacing:.03em}
+  .m-dir .zh{margin-left:4px}
+  .m-arrow{color:var(--muted);padding:2px 0 2px 40px;font-size:1.1rem}
+  .m-change{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:.86rem;padding:7px 12px;border-radius:10px;margin:8px 0}
+  .m-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+  .exit-big{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;font-weight:800;font-size:1rem;padding:9px 16px;border-radius:12px}
+  .exit-check{background:#fbe9c9;color:#a06a1f}
+  .mchip{font-size:.8rem;font-weight:700;background:#f3ece2;color:var(--ink);padding:6px 12px;border-radius:99px}
+
+  .soon{text-align:center;color:var(--muted);padding:36px 12px}
+  /* highlight (ห้ามพลาด) + cut (ตัดได้) */
+  .slot.hl .shead{border:2px solid transparent;background-image:linear-gradient(#fff,#fff),linear-gradient(90deg,#ff5f6d,#ff9f43,#ffe66d,#3ecf8e,#5aa9ff,#b794f6);background-origin:border-box;background-clip:padding-box,border-box;box-shadow:0 3px 14px rgba(124,92,255,.14)}
+  .hl-badge{display:inline-block;font-size:.62rem;font-weight:800;color:#fff;padding:2px 9px;border-radius:99px;background:linear-gradient(90deg,#ff5f6d,#ff9f43,#3ecf8e,#5aa9ff,#b794f6);margin-bottom:4px;letter-spacing:.02em}
+  .slot.cut .shead{border-color:#e79a9a;background:#fff6f5}
+  .cut-badge{display:inline-block;font-size:.62rem;font-weight:800;color:#c0392b;background:#fbe0dd;padding:2px 9px;border-radius:99px;margin-bottom:4px}
+  .planb{background:#fbe0dd;color:#a5342b;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-bottom:8px}
+  /* check list */
+  .citem{display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px dashed var(--line);cursor:pointer;font-size:.92rem}
+  .citem:first-child{border-top:none}
+  .cbox{width:20px;height:20px;border:2px solid #d8cabb;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .cbox svg{width:11px;height:11px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .citem.on .cbox{background:var(--done);border-color:var(--done)}.citem.on .cbox svg{opacity:1}
+  .citem.on span{color:var(--muted);text-decoration:line-through}
+  /* cute map */
+  .mapwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;padding:6px;-webkit-overflow-scrolling:touch}
+  .mapwrap svg{display:block}
+  .maphint{font-size:.76rem;color:var(--muted);margin:6px 2px 0}
+  /* train card */
+  .train{background:#fff;border:1px solid var(--line);border-left:6px solid #4a6cf7;border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+  .tfield label{font-size:.72rem;font-weight:700;color:var(--muted);display:block;margin-bottom:3px}
+  .tin{width:100%;font-family:inherit;font-size:.95rem;padding:9px;border:1.5px solid var(--line);border-radius:9px;background:#f8f9ff;color:var(--ink);font-weight:700}
+  .tin:focus{outline:none;border-color:#4a6cf7}
+  .amber{background:#fbeecb;color:#8a6414;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-top:9px}
+  /* slot image + lightbox */
+  .slotimg{width:100%;border-radius:12px;margin-top:8px;cursor:zoom-in;border:1px solid var(--line);display:block}
+  .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:80;align-items:center;justify-content:center;padding:14px}
+  .imgmodal.on{display:flex}
+  .imgmodal img{max-width:100%;max-height:100%;border-radius:8px}
+  .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
+  .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
+
+  .nav{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;height:calc(var(--nav-h)+env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(255,252,247,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex}
+  .nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:.66rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+  .nav button .ni{font-size:1.25rem}.nav button.on{color:var(--accent)}
+  .view{display:none}.view.on{display:block;animation:fade .2s}
+
+  .toast{position:fixed;left:50%;bottom:calc(var(--nav-h)+22px+env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .zh{color:#ffd9cd}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="status"></div>
+
+  <!-- HOME -->
+  <section class="view on pad" id="v-home">
+    <div class="hero">
+      <span class="deco">🏮</span>
+      <div class="kicker">SHANGHAI WITH MOM</div>
+      <h1>เซี่ยงไฮ้กับแม่ 🇨🇳❤️</h1>
+      <div class="muted" style="font-size:.9rem">3–8 ธันวาคม 2026 · 2 คน</div>
+      <div style="margin-top:10px"><span class="count" id="countdown">–</span></div>
+    </div>
+
+    <div id="today-card"></div>
+
+    <div class="card">
+      <div class="between" style="margin-bottom:6px"><h3>✈️ เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
+      <div class="flight">
+        <div class="leg"><div class="code">BKK</div><div class="city">08:50</div></div>
+        <div class="mid">9C7290<br>3 Dec</div><div class="arrow">→</div>
+        <div class="leg"><div class="code">PVG</div><div class="city">14:05</div></div>
+      </div>
+      <div class="flight" style="border-top:1px dashed var(--line)">
+        <div class="leg"><div class="code">PVG</div><div class="city">12:00</div></div>
+        <div class="mid">9C7283<br>8 Dec</div><div class="arrow">→</div>
+        <div class="leg"><div class="code">BKK</div><div class="city">15:45</div></div>
+      </div>
+      <div class="muted" style="font-size:.78rem;margin-top:6px">กระเป๋าโหลด 20kg · ถือขึ้น 7kg (40×30×20)</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:6px">🏨 โรงแรม</h3>
+      <div style="font-weight:700">Yilong Anyun Hotel</div>
+      <div class="muted" style="font-size:.85rem">艺龙安云酒店(上海陆家嘴民生路地铁站店)<br>1657 Zhangyang Rd, Pudong</div>
+      <div style="margin-top:9px;background:var(--accent-soft);border-radius:11px;padding:9px 11px">
+        <div style="font-size:.74rem;font-weight:700;color:var(--accent)">🚇 สถานีใกล้สุด</div>
+        <div style="font-weight:800;margin-top:2px">民生路 Minsheng Road
+          <span class="ldot" style="width:17px;height:17px;font-size:.66rem;background:var(--l6);vertical-align:middle">6</span> Line 6</div>
+        <div class="muted" style="font-size:.82rem">🚶 เดิน ~300 m</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="between"><h3>✅ เตรียมตัว</h3><span class="badge" id="home-ck">0/4</span></div>
+      <div class="bar"><div id="home-bar"></div></div>
+    </div>
+    <div class="qgrid">
+      <button class="btn btn-soft" onclick="go('chk')">✅ เช็คลิสต์</button>
+      <button class="btn btn-accent" onclick="go('plan')">🗺️ แผนเที่ยว</button>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="view pad" id="v-chk">
+    <div class="kicker">PRE-TRIP CHECKLIST</div>
+    <h1 style="margin:2px 0 4px">เตรียมตัวก่อนไป</h1>
+    <p class="muted" style="font-size:.88rem;margin-bottom:14px">กด card เพื่อดูรายละเอียด · ติ๊กแล้ว save เอง</p>
+    <div class="between" style="margin-bottom:4px"><b>ความคืบหน้า</b><span class="muted" id="ck-count" style="font-size:.86rem;font-weight:600">0 / 4</span></div>
+    <div class="bar" style="margin-bottom:18px"><div id="ck-bar"></div></div>
+    <div class="done-banner" id="banner"><div class="big">🎉</div><h2>Ready for Shanghai!</h2><p class="muted">เตรียมครบแล้ว ❤️</p></div>
+    <div id="ck-cards"></div>
+  </section>
+
+  <!-- PLAN -->
+  <section class="view pad" id="v-plan">
+    <div class="kicker">DAY BY DAY</div>
+    <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
+    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลา = ดู Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap<br>🧭 <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> (หา AMap เจอแน่) แล้วเดินหาร้านเล็กเอา — ร้าน trendy บางร้าน AMap อาจไม่มี</p>
+    <div class="days" id="days"></div>
+    <div class="dayhead" id="dayhead"></div>
+    <div class="tl" id="timeline"></div>
+  </section>
+
+  <!-- INFO -->
+  <section class="view pad" id="v-info">
+    <div class="kicker">ข้อมูล</div>
+    <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
+    <div class="card"><h3 style="margin-bottom:8px">🚇 สายรถไฟฟ้าที่ใช้</h3>
+      <div class="legrow">
+        <span class="leg-item"><span class="ldot big" style="background:var(--l2)">2</span>Line 2 🟢</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l6)">6</span>Line 6 🟣</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l9)">9</span>Line 9 🩷</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l10)">10</span>Line 10 🔵</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l14)">14</span>Line 14 🟤</span>
+      </div></div>
+    <div class="card"><h3 style="margin-bottom:8px">🚕 กฎการเดินทาง</h3>
+      <div class="irow">1. <b>Metro 🚇</b> เป็นหลัก</div>
+      <div class="irow">2. <b>เดิน 🚶</b> เมื่อใกล้ + เส้นทางง่าย</div>
+      <div class="irow">3. <b>Didi 🚕</b> เมื่อ: มีกระเป๋า / เปลี่ยนรถหลายต่อ / metro เข้าถึงยาก / ประหยัดเวลามาก</div></div>
+    <div class="card"><h3 style="margin-bottom:8px">📱 eSIM</h3>
+      <div class="irow"><b>ก่อนออกจากไทย:</b> ติดตั้ง China eSIM · <b>เก็บ AIS ไว้ ห้ามลบ</b> (AIS=เบอร์/OTP, China eSIM=เน็ต)</div>
+      <div class="irow"><b>China eSIM:</b> Cellular Data → China eSIM · Allow Data Switching → OFF</div>
+      <div class="irow"><b>AIS:</b> Turn On This Line → ON · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div></div>
+    <div class="card"><h3 style="margin-bottom:8px">🛂 China Arrival Card</h3>
+      <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
+      <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
+    <div class="card"><h3 style="margin-bottom:8px">🛫 ขากลับ (8 Dec)</h3>
+      <div class="irow">Hotel → <b>Didi</b> → PVG Terminal 2 (มีแม่ + กระเป๋า)</div></div>
+  </section>
+
+  <nav class="nav">
+    <button class="on" data-v="home" onclick="go('home')"><span class="ni">🏠</span>หน้าหลัก</button>
+    <button data-v="chk" onclick="go('chk')"><span class="ni">✅</span>เช็คลิสต์</button>
+    <button data-v="plan" onclick="go('plan')"><span class="ni">🗺️</span>แผนเที่ยว</button>
+    <button data-v="info" onclick="go('info')"><span class="ni">ℹ️</span>ข้อมูล</button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<div class="imgmodal" id="imgmodal" onclick="this.classList.remove('on')"><img id="imgmodal-src" alt=""></div>
+
+<script>
+const P=(en,zh)=>({en,zh});
+const LC={1:'#e4002b',2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',9:'var(--l9)',10:'var(--l10)',11:'#871c2b',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
+
+const CARDS=[
+  {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
+  {id:'c2',n:'02',emoji:'🛡️',title:'ซื้อประกันเดินทาง',tasks:['ซื้อประกัน','เช็กความคุ้มครอง','Save กรมธรรม์']},
+  {id:'c3',n:'03',emoji:'🇨🇳',title:'China Arrival Card',tasks:['กรอก Arrival Card'],action:{label:'ดูวิธีกรอก →',href:'https://www.facebook.com/bestconsortium/videos/851860230574810/',external:true}},
+  {id:'c4',n:'04',emoji:'📱',title:'ซื้อ + ติดตั้ง eSIM',tasks:['ซื้อ China eSIM','ติดตั้ง eSIM','เช็กว่า AIS SIM ยังอยู่','เปิด AIS Wi-Fi Calling'],action:{label:'วิธีตั้งค่า eSIM →',view:'info'}},
+];
+
+const DAYS=[
+ {id:'1',tab:'DAY 1',date:'DEC 3',emoji:'✈️',cardTitle:'Shanghai First Night',
+  summary:'PVG → Hotel → Local Food → Nanjing Road → The Bund',
+  title:'Day 1 · ถึงเซี่ยงไฮ้ → The Bund',route:'PVG → โรงแรม → 南京路 → 外滩',
+  slots:[
+   {t:'14:05',icon:'✈️',label:'ถึงสนามบิน PVG (T2)',note:'ผ่าน ตม. + รับกระเป๋า',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
+   {t:'~15:30',icon:'🚇',label:'Metro → โรงแรม',metro:{mc:2,board:P('Pudong Airport','浦东国际机场'),
+     legs:[{line:2,dir:P('East Xujing','徐泾东'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Gangcheng Road','港城路'),alight:P('Minsheng Road','民生路')}],
+     walk:'เดิน ~300 m → โรงแรม',note:'เปลี่ยนสาย 1 ครั้งที่ 世纪大道 · โรงแรมอยู่ 民生路 (ดีกว่าเดิน 1.7 km กับกระเป๋า+ธ.ค. หนาว)'}},
+   {t:'~17:00',icon:'🏨',label:'เช็คอิน · ออก 17:15',places:[P('Yilong Anyun Hotel','艺龙安云酒店(上海陆家嘴民生路地铁站店)')]},
+   {t:'17:15',icon:'🚇',label:'Metro → Dinner (หนานจิง)',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('East Xujing','徐泾东'),alight:P('East Nanjing Road','南京东路')}],
+     exitCheck:'ดู Exit ใน AMap (ฝั่ง 天津路)',mins:'~25 นาที'}},
+   {t:'~18:00',icon:'🍜',label:'Dinner — Autumn Flavor',hl:true,note:'ย่าน 天津路 (หลัง Jinjiang Inn) · กินก่อน 😂 · แผนที่ด้านล่าง (จุด 5 บนแผนที่)<br><br>🔁 <b>ร้านสำรอง</b> ถ้า Autumn Flavor ปิด/หาไม่เจอ (เดินจาก 南京东路 East Nanjing Road):<br>① 德兴馆 De Xing Guan (广东路总店) · 广东路 · เดิน ~6–8 นาที ใกล้สุด · เปิด 09:00–14:00 / 17:00–20:30 (ตรงมื้อเย็น)<br>② 鲜得来排骨年糕 Xian De Lai (云南南路总店) · 云南南路 · เดิน ~12 นาที · เปิด 07:00–22:00 ยืดหยุ่นสุด<br>③ 舒蔡记生煎菜饭 Shu Cai Ji (云南中路店) · 云南中路 · เดิน ~10 นาที · เปิด 07:30–19:30',
+     img:'assets/day1-food-map.png',
+     places:[P('Autumn Flavor 小秋家常菜','小秋家常菜 天津路'),P('สำรอง① De Xing Guan','德兴馆 广东路'),P('สำรอง② Xian De Lai','鲜得来排骨年糕 云南南路'),P('สำรอง③ Shu Cai Ji','舒蔡记生煎菜饭 云南中路')]},
+   {t:'~19:00',icon:'🧋',label:'HEYTEA',cut:true,planb:'ตัด HEYTEA เดินไป The Bund เลย',note:'สาขาบน 南京东路 (ระหว่างทางไป Bund)',places:[P('HEYTEA','喜茶 南京东路')]},
+   {t:'~19:30',icon:'🛍️',label:'Nanjing Road',note:'เดินจาก 南京东路 → ไป Bund',places:[P('Nanjing Road','南京路步行街')]},
+   {t:'~19:50',icon:'🌃',label:'THE BUND',note:'ถึงก่อนเปิดไฟ · The Bund (view of Oriental Pearl 东方明珠) · ดู陆家嘴 skyline จากฝั่ง Puxi',places:[P('The Bund','外滩')]},
+   {t:'~21:30',icon:'🚇',label:'Metro → กลับโรงแรม',metro:{mc:2,board:P('East Nanjing Road','南京东路'),
+     legs:[{line:2,dir:P('Pudong Airport dir.','浦东国际机场 方向'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Gangcheng Road dir.','港城路 方向'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม'}},
+  ]},
+ {id:'2',tab:'DAY 2',date:'DEC 4',emoji:'🚶',cardTitle:'Wukang · Anfu · Zhangyuan · Yuyuan',
+  summary:'武康路 → 安福路 → Jing’an → 张园 → 豫园 Night',
+  title:'Day 2 · เดินย่านเก๋ + Yuyuan กลางคืน',route:'武康路 → 安福路 → 张园 → 豫园',
+  slots:[
+   {t:'07:00',icon:'⏰',label:'ตื่น'},
+   {t:'07:30',icon:'🥟',label:'อาหารเช้าแถวโรงแรม',note:'ร้านเช้าจีนย่าน 民生路 Minsheng Road (豆浆/包子/面) · เปิด ~06:00–09:00'},
+   {t:'08:00',icon:'🚇',label:'โรงแรม → Longhua Temple',cut:true,planb:'ตัดที่ 1 — นอนต่อ ออกโรงแรม 09:15 ใช้เส้นเดิม L6→L2→L10→Jiaotong University (ได้เวลาคืน ~2 ชม.)',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Oriental Sports Center','东方体育中心')},
+           {line:11,dir:P('N. Jiading/Huaqiao','嘉定北/花桥'),alight:P('Longhua','龙华')}],
+     mins:'~35 นาที (ถึง ~08:45)',note:'L6 นั่งสุดสาย 东方体育中心 (ทุกคนลงหมด ขึ้นผิดไม่ได้) → เปลี่ยน L11 · 龙华 = 3 สถานี'}},
+   {t:'08:50',icon:'🛕',label:'Longhua Temple + Pagoda',cut:true,planb:'ตัดที่ 1 — ตัดวัดเช้าได้ นอนต่อ (จับคู่กับ slot ก่อนหน้า)',note:'龙华寺 + 龙华塔 · 龙华路2853号 · เปิด 07:00–16:30 เข้าฟรี · ~50–60 นาที · ⚠️ อย่าเดินครบทุกซอก (ยังต้องเดิน 武康路+安福路 อีก 3 กม.)<br>🏬 龙华会 Longhua Hui ห้างตรงข้ามวัด (เชื่อมสถานี 龙华 ใต้ห้าง) — ห้องน้ำ/แอร์/ที่นั่ง/กาแฟ ให้แม่พัก',places:[P('Longhua Temple','龙华寺'),P('Longhua Hui','龙华会')]},
+   {t:'09:55',icon:'🚇',label:'Longhua → Jiaotong University',metro:{mc:11,board:P('Longhua','龙华'),
+     legs:[{line:11,dir:P('N. Jiading/Huaqiao','嘉定北/花桥'),alight:P('Jiaotong University','交通大学')}],
+     exit:'7',mins:'3 สถานี ~8 นาที (ถึง ~10:10)',walk:'เดิน ~10–12 นาที (~700–900 m) → Wukang Mansion',note:'สายเดิม ไม่ต้องเปลี่ยนสาย · ผ่าน 上海游泳馆 → 徐家汇 → 交通大学'}},
+   {t:'10:25',icon:'🏛️',label:'Wukang Mansion — ถ่ายรูป',hl:true,note:'武康大楼 · เริ่มเดิน route 武康路 → 安福路 → 常熟路',places:[P('Wukang Mansion','武康大楼')]},
+   {t:'10:50',icon:'🥐',label:'APOLI ITABAKERY (อาหารเช้าสาย)',note:'兴国路380 · ธีม Harry Potter · เปิด 10:00–20:00 (ไปก่อนหน้านี้ร้านปิด) · ค้น 面包坊 AMap',places:[P('APOLI 面包坊','AP意大利料理面包坊 兴国路380号')]},
+   {t:'11:30',icon:'🚶',label:'Wukang Road — Walking',note:'นำทางไป 武康路 แล้วเดินหาร้าน · (+ %Arabica ถ้าต้องการ) · ร้านเล็กบางร้านอาจไม่มีใน AMap',places:[P('Wukang Road','武康路')],cprefix:'d2wk',check:['Wukang Mansion 武康大楼','Gathering — Cafe/Ceramic','Looknow','Project Element — Fragrance','The Matcha Tokyo 🍵 (武康路115号)','Fragrance:Diary','%Arabica (ถ้าต้องการ)']},
+   {t:'',icon:'🗺️',label:'แผนที่เดินเล่น Wukang–Anfu',map:true},
+   {t:'12:00',icon:'🍨',label:'AZABUYA (麻布屋)',note:'ไอศกรีม/มัทฉะ ญี่ปุ่น · 乌鲁木齐中路315 · เปิด 09:30–22:00 · AMap ค้น 麻布屋',places:[P('Azabuya 麻布屋','麻布屋 乌鲁木齐中路315号')]},
+   {t:'12:25',icon:'🐻',label:'Anfu Road — Check-in ร้าน',note:'นำทางไป 安福路 แล้วเดินหาร้านตามลิสต์ · ไม่ต้องเข้าทุกร้าน · ร้านบน 安福路 เปิด ~10:00–11:00',places:[P('Anfu Road','安福路')],cprefix:'d2af',check:['13DE MARZO','NU SHOP','Wiggle Wiggle','Brandy Melville','Deja vu','Not Just Pajama','Lost in Echo','Taoxia Hand Cream','SFSG x PLUSONE','Looknow — Jellycat','Uodycoco','MORETHINGS+']},
+   {t:'12:40',icon:'👟',label:'adidas Originals Flagship',cut:true,planb:'ตัดที่ 3 — ตัด adidas + ครึ่งลิสต์ Anfu เลือกเข้าแค่ 3-4 ร้านที่อยากได้จริง (ได้เวลาคืน ~40 นาที)',note:'ช้อป/ถ่ายรูป · 安福路322号',places:[P('adidas Originals','安福路322号')]},
+   {t:'13:10',icon:'🚇',label:'เดิน → Changshu Road → Jing’an',metro:{mc:7,board:P('Changshu Road','常熟路'),
+     legs:[{line:7,dir:P('Meilan Lake','美兰湖'),alight:P('Jing’an Temple','静安寺')}],
+     mins:'1 สถานี (ถึง ~13:30)',note:'★ ออกจาก 安福路 13:10 ห้ามช้ากว่านี้ · เดิน ~10 นาที → สถานี 常熟路 · ไม่ใช้ Didi'}},
+   {t:'13:30',icon:'🍜',label:'Lunch — Lailai Xiaolong Qiaoai',note:'莱莱小笼·乔艾 (静安直营店) ย่าน 静安寺 · เปิด 08:00–14:00 / 15:00–20:00 · ⚠️ ต้องถึงก่อน 13:45 ไม่งั้นปิดรอบเช้า · สำรอง: Food Court ใน 静安嘉里中心',places:[P('Lailai Xiaolong 莱莱小笼·乔艾','莱莱小笼·乔艾 静安寺')]},
+   {t:'14:20',icon:'🚻',label:'Kerry Centre — พักขา / ห้องน้ำ',note:'静安嘉里中心 ติดสถานี · เดินผ่านหน้าวัด 静安寺 กลางวัน ไม่ต้องเข้า (เก็บถ่ายกลางคืน Day 5)',places:[P('Jing An Kerry Centre','静安嘉里中心')]},
+   {t:'15:15',icon:'🏘️',label:'Zhangyuan + Weihai Road',cut:true,planb:'ตัดที่ 2 — ธีมซ้ำกับ Anfu Road ที่เพิ่งเดินมา · ตัดแล้วไป Yuyuan เลย 15:30 นั่งจิบชารอฟ้ามืด (ได้เวลาคืน ~1.5 ชม.)',note:'ตึกเก่าเซี่ยงไฮ้ (Shikumen) + แฟชั่น/ไลฟ์สไตล์ · 威海路258号 · เดินจาก Kerry ~15 นาที',places:[P('Zhangyuan','张园 威海路258号')],cprefix:'d2zy',check:['Zhangyuan Shikumen','Weihai Road','Fashion/Lifestyle Shops','Cafe/Dessert','Photo Spots']},
+   {t:'16:45',icon:'🚇',label:'Zhangyuan → Yuyuan',metro:{mc:2,board:P('West Nanjing Road','南京西路'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('East Nanjing Road','南京东路')},
+           {line:10,dir:P('Hongqiao Railway Station','虹桥火车站'),alight:P('Yuyuan Garden','豫园')}],
+     exit:'1',note:'เดินจาก 张园 ไปสถานี 南京西路 · เปลี่ยน 1 ครั้ง ช่วงสั้น'}},
+   {t:'17:15',icon:'🏮',label:'Yuyuan — เดินเล่น รอฟ้ามืด',note:'ธ.ค. ฟ้ามืด ~16:50 ไฟเปิดพอดี · Exit 1 เชื่อม Renmin Rd / Yu Garden ตรง · เข้า Bazaar/Old Street',places:[P('Yuyuan','豫园')]},
+   {t:'18:00',icon:'🌃',label:'Yuyuan Night',hl:true,note:'⚠️ ไม่เข้าสวนใน (สวนเปิด 09:00–16:30) · มาเพื่อ Bazaar/ไฟกลางคืน',cprefix:'d2yy',check:['Yuyuan Bazaar','Old Street','City God Temple area','Night Lights','Photo Spots']},
+   {t:'20:00',icon:'🍜',label:'Late Dinner',note:'อาหารท้องถิ่น/ของกินเบาๆ รอบ Yuyuan'},
+   {t:'21:00',icon:'🍵',label:'Tea / Dessert',cut:true,planb:'ตัดที่ 4 — กลับโรงแรม 21:00 แทน 22:00 ★ แก้ปัญหารถเที่ยวสุดท้ายไปในตัว (ได้เวลาคืน ~1 ชม.)',note:'ร้านชาเก๋ๆ โซน Yuyuan'},
+   {t:'~22:00',icon:'🚇',label:'กลับโรงแรม',metro:{mc:14,board:P('Yuyuan Garden','豫园'),
+     legs:[{line:14,dir:P('Guiqiao Road','桂桥路'),alight:P('Changyi Road','昌邑路')},
+           {line:18,dir:P('Hangtou','航头'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม',note:'⚠️ 22:00 ใกล้รถเที่ยวสุดท้าย — เช็ค 末班车 (last train) ก่อน · ถ้าไม่ทันใช้ Didi'}},
+  ]},
+ {id:'3',tab:'DAY 3',date:'DEC 5',emoji:'🚄',cardTitle:'Suzhou Day Trip',
+  summary:'HSR → 苏州 · Crab Noodles · Pingjiang · Matcha · MixC · Shantang Night',
+  title:'Day 3 · ซูโจว (ไป-กลับ HSR)',route:'虹桥 → 苏州 → Pingjiang → MixC → Shantang',
+  slots:[
+   {t:'06:30',icon:'⏰',label:'ตื่น / เตรียมตัว'},
+   {t:'06:50',icon:'🏨',label:'ออกจากโรงแรม'},
+   {t:'~06:55',icon:'🚇',label:'โรงแรม → Hongqiao Railway Station',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('East Xujing','徐泾东'),alight:P('Hongqiao Railway Station','虹桥火车站')}],
+     mins:'~55–65 นาที',note:'ถึง Hongqiao ~07:50–08:00 · เผื่อเวลาแม่เดิน + security + gate'}},
+   {t:'08:00',icon:'🥛',label:'Breakfast ที่ Hongqiao',note:'น้ำเต้าหู้ 豆浆 + ปาท่องโก๋ 油条 · กินในสถานีก่อนขึ้นรถไฟ ~30–40 นาที'},
+   {t:'08:30',icon:'🚄',label:'HSR: Hongqiao → Suzhou',train:{tid:'out',from:P('Shanghai Hongqiao','上海虹桥站'),to:P('Suzhou','苏州站'),dur:'~25–35 นาที'}},
+   {t:'~09:30',icon:'🚄',label:'ถึง Suzhou — เดินตามป้าย 地铁',note:'ไม่ต้องเรียก Didi · เดินตามป้าย 地铁 → Metro'},
+   {t:'~09:40',icon:'🚇',label:'Suzhou Station → Xiangmen',sz:{from:P('Suzhou Railway Station','苏州火车站'),to:P('Xiangmen','相门'),exit:'3',lines:['相门 = Line 1 / 苏州站 = L2+L4','จุดเปลี่ยน 广济南路 South Guangji Rd หรือ 乐桥 Leqiao'],mins:'~20 นาที (ต้องเปลี่ยนสาย)',note:'苏州站→相门 ต้องเปลี่ยนสาย · เช็คสาย/ทิศ/จุดเปลี่ยนใน AMap'}},
+   {t:'10:00',icon:'🦀',label:'Crab Noodles บะหมี่มันปู',note:'Xiangmen Exit 3 → ออกสถานี → เลี้ยวซ้าย → ร้านบะหมี่มันปู · ชื่อร้านยังไม่ระบุ (Creator ไม่บอก ไม่ใส่มั่ว) · มื้อ local ~30–40 นาที'},
+   {t:'10:40',icon:'🏮',label:'Pingjiang Road (slow walk ~1.5 ชม.)',hl:true,note:'📸 คลอง · บ้านเก่า · ร้านเล็ก · ร้านชา · ไม่ต้องเร่งเดินครบทุกซอย',places:[P('Pingjiang Road','平江路')]},
+   {t:'12:20',icon:'🛍️',label:'Renheng Cang Street',cut:true,planb:'ตัดที่ 2 — ย่านไลฟ์สไตล์ใหม่ ไม่ใช่เมืองเก่า · ตัดแล้วกินเที่ยงแถว 平江路 นั่งพักยาว (ได้เวลาคืน ~1 ชม.)',note:'lifestyle ติดโซน Pingjiang/Xiangmen · ค้น AMap: 仁恒仓街',places:[P('Renheng Cang Street','仁恒仓街')]},
+   {t:'12:40',icon:'🍵',label:'THE MATCHA TOKYO (Suzhou)',cut:true,planb:'ตัดที่ 2 — แบรนด์มัทฉะซ้ำกับ Day 2 · ตัดแล้วนั่งพักแถว 平江路',note:'ที่ Renheng Cang Street · สาขาแรกใน Jiangsu · matcha / ของหวาน ~40 นาที',places:[P('THE MATCHA TOKYO','THE MATCHA TOKYO 仁恒仓街')]},
+   {t:'13:20',icon:'🚇',label:'Cang Street → MixC (石路)',sz:{from:P('Xiangmen','相门'),to:P('Shilu','石路'),exitCheck:'เช็ค Exit ใน AMap ที่สถานี',lines:['相门 Line 1 → เปลี่ยน → 石路 Line 2','MixC อยู่ที่สถานี 石路 (Line 2)'],mins:'เผื่อ 30–40 นาที',note:'相门(L1) → 石路(L2) ต้องเปลี่ยนสาย · จุดเปลี่ยน+ทิศ+Exit ดู AMap'}},
+   {t:'14:00',icon:'🎨',label:'Suzhou MixC World — Art/Lifestyle',cut:true,planb:'ถ้าแม่ล้า ข้ามไป 山塘街 เลย นั่งจิบชารอไฟเปิด (Highlight ซูโจว = คลอง+เมืองเก่า ไม่ใช่ห้าง)',note:'苏州万象天地 · mall + outdoor + Art Plaza (14:00–16:30)',places:[P('Suzhou MixC World','苏州万象天地')],cprefix:'d3mx',check:['HONG ART GALLERY','TAGI (L1 艺文广场)','ROAD RHINO','เดินเล่น Art Plaza / High Street']},
+   {t:'16:30',icon:'🌆',label:'MixC → Shantang (เดิน)',note:'MixC อยู่ใกล้ Shantang · เดินได้ ไม่ต้องนั่ง metro ข้ามเมืองอีกครั้ง'},
+   {t:'17:00',icon:'🏮',label:'Shantang Old Street (ไฟเปิด)',hl:true,note:'Highlight เย็น · โคมไฟ + แสงสะท้อนคลอง · เอาเฉพาะโซน Old Street ที่สวย · ทางเข้า 山塘街站 Exit 1',places:[P('Shantang Street','山塘街')]},
+   {t:'19:30',icon:'🍜',label:'Dinner',note:'Suzhou noodles / dumplings / local รอบ Shantang · ไม่เอาร้านหรู ~45 นาที'},
+   {t:'20:15',icon:'🚇',label:'Shantang → Suzhou Station',sz:{from:P('Shantangjie','山塘街'),to:P('Suzhou Railway Station','苏州火车站'),lines:['Line 2 · 1 สถานี'],mins:'รถไฟ ~3–5 นาที',note:'ตั้งเป้า 20:30 ถึงสถานี · เผื่อเดินออกจากถนน + security/gate · เช็ค Exit/ทางเดินใน AMap'}},
+   {t:'21:00',icon:'🚄',label:'HSR: Suzhou → Hongqiao',train:{tid:'ret',from:P('Suzhou','苏州站'),to:P('Shanghai Hongqiao','上海虹桥站'),dur:'~25–35 นาที'}},
+   {t:'~22:00',icon:'🚇',label:'Hongqiao → โรงแรม',metro:{mc:2,board:P('Hongqiao Railway Station','虹桥火车站'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Gangcheng Road','港城路'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม',note:'กลับถึงโรงแรม ~22:15–22:45'}},
+  ]},
+ {id:'4',tab:'DAY 4',date:'DEC 6',emoji:'🏮',cardTitle:'Xintiandi · Huaihai · Lujiazui Night',
+  summary:'新天地 → 淮海中路 → 南京西路 → 陆家嘴 Night',
+  title:'Day 4 · Xintiandi + Lujiazui กลางคืน',route:'新天地 → 淮海路 → 南京西路 → 陆家嘴',
+  slots:[
+   {t:'09:00',icon:'🏨',label:'ออกจากโรงแรม'},
+   {t:'~09:05',icon:'🚇',label:'โรงแรม → Xintiandi',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:9,dir:P('Songjiang South Rly.','松江南站'),alight:P('Madang Road','马当路')}],
+     exit:'',walk:'เดิน ~5 นาที → 新天地',mins:'~30–40 นาที',note:'⚠️ Line 9 ไม่มีสถานี "新天地" — ลง 马当路 (สถานีของ Xintiandi บนสาย 9) แล้วเดินเข้า 新天地'}},
+   {t:'10:00',icon:'🏮',label:'Xintiandi — เดินเล่น + ถ่ายรูป',note:'~1–1.5 ชม.',places:[P('Xintiandi','新天地')]},
+   {t:'~11:00',icon:'🍜',label:'Tao Tao Ju (มื้อสาย/เที่ยง)',note:'ติ่มซำ/กวางตุ้ง · ชื่อจีน 陶陶居',places:[P('Tao Tao Ju','陶陶居 新天地')]},
+   {t:'11:30',icon:'🚶',label:'เดิน → Huaihai Road',note:'ช้อป/ไลฟ์สไตล์ ตาม 淮海中路',places:[P('Huaihai Road','淮海中路')]},
+   {t:'12:00',icon:'🏬',label:'HAI550 + Matcha Wang 🐑',note:'🍵 มัทฉะ+น้องแกะ อยู่ใน HAI550 (แถว 淮海中路) · ⚠️ ชื่อจีน HAI550/Matcha Wang เช็ค AMap · นำทางไป 淮海中路 ก่อน ~45–60 นาที',places:[P('Huaihai Road (HAI550)','淮海中路')]},
+   {t:'13:00',icon:'🚇',label:'Huaihai → West Nanjing',metro:{mc:9,board:P('Middle Huaihai Road','淮海中路'),
+     legs:[{line:13,color:'#e06ba8',dir:P('Jinyun Road','金运路'),alight:P('West Nanjing Road','南京西路')}],
+     mins:'~10 นาที',note:'Line 13 ตรง ไม่ต้องเปลี่ยนสาย'}},
+   {t:'13:20',icon:'🛍️',label:'West Nanjing Road — ช้อป',cut:true,planb:'ตัดที่ 1 — ลดจาก 3 ชม. เหลือ 1.5 ชม. แล้วนั่งคาเฟ่ยาว หรือกลับโรงแรมงีบ 1 ชม. ก่อนไป Lujiazui',note:'เดินโซน 南京西路 ตามความสนใจ (ถึง ~16:30)',places:[P('West Nanjing Road','南京西路')],cprefix:'d4wn',check:['Louis Vuitton','Starbucks','London Bakery (เช็คชื่อจีน AMap)']},
+   {t:'17:00',icon:'🍖',label:'Long Time Ago (มื้อเย็น)',note:'ปิ้งย่าง/หมาล่า · ชื่อจีน 很久以前 · กินก่อนเข้า Lujiazui ~1 ชม.',places:[P('Long Time Ago','很久以前 南京西路')]},
+   {t:'18:15',icon:'🚇',label:'West Nanjing → Lujiazui',metro:{mc:2,board:P('West Nanjing Road','南京西路'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Lujiazui','陆家嘴')}],mins:'~20 นาที'}},
+   {t:'19:00',icon:'📸',label:'① Mingzhu Roundabout',hl:true,note:'จุดถ่ายรูปตามคลิป · ทางเดินยกระดับ + skyline ~20–30 นาที',places:[P('Mingzhu Ring','明珠环'),P('Oriental Pearl','东方明珠')]},
+   {t:'~19:30',icon:'🏰',label:'② Disney Flagship Store',cut:true,planb:'ตัดที่ 2 — ร้านของฝาก ไม่ใช่ landmark (รวม Holiland ได้เวลาคืน ~1 ชม.)',note:'ถ่ายรูป/ดูของ ~30 นาที',places:[P('Disney Flagship Store','上海迪士尼旗舰店')]},
+   {t:'~20:00',icon:'🛍️',label:'③ Super Brand Mall',note:'พักแอร์/ห้องน้ำ ~30–40 นาที',places:[P('Super Brand Mall','正大广场')]},
+   {t:'~20:40',icon:'🍰',label:'④ Holiland',cut:true,planb:'ตัดที่ 2 — ร้านขนม ไม่ใช่ landmark',note:'ขนม/ของหวาน · ชื่อจีน 好利来 ~30 นาที',places:[P('Holiland','好利来 陆家嘴')]},
+   {t:'~21:00',icon:'🌃',label:'⑤ Lujiazui Night Walk',cut:true,planb:'ตัดที่ 3 — ถ่ายจบตั้งแต่ Mingzhu แล้ว กลับโรงแรม 21:00 ได้เลย (ได้เวลาคืน ~30 นาที)',note:'ถ่ายไฟกลางคืน · ถ้ามีแรงเดินไปฝั่ง Riverside',places:[P('Shanghai Tower','上海中心大厦'),P('Jin Mao Tower','金茂大厦')]},
+   {t:'21:30',icon:'🚇',label:'Lujiazui → กลับโรงแรม',metro:{mc:2,board:P('Lujiazui','陆家嘴'),
+     legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Century Avenue','世纪大道')},
+           {line:6,dir:P('Gangcheng Road','港城路'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 m → โรงแรม',note:'ถึงโรงแรม ~22:00–22:20'}},
+  ]},
+ {id:'5',tab:'DAY 5',date:'DEC 7',emoji:'🌿',cardTitle:'Old Shanghai City Walk — 法租界',
+  summary:'永嘉路 → 永平里 → 巨富长 → 静安寺 Night',
+  title:'Day 5 · Old Shanghai City Walk — 法租界',route:'永嘉路 → 永平里 → 巨富长 → 静安寺',
+  slots:[
+   {t:'07:45',icon:'⏰',label:'ตื่น',note:'วันสุดท้าย · คืนนี้ต้องเก็บกระเป๋า'},
+   {t:'08:30',icon:'🚇',label:'โรงแรม → ย่าน 永嘉路',metro:{mc:18,board:P('Minsheng Road','民生路'),
+     legs:[{line:18,dir:P('Kangwen Road','康文路'),alight:P('Jiangpu Park','江浦公园')},
+           {line:12,dir:P('Qixin Road','七莘路'),alight:P('Jiashan Road','嘉善路')}],
+     mins:'ถึง ~09:15',note:'L18 → 江浦公园 [4 สถานี] เปลี่ยน L12 → 嘉善路 [9 สถานี] · ⚠️ ห้ามใช้ L6→巨峰路→L12 (อ้อม ~25 สถานี)'}},
+   {t:'09:15',icon:'🚕',label:'嘉善路 → 永嘉路425号 (Didi สั้น)',note:'Didi ~10–15 หยวน · ไม่ให้แม่เดินยาวก่อนเริ่มวัน · 🔎 เช็ค AMap ถ้ามีสถานีใกล้กว่าใช้แทนได้',places:[P('Yongjia Rd 425','永嘉路425号')]},
+   {t:'09:30',icon:'🌿',label:'ตึกเขียว 永嘉路425号 (Green House)',hl:true,note:'【ห้ามตัด】 · ⚠️ ค้น AMap ด้วยที่อยู่ "永嘉路425号" อย่าค้นชื่อเล่น · ⚠️ ธ.ค. หนาว ใบเลื้อยไม่เขียวจัดเหมือนรูปหน้าร้อน — เน้นถ่ายตัวอาคาร + มุม street (~09:30–09:55)',places:[P('Green House 永嘉路425','永嘉路425号')]},
+   {t:'09:55',icon:'🌳',label:'Yongjia Road — เดินตะวันตก ~1 กม.',note:'永嘉路 · บ้านเก่า/ต้นไม้ใหญ่/ซุ้มประตู/ร้านเล็ก · เดินช้าๆ ไม่จับเวลา (~09:55–11:00) · จุดอ้างอิงตามถนน: 425 / 495 / 501',places:[P('Yongjia Road','永嘉路')]},
+   {t:'11:00',icon:'🌹',label:'永平里 Yongpingli',hl:true,note:'【ห้ามตัด】 Highlight ของวัน · 📍 衡山路191号 · Rose sculpture / อาคารเก่า / courtyard / ร้านเล็ก · ให้เวลา 75 นาที · แม่อยากนั่งพัก → นั่งเลย (~11:00–12:15)',places:[P('Yongpingli 永平里','永平里 衡山路191号')]},
+   {t:'12:15',icon:'🍜',label:'Lunch — โซน 永平里 / 衡山路',note:'ไม่ล็อกร้าน · หา local ใน AMap เลือกร้านที่คนนั่งจริง (~12:15–13:15)'},
+   {t:'13:15',icon:'🌳',label:'Hengshan Road — เดินสั้น ~500 ม.',cut:true,planb:'ตัดที่ 2 — ถ้าแม่ล้าตั้งแต่เที่ยง เรียก Didi สั้นๆ จาก 永平里 → 富民路 เลย (~15 หยวน, ได้เวลาคืน ~20 นาที)',note:'衡山路 · ถนนต้นไม้/villa/อาคารเก่า · เดินแค่ช่วงสวยจาก 永平里 → สถานี 衡山路 · ★ ไม่เดินยาว 2 กม.',places:[P('Hengshan Road','衡山路')]},
+   {t:'13:35',icon:'🚇',label:'衡山路 → 常熟路 (★ ประหยัดการเดิน)',metro:{mc:1,board:P('Hengshan Road','衡山路'),
+     legs:[{line:1,dir:P('Fujin Road','富锦路'),alight:P('Changshu Road','常熟路')}],
+     mins:'1 สถานี ~3 นาที',walk:'เดินต่อ ~400 ม. → 富民路',note:'★ นั่ง 1 สถานี แทนเดิน 2 กม. — เก็บแรงแม่ไว้ใช้ 巨富长'}},
+   {t:'14:05',icon:'🇫🇷',label:'Fumin Road 富民路 — เริ่มโซน 巨富长',note:'ถนนเก่า ~110 ปี · บ้านเก่า/garden villa/ร้านใต้ต้น 梧桐 · ผ่าน 富民路291号 (ไม่จำเป็นต้องเข้า) · ⚠️ อย่าใส่ 保罗酒楼 เป็นจุดหมาย ร้านปิดถาวรแล้ว (~14:05–15:30)',places:[P('Fumin Road','富民路')]},
+   {t:'15:30',icon:'🌳',label:'Julu Road 巨鹿路',cut:true,planb:'ตัดที่ 1 — 3 ถนน 巨富长 บรรยากาศคล้ายกัน ตัด 1 เส้นไม่เสียแก่น · ข้าม 富民路 → 长乐路 เลย ไปนั่งคาเฟ่เร็วขึ้น (ได้เวลาคืน ~1 ชม.)',note:'ต้น 梧桐 + บ้านอิฐ + villa + cafe + ร้านดีไซน์ · 3 ถนนนี้ตัดกันเอง เดินวนในบล็อกเดียว ไม่ต้องขึ้นรถ (~15:30–16:30)',places:[P('Julu Road','巨鹿路')]},
+   {t:'16:30',icon:'🛍️',label:'Changle Road 长乐路',note:'คาเฟ่/ร้านดีไซน์/fashion/creative shops · 1 ใน 3 ถนนของ 巨富长 (巨鹿+富民+长乐) (~16:30–17:30)',places:[P('Changle Road','长乐路')]},
+   {t:'17:30',icon:'☕',label:'พักคาเฟ่ / นั่งยาว 1 ชม.',hl:true,note:'【ห้ามตัด · บังคับ】 ย่านนี้คาเฟ่เยอะ เลือกร้านนั่งสบายจริง · ถ้าไม่พักตรงนี้ แม่ไม่รอดถึงดึก (~17:30–18:30)'},
+   {t:'18:30',icon:'🌙',label:'巨富长 Night Walk',cut:true,planb:'ตัดที่ 3 — เดินย่านเดิมซ้ำ ถ้าเหนื่อยไม่ต้องฝืน · กินเย็น 18:30 → Jing’an 19:40 → ถึงโรงแรม ~20:50 (ได้เวลาคืน ~1 ชม.)',note:'富民路 → 巨鹿路 → 长乐路 · ต้นไม้เปิดไฟ/บ้านเก่า/คาเฟ่/บาร์/คนท้องถิ่น · เดินวนในสามถนน ไม่ต้องออกนอกโซน (~18:30–19:30)'},
+   {t:'19:30',icon:'🍜',label:'Dinner — ย่าน 富民/巨鹿/长乐',note:'ไม่ล็อกร้าน · หาใน AMap วันนั้น · ⭐ จบมื้อแถวปลาย 长乐路 ฝั่ง 常熟路 จะเดินสั้นสุด (~19:30–20:30)'},
+   {t:'20:30',icon:'🚇',label:'常熟路 → 静安寺',metro:{mc:7,board:P('Changshu Road','常熟路'),
+     legs:[{line:7,dir:P('Meilan Lake','美兰湖'),alight:P('Jing’an Temple','静安寺')}],
+     mins:'1 สถานี',note:'เดิน ~400 ม. → สถานี 常熟路 · ★ นั่ง 1 สถานี แทนเดิน 800 ม. · สายเดียวกับ Day 2 บ่าย'}},
+   {t:'20:50',icon:'🏯',label:'Jing’an Temple — ถ่ายรูปกลางคืน',cut:true,planb:'ตัดที่ 4 — ถ้าเหนื่อยสะสม 5 วัน ไม่ต้องฝืนถ่ายดึก คืนนี้ยังต้องเก็บกระเป๋า (ได้เวลาคืน ~1 ชม.)',note:'静安寺 · ไฟเปิด 18:00–22:00 · ถ่ายนอกวัดฟรี (~20:50–21:20)<br>📸 3 จุด: ① สะพานลอยข้าม 延安中路 ฝั่งตะวันออกของวัด (คลาสสิก) ② ลานหน้า 久光百货 Jiuguang (ตรงข้ามวัด) ③ ริมบึง 静安公园 (เงาสะท้อนน้ำ)<br>⚠️ ธ.ค. กลางคืน 4–6°C ลมแรง — ให้แม่นั่งรอใน 久光百货 (แอร์/ที่นั่ง/ห้องน้ำ) ระหว่างขึ้นสะพานถ่าย',places:[P('Jing’an Temple','静安寺')]},
+   {t:'21:20',icon:'🚇',label:'กลับโรงแรม',metro:{mc:14,board:P('Jing’an Temple','静安寺'),
+     legs:[{line:14,dir:P('Guiqiao Road','桂桥路'),alight:P('Changyi Road','昌邑路')},
+           {line:18,dir:P('Hangtou','航头'),alight:P('Minsheng Road','民生路')}],
+     walk:'~300 ม. → โรงแรม',note:'L14 ผ่าน 大世界→豫园→陆家嘴→源深路→昌邑路 [8 สถานี] · ⚠️ เช็ค 末班车 ก่อน ถ้าไม่ทันใช้ Didi'}},
+   {t:'~21:55',icon:'🧳',label:'ถึงโรงแรม — จัดกระเป๋า (คืนสุดท้าย)',note:'เช็ก passport + ของฝาก + เตรียมไปสนามบินพรุ่งนี้'},
+  ]},
+ {id:'6',tab:'DAY 6',date:'DEC 8',emoji:'🛫',cardTitle:'กลับบ้าน · PVG → BKK',
+  summary:'Check-out → PVG T2 · บิน 9C7283 เวลา 12:00',
+  title:'Day 6 · เดินทางกลับ',route:'Hotel → PVG T2 → BKK',
+  slots:[
+   {t:'06:30',icon:'⏰',label:'ตื่น',note:'บินเที่ยง (12:00) แต่ intl เผื่อเวลา ~3 ชม. + มีแม่+กระเป๋า'},
+   {t:'07:00',icon:'🚇',label:'ออกจากโรงแรม → PVG (Metro)',metro:{mc:6,board:P('Minsheng Road','民生路'),
+     legs:[{line:6,dir:P('Oriental Sports Center','东方体育中心'),alight:P('Century Avenue','世纪大道')},
+           {line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('Pudong Airport T2','浦东国际机场 T2')}],
+     mins:'~70–80 นาที (ถึง ~08:20)',note:'เช็คเอาท์ก่อน · Line 2 วิ่งตรงถึง Pudong Airport ขบวน 8 ตู้ ไม่ต้องเปลี่ยนขบวน (ตั้งแต่ 19 เม.ย. 2019)'}},
+   {t:'ทางเลือก',icon:'🚕',label:'Didi → PVG T2 (ถ้าตื่นสาย)',note:'เก็บไว้เฉพาะถ้าตื่นสาย/แม่ล้า · ~40–50 นาที · ปลายทางใน Didi/AMap',places:[P('Pudong Airport T2','浦东国际机场 2号航站楼')]},
+   {t:'~08:30',icon:'✈️',label:'ถึง PVG T2 · เช็คอิน Spring',note:'เช็คอิน 9C7283 + โหลดกระเป๋า + ตม. + security · เสร็จ ~09:30 → ไป Gate'},
+   {t:'12:00',icon:'🛫',label:'บิน PVG → BKK',note:'Spring 9C7283 · PVG T2 12:00 → BKK 15:45 · เดินทางปลอดภัย ❤️',places:[P('Bangkok Suvarnabhumi','曼谷 素万那普 BKK')]},
+  ]},
+];
+
+let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
+let activeDay='1';
+
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);}
+
+/* TODAY */
+function tripDay(){
+  const s=new Date('2026-12-03T00:00:00'),e=new Date('2026-12-08T23:59:59'),n=new Date();
+  if(n<s)return{state:'before',id:'1',days:Math.ceil((s-n)/86400000)};
+  if(n>e)return{state:'after',id:'6'};
+  return{state:'today',id:String(Math.floor((n-s)/86400000)+1)};
+}
+function renderToday(){
+  const info=tripDay(),d=DAYS.find(x=>x.id===info.id);
+  document.getElementById('countdown').textContent=
+    info.state==='before'?('อีก '+info.days+' วัน จนถึงวันเดินทาง'):(info.state==='today'?'กำลังเที่ยวอยู่ 🎒':'จบทริปแล้ว ❤️');
+  const lbl=info.state==='today'?('TODAY · '+d.date):(info.state==='before'?('เริ่มทริป · '+d.date):('วันสุดท้าย · '+d.date));
+  document.getElementById('today-card').innerHTML=
+    `<div class="today" onclick="go('plan');setDay('${d.id}')">
+       <span class="dot"></span>
+       <div class="lbl">${lbl}</div>
+       <h2>${d.emoji} ${d.cardTitle||d.tab}</h2>
+       <div class="sum">${d.summary||''}</div>
+       <span class="view-btn">ดู ${d.tab} →</span>
+     </div>`;
+}
+
+/* CHECKLIST */
+const CHK=`<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>`;
+function renderChk(){
+  document.getElementById('ck-cards').innerHTML=CARDS.map(c=>{
+    const done=c.tasks.filter((_,i)=>state[c.id+'-'+i]).length,full=done===c.tasks.length;
+    const tasks=c.tasks.map((t,i)=>`<div class="task ${state[c.id+'-'+i]?'on':''}" onclick="tgTask(event,'${c.id}',${i})"><span class="box">${CHK}</span><span class="label">${t}</span></div>`).join('');
+    let act='';if(c.action)act=c.action.view?`<button class="cta" onclick="go('${c.action.view}')">${c.action.label}</button>`:`<a class="cta" href="${c.action.href}" target="_blank" rel="noopener">${c.action.label}</a>`;
+    return `<div class="ck ${full?'done':''}" id="ck-${c.id}"><div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji">${c.emoji}</span><span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">›</span></div><div class="cbody">${tasks}${act}</div></div>`;
+  }).join('');
+  const dc=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length;
+  document.getElementById('ck-count').textContent=dc+' / '+CARDS.length;
+  document.getElementById('ck-bar').style.width=(dc/CARDS.length*100)+'%';
+  document.getElementById('banner').classList.toggle('show',dc===CARDS.length);
+}
+function tgCard(id){document.getElementById('ck-'+id).classList.toggle('open');}
+function tgTask(e,cid,i){e.stopPropagation();const k=cid+'-'+i;state[k]=!state[k];localStorage.setItem('shhChecklist',JSON.stringify(state));
+  const open=document.getElementById('ck-'+cid).classList.contains('open');renderChk();if(open)document.getElementById('ck-'+cid).classList.add('open');
+  document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
+  document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';}
+
+/* PLAN */
+function cpChip(p){return `<span class="cp" onclick="cpy(event,this)" data-zh="${p.zh}">${p.en?`<span>${p.en}</span> · `:''}<span class="zh">${p.zh}</span><span class="ic">📋</span></span>`;}
+function renderDays(){
+  document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
+  const day=DAYS.find(d=>d.id===activeDay);
+  document.getElementById('dayhead').innerHTML=day.title?`<h2>${day.title}</h2><div class="rt">${day.route||''}</div>`:`<h2>${day.tab} · ${day.date}</h2>`;
+  const tl=document.getElementById('timeline');
+  if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
+  tl.innerHTML=day.slots.map((s,i)=>{
+    const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
+    const badge=s.hl?'<span class="hl-badge">🌈 ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">✂️ ตัดได้ · Plan B</span><br>':'';
+    return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''}" id="slot-${i}">
+      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${s.label}</span><span class="chev">›</span></div>
+      <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
+  }).join('');
+}
+/* Suzhou metro (different system — verify in AMap) */
+function szBody(z){
+  let h=`<div class="metro" style="--mc:#7a5cc0">`;
+  h+=`<div style="font-weight:800;color:#7a5cc0;font-size:.82rem;margin-bottom:6px">🚇 Suzhou Metro · คนละระบบกับเซี่ยงไฮ้</div>`;
+  h+=`<div class="m-sta"><span class="name">🚉 ${z.from.en}<span class="zh">${z.from.zh}</span></span></div>${cpChip(z.from)}`;
+  h+=`<div class="m-arrow">↓</div>`;
+  h+=`<div class="m-sta"><span class="name">🚉 ${z.to.en}<span class="zh">${z.to.zh}</span></span></div>${cpChip(z.to)}`;
+  const foot=[];
+  if(z.exit)foot.push(`<span class="exit-big">🚪 Exit ${z.exit}</span>`);
+  if(z.exitCheck)foot.push(`<span class="exit-big exit-check">🚪 ${z.exitCheck}</span>`);
+  if(z.mins)foot.push(`<span class="mchip">⏱️ ${z.mins}</span>`);
+  h+=`<div class="m-foot">${foot.join('')}</div>`;
+  if(z.lines)h+=`<div style="margin-top:6px">${z.lines.map(x=>`<span class="mchip" style="display:inline-block;margin:0 6px 6px 0">🚈 ${x}</span>`).join('')}</div>`;
+  h+=`<div class="amber">🔎 เช็คสาย/ทิศ (ปลายทางขบวน)/จุดเปลี่ยน ใน AMap ก่อนออก</div>`;
+  if(z.note)h+=`<div class="p-note" style="margin-top:6px">${z.note}</div>`;
+  return h+`</div>`;
+}
+/* editable train card */
+let trainState=JSON.parse(localStorage.getItem('shhTrain')||'{}');
+function saveTrain(el){trainState[el.dataset.k]=el.value;localStorage.setItem('shhTrain',JSON.stringify(trainState));}
+function trainCard(s){
+  const t=s.train,k=t.tid;
+  const f=(key,ph)=>`<input class="tin" value="${(trainState[k+'-'+key]||'').replace(/"/g,'&quot;')}" data-k="${k}-${key}" oninput="saveTrain(this)" placeholder="${ph}">`;
+  return `<div class="train">
+    <div class="m-sta"><span class="name">🚄 ${t.from.en}<span class="zh">${t.from.zh}</span></span></div>${cpChip(t.from)}
+    <div class="m-arrow">↓ HSR · ${t.dur}</div>
+    <div class="m-sta"><span class="name">🚄 ${t.to.en}<span class="zh">${t.to.zh}</span></span></div>${cpChip(t.to)}
+    <div class="tgrid">
+      <div class="tfield"><label>🚄 车次 Train No.</label>${f('cc','เช่น G7008')}</div>
+      <div class="tfield"><label>🕐 发车 Depart</label>${f('dep','08:30')}</div>
+      <div class="tfield"><label>🕐 到达 Arrive</label>${f('arr','09:05')}</div>
+      <div class="tfield"><label>🚪 检票口 Gate</label>${f('gate','เช็คจอ!')}</div>
+      <div class="tfield"><label>💺 车厢 Car</label>${f('car','5')}</div>
+      <div class="tfield"><label>💺 座位 Seat</label>${f('seat','12A')}</div>
+    </div>
+    <div class="amber">⚠️ Gate เปลี่ยนได้ — ดูจอจริงที่สถานี · 🛂 พก passport ที่ใช้จองตั๋ว · เช็ก 4 อย่างก่อนเข้าชานชาลา · ⚠️ ต้องลง Suzhou 苏州站 เท่านั้น ห้าม Suzhou North 苏州北站</div>
+    <div class="p-note" style="margin-top:6px">จองผ่าน Trip.com ล่วงหน้าได้เลย — ระบบเข้าคิวซื้อให้อัตโนมัติวันที่การรถไฟเปิดขาย ~20 พ.ย. (เปิดขายล่วงหน้า 15 วัน) · เติมเลขขบวน/เวลา/gate/ที่นั่งข้างบน — บันทึกอัตโนมัติ</div>
+  </div>`;
+}
+function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
+function bodyFor(s){
+  let h=s.note?`<div class="p-note">${s.note}</div>`:'';
+  if(s.img)h+=`<img class="slotimg" src="${s.img}" loading="lazy" alt="แผนที่ร้านอาหาร" onclick="zoomImg('${s.img}')" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='none'"><div class="maphint">🗺️ แตะรูปเพื่อดูเต็ม</div>`;
+  if(s.map)h+=renderMap()+'<div class="maphint">↔ เลื่อนซ้าย-ขวาดูแผนที่ · แตะร้านในลิสต์ด้านล่างเพื่อเช็ค</div>';
+  if(s.places&&s.places.length)h+=`<div>${s.places.map(cpChip).join('')}</div>`;
+  if(s.check)h+=s.check.map((t,i)=>{const k=s.cprefix+'-'+i;return `<div class="citem ${state[k]?'on':''}" onclick="tgCheck('${k}',this)"><span class="cbox">${CHK}</span><span>${t}</span></div>`;}).join('');
+  return h||'<div class="p-note">—</div>';
+}
+function tgCheck(k,el){el.classList.toggle('on');state[k]=el.classList.contains('on');localStorage.setItem('shhChecklist',JSON.stringify(state));}
+function zoomImg(src){document.getElementById('imgmodal-src').src=src;document.getElementById('imgmodal').classList.add('on');}
+function house(x,y,name){return `<g>
+  <path d="M${x-20},${y-40} L${x},${y-56} L${x+20},${y-40} Z" fill="#f3c623" stroke="#dcae43" stroke-width="2"/>
+  <rect x="${x-16}" y="${y-40}" width="32" height="22" rx="3" fill="#fff" stroke="#dcae43" stroke-width="2"/>
+  <rect x="${x-4}" y="${y-31}" width="8" height="13" rx="1" fill="#e9c05a"/>
+  <text x="${x}" y="${y-3}" font-size="11.5" font-weight="700" fill="#3a332e" text-anchor="middle">${name}</text></g>`;}
+function metroPin(x,y){return `<g><circle cx="${x}" cy="${y}" r="15" fill="#fff" stroke="#c85a44" stroke-width="2.5"/><text x="${x}" y="${y+5}" font-size="15" text-anchor="middle">🚇</text></g>`;}
+function renderMap(){
+  const road='#f3c623',sc='#6b4a2b';
+  const stops=[[280,608,1],[300,540,2],[315,470,3],[328,402,4],[340,346,5],[388,332,6],[446,332,7],[504,332,8],[560,332,9],[600,322,10],[600,452,11],[600,540,12]];
+  const houses=[[248,676,'Wukang Mansion'],[212,566,'Gathering'],[196,492,'Looknow'],[190,416,'Project Element'],[200,352,'The Matcha Tokyo'],[240,300,'Fragrance:Diary'],
+   [304,258,'Kapibaba'],[382,242,'13DE MARZO'],[458,242,'Deja vu'],[534,242,'Lost in echo'],[608,242,'Looknow & Flow'],[654,452,'Uodycoco'],[654,548,'MORE THINGS+']];
+  let svg=`<svg viewBox="0 0 720 720" width="700" style="min-width:600px">`;
+  svg+=`<g stroke="${road}" stroke-width="30" stroke-linecap="round" fill="none">
+    <path d="M40,650 H520"/><path d="M280,650 L340,340"/><path d="M340,340 H600"/><path d="M600,340 V620"/></g>`;
+  svg+=`<text x="300" y="656" font-size="17" font-weight="800" fill="${sc}" text-anchor="middle">Huaihai Road</text>`;
+  svg+=`<text x="470" y="337" font-size="17" font-weight="800" fill="${sc}" text-anchor="middle">Anfu Road</text>`;
+  svg+=`<text transform="translate(318,500) rotate(-79)" font-size="14" font-weight="800" fill="${sc}" text-anchor="middle">Wukang Rd</text>`;
+  svg+=`<text transform="translate(608,490) rotate(90)" font-size="13" font-weight="800" fill="${sc}" text-anchor="middle">Wulumuqi Middle Rd</text>`;
+  houses.forEach(h=>svg+=house(h[0],h[1],h[2]));
+  stops.forEach(s=>svg+=`<circle cx="${s[0]}" cy="${s[1]}" r="13" fill="${sc}"/><text x="${s[0]}" y="${s[1]+4}" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">${s[2]}</text>`);
+  svg+=metroPin(40,650)+metroPin(600,628);
+  svg+=`</svg>`;
+  return `<div class="mapwrap">${svg}</div>`;
+}
+function metroBody(m){
+  const c0=LC[m.board?m.legs[0].line:2];
+  let html=`<div class="metro" style="--mc:${LC[m.mc]}">`;
+  html+=`<div class="m-sta"><span class="name">🚉 ${m.board.en}<span class="zh">${m.board.zh}</span></span></div>`;
+  html+=cpChip(m.board);
+  m.legs.forEach((l,i)=>{
+    const c=l.color||LC[l.line]||'var(--muted)';
+    if(i>0)html+=`<div class="m-change">🔄 เปลี่ยนสายที่นี่</div>`;
+    html+=`<div class="linepill"><span class="ldot big" style="background:${c}">${l.line}</span>Line ${l.line}</div>`;
+    html+=`<div class="m-dir"><span class="lead">DIRECTION → ปลายทางขบวน</span>${l.dir.en}${l.dir.zh?`<span class="zh">${l.dir.zh}</span>`:''}</div>`;
+    html+=`<div class="m-arrow">↓</div>`;
+    html+=`<div class="m-sta"><span class="name">🚉 ${l.alight.en}<span class="zh">${l.alight.zh}</span></span></div>`;
+    html+=cpChip(l.alight);
+  });
+  const foot=[];
+  if(m.exit)foot.push(`<span class="exit-big">🚪 Exit ${m.exit}</span>`);
+  if(m.exitCheck)foot.push(`<span class="exit-big exit-check">🚪 ${m.exitCheck}</span>`);
+  if(m.mins)foot.push(`<span class="mchip">⏱️ ${m.mins}</span>`);
+  if(m.walk)foot.push(`<span class="mchip">🚶 ${m.walk}</span>`);
+  html+=`<div class="m-foot">${foot.join('')}</div>`;
+  if(m.note)html+=`<div class="p-note" style="margin:8px 0 0">${m.note}</div>`;
+  html+=`</div>`;
+  return html;
+}
+function setDay(id){activeDay=id;renderDays();}
+
+/* COPY + feedback */
+let toastT;
+function cpy(e,el){
+  e.stopPropagation();
+  const zh=el.dataset.zh;
+  const done=()=>{
+    const orig=el.innerHTML;
+    el.classList.add('copied');el.innerHTML='✓ Copied · '+zh;
+    setTimeout(()=>{el.classList.remove('copied');el.innerHTML=orig;},1500);
+    showToast(zh);
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(done).catch(()=>fb(zh,done));
+  else fb(zh,done);
+}
+function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);cb();}
+function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
+
+/* INIT */
+renderToday();renderChk();renderDays();
+document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
+document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
+</script>
+</body>
+</html>
