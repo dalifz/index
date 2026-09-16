@@ -242,12 +242,16 @@
     <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
     <div class="card"><h3 style="margin-bottom:8px">🚇 สายรถไฟฟ้าที่ใช้</h3>
       <div class="legrow">
-        <span class="leg-item"><span class="ldot big" style="background:var(--l2)">2</span>Line 2 🟢</span>
-        <span class="leg-item"><span class="ldot big" style="background:var(--l6)">6</span>Line 6 🟣</span>
-        <span class="leg-item"><span class="ldot big" style="background:var(--l9)">9</span>Line 9 🩷</span>
-        <span class="leg-item"><span class="ldot big" style="background:var(--l10)">10</span>Line 10 🔵</span>
-        <span class="leg-item"><span class="ldot big" style="background:var(--l14)">14</span>Line 14 🟤</span>
-      </div></div>
+        <span class="leg-item"><span class="ldot big" style="background:#e4002b">1</span>Line 1</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l2)">2</span>Line 2</span>
+        <span class="leg-item"><span class="ldot big" style="background:#ef7d28">7</span>Line 7</span>
+        <span class="leg-item"><span class="ldot big" style="background:#0092d0">8</span>Line 8</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l9)">9</span>Line 9</span>
+        <span class="leg-item"><span class="ldot big" style="background:#871c2b">11</span>Line 11</span>
+        <span class="leg-item"><span class="ldot big" style="background:#007a5e">12</span>Line 12</span>
+        <span class="leg-item"><span class="ldot big" style="background:var(--l14)">14</span>Line 14</span>
+      </div>
+      <div class="muted" style="font-size:.82rem;margin-top:8px">🚄 ซูโจวเป็นคนละระบบ ใช้ Suzhou Line 1/2/4 ต้องซื้อตั๋วแยก ใช้บัตรเซี่ยงไฮ้ไม่ได้</div></div>
     <div class="card"><h3 style="margin-bottom:8px">🚕 กฎการเดินทาง</h3>
       <div class="irow">1. <b>Metro 🚇</b> เป็นหลัก</div>
       <div class="irow">2. <b>เดิน 🚶</b> เมื่อใกล้ + เส้นทางง่าย</div>
@@ -260,7 +264,7 @@
       <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
       <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
     <div class="card"><h3 style="margin-bottom:8px">🛫 ขากลับ (8 Dec)</h3>
-      <div class="irow">Hotel → <b>Didi</b> → PVG Terminal 2 (มีแม่ + กระเป๋า)</div></div>
+      <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 → 陆家嘴 เปลี่ยน L2 → PVG · Didi = สำรองฉุกเฉินเท่านั้น)</div></div>
   </section>
 
   <nav class="nav">
@@ -275,7 +279,7 @@
 
 <script>
 const P=(en,zh)=>({en,zh});
-const LC={1:'#e4002b',2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',9:'var(--l9)',10:'var(--l10)',11:'#871c2b',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
+const LC={1:'#e4002b',2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',8:'#0092d0',9:'var(--l9)',10:'var(--l10)',11:'#871c2b',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
 
 const CARDS=[
   {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
@@ -303,7 +307,7 @@ const DAYS=[
   slots:[
    {t:'07:00',icon:'⏰',label:'ตื่น'},
    {t:'07:30',icon:'🥐',label:'ข้าวเช้าแถวโรงแรม',note:'云南南路 / 金陵东路 · ร้านเช้าเยอะ ไม่ต้องนั่งรถ'},
-   {t:'08:15',icon:'🚇',label:'โรงแรม → Longhua Temple',metro:{mc:14,board:P('Dashijie','大世界'),legs:[{line:14,alight:P('Longhua','龙华')}],mins:'~40–45 นาที',note:'🔎 大世界 (L8/L14) → 龙华 (L11/L12) ต้องเปลี่ยนสาย · ดูสาย/ทิศ/จุดเปลี่ยนใน AMap · ออกเช้าเลี่ยงคนแน่น'}},
+   {t:'08:00',icon:'🚇',label:'โรงแรม → Longhua Temple',metro:{mc:8,board:P('Dashijie','大世界'),legs:[{line:8,alight:P('Longhua','龙华')}],mins:'~55–60 นาที (เผื่อเปลี่ยน 2 ต่อ)',note:'🔎 大世界 (L8/L14) → 龙华 (L11/L12) ไม่มีสายร่วม ต้องเปลี่ยน 2 ครั้ง · ดูสาย/ทิศ/จุดเปลี่ยนใน AMap · ออกเช้าเลี่ยงคนแน่น'}},
    {t:'09:00',icon:'🛕',label:'Longhua Temple',hl:true,note:'龙华寺 · วัดเก่าแก่ที่สุดของเซี่ยงไฮ้ ~50–60 นาที',places:[P('Longhua Temple','龙华寺')]},
    {t:'10:00',icon:'🚇',label:'Longhua → Jiaotong University',metro:{mc:11,board:P('Longhua','龙华'),legs:[{line:11,dir:P('N. Jiading/Huaqiao','嘉定北/花桥'),alight:P('Jiaotong University','交通大学')}],exit:'7',mins:'สายเดียว ไม่เปลี่ยน',walk:'Exit 7 เดิน ~3 นาที → 武康大楼'}},
    {t:'10:30',icon:'📷',label:'Wukang Mansion',note:'武康大楼 · ตึกสามเหลี่ยมสัญลักษณ์ของย่าน',places:[P('Wukang Mansion','武康大楼')]},
@@ -354,7 +358,7 @@ const DAYS=[
    {t:'14:30',icon:'👓',label:'HAUS NOWHERE / Gentle Monster',hl:true,note:'⭐⭐ ไฮไลต์ของแม่ · ชั้น 2 "หัวคนยักษ์ 2 หัว" ผมพลิ้ว · 4 ชั้น: NUDAKE ขนม · TAMBURINS น้ำหอม · ห้องลับหิน 6,000 ก้อน ชั้น 4 · ⚠️ เปลี่ยนงานบ่อย เช็ค 小红书 ก่อน',places:[P('HAUS NOWHERE','淮海中路798号')]},
    {t:'15:45',icon:'👟',label:'New Balance Grey R',cut:true,planb:'ตัด #5 — เดินผ่านไปเลย (ประหยัด 20 นาที)',places:[P('New Balance Grey R','淮海中路858-860号')]},
    {t:'16:05',icon:'🏬',label:'IAPM Mall (ปิดท้ายถนน)',note:'环贸 IAPM · ติดสถานี 陕西南路 · ห้องน้ำ/ที่นั่ง/แอร์ · 抹茶王 Matcha Wang เช็ค AMap',places:[P('IAPM Mall','环贸iapm 淮海中路999号')]},
-   {t:'17:30',icon:'🚇',label:'陕西南路 → 南京西路 (1 สถานี)',metro:{mc:1,board:P('South Shaanxi Rd','陕西南路'),legs:[{line:1,alight:P('West Nanjing Rd','南京西路')}],note:'ออกจาก IAPM ลงสถานีได้เลย'}},
+   {t:'17:30',icon:'🚇',label:'陕西南路 → 南京西路 (1 สถานี)',metro:{mc:12,board:P('South Shaanxi Rd','陕西南路'),legs:[{line:12,alight:P('West Nanjing Rd','南京西路')}],note:'⚠️ 陕西南路 มี 3 สาย (1/10/12) — ใช้ Line 12 · สาย 1 ไม่ผ่าน 南京西路 · ออกจาก IAPM ลงสถานีได้เลย'}},
    {t:'17:50',icon:'🌸',label:'Zhangyuan (shikumen)',note:'张园 · ⭐ ตึกเก่า shikumen · ห่างสถานี 400 m',places:[P('Zhangyuan','张园 威海路')]},
    {t:'18:45',icon:'🛍️',label:'ช้อปปิดท้าย 南京西路',note:'Louis Vuitton · Starbucks Reserve · London Bakery · เดินถึงกันย่าน 南京西路'},
    {t:'20:15',icon:'🚇',label:'南京西路 → 南京东路 (2 สถานี)',metro:{mc:2,board:P('West Nanjing Rd','南京西路'),legs:[{line:2,dir:P('Pudong Airport','浦东国际机场'),alight:P('East Nanjing Rd','南京东路')}],note:'人民广场 เป็นสถานีผ่าน ไม่ต้องลง'}},
@@ -364,7 +368,7 @@ const DAYS=[
  {id:'5',tab:'DAY 5',date:'จ 7 Dec',emoji:'🌿',cardTitle:'French Concession + Lujiazui Night',summary:'绿房子 → 永平里 → 富民/巨鹿 → 静安寺 → 陆家嘴',title:'Day 5 · จ 7 ธ.ค. · ตึกเขียว · ย่านกุหลาบ · จิงอันซื่อ · ลู่เจียจุ่ย',route:'永嘉路 → 永平里 → 巨富长 → 静安寺 → 陆家嘴',
   slots:[
    {t:'07:45',icon:'⏰',label:'ตื่น / ข้าวเช้า',note:'⚠️ คืนนี้ต้องเก็บกระเป๋า · วันนี้อัดแน่น กลับถึง ~21:45'},
-   {t:'08:40',icon:'🚇',label:'โรงแรม → Jiashan Rd',metro:{mc:14,board:P('Dashijie','大世界'),legs:[{line:14,alight:P('Jiashan Road','嘉善路')}],note:'🔎 大世界 → 嘉善路 (L9/L12) · ดูสาย/ต่อ AMap'}},
+   {t:'08:40',icon:'🚇',label:'โรงแรม → Jiashan Rd',metro:{mc:8,board:P('Dashijie','大世界'),legs:[{line:8,alight:P('Luban Road','陆家浜路')},{line:9,alight:P('Jiashan Road','嘉善路')}],note:'大世界 L8 → 陆家浜路 เปลี่ยน L9 → 嘉善路 · 🔎 ยืนยันทิศที่ AMap'}},
    {t:'09:10',icon:'🚶',label:'→ Green House 永嘉路425号',note:'เดิน ~15–20 นาที (หรือ Didi ~10–15 หยวน ถ้าแม่ล้า) · ⚠️ ค้นด้วยเลขที่ 永嘉路425号 เท่านั้น (绿房子 อีกหลัง 铜仁路333号 คนละที่)',places:[P('Green House','永嘉路425号')]},
    {t:'09:35',icon:'📷',label:'Green House (ตึกเขียว)',hl:true,note:'绿房子 · จุดถ่ายดีสุด = หน้า Lawson 罗森 ฝั่งตรงข้าม · 🚨 ธ.ค. ใบเลื้อยร่วงหมด จะเห็นเป็นตึกกิ่งไม้แห้ง ไม่เขียว (เขียว เม.ย.–ต.ค.) เทียบรูป ธ.ค. ใน 小红书 ก่อน',places:[P('Green House','永嘉路425号')]},
    {t:'09:55',icon:'🚶',label:'Yongjia Road',note:'永嘉路 · เดินตะวันตก ~1 กม. ถนนต้นไม้ บ้านเก่า',places:[P('Yongjia Road','永嘉路')]},
