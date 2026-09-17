@@ -93,6 +93,13 @@
   .slot.open .sbody{display:block;animation:fade .2s}
   @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
   .p-note{color:var(--muted);font-size:.86rem;margin-bottom:6px}
+  .foldnote{margin-top:8px;border:1px solid var(--line,#e7ddd2);border-radius:12px;background:var(--card2,rgba(200,90,68,.05));overflow:hidden}
+  .foldnote>summary{cursor:pointer;list-style:none;padding:9px 12px;font-size:.86rem;font-weight:700;color:var(--accent,#c85a44);user-select:none}
+  .foldnote>summary::-webkit-details-marker{display:none}
+  .foldnote>summary::after{content:'⌄';float:right;transition:transform .2s}
+  .foldnote[open]>summary::after{transform:rotate(180deg)}
+  .foldnote>div{padding:0 12px 11px}
+  .foldnote .p-note{margin-bottom:0;line-height:1.65}
 
   /* copy chip */
   .cp{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid transparent;border-radius:10px;padding:7px 11px;margin:4px 6px 0 0;cursor:pointer;font-size:.84rem;font-weight:600}
@@ -311,15 +318,13 @@ const DAYS=[
    {t:'09:30',icon:'📸',label:'Photo',places:[P('Wukang Mansion','武康大楼')]},
    {t:'10:00',icon:'🚶',label:'City Walk',places:[P('Wukang Road','武康路')]},
    {t:'10:30',icon:'🚶',label:'City Walk',places:[P('Anfu Road','安福路')]},
-   {t:'10:30',icon:'🛍️',label:'Shopping (Anfu Road)',img:'assets/anfuday2.jpg',places:[P('13DE MARZO',''),P('NU SHOP',''),P('Wiggle Wiggle',''),P('Brandy Melville',''),P('Deja Vu',''),P('Not Just Pajama',''),P('Lost in echo',''),P('Looknow',''),P('Uodycoco',''),P('MORETHINGS+','')]},
-   {t:'~11:45',icon:'🚶',label:'Walk',note:'Anfu Road → APOLI · ใช้ AMap เดินตามเส้นทาง',places:[P('APOLI ITABAKERY','兴国路380号')]},
-   {t:'12:00',icon:'🥐',label:'Late Breakfast',note:'AMap ระบุเปิดราว 12:00',places:[P('APOLI ITABAKERY·AP意大利料理面包坊','兴国路380号')]},
-   {t:'12:30',icon:'👟',label:'Shopping',places:[P('adidas Originals Flagship','')]},
+   {t:'10:30–12:30',icon:'🛍️',label:'Anfu Road',img:'assets/anfuday2.jpg',note:'→ เดินเก็บร้านตามทาง → เดินต่อไป HARMAY zone',places:[P('13DE MARZO',''),P('NU SHOP',''),P('Wiggle Wiggle',''),P('Brandy Melville',''),P('Deja Vu',''),P('Not Just Pajama',''),P('Lost in echo',''),P('Looknow',''),P('Uodycoco',''),P('MORETHINGS+',''),P('APOLI ITABAKERY','兴国路380号'),P('HARMAY zone','')],foldnote:'เริ่มต้นที่ <b>WUKANG ROAD</b> แล้วเดินไป <b>ANFU ROAD</b> สุดทางจากแยก <b>HARMAY</b> แล้วกดหา <b>adidas Originals Flagship</b> ชอปปิ้ง<br><br>เสร็จหน้า Adidas เรียก <b>DIDI</b> ไป <b>MID HUAIHAI</b> ได้เลย ไปลง <b>HAUS NOWHERE</b> · หันหน้าเข้า HAUS NOWHERE เดินไปทางขวา ข้ามแยกไปเรื่อยๆ จะถึง <b>YOUTH ENERGY CENTER</b> แล้วค่อยไปจบวันที่ <b>XINTIANDI</b> ตามแผนที่ที่แนบให้<br><br>ตรงข้าม YOUTH ENERGY CENTER เป็นร้าน <b>MAISON PRINCE</b> — อย่าลืมแวะไปติดไม้ติดมือเสื้อผ้ากลับมาด้วย<br><br>ตรงข้าม HAUS NOWHERE คือร้านกระเป๋า <b>SONGMONT</b> ตรงข้ามกันเลย · จะเดินฝั่ง SONGMONT ไป YOUTH ENERGY CENTER ก็ได้ จะผ่านร้าน <b>FARMER BOB</b> กับ <b>HEY TEA</b><br><br>ตอนเย็นค่ำเดิน <b>Xintiandi</b> กลับโรงแรม · ยามชอปปิ้ง เก็บหมดใน 1 วัน'},
+   {t:'12:30',icon:'👟',label:'adidas Originals Flagship',note:'→ Shopping',places:[P('adidas Originals Flagship','')]},
    {t:'13:00',icon:'🚕',label:'Didi',note:'Anfu Road → HAUS NOWHERE'},
    {t:'13:20',icon:'🖤',label:'Explore',places:[P('HAUS NOWHERE','')]},
-   {t:'15:00',icon:'👜',label:'Shopping',places:[P('Songmont','')]},
-   {t:'15:30',icon:'👗',label:'Shopping',places:[P('Maison Prince','')]},
-   {t:'16:00',icon:'🏙️',label:'Explore',places:[P('Youth Energy Center','')]},
+   {t:'15:00',icon:'👜',label:'Shopping',note:'ตรงข้าม HAUS NOWHERE',places:[P('Songmont','')]},
+   {t:'15:30',icon:'🏙️',label:'Explore',places:[P('Youth Energy Center','')]},
+   {t:'16:00',icon:'👗',label:'Shopping',note:'ตรงข้าม Youth Energy Center',places:[P('Maison Prince','')]},
    {t:'16:30',icon:'🚕',label:'Didi',note:'→ Xintiandi',places:[P('Xintiandi','新天地')]},
    {t:'18:00',icon:'🌆',label:'Explore',places:[P('Xintiandi','新天地')]},
    {t:'18:30',icon:'🍜',label:'Dinner + Shopping',places:[P('Xintiandi','新天地')]},
@@ -504,6 +509,7 @@ function bodyFor(s){
   if(s.img)h+=`<img class="slotimg" src="${s.img}" loading="lazy" alt="แผนที่ร้านอาหาร" onclick="zoomImg('${s.img}')" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='none'"><div class="maphint">🗺️ แตะรูปเพื่อดูเต็ม</div>`;
   if(s.map)h+=renderMap()+'<div class="maphint">↔ เลื่อนซ้าย-ขวาดูแผนที่ · แตะร้านในลิสต์ด้านล่างเพื่อเช็ค</div>';
   if(s.places&&s.places.length)h+=`<div>${s.places.map(cpChip).join('')}</div>`;
+  if(s.foldnote)h+=`<details class="foldnote"><summary>📝 note</summary><div class="p-note" style="margin-top:8px">${s.foldnote}</div></details>`;
   if(s.check)h+=s.check.map((t,i)=>{const k=s.cprefix+'-'+i;return `<div class="citem ${state[k]?'on':''}" onclick="tgCheck('${k}',this)"><span class="cbox">${CHK}</span><span>${t}</span></div>`;}).join('');
   return h||'<div class="p-note">—</div>';
 }
