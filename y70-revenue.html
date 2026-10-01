@@ -61,6 +61,9 @@
   .lab{font-size:10px;color:var(--sub);}
   .chartwrap{flex:1 1 auto;min-height:0;position:relative;margin-top:4px;}
   canvas{position:absolute;inset:0;}
+  .ovbadge{position:absolute;top:4px;right:6px;z-index:2;font-size:14px;font-weight:800;
+    letter-spacing:.2px;padding:4px 11px;border-radius:9px;
+    background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(4px);}
   .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     color:var(--sub);font-size:12px;text-align:center;padding:20px;}
 </style>
@@ -99,7 +102,7 @@
       </div>
     </div>
 
-    <div class="chartwrap"><canvas id="chart"></canvas><div class="err" id="err" style="display:none"></div></div>
+    <div class="chartwrap"><div class="ovbadge" id="ovb"></div><canvas id="chart"></canvas><div class="err" id="err" style="display:none"></div></div>
   </div>
 
 <script>
@@ -132,14 +135,38 @@ function trendLine(a){
 
 function grad(ctx,area,rgb){
   const g=ctx.createLinearGradient(0,area.top,0,area.bottom);
-  g.addColorStop(0,rgb+"4D"); g.addColorStop(1,rgb+"00"); return g;
+  g.addColorStop(0,rgb+"2E"); g.addColorStop(1,rgb+"00"); return g;
 }
 
-// one consistent styled series (smooth, soft fill, neon glow)
+// 4 server lines = calm context (thin, faint fill)
 function ds(label,data,col){
-  return { label, data, borderColor:col, borderWidth:2.4, tension:.4, fill:true,
+  return { label, data, borderColor:col, borderWidth:1.8, tension:.4, fill:true,
     spanGaps:true, pointRadius:0, pointHoverRadius:4, _glow:true,
     backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,col):col+"22";} };
+}
+
+// overall direction across all servers: regression of the daily total
+function overallTrend(arrs){
+  const n = arrs.length ? arrs[0].length : 0, tot=[];
+  for(let i=0;i<n;i++){ let s=0,any=false; arrs.forEach(a=>{ if(a[i]!=null){ s+=a[i]; any=true; } }); tot.push(any?s:null); }
+  return { tot, trend:trendLine(tot) };
+}
+// bold white trend line on a hidden axis (shows slope without rescaling the data lines)
+function overDataset(trend){
+  return { label:"ภาพรวม 4 เซิร์ฟ", data:trend, borderColor:"#ffffff", borderWidth:3,
+    borderDash:[10,5], fill:false, tension:0, pointRadius:0, yAxisID:"ov", _glow:true };
+}
+function overAxis(trend){
+  const tv=trend.filter(v=>v!=null), lo=Math.min(...tv), hi=Math.max(...tv), pad=(hi-lo)||1;
+  return { display:false, min:lo-pad*1.6, max:hi+pad*0.8 };
+}
+function overBadge(id,trend){
+  const el=document.getElementById(id); if(!el) return;
+  const tv=trend.filter(v=>v!=null);
+  if(tv.length<2){ el.textContent=""; return; }
+  const pc=(tv[tv.length-1]-tv[0])/Math.abs(tv[0]||1)*100, up=pc>=0;
+  el.textContent=(up?"▲":"▼")+" ภาพรวม "+(up?"+":"")+pc.toFixed(1)+"%";
+  el.style.color=up?"#39FF14":"#FF4D4D";
 }
 
 // neon glow behind each line
@@ -199,6 +226,9 @@ function render(d){
   const maxV = allV.length ? Math.max(...allV) : 0;
   const yMax = Math.ceil(maxV * 1.1 / 10000) * 10000;
 
+  const OV = overallTrend([thM, seaBM, mthM, mseaBM]);
+  overBadge("ovb", OV.trend);
+
   if(chart) chart.destroy();
   chart = new Chart(document.getElementById("chart"), {
     type:"line",
@@ -207,6 +237,7 @@ function render(d){
       ds("PC Sea",  seaBM,  C.sea),
       ds("M Thai",  mthM,   C.mth),
       ds("M Sea",   mseaBM, C.msea),
+      overDataset(OV.trend),
     ]},
     options:{
       responsive:true, maintainAspectRatio:false, animation:{duration:600},
@@ -220,7 +251,8 @@ function render(d){
         y:{ grid:{color:"rgba(255,255,255,.08)"}, border:{display:false},
             beginAtZero:true, max:yMax,
             ticks:{color:"#ffffff",font:{size:10},maxTicksLimit:4,
-                   callback:v=>"฿"+(v>=1000?(v/1000)+"k":v)} }
+                   callback:v=>"฿"+(v>=1000?(v/1000)+"k":v)} },
+        ov: overAxis(OV.trend)
       }
     }
   });
