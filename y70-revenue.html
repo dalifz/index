@@ -15,8 +15,8 @@
     --rev:#FF496C;     /* title + dates */
     --th:#08E8DE;      /* PC Thai  */
     --sea:#FF5F1F;     /* PC Sea   */
-    --mth:#4D9DFF;     /* M Thai   */
-    --msea:#FFD24D;    /* M Sea    */
+    --mth:#FF2EC4;     /* M Thai   */
+    --msea:#39FF14;    /* M Sea    */
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
@@ -110,7 +110,7 @@ const CONFIG = {
   RATE: 33,                                     // USD -> THB (Sea)
   REFRESH_MS: 10 * 60 * 1000,
 };
-const C = { th:"#08E8DE", sea:"#FF5F1F", mth:"#4D9DFF", msea:"#FFD24D" };
+const C = { th:"#08E8DE", sea:"#FF5F1F", mth:"#FF2EC4", msea:"#39FF14" };
 
 const fmtB = n => "฿" + Math.round(n).toLocaleString("en-US");
 const fmtUsd = n => "$" + Math.round(n).toLocaleString("en-US");

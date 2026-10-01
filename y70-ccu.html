@@ -16,7 +16,7 @@
     --th:#FFD300;       /* PC Thai */
     --sea:#B0BF1A;      /* PC Sea  */
     --mth:#33D6C0;      /* M Thai  */
-    --msea:#C77DFF;     /* M Sea   */
+    --msea:#7FFFD4;     /* M Sea   */
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
@@ -108,7 +108,7 @@ const CONFIG = {
   ACCESS_KEY: "pqvCqYRiD5DlHTqpDIFfS6LyCZie",
   REFRESH_MS: 10 * 60 * 1000,
 };
-const C = { th:"#FFD300", sea:"#B0BF1A", mth:"#33D6C0", msea:"#C77DFF" };
+const C = { th:"#FFD300", sea:"#B0BF1A", mth:"#33D6C0", msea:"#7FFFD4" };
 
 const fmtN = n => Math.round(n).toLocaleString("en-US");
 const shortDate = iso => { const p = iso.split("-"); return p[2] + "/" + p[1]; };
