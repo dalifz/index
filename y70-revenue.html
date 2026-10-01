@@ -132,8 +132,21 @@ function trendLine(a){
 
 function grad(ctx,area,rgb){
   const g=ctx.createLinearGradient(0,area.top,0,area.bottom);
-  g.addColorStop(0,rgb+"55"); g.addColorStop(1,rgb+"00"); return g;
+  g.addColorStop(0,rgb+"4D"); g.addColorStop(1,rgb+"00"); return g;
 }
+
+// one consistent styled series (smooth, soft fill, neon glow)
+function ds(label,data,col){
+  return { label, data, borderColor:col, borderWidth:2.4, tension:.4, fill:true,
+    spanGaps:true, pointRadius:0, pointHoverRadius:4, _glow:true,
+    backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,col):col+"22";} };
+}
+
+// neon glow behind each line
+const glowPlugin={ id:"glow",
+  beforeDatasetDraw(ch,a){ const d=ch.data.datasets[a.index]; if(d&&d._glow){ ch.ctx.save(); ch.ctx.shadowColor=d.borderColor; ch.ctx.shadowBlur=10; } },
+  afterDatasetDraw(ch,a){ const d=ch.data.datasets[a.index]; if(d&&d._glow){ ch.ctx.restore(); } } };
+Chart.register(glowPlugin);
 
 let chart;
 function render(d){
@@ -190,23 +203,10 @@ function render(d){
   chart = new Chart(document.getElementById("chart"), {
     type:"line",
     data:{ labels:L, datasets:[
-      // PC = filled areas
-      { label:"PC Thai", data:thM, borderColor:C.th, borderWidth:2.5, tension:.4, fill:true, order:2,
-        spanGaps:true, pointRadius:0,
-        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.th):C.th+"22";} },
-      { label:"PC Sea", data:seaBM, borderColor:C.sea, borderWidth:2.5, tension:.4, fill:true, order:2,
-        spanGaps:true, pointRadius:0,
-        backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.sea):C.sea+"22";} },
-      // Mobile = line only (no fill, keeps chart readable)
-      { label:"M Thai", data:mthM, borderColor:C.mth, borderWidth:2, tension:.4, fill:false, order:2,
-        spanGaps:true, pointRadius:0 },
-      { label:"M Sea", data:mseaBM, borderColor:C.msea, borderWidth:2, tension:.4, fill:false, order:2,
-        spanGaps:true, pointRadius:0 },
-      // PC trend lines
-      { label:"TH trend", data:trendLine(thM), borderColor:C.th, borderWidth:1.3, borderDash:[7,4],
-        fill:false, tension:0, pointRadius:0, order:1 },
-      { label:"Sea trend", data:trendLine(seaBM), borderColor:C.sea, borderWidth:1.3, borderDash:[7,4],
-        fill:false, tension:0, pointRadius:0, order:1 },
+      ds("PC Thai", thM,    C.th),
+      ds("PC Sea",  seaBM,  C.sea),
+      ds("M Thai",  mthM,   C.mth),
+      ds("M Sea",   mseaBM, C.msea),
     ]},
     options:{
       responsive:true, maintainAspectRatio:false, animation:{duration:600},
