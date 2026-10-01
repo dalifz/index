@@ -15,6 +15,8 @@
     --accent:#CCFF00;   /* title + updatedAt */
     --th:#FFD300;       /* PC Thai */
     --sea:#B0BF1A;      /* PC Sea  */
+    --mth:#33D6C0;      /* M Thai  */
+    --msea:#C77DFF;     /* M Sea   */
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
@@ -23,29 +25,38 @@
   body{padding:14px;}
   .card{height:100%;background:var(--card);border:1px solid var(--border);
     border-radius:18px;padding:16px 18px 12px;display:flex;flex-direction:column;}
-  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--accent);}
   .upd{font-size:45px;font-weight:700;color:var(--accent);}
-  .nums{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
-  .col{background:rgba(255,255,255,.025);border-radius:13px;padding:10px 16px;
+  .nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+  .col{background:rgba(255,255,255,.025);border-radius:13px;padding:8px 14px;
     border:1px solid var(--border);position:relative;overflow:hidden;}
   .col::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
   .col.th::before{background:var(--th);}
   .col.sea::before{background:var(--sea);}
-  .col .name{font-size:15px;font-weight:700;letter-spacing:.3px;margin-bottom:2px;
+  .col.mth::before{background:var(--mth);}
+  .col.msea::before{background:var(--msea);}
+  .col .name{font-size:14px;font-weight:700;letter-spacing:.3px;margin-bottom:2px;
     display:flex;align-items:center;gap:7px;}
   .col.th .name{color:var(--th);}
   .col.sea .name{color:var(--sea);}
+  .col.mth .name{color:var(--mth);}
+  .col.msea .name{color:var(--msea);}
   .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
   .col.th .dot{background:var(--th);}
   .col.sea .dot{background:var(--sea);}
+  .col.mth .dot{background:var(--mth);}
+  .col.msea .dot{background:var(--msea);}
   .mtd-inline{margin-left:auto;display:flex;align-items:baseline;gap:6px;
-    color:var(--txt);font-weight:700;font-size:14px;}
-  .mtd-inline .lab{font-size:11px;color:var(--sub);font-weight:600;}
-  .today{font-size:clamp(34px,6.5vw,72px);font-weight:800;line-height:1;letter-spacing:-1.5px;
-    display:flex;align-items:baseline;gap:10px;white-space:nowrap;}
+    color:var(--txt);font-weight:700;font-size:13px;}
+  .mtd-inline .lab{font-size:10px;color:var(--sub);font-weight:600;}
+  .today{font-size:clamp(24px,4.4vw,50px);font-weight:800;line-height:1;letter-spacing:-1px;
+    display:flex;align-items:baseline;gap:8px;white-space:nowrap;}
   .col.th .today{color:var(--th);}
   .col.sea .today{color:var(--sea);}
+  .col.mth .today{color:var(--mth);}
+  .col.msea .today{color:var(--msea);}
+  .lab{font-size:10px;color:var(--sub);}
   .chartwrap{flex:1 1 auto;min-height:0;position:relative;margin-top:4px;}
   canvas{position:absolute;inset:0;}
   .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -72,6 +83,18 @@
         </div>
         <div class="today"><span id="sea-today">—</span></div>
       </div>
+      <div class="col mth">
+        <div class="name"><span class="dot"></span>M Thai
+          <span class="mtd-inline"><span class="lab">เฉลี่ย</span><span id="mth-avg">—</span></span>
+        </div>
+        <div class="today"><span id="mth-today">—</span></div>
+      </div>
+      <div class="col msea">
+        <div class="name"><span class="dot"></span>M Sea
+          <span class="mtd-inline"><span class="lab">เฉลี่ย</span><span id="msea-avg">—</span></span>
+        </div>
+        <div class="today"><span id="msea-today">—</span></div>
+      </div>
     </div>
 
     <div class="chartwrap"><canvas id="chart"></canvas><div class="err" id="err" style="display:none"></div></div>
@@ -82,10 +105,10 @@
 const CONFIG = {
   METRIC: "CCU",
   DATA_URL: "https://script.google.com/macros/s/AKfycbzm5ABDvDdRCos_cr3zlb39KxxmNWV6Uz9RgeylYV1S3H-L7rDMQeQ6DYIu5Vojr4o/exec",
+  ACCESS_KEY: "pqvCqYRiD5DlHTqpDIFfS6LyCZie",
   REFRESH_MS: 10 * 60 * 1000,
 };
-const C = { th:"#FFD300", sea:"#B0BF1A" };
-const AXIS = "#CCFF00";   // x-axis date color
+const C = { th:"#FFD300", sea:"#B0BF1A", mth:"#33D6C0", msea:"#C77DFF" };
 
 const fmtN = n => Math.round(n).toLocaleString("en-US");
 const shortDate = iso => { const p = iso.split("-"); return p[2] + "/" + p[1]; };
@@ -112,23 +135,32 @@ function grad(ctx,area,rgb){
 let chart;
 function render(d){
   const days = d.days || [];
-  const th  = (d.products["CBPC-TH"]  || {})[CONFIG.METRIC] || [];
-  const sea = (d.products["CBPC-SEA"] || {})[CONFIG.METRIC] || [];
+  const P = d.products || {};
+  const M = CONFIG.METRIC;
+  const th   = (P["CBPC-TH"]  || {})[M] || [];
+  const sea  = (P["CBPC-SEA"] || {})[M] || [];
+  const mth  = (P["CBM-TH"]   || {})[M] || [];
+  const msea = (P["CBM-SEA"]  || {})[M] || [];
 
-  const li = Math.max(lastIdx(th), lastIdx(sea));
+  const li = Math.max(lastIdx(th), lastIdx(sea), lastIdx(mth), lastIdx(msea));
   const month = (days[li>=0?li:days.length-1] || "").slice(0,7);
 
   const idx = [];
   days.forEach((dy,i)=>{ if(dy.slice(0,7)===month) idx.push(i); });
-  const L   = idx.map(i=>shortDate(days[i]));
-  const thM = idx.map(i=> th[i]==null?null:th[i]);
-  const seaM= idx.map(i=> sea[i]==null?null:sea[i]);
+  const L = idx.map(i=>shortDate(days[i]));
+  const pick = arr => idx.map(i=> arr[i]==null?null:arr[i]);
+  const thM=pick(th), seaM=pick(sea), mthM=pick(mth), mseaM=pick(msea);
 
-  document.getElementById("th-today").textContent  = fmtN(thM[lastIdx(thM)] ?? 0);
-  document.getElementById("sea-today").textContent = fmtN(seaM[lastIdx(seaM)] ?? 0);
-  document.getElementById("th-avg").textContent    = fmtN(avg(thM));
-  document.getElementById("sea-avg").textContent   = fmtN(avg(seaM));
-  document.getElementById("ttl").textContent       = CONFIG.METRIC;
+  const today = a => a[lastIdx(a)] ?? 0;
+  document.getElementById("th-today").textContent   = fmtN(today(thM));
+  document.getElementById("sea-today").textContent  = fmtN(today(seaM));
+  document.getElementById("mth-today").textContent  = fmtN(today(mthM));
+  document.getElementById("msea-today").textContent = fmtN(today(mseaM));
+  document.getElementById("th-avg").textContent     = fmtN(avg(thM));
+  document.getElementById("sea-avg").textContent    = fmtN(avg(seaM));
+  document.getElementById("mth-avg").textContent    = fmtN(avg(mthM));
+  document.getElementById("msea-avg").textContent   = fmtN(avg(mseaM));
+  document.getElementById("ttl").textContent        = M;
 
   if(d.updatedAt){
     const dt=new Date(d.updatedAt);
@@ -136,7 +168,7 @@ function render(d){
     document.getElementById("upd").textContent="⏱ "+dt.toLocaleString("th-TH",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
   }
 
-  const allV=[...thM,...seaM].filter(v=>v!=null);
+  const allV=[...thM,...seaM,...mthM,...mseaM].filter(v=>v!=null);
   const maxV=allV.length?Math.max(...allV):0;
   const step=maxV>5000?1000:(maxV>500?100:10);
   const yMax=Math.ceil(maxV*1.1/step)*step;
@@ -151,6 +183,10 @@ function render(d){
       { label:"PC Sea", data:seaM, borderColor:C.sea, borderWidth:2.5, tension:.4, fill:true, order:2,
         spanGaps:true, pointRadius:0,
         backgroundColor:(c)=>{const{ctx,chartArea}=c.chart;return chartArea?grad(ctx,chartArea,C.sea):C.sea+"22";} },
+      { label:"M Thai", data:mthM, borderColor:C.mth, borderWidth:2, tension:.4, fill:false, order:2,
+        spanGaps:true, pointRadius:0 },
+      { label:"M Sea", data:mseaM, borderColor:C.msea, borderWidth:2, tension:.4, fill:false, order:2,
+        spanGaps:true, pointRadius:0 },
       { label:"TH trend", data:trendLine(thM), borderColor:C.th, borderWidth:1.3, borderDash:[7,4],
         fill:false, tension:0, pointRadius:0, order:1 },
       { label:"Sea trend", data:trendLine(seaM), borderColor:C.sea, borderWidth:1.3, borderDash:[7,4],
@@ -176,7 +212,7 @@ function render(d){
 
 async function load(){
   try{
-    const r = await fetch(CONFIG.DATA_URL + "?t=" + Date.now(), {cache:"no-store"});
+    const r = await fetch(CONFIG.DATA_URL + "?key=" + encodeURIComponent(CONFIG.ACCESS_KEY) + "&t=" + Date.now(), {cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     const d = await r.json();
     if(!d.products) throw new Error("bad data");
