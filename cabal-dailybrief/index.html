@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cabal Daily Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- ตั้งค่า ---------- */
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --line:#e2e5ea; --fg:#1b1f26; --muted:#6b7280;
+  --brand:#1f4e79; --brand-soft:#e8eef5;
+  --urgent-bg:#fbd9cc; --urgent-fg:#8a2c0d;
+  --high-bg:#e8d6f2;  --high-fg:#5b2170;
+  --normal-bg:#f8e7b8;--normal-fg:#6b5200;
+  --low-bg:#d2e9d7;   --low-fg:#1f5130;
+  --danger:#b3261e; --ok:#1f6b3a; --new:#7b1fa2;
+  --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.1);
+  --font:'IBM Plex Sans Thai','IBM Plex Sans',-apple-system,Segoe UI,Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#13161b; --surface:#1b1f27; --line:#2b313b; --fg:#e8eaee; --muted:#9aa3b2;
+  --brand:#8ab4e8; --brand-soft:#223049;
+  --urgent-bg:#4a2317; --urgent-fg:#ffc5ae;
+  --high-bg:#3a2748;  --high-fg:#e6c9fb;
+  --normal-bg:#473c15;--normal-fg:#f2dc9b;
+  --low-bg:#1e3a27;   --low-fg:#b6e3c3;
+  --danger:#ff8a80; --ok:#86d9a4; --new:#c58af9;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.55;
+     padding:0 16px 56px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto}
+header{padding-block:22px 10px}
+h1{margin:0;font-size:clamp(20px,2.4vw,26px);font-weight:700;letter-spacing:-.01em}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;color:var(--muted);font-size:14px}
+.stats b{color:var(--fg);font-variant-numeric:tabular-nums}
+.stats .d{color:var(--danger)} .stats .g{color:var(--ok)}
+.toolbar{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--fg)}
+label{font-size:14px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font:inherit;font-size:13px;padding:6px 13px;border:1px solid var(--line);background:var(--surface);
+      color:var(--fg);border-radius:999px;cursor:pointer;transition:.15s}
+.chip:hover:not(:disabled){border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.chip:disabled{opacity:.42;cursor:default}
+h2{font-size:15px;margin:26px 0 10px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+   display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.card{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:13px 15px;margin-bottom:10px}
+.card.r0{border-left-color:#e8710a}.card.r1{border-left-color:#7b4fa0}
+.card.r2{border-left-color:#c7a62e}.card.r3{border-left-color:#3f8d5b}
+.card.done{opacity:.5}
+.card input[type=checkbox]{width:21px;height:21px;margin-top:3px;flex:none;cursor:pointer;accent-color:var(--brand)}
+.body{flex:1;min-width:0}
+.title{font-weight:600;font-size:15.5px;word-break:break-word}
+.title a{color:inherit;text-decoration:none}
+.title a:hover{text-decoration:underline}
+.card.done .title{text-decoration:line-through}
+.due{color:var(--muted);font-weight:500;font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:6px 0;font-size:13px;color:var(--muted)}
+.tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.t-urgent{background:var(--urgent-bg);color:var(--urgent-fg)}
+.t-high{background:var(--high-bg);color:var(--high-fg)}
+.t-normal{background:var(--normal-bg);color:var(--normal-fg)}
+.t-low{background:var(--low-bg);color:var(--low-fg)}
+.t-new{background:var(--new);color:#fff}
+.t-late{background:var(--danger);color:#fff}
+.t-day{background:var(--brand-soft);color:var(--brand)}
+.links{font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.links a{color:var(--brand)}
+.done-note{margin-top:6px;font-size:13px;color:var(--ok);font-weight:600}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:34px 16px;text-align:center;color:var(--muted)}
+footer{margin-top:28px;color:var(--muted);font-size:12.5px;text-align:center}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(14px);background:#101317;color:#fff;
+       padding:9px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.22s}
+#toast.show{opacity:.95;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Cabal Daily Brief</h1>
+    <div class="stats" id="stats">กำลังโหลด…</div>
+  </header>
+
+  <div class="toolbar">
+    <div class="row">
+      <label for="me">ฉันคือ</label>
+      <select id="me"><option value="">— เลือกชื่อ —</option></select>
+      <span id="hint" style="font-size:13px;color:var(--muted)">เลือกครั้งเดียว ระบบจำไว้ให้</span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <main id="list"></main>
+  <footer id="foot"></footer>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ====== ตั้งค่า: แก้ 2 บรรทัดนี้ถ้าเปลี่ยน Apps Script ====== */
+var API = 'https://script.google.com/macros/s/AKfycbwf21L5UoYtgQm871DsVhj18Okn3DQh-RjXHiggf9sSSf5W9MAxj7Ln-A6SLh0pR3Z2/exec';
+var TOKEN = 'cabal2026';
+var GAMES = ['CBM-SEA','CBM-TH','CBPC-SEA','CBPC-TH','CB-REVO'];
+/* ========================================================= */
+
+var TASKS = [], NAMES = [], TODAY = '', filter = '*';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function toast(m){ var t = $('toast'); t.textContent = m; t.className = 'show';
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.className = ''; }, 2400); }
+
+function api(params){
+  var q = Object.keys(params).map(function(k){
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+  return fetch(API + '?token=' + encodeURIComponent(TOKEN) + '&' + q)
+    .then(function(r){ return r.json(); });
+}
+
+function dayTag(t){
+  if (!t.due) return '<span class="tag t-day">ไม่มีกำหนด</span>';
+  if (t.late) return '<span class="tag t-late">เลยกำหนด</span>';
+  var d = Math.round((new Date(t.due) - new Date(TODAY)) / 864e5);
+  if (d === 0) return '<span class="tag t-late" style="background:#e8710a">วันนี้</span>';
+  if (d === 1) return '<span class="tag t-day">พรุ่งนี้</span>';
+  return '<span class="tag t-day">อีก ' + d + ' วัน</span>';
+}
+var PRI = ['t-urgent','t-high','t-normal','t-low'];
+
+function render(){
+  var openCnt = TASKS.filter(function(t){ return !t.doneBy; }).length;
+  var urg  = TASKS.filter(function(t){ return t.rank === 0 && !t.doneBy; }).length;
+  var late = TASKS.filter(function(t){ return t.late && !t.doneBy; }).length;
+  $('stats').innerHTML = esc(TODAY)
+    + ' <span>ค้างอยู่ <b>' + openCnt + '</b></span>'
+    + ' <span>Urgent <b class="d">' + urg + '</b></span>'
+    + ' <span>เลยกำหนด <b class="d">' + late + '</b></span>'
+    + ' <span>เสร็จแล้ว <b class="g">' + (TASKS.length - openCnt) + '</b></span>';
+
+  var extra = [];
+  TASKS.forEach(function(t){ if (GAMES.indexOf(t.game) < 0 && extra.indexOf(t.game) < 0) extra.push(t.game); });
+  var all = GAMES.concat(extra.sort());
+  var chips = '<button class="chip" data-g="*" aria-pressed="' + (filter === '*') + '">ทั้งหมด ('
+            + TASKS.length + ')</button>';
+  all.forEach(function(g){
+    var n = TASKS.filter(function(t){ return t.game === g; }).length;
+    chips += '<button class="chip" data-g="' + esc(g) + '" aria-pressed="' + (filter === g) + '"'
+          + (n ? '' : ' disabled') + '>' + esc(g) + ' (' + n + ')</button>';
+  });
+  $('chips').innerHTML = chips;
+
+  var shown = TASKS.filter(function(t){ return filter === '*' || t.game === filter; });
+  var html = '', last = null;
+  shown.forEach(function(t){
+    if (t.game !== last){
+      last = t.game;
+      var n = shown.filter(function(x){ return x.game === t.game; }).length;
+      html += '<h2>' + esc(t.game) + ' · ' + n + ' งาน</h2>';
+    }
+    html += '<article class="card r' + t.rank + (t.doneBy ? ' done' : '') + '">'
+      + '<input type="checkbox" data-id="' + esc(t.id) + '"' + (t.doneBy ? ' checked' : '')
+      + ' aria-label="ทำเสร็จแล้ว">'
+      + '<div class="body">'
+      + '<div class="title"><a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.title) + '</a>'
+      + (t.due ? ' <span class="due">[Duedate ' + esc(t.due) + ']</span>' : '')
+      + (t.isNew && !t.doneBy ? ' <span class="tag t-new">NEW</span>' : '') + '</div>'
+      + '<div class="meta">' + dayTag(t)
+      + (t.pri ? '<span class="tag ' + PRI[t.rank] + '">' + esc(t.pri) + '</span>' : '')
+      + '<span>จาก <b style="color:var(--fg)">' + esc(t.by || 'ไม่ระบุ') + '</b></span>'
+      + (t.who ? '<span>ผู้รับผิดชอบ ' + esc(t.who) + '</span>' : '')
+      + '</div>'
+      + '<div class="links">'
+      + (t.files.length
+          ? t.files.map(function(u, i){ return '<a href="' + esc(u) + '" target="_blank" rel="noopener">ไฟล์แนบ'
+              + (t.files.length > 1 ? ' ' + (i + 1) : '') + '</a>'; }).join('')
+          : '<span>ไม่มีไฟล์แนบ</span>')
+      + '<a href="' + esc(t.url) + '" target="_blank" rel="noopener">เปิดใน Notion</a>'
+      + '</div>'
+      + (t.doneBy ? '<div class="done-note">เสร็จแล้วโดย ' + esc(t.doneBy)
+                  + (t.doneAt ? ' · ' + esc(t.doneAt) : '') + '</div>' : '')
+      + '</div></article>';
+  });
+  $('list').innerHTML = html || '<div class="empty">ไม่มีงานที่ต้องส่งในช่วงนี้</div>';
+  $('foot').textContent = 'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})
+    + ' · หน้านี้รีเฟรชเองทุก 2 นาที';
+
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(b){
+    b.onclick = function(){ filter = b.dataset.g; render(); };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.card input'), function(c){
+    c.onchange = function(){ tick(c.dataset.id, c.checked, c); };
+  });
+}
+
+function tick(id, done, el){
+  var me = $('me').value;
+  if (!me){ el.checked = !done; toast('เลือกชื่อตัวเองก่อนนะคะ'); $('me').focus(); return; }
+  el.disabled = true;
+  api({ api:'done', id:id, name:me, done: done ? '1' : '0' })
+    .then(function(res){
+      el.disabled = false;
+      if (!res.ok){ el.checked = !done; toast(res.error || 'บันทึกไม่สำเร็จ'); return; }
+      var t = TASKS.filter(function(x){ return x.id === id; })[0];
+      if (t){ t.doneBy = done ? me : ''; t.doneAt = done ? 'เมื่อสักครู่' : ''; }
+      toast(done ? 'บันทึกแล้ว' : 'ยกเลิกการติ๊กแล้ว');
+      render();
+    })
+    .catch(function(){ el.disabled = false; el.checked = !done; toast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'); });
+}
+
+function load(first){
+  return api({ api:'tasks' }).then(function(d){
+    if (!d.ok){ $('list').innerHTML = '<div class="empty">' + esc(d.error) + '</div>'; return; }
+    TASKS = d.tasks; TODAY = d.today;
+    if (first){
+      NAMES = d.names;
+      var sel = $('me');
+      sel.innerHTML = '<option value="">— เลือกชื่อ —</option>'
+        + NAMES.map(function(n){ return '<option>' + esc(n) + '</option>'; }).join('');
+      try { var s = localStorage.getItem('cabalName'); if (s) sel.value = s; } catch (e) {}
+      sel.onchange = function(){ try { localStorage.setItem('cabalName', sel.value); } catch (e) {} };
+    }
+    render();
+  }).catch(function(){
+    $('list').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้ ลองรีเฟรชหน้าอีกครั้ง</div>';
+  });
+}
+
+load(true);
+setInterval(function(){ load(false); }, 120000);
+</script>
+</body>
+</html>
