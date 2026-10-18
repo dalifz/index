@@ -209,12 +209,12 @@
     if (p.heat) rows.push(`<div class="devrow heat"><span class="dot heat"></span><div><b>Heater × ${p.units}</b> · รัศมี ~${p.radius} m · ตั้ง ~${p.heatTo}°C<br><small>หน้าหนาวต่ำกว่าที่สัตว์รับได้ ${p.heat}°C</small></div></div>`);
     if (p.cool) rows.push(`<div class="devrow cool"><span class="dot cool"></span><div><b>Cooler × ${p.units}</b> · รัศมี ~${p.radius} m · ตั้ง ~${p.coolTo}°C<br><small>หน้าร้อนสูงเกินที่สัตว์รับได้ ${p.cool}°C</small></div></div>`);
     return `<div class="devbox"><h4>🌡 วางเครื่องปรับอุณหภูมิ <small>(พื้นที่ ~${fmt(p.area)} m²)</small></h4>${rows.join('')}
-      <ul><li>วางเป็นกลุ่มกลางกรง ให้วงคลุม <b>shelter · จุดให้อาหาร · น้ำ</b> ไม่ต้องคลุมทุกตารางเมตร (ราว 60% ของพื้นที่พอ)</li>
-      <li>ตอนวางเกมจะโชว์รัศมีเป็นวง · เปิด Heat map (แท็บ Habitat บนแถบด้านบน) เช็กว่าแดง/ฟ้าครอบจุดที่สัตว์อยู่</li>
-      <li>รัศมีใหญ่เครื่องเดียวแพงกว่าเครื่องกลาง 2 เครื่อง → ใช้หลายเครื่องรัศมี ~${p.radius} m ดีกว่า</li>
-      <li>ต้องต่อไฟ (Power) · ซ่อนเครื่องโดยกด Shift จมลงดินเล็กน้อยหรือวางหิน/พุ่มไม้บัง</li>
-      ${p.heat && p.cool ? '<li>กรงนี้ต้องทั้งสองแบบ: เปิด Heater หน้าหนาว Cooler หน้าร้อน วางสลับกันในกลุ่มเดียว</li>' : ''}</ul>
-      <p class="fine" style="margin:4px 0 0">จำนวนเครื่องคำนวณจากพื้นที่ขั้นต่ำใน Zoopedia ÷ วงรัศมี 14 m (ค่าจากชุมชน ยังไม่ยืนยันใน PZ2) ถ้ากรงใหญ่กว่าขั้นต่ำให้เพิ่มตาม</p></div>`;
+      <ul><li><b>เช็กก่อน:</b> คลิกสัตว์ › แท็บ <b>Habitat</b> ดู Habitat Temperature ที่มันชอบ แล้วเปิด <b>Heat map</b> (ฟ้า = เย็น · แดง = อุ่น) ดูว่ากรงจริงเป็นสีอะไร</li>
+      <li><b>วาง:</b> เมนู <b>Habitats › Heaters and Coolers</b> (กดแล้ว Heat map เปิดให้เอง) วางเป็นกลุ่มกลางกรง ให้วงคลุม <b>shelter · จุดให้อาหาร · น้ำ</b> ไม่ต้องคลุมทุกตารางเมตร</li>
+      <li><b>รอ:</b> เดินเวลาเกม (unpause) พื้นที่จะค่อย ๆ อุ่น/เย็นลง แล้วเปิด Heat map เช็กซ้ำ · ยังไม่พอค่อยเพิ่มเครื่อง</li>
+      <li>เครื่องละ $50 · ต้องต่อไฟ (Power) · ซ่อนได้ด้วยหิน/พุ่มไม้บัง</li>
+      ${p.heat && p.cool ? '<li>กรงนี้ต้องทั้งสองแบบ: Heater ช่วงหน้าหนาว · Cooler ช่วงหน้าร้อน วางสลับกันในกลุ่มเดียว</li>' : ''}</ul>
+      <p class="fine" style="margin:4px 0 0">จำนวนเครื่องเป็นค่าประมาณ: พื้นที่ขั้นต่ำใน Zoopedia × 60% ÷ วงรัศมี ~14 m (ค่าจากชุมชน PZ1 · ใน PZ2 ดูขนาดวงจริงตอนวาง) ถ้ากรงใหญ่กว่าขั้นต่ำให้เพิ่มตาม</p></div>`;
   }
   function openCage(id) {
     const c = CAGES.find(c => c.id === id); if (!c) return; selCage = id;
