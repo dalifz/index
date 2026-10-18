@@ -86,6 +86,9 @@
   .dayhero-wrap{position:relative;margin-bottom:14px}
   .dayhero-wrap .dayhero{margin-bottom:0}
   .dayhero-cap{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.92);color:var(--accent);font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(232,90,155,.25);pointer-events:none}
+  @keyframes slideL{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+  @keyframes slideR{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+  .anim-l{animation:slideL .22s ease}.anim-r{animation:slideR .22s ease}
 
   /* slot timeline */
   .tl{position:relative;padding-left:20px}
@@ -165,6 +168,7 @@
   .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:80;align-items:center;justify-content:center;padding:14px}
   .imgmodal.on{display:flex}
   .imgmodal img{max-width:100%;max-height:100%;border-radius:8px}
+  .imgmodal-hint{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--accent);font-family:var(--font-cute);font-size:.72rem;font-weight:700;padding:6px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none}
   .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
   .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
   .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
@@ -246,7 +250,7 @@
   <section class="view pad" id="v-plan">
     <div class="kicker">DAY BY DAY</div>
     <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
-    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลา = ดู Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap<br>🧭 <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> (หา AMap เจอแน่) แล้วเดินหาร้านเล็กเอา — ร้าน trendy บางร้าน AMap อาจไม่มี</p>
+    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลา = ดู Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap · 👈 ปัดซ้าย-ขวา เปลี่ยนวัน 👉<br>🧭 <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> (หา AMap เจอแน่) แล้วเดินหาร้านเล็กเอา — ร้าน trendy บางร้าน AMap อาจไม่มี</p>
     <div class="days" id="days"></div>
     <div class="dayhead" id="dayhead"></div>
     <div class="tl" id="timeline"></div>
@@ -308,7 +312,7 @@
   </nav>
 </div>
 <div class="toast" id="toast"></div>
-<div class="imgmodal" id="imgmodal" onclick="this.classList.remove('on')"><img id="imgmodal-src" alt=""></div>
+<div class="imgmodal" id="imgmodal" onclick="closeModal(event)"><img id="imgmodal-src" alt=""><div class="imgmodal-hint" id="imgmodal-hint"></div></div>
 
 <script>
 const P=(en,zh)=>({en,zh});
@@ -503,6 +507,7 @@ function renderDays(){
       <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${s.label}</span><span class="chev">›</span></div>
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
+  if(_swipeDir){const cls=_swipeDir>0?'anim-l':'anim-r';[document.getElementById('dayhead'),tl].forEach(x=>{x.classList.remove('anim-l','anim-r');void x.offsetWidth;x.classList.add(cls);});_swipeDir=0;}
 }
 /* Suzhou metro (different system — verify in AMap) */
 function szBody(z){
@@ -554,7 +559,30 @@ function bodyFor(s){
   return h||'<div class="p-note">—</div>';
 }
 function tgCheck(k,el){el.classList.toggle('on');state[k]=el.classList.contains('on');localStorage.setItem('shhChecklist',JSON.stringify(state));}
-function zoomImg(src){document.getElementById('imgmodal-src').src=src;document.getElementById('imgmodal').classList.add('on');}
+let _modalDay=0;
+function zoomImg(src){
+  const m=/day([1-6])\.png/.exec(src);_modalDay=m?+m[1]:0;
+  document.getElementById('imgmodal-src').src=src;
+  document.getElementById('imgmodal-hint').innerHTML=_modalDay?`DAY ${_modalDay} · 👈 ปัดเปลี่ยนวัน 👉 · แตะปิด`:'แตะปิด';
+  document.getElementById('imgmodal').classList.add('on');
+}
+function modalNav(delta){
+  if(!_modalDay)return;
+  const n=Math.min(6,Math.max(1,_modalDay+delta));if(n===_modalDay)return;
+  _modalDay=n;
+  const img=document.getElementById('imgmodal-src');
+  img.classList.remove('anim-l','anim-r');void img.offsetWidth;img.classList.add(delta>0?'anim-l':'anim-r');
+  img.src=`assets/day${n}.png`;
+  document.getElementById('imgmodal-hint').innerHTML=`DAY ${n} · 👈 ปัดเปลี่ยนวัน 👉 · แตะปิด`;
+  setDay(String(n));
+}
+let _mx=0,_my=0,_mswipe=false;
+function initModalSwipe(){
+  const el=document.getElementById('imgmodal');if(!el)return;
+  el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];_mx=t.clientX;_my=t.clientY;_mswipe=false;},{passive:true});
+  el.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-_mx,dy=t.clientY-_my;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){_mswipe=true;modalNav(dx<0?1:-1);}},{passive:true});
+}
+function closeModal(e){if(_mswipe){_mswipe=false;return;}document.getElementById('imgmodal').classList.remove('on');}
 function house(x,y,name){return `<g>
   <path d="M${x-20},${y-40} L${x},${y-56} L${x+20},${y-40} Z" fill="#f3c623" stroke="#dcae43" stroke-width="2"/>
   <rect x="${x-16}" y="${y-40}" width="32" height="22" rx="3" fill="#fff" stroke="#dcae43" stroke-width="2"/>
@@ -603,7 +631,15 @@ function metroBody(m){
   html+=`</div>`;
   return html;
 }
-function setDay(id){activeDay=id;renderDays();}
+let _swipeDir=0;
+function setDay(id,dir){activeDay=id;_swipeDir=dir||0;renderDays();if(dir){const tb=document.querySelector('.dtab.on');if(tb)tb.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});}}
+function goDay(delta){const i=DAYS.findIndex(d=>d.id===activeDay);const n=Math.min(DAYS.length-1,Math.max(0,i+delta));if(n!==i)setDay(DAYS[n].id,delta);}
+let _tx=0,_ty=0,_tt=0,_tskip=false;
+function initSwipe(){
+  const el=document.getElementById('v-plan');if(!el)return;
+  el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];_tx=t.clientX;_ty=t.clientY;_tt=Date.now();_tskip=!!(e.target.closest&&e.target.closest('.days,svg,.imgmodal'));},{passive:true});
+  el.addEventListener('touchend',e=>{if(_tskip)return;const t=e.changedTouches[0],dx=t.clientX-_tx,dy=t.clientY-_ty,dt=Date.now()-_tt;if(dt<700&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.8){goDay(dx<0?1:-1);}},{passive:true});
+}
 
 /* COPY + feedback */
 let toastT;
@@ -623,7 +659,7 @@ function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.styl
 function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
 
 /* INIT */
-renderToday();renderChk();renderDays();
+renderToday();renderChk();renderDays();initSwipe();initModalSwipe();
 document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
 document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
 </script>
