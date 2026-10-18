@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&amp;family=Ma+Shan+Zheng&amp;family=Noto+Serif+Thai:wght@500;700&amp;family=Noto+Sans+Thai:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>doc-page:not(:defined){visibility:hidden} a{color:#3f7a5e} a:hover{color:#b8382a}</style>
+<script src="./doc-page.js"></script>
+</helmet>
+<doc-page>
+<section class="page" id="flier" data-screen-label="01 Flier" style="background:#f3efe4;color:#23261f;font-family:'Noto Sans Thai',sans-serif;padding:5cqw;display:flex;flex-direction:column;gap:2.2cqh;box-sizing:border-box;">
+
+  <header style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3cqw;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:0.8cqh;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:1.25cqh;letter-spacing:.14em;text-transform:uppercase;color:#5d6055;">Planet Zoo 2 · แผนแม่บท v2</div>
+      <div style="font-family:'LXGW WenKai TC','Kaiti TC','KaiTi',serif;font-size:10cqh;line-height:1;color:#b8382a;">玉谷萬獸園</div>
+      <div style="font-family:'Noto Serif Thai',serif;font-weight:700;font-size:3.6cqh;line-height:1.25;">สวนสัตว์หุบเขาหยก</div>
+      <p style="margin:0;font-size:1.45cqh;line-height:1.55;color:#5d6055;max-width:56ch;text-wrap:pretty;">ครบทุกชนิดใน Zoopedia แบ่ง 8 โซนตาม biome รอบทะเลสาบตะวันตกที่มีวังมังกรเป็นอาควาเรียม เหนือเย็น ไล่ลงใต้ร้อนชื้น</p>
+    </div>
+    <div style="width:11cqh;height:11cqh;border:0.45cqh solid #b8382a;color:#b8382a;border-radius:0.8cqh;display:grid;place-items:center;font-family:'LXGW WenKai TC','Kaiti TC','KaiTi',serif;font-size:3.6cqh;line-height:1.05;text-align:center;transform:rotate(-4deg);margin-top:1cqh;">玉谷<br>萬獸</div>
+  </header>
+
+  <sc-if value="{{ showFacts }}" hint-placeholder-val="{{ true }}">
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid #cbc3ad;border-bottom:1px solid #cbc3ad;padding:1.2cqh 0;">
+    <div style="display:flex;flex-direction:column;"><b style="font-family:'Noto Serif Thai',serif;font-size:3.4cqh;line-height:1.1;color:#b8382a;">135</b><span style="font-size:1.25cqh;color:#5d6055;">ชนิดสัตว์</span></div>
+    <div style="display:flex;flex-direction:column;"><b style="font-family:'Noto Serif Thai',serif;font-size:3.4cqh;line-height:1.1;">8</b><span style="font-size:1.25cqh;color:#5d6055;">โซน</span></div>
+    <div style="display:flex;flex-direction:column;"><b style="font-family:'Noto Serif Thai',serif;font-size:3.4cqh;line-height:1.1;">53</b><span style="font-size:1.25cqh;color:#5d6055;">กรงและตู้</span></div>
+    <div style="display:flex;flex-direction:column;"><b style="font-family:'Noto Serif Thai',serif;font-size:3.4cqh;line-height:1.1;color:#3f7a5e;">17</b><span style="font-size:1.25cqh;color:#5d6055;">กรงรวมหลายชนิด</span></div>
+    <div style="display:flex;flex-direction:column;"><b style="font-family:'Noto Serif Thai',serif;font-size:3.4cqh;line-height:1.1;color:#8a4f7d;">6</b><span style="font-size:1.25cqh;color:#5d6055;">อาคาร Exhibit</span></div>
+  </div>
+  </sc-if>
+
+  <div style="flex:1;min-height:0;display:flex;">
+  <svg viewBox="0 0 1200 880" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;" role="img" aria-label="แผนผังสวนสัตว์ 8 โซน">
+    <rect width="1200" height="880" rx="10" fill="#e9e3d2"></rect>
+    <path d="M0 52 L70 20 L120 44 L180 8 L240 46 L300 18 L360 50 L420 22 L480 54 L560 26 L620 56 L700 20 L760 50 L830 14 L900 48 L960 22 L1030 52 L1100 18 L1160 46 L1200 30 L1200 0 L0 0Z" fill="#cbc3ad" opacity=".6"></path>
+    <ellipse cx="600" cy="400" rx="252" ry="166" fill="none" stroke="#d6c093" stroke-width="14"></ellipse>
+    <g stroke="#d6c093" stroke-width="10" stroke-linecap="round">
+      <line x1="420" y1="282" x2="330" y2="200"></line><line x1="780" y1="282" x2="860" y2="200"></line>
+      <line x1="350" y1="400" x2="320" y2="400"></line><line x1="850" y1="400" x2="880" y2="400"></line>
+      <line x1="420" y1="518" x2="320" y2="640"></line><line x1="500" y1="555" x2="480" y2="630"></line><line x1="780" y1="520" x2="880" y2="640"></line>
+      <line x1="680" y1="566" x2="680" y2="840"></line>
+    </g>
+    <path d="M300 0 C310 80 260 150 300 230 C330 290 420 270 470 300" fill="none" stroke="#8fb8c9" stroke-width="18" stroke-linecap="round"></path>
+    <path d="M440 510 C400 560 300 560 250 620 C210 670 230 760 160 880" fill="none" stroke="#8fb8c9" stroke-width="18" stroke-linecap="round"></path>
+    <g font-family="'LXGW WenKai TC', 'Kaiti TC', KaiTi, serif" font-size="34" fill="#23261f">
+      <path d="M60 70 C200 40 420 50 520 78 C540 135 522 200 472 222 C340 240 160 236 80 208 C45 165 40 110 60 70Z" fill="#dde4e8" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="100" y="130">雪域高原</text>
+      <path d="M680 70 C820 45 1030 55 1140 82 C1160 135 1150 200 1100 222 C980 240 790 236 700 210 C665 170 660 115 680 70Z" fill="#ead9ae" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="730" y="130">絲路古道</text>
+      <path d="M45 262 C140 246 280 252 322 276 C342 340 338 462 304 512 C236 532 110 527 58 502 C32 422 32 322 45 262Z" fill="#bfd8b5" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="72" y="322">竹海幽谷</text>
+      <ellipse cx="600" cy="400" rx="218" ry="132" fill="#aecfdb" stroke="#23261f" stroke-width="1.6"></ellipse>
+      <text x="600" y="466" text-anchor="middle">西湖龍宮</text>
+      <path d="M880 258 C970 246 1110 252 1160 272 C1176 362 1170 522 1140 592 C1060 612 950 607 890 587 C860 482 860 332 880 258Z" fill="#e3d49a" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="905" y="320">萬里草原</text>
+      <path d="M45 562 C130 546 268 552 312 572 C332 632 328 742 302 812 C232 832 110 827 58 812 C32 722 32 622 45 562Z" fill="#bcd8d3" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="72" y="618">長江濕地</text>
+      <path d="M352 632 C430 616 560 620 610 642 C624 700 620 770 598 820 C520 836 410 832 362 818 C340 760 338 690 352 632Z" fill="#c6d4a2" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="376" y="686">萬國雨林</text>
+      <path d="M742 640 C850 620 1060 626 1160 648 C1176 700 1170 790 1140 830 C1020 846 840 842 758 826 C732 770 728 700 742 640Z" fill="#a5c897" stroke="#23261f" stroke-width="1.6"></path>
+      <text x="770" y="696">南洋雨林</text>
+    </g>
+    <g font-family="Noto Serif Thai, serif" font-weight="700" font-size="17" fill="#23261f">
+      <text x="100" y="158">ที่ราบสูงหิมะ</text><text x="730" y="158">เส้นทางสายไหม</text>
+      <text x="72" y="350">หุบเขาทะเลไผ่</text><text x="600" y="492" text-anchor="middle">วังมังกร · อาควาเรียม</text>
+      <text x="905" y="348">ทุ่งหญ้าหมื่นลี้</text><text x="72" y="646">พื้นที่ชุ่มน้ำแยงซี</text>
+      <text x="376" y="714">ป่าฝนนานาชาติ</text><text x="770" y="724">ป่าฝนหนานหยาง (เอเชีย)</text>
+    </g>
+    <g font-family="IBM Plex Mono, monospace" font-size="14" fill="#5d6055">
+      <text x="100" y="182">9 ชนิด</text><text x="730" y="182">10 ชนิด</text><text x="72" y="374">13 ชนิด · ★ หุบแพนด้า</text>
+      <text x="600" y="514" text-anchor="middle">42 ชนิด</text><text x="905" y="372">23 ชนิด</text><text x="72" y="670">9 ชนิด</text>
+      <text x="376" y="738">12 ชนิด</text><text x="770" y="748">17 ชนิด</text>
+    </g>
+    <g transform="translate(600 380)" fill="none" stroke="#b8382a" stroke-width="3" stroke-linecap="round">
+      <path d="M-70 18 Q0 -2 70 18"></path><path d="M-52 -4 Q0 -22 52 -4"></path><path d="M-34 -26 Q0 -40 34 -26"></path><line x1="0" y1="-40" x2="0" y2="-54"></line>
+      <rect x="-44" y="18" width="88" height="26"></rect><line x1="-20" y1="18" x2="-20" y2="44"></line><line x1="20" y1="18" x2="20" y2="44"></line>
+    </g>
+    <g font-family="'LXGW WenKai TC', 'Kaiti TC', KaiTi, serif" font-size="16" fill="#8a4f7d" text-anchor="middle">
+      <g transform="translate(1030 150)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">沙館</text></g>
+      <g transform="translate(110 450)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">蝶園</text></g>
+      <g transform="translate(470 330)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">冷館</text></g>
+      <g transform="translate(110 750)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">水館</text></g>
+      <g transform="translate(560 790)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">溫室</text></g>
+      <g transform="translate(1100 790)"><rect x="-24" y="-17" width="48" height="32" rx="4" fill="#faf7ef" stroke="#8a4f7d" stroke-width="1.6"></rect><text x="0" y="5">蟲館</text></g>
+    </g>
+    <g><rect x="620" y="572" width="120" height="44" rx="6" fill="#faf7ef" stroke="#23261f" stroke-width="1.2"></rect><text x="680" y="600" text-anchor="middle" font-family="Noto Serif Thai, serif" font-weight="700" font-size="14" fill="#23261f">ลานประตูจันทร์</text></g>
+    <g transform="translate(680 846)"><rect x="-46" y="-24" width="92" height="7" fill="#b8382a"></rect><rect x="-54" y="-32" width="108" height="7" rx="2" fill="#b8382a"></rect><rect x="-40" y="-17" width="7" height="26" fill="#b8382a"></rect><rect x="33" y="-17" width="7" height="26" fill="#b8382a"></rect>
+      <text x="0" y="28" text-anchor="middle" font-family="Noto Sans Thai, sans-serif" font-size="14" fill="#5d6055">ประตูทางเข้า 牌坊</text></g>
+    <g transform="translate(1180 120)"><rect x="-6" y="0" width="12" height="700" rx="6" fill="#8fb8c9"></rect><rect x="-6" y="350" width="12" height="350" rx="6" fill="#b8382a" opacity=".75"></rect>
+      <g font-family="Noto Sans Thai, sans-serif" font-size="14" fill="#5d6055" text-anchor="end"><text x="-12" y="14">หนาว</text><text x="-12" y="700">ร้อนชื้น</text></g></g>
+  </svg>
+  </div>
+
+  <sc-if value="{{ showLegend }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-wrap:wrap;gap:0.6cqh 2.4cqw;font-size:1.3cqh;color:#5d6055;">
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:1.3cqh;height:1.3cqh;border-radius:2px;background:#3f7a5e;display:inline-block;"></i>Habitat</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:1.3cqh;height:1.3cqh;border-radius:2px;background:#9c7a2c;display:inline-block;"></i>Aviary</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:1.3cqh;height:1.3cqh;border-radius:2px;background:#2f6f8c;display:inline-block;"></i>Aquarium</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:1.3cqh;height:1.3cqh;border-radius:2px;background:#8a4f7d;display:inline-block;"></i>Exhibit</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:2.4cqh;height:0.8cqh;border-radius:2px;background:#d6c093;display:inline-block;"></i>ทางเดินวงแหวน</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><i style="width:2.4cqh;height:0.8cqh;border-radius:2px;background:#8fb8c9;display:inline-block;"></i>แม่น้ำจากเขาหิมะ</span>
+    <span style="display:inline-flex;align-items:center;gap:0.6cqw;"><b style="font-family:'LXGW WenKai TC','Kaiti TC','KaiTi',serif;font-weight:400;color:#b8382a;font-size:1.6cqh;">亞</b>มีถิ่นในเอเชีย</span>
+  </div>
+  </sc-if>
+
+  <footer style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3cqw;align-items:end;border-top:2px solid #23261f;padding-top:1.4cqh;">
+    <div style="display:flex;flex-direction:column;gap:0.3cqh;">
+      <b style="font-family:'Noto Serif Thai',serif;font-size:1.9cqh;">สร้าง 5 เฟส: ประตูและทะเลสาบ → ทุ่งหญ้า → ไผ่ สายไหม ชุ่มน้ำ → ป่าฝน → วังมังกรและเขาหิมะ</b>
+      <span style="font-size:1.2cqh;color:#5d6055;">ข้อมูลสัตว์จาก Zoopedia ทางการ 17 ต.ค. 2026 · การแบ่งโซนเป็นข้อเสนอของแผนนี้</span>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:1.35cqh;color:#3f7a5e;text-align:right;line-height:1.4;">planetzoogame.com<br>/2/zoopedia</div>
+  </footer>
+</section>
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showFacts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showLegend&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { showFacts: this.props.showFacts ?? true, showLegend: this.props.showLegend ?? true };
+  }
+}
+</script>
+</body>
+</html>

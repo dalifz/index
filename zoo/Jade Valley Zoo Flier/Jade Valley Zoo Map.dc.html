@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&amp;family=Noto+Serif+Thai:wght@500;700&amp;family=Noto+Sans+Thai:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>doc-page:not(:defined){visibility:hidden} a{color:#3f7a5e} a:hover{color:#b8382a}</style>
+<script src="./doc-page.js"></script>
+<script src="./zoo-data.js"></script>
+</helmet>
+<doc-page width="2000px" height="1250px">
+<section class="page" id="map" data-screen-label="01 Map" style="position:relative;background:#f3efe4;color:#23261f;font-family:'Noto Sans Thai',sans-serif;overflow:hidden;">
+<div id="canvas" style="position:absolute;left:0;top:0;width:2000px;height:1250px;">
+
+  <svg width="2000" height="1250" viewBox="0 0 2000 1250" style="position:absolute;left:0;top:0;">
+    <rect x="538" y="155" width="851" height="700" rx="150" fill="none" stroke="#d6c093" stroke-width="12"></rect>
+    <g stroke="#d6c093" stroke-width="9" stroke-linecap="round">
+      <line x1="538" y1="260" x2="516" y2="260"></line><line x1="538" y1="590" x2="516" y2="590"></line><line x1="538" y1="830" x2="516" y2="830"></line>
+      <line x1="1389" y1="250" x2="1412" y2="250"></line><line x1="1389" y1="600" x2="1412" y2="600"></line>
+      <line x1="800" y1="855" x2="800" y2="870"></line><line x1="1300" y1="855" x2="1300" y2="870"></line>
+      <path d="M1073 855 L1073 1176 L1030 1200" fill="none"></path>
+    </g>
+    <path d="M300 0 C320 110 470 150 575 240" fill="none" stroke="#8fb8c9" stroke-width="22" stroke-linecap="round"></path>
+    <path d="M575 800 C520 860 470 900 420 1000 C380 1080 300 1150 230 1250" fill="none" stroke="#8fb8c9" stroke-width="22" stroke-linecap="round"></path>
+  </svg>
+
+  <div style="position:absolute;left:640px;top:16px;width:646px;height:126px;background:#faf7ef;border:3px solid #b8382a;box-shadow:inset 0 0 0 4px #faf7ef, inset 0 0 0 5.5px #9c7a2c;display:flex;align-items:center;justify-content:center;gap:22px;padding:0 26px;box-sizing:border-box;">
+    <div style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:62px;line-height:1;color:#b8382a;">玉谷萬獸園</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <div style="font-family:'Noto Serif Thai',serif;font-weight:700;font-size:24px;line-height:1.2;">สวนสัตว์หุบเขาหยก</div>
+      <div style="font-size:13px;color:#5d6055;line-height:1.3;">แผนผังสัตว์ 135 ชนิด · 8 โซน · Planet Zoo 2</div>
+      <div style="font-family:'LXGW WenKai TC',serif;font-size:15px;color:#23261f;">北 ↑ ทิศเหนือ</div>
+    </div>
+  </div>
+
+  <sc-for list="{{ zones }}" as="z" hint-placeholder-count="7">
+    <div style="{{ z.box }}">
+      <div style="position:absolute;left:16px;top:6px;display:flex;align-items:baseline;gap:10px;">
+        <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:28px;color:#23261f;">{{ z.cn }}</span>
+        <span style="font-family:'Noto Serif Thai',serif;font-weight:700;font-size:15px;">{{ z.th }}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d6055;">{{ z.count }} ชนิด</span>
+      </div>
+      <sc-if value="{{ showDeco }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;right:16px;bottom:6px;font-size:10.5px;color:#5d6055;display:flex;gap:5px;align-items:baseline;"><span style="font-family:'LXGW WenKai TC',serif;color:#b8382a;font-size:13px;">飾</span>{{ z.deco }}</div>
+      </sc-if>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;">
+        <sc-for list="{{ z.cages }}" as="c" hint-placeholder-count="4">
+          <div style="{{ c.box }}">
+            <sc-if value="{{ c.ex }}"><div style="position:absolute;left:-8px;right:-8px;top:-13px;height:12px;background:#8a4f7d;clip-path:polygon(0 100%,4% 20%,12% 0,88% 0,96% 20%,100% 100%);"></div></sc-if>
+            <div style="{{ c.headStyle }}">
+              <span style="{{ c.icon }}">{{ c.glyph }}</span>
+              <span style="{{ c.cnStyle }}">{{ c.cn }}</span>
+              <span style="font-size:9.5px;color:#5d6055;line-height:1.2;">{{ c.th }}</span>
+            </div>
+            <div style="{{ c.grid }}">
+              <sc-for list="{{ c.animals }}" as="a" hint-placeholder-count="2">
+                <div style="width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                  <div style="{{ a.circle }}">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;">{{ a.ini }}</span>
+                    <sc-if value="{{ a.asia }}"><span style="position:absolute;top:-4px;right:-6px;width:16px;height:16px;border-radius:50%;background:#b8382a;color:#fff;font-family:'LXGW WenKai TC',serif;font-size:10px;display:grid;place-items:center;line-height:1;">亞</span></sc-if>
+                  </div>
+                  <div style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:500;font-size:9px;line-height:1.12;text-align:center;text-wrap:balance;width:60px;">{{ a.n }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+
+  <div style="position:absolute;left:548px;top:165px;width:830px;height:685px;background:#aecfdb;border:3px solid #23261f;border-radius:150px 190px 170px 210px / 130px 150px 140px 160px;box-shadow:4px 3px 0 -1px rgba(35,38,31,.28);box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 36px 12px;">
+    <div style="width:752px;background:#faf7ef;border:3px solid #b8382a;box-shadow:inset 0 0 0 3px #faf7ef, inset 0 0 0 4.5px #9c7a2c;display:flex;flex-direction:column;box-sizing:border-box;">
+      <div style="height:40px;background:#b8382a;display:flex;align-items:center;justify-content:center;gap:14px;clip-path:polygon(0 100%,3% 15%,8% 0,92% 0,97% 15%,100% 100%);margin:-3px -3px 0;">
+        <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:26px;color:#f3d98a;">西湖龍宮</span>
+        <span style="font-family:'Noto Serif Thai',serif;font-weight:700;font-size:14px;color:#faf7ef;">วังมังกร · อาควาเรียม</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#f3d98a;">42 ชนิด</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;padding:10px 12px 12px;">
+        <sc-for list="{{ palace }}" as="c" hint-placeholder-count="6">
+          <div style="{{ c.box }}">
+            <div style="{{ c.headStyle }}">
+              <span style="{{ c.icon }}">{{ c.glyph }}</span>
+              <span style="{{ c.cnStyle }}">{{ c.cn }}</span>
+              <span style="font-size:9.5px;color:#5d6055;line-height:1.2;">{{ c.th }}</span>
+            </div>
+            <div style="{{ c.grid }}">
+              <sc-for list="{{ c.animals }}" as="a" hint-placeholder-count="2">
+                <div style="width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                  <div style="{{ a.circle }}">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;">{{ a.ini }}</span>
+                    <sc-if value="{{ a.asia }}"><span style="position:absolute;top:-4px;right:-6px;width:16px;height:16px;border-radius:50%;background:#b8382a;color:#fff;font-family:'LXGW WenKai TC',serif;font-size:10px;display:grid;place-items:center;line-height:1;">亞</span></sc-if>
+                  </div>
+                  <div style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:500;font-size:9px;line-height:1.12;text-align:center;text-wrap:balance;width:60px;">{{ a.n }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:flex-end;">
+      <sc-for list="{{ shore }}" as="c" hint-placeholder-count="3">
+        <div style="{{ c.box }}">
+          <sc-if value="{{ c.ex }}"><div style="position:absolute;left:-8px;right:-8px;top:-13px;height:12px;background:#8a4f7d;clip-path:polygon(0 100%,4% 20%,12% 0,88% 0,96% 20%,100% 100%);"></div></sc-if>
+          <div style="{{ c.headStyle }}">
+            <span style="{{ c.icon }}">{{ c.glyph }}</span>
+            <span style="{{ c.cnStyle }}">{{ c.cn }}</span>
+            <span style="font-size:9.5px;color:#5d6055;line-height:1.2;">{{ c.th }}</span>
+          </div>
+          <div style="{{ c.grid }}">
+            <sc-for list="{{ c.animals }}" as="a" hint-placeholder-count="2">
+              <div style="width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="{{ a.circle }}">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500;">{{ a.ini }}</span>
+                  <sc-if value="{{ a.asia }}"><span style="position:absolute;top:-4px;right:-6px;width:16px;height:16px;border-radius:50%;background:#b8382a;color:#fff;font-family:'LXGW WenKai TC',serif;font-size:10px;display:grid;place-items:center;line-height:1;">亞</span></sc-if>
+                </div>
+                <div style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:500;font-size:9px;line-height:1.12;text-align:center;text-wrap:balance;width:60px;">{{ a.n }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:880px;top:1184px;display:flex;align-items:center;gap:14px;">
+    <div style="width:44px;height:44px;border-radius:50%;border:6px solid #b8382a;background:#f3efe4;box-sizing:border-box;"></div>
+    <div style="position:relative;width:120px;height:54px;">
+      <div style="position:absolute;left:0;right:0;top:0;height:9px;background:#b8382a;border-radius:2px;"></div>
+      <div style="position:absolute;left:8px;right:8px;top:14px;height:7px;background:#9c7a2c;"></div>
+      <div style="position:absolute;left:14px;top:9px;width:8px;height:45px;background:#b8382a;"></div>
+      <div style="position:absolute;left:44px;top:9px;width:6px;height:45px;background:#b8382a;"></div>
+      <div style="position:absolute;right:44px;top:9px;width:6px;height:45px;background:#b8382a;"></div>
+      <div style="position:absolute;right:14px;top:9px;width:8px;height:45px;background:#b8382a;"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;line-height:1.25;">
+      <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:20px;color:#b8382a;">牌坊</span>
+      <span style="font-size:11px;">ประตูทางเข้า · ลานประตูจันทร์</span>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:28px;top:1162px;width:500px;height:80px;background:#faf7ef;border:1.5px solid #23261f;box-sizing:border-box;padding:7px 12px;display:flex;gap:12px;align-items:center;">
+    <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:24px;color:#b8382a;writing-mode:vertical-rl;line-height:1;">圖例</span>
+    <div style="display:flex;flex-direction:column;gap:5px;font-size:10.5px;line-height:1.2;">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:16px;height:12px;border:3.5px solid #3f7a5e;box-sizing:border-box;display:inline-block;"></i>กรงรวม</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:16px;height:12px;border:1.2px solid #23261f;box-sizing:border-box;display:inline-block;"></i>กรงเดี่ยว</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:16px;height:12px;border:2px solid #8a4f7d;border-top:4px solid #8a4f7d;box-sizing:border-box;display:inline-block;"></i>อาคาร Exhibit</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:16px;height:12px;border:1.5px solid #2f6f8c;background:#b9d7e3;box-sizing:border-box;display:inline-block;"></i>ตู้อาควาเรียม</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:16px;height:16px;border-radius:50%;background:#b8382a;color:#fff;font-family:'LXGW WenKai TC',serif;font-style:normal;font-size:10px;display:inline-grid;place-items:center;">亞</i>ถิ่นเอเชีย</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:15px;height:15px;border-radius:50%;background:#3f7a5e;color:#fff;font-family:'LXGW WenKai TC',serif;font-style:normal;font-size:9px;display:inline-grid;place-items:center;">獸</i>Habitat</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:15px;height:15px;border-radius:50%;background:#9c7a2c;color:#fff;font-family:'LXGW WenKai TC',serif;font-style:normal;font-size:9px;display:inline-grid;place-items:center;">禽</i>Aviary</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:15px;height:15px;border-radius:50%;background:#2f6f8c;color:#fff;font-family:'LXGW WenKai TC',serif;font-style:normal;font-size:9px;display:inline-grid;place-items:center;">水</i>Aquarium</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:15px;height:15px;border-radius:50%;background:#8a4f7d;color:#fff;font-family:'LXGW WenKai TC',serif;font-style:normal;font-size:9px;display:inline-grid;place-items:center;">館</i>Exhibit</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:20px;height:6px;background:#d6c093;display:inline-block;"></i>ทางเดิน</span>
+        <span style="display:inline-flex;gap:5px;align-items:center;"><i style="width:20px;height:6px;background:#8fb8c9;display:inline-block;"></i>แม่น้ำ</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:1928px;top:20px;width:40px;display:flex;flex-direction:column;align-items:center;gap:2px;">
+    <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:20px;color:#2f6f8c;line-height:1;">寒</span>
+    <span style="font-size:10px;color:#5d6055;">หนาว</span>
+  </div>
+  <div style="position:absolute;left:1940px;top:70px;width:16px;height:1040px;border-radius:8px;border:1.5px solid #23261f;box-sizing:border-box;background:linear-gradient(180deg,#8fb8c9 0%,#dde4e8 22%,#e3d49a 55%,#b8382a 100%);"></div>
+  <div style="position:absolute;left:1918px;top:1114px;width:60px;display:flex;flex-direction:column;align-items:center;gap:0;">
+    <span style="font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:20px;color:#b8382a;line-height:1;">熱</span>
+    <span style="font-size:10px;color:#5d6055;">ร้อนชื้น</span>
+  </div>
+
+  <div style="position:absolute;left:1896px;top:1158px;width:84px;height:84px;background:#b8382a;border-radius:6px;transform:rotate(-4deg);display:grid;place-items:center;font-family:'LXGW WenKai TC',serif;font-weight:700;font-size:28px;line-height:1.02;color:#f3efe4;text-align:center;box-shadow:inset 0 0 0 3px #b8382a, inset 0 0 0 5px #f3efe4;">玉谷<br>萬獸</div>
+</div>
+</section>
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showDeco&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { data: window.ZOO || null };
+  componentDidMount() {
+    if (!this.state.data) this.t = setInterval(() => { if (window.ZOO) { clearInterval(this.t); this.setState({ data: window.ZOO }); } }, 50);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const showDeco = this.props.showDeco ?? true;
+    const D = this.state.data;
+    if (!D) return { zones: [], palace: [], shore: [], showDeco };
+    const K = { L: ['#3f7a5e', '獸', '#e3eee0'], F: ['#9c7a2c', '禽', '#f3e8c8'], A: ['#2f6f8c', '水', '#d9ebf2'], E: ['#8a4f7d', '館', '#efe1ea'] };
+    const POS = { snow: [28, 28, 500, 330, '#dde4e8'], silk: [1400, 28, 520, 300, '#ead9ae'], bamboo: [28, 378, 500, 422, '#bfd8b5'], savannah: [1400, 345, 520, 505, '#e3d49a'], river: [28, 820, 500, 330, '#bcd8d3'], world: [548, 864, 515, 312, '#c6d4a2'], asia: [1083, 864, 800, 312, '#a5c897'] };
+    const RAD = ['28px 44px 32px 48px / 36px 30px 44px 28px', '42px 30px 46px 34px / 30px 40px 28px 44px', '34px 48px 30px 40px / 44px 32px 38px 30px'];
+    const cage = c => {
+      const [col, glyph, tint] = K[c.kind];
+      const w = c.cols * 60 + (c.cols - 1) * 4;
+      const box = { position: 'relative', display: 'flex', flexDirection: 'column', gap: 4, padding: 6, borderRadius: 4, background: 'rgba(250,247,239,.94)', boxSizing: 'border-box' };
+      if (c.kind === 'A') { box.background = 'linear-gradient(180deg,#e7f2f6 0%,#bcd9e4 100%)'; box.border = '1.5px solid #2f6f8c'; }
+      else box.border = '1.2px solid #23261f';
+      if (c.mixed) box.border = '3.5px solid #3f7a5e';
+      if (c.ex) { box.border = '2px solid #8a4f7d'; box.borderRadius = '0 0 4px 4px'; box.marginTop = 13; }
+      if (c.star) box.boxShadow = '0 0 0 3px #f3efe4, 0 0 0 5.5px #b8382a';
+      return {
+        ...c, box, glyph,
+        th: c.star ? c.th + ' ★' : c.th,
+        headStyle: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1px 5px', maxWidth: w, minHeight: 15 },
+        icon: { width: 15, height: 15, borderRadius: '50%', background: col, color: '#fff', fontFamily: "'LXGW WenKai TC',serif", fontSize: 9, display: 'grid', placeItems: 'center', flex: 'none', lineHeight: 1 },
+        cnStyle: { fontFamily: "'LXGW WenKai TC',serif", fontWeight: 700, fontSize: c.star ? 15 : 12.5, color: c.star ? '#b8382a' : '#23261f', lineHeight: 1.1 },
+        grid: { display: 'flex', flexWrap: 'wrap', gap: '6px 4px', width: w },
+        animals: c.animals.map(a => ({ ...a, circle: { position: 'relative', width: 40, height: 40, borderRadius: '50%', border: '1.5px solid #23261f', background: K[a.ty][2], display: 'grid', placeItems: 'center', boxSizing: 'border-box', color: '#23261f' } }))
+      };
+    };
+    const zones = D.filter(z => z.id !== 'palace').map((z, i) => {
+      const [x, y, w, h, bg] = POS[z.id];
+      return { ...z, box: { position: 'absolute', left: x, top: y, width: w, height: h, background: bg, border: '3px solid #23261f', borderRadius: RAD[i % 3], boxShadow: '4px 3px 0 -1px rgba(35,38,31,.28)', padding: '44px 14px 24px', boxSizing: 'border-box' }, cages: z.cages.map(cage) };
+    });
+    const P = D.find(z => z.id === 'palace').cages;
+    const SH = ['錦鯉池', '企鵝灘', '冷水館'];
+    const pick = n => P.find(c => c.cn === n);
+    const palace = [pick('鯊魚灣'), pick('南洋河'), pick('珊瑚宮'), pick('外洋'), ...P.filter(c => !c.cn)].map(cage);
+    const shore = SH.map(pick).map(cage);
+    return { zones, palace, shore, showDeco };
+  }
+}
+</script>
+</body>
+</html>

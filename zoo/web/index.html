@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>玉谷萬獸園 · Zoo Structure Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+Thai:wght@500;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css?v=12">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#map">
+    <span class="brand-seal">玉谷<br>萬獸</span>
+    <span class="brand-txt"><b>สวนสัตว์หุบเขาหยก</b><small>Zoo Structure Tools · วังมังกร · Planet Zoo 2</small></span>
+  </a>
+  <nav class="tabs" id="tabs">
+    <a href="#map" data-v="map"><span class="cn">圖</span>แผนผัง</a>
+    <a href="#level" data-v="level"><span class="cn">級</span>เลเวล</a>
+    <a href="#temp" data-v="temp"><span class="cn">溫</span>อุณหภูมิ</a>
+    <a href="#pair" data-v="pair"><span class="cn">配</span>จับคู่สัตว์</a>
+    <a href="#route" data-v="route"><span class="cn">路</span>เส้นทาง</a>
+    <a href="#reg" data-v="reg"><span class="cn">錄</span>ทะเบียน</a>
+    <a href="#tools" data-v="tools"><span class="cn">器</span>เครื่องมือ</a>
+  </nav>
+  <div class="prog" id="topProg" title="สัตว์ที่มีแล้วในเซฟของคุณ"></div>
+</header>
+
+<main>
+<!-- ================= MAP ================= -->
+<section class="view" id="v-map">
+  <div class="map-wrap" id="mapWrap">
+    <svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="แผนผังสวนสัตว์หุบเขาหยก"></svg>
+    <div class="map-ui">
+      <div class="map-ctl">
+        <button id="zIn" title="ซูมเข้า">＋</button>
+        <button id="zOut" title="ซูมออก">－</button>
+        <button id="zFit" title="ดูทั้งแผนที่">⤢</button>
+      </div>
+      <div class="map-layers">
+        <label class="sel">เลเวล
+          <select id="lvFilter"><option value="0">ทุกเลเวล</option></select>
+        </label>
+        <label class="tg"><input type="checkbox" id="lyRoute"> เส้นทางชม</label>
+        <label class="tg"><input type="checkbox" id="lyTemp"> สีอุณหภูมิ</label>
+        <label class="tg"><input type="checkbox" id="lyOwned"> เฉพาะที่มีแล้ว</label>
+        <input type="search" id="mapSearch" placeholder="ค้นหาสัตว์บนแผนที่…">
+        <button class="btn-ghost" id="exportPng" title="บันทึกภาพแผนที่ 4000×2500">⬇ PNG</button>
+        <button class="btn-ghost" id="exportPost" title="ภาพสำหรับโพสต์ 1080×1350">⬇ โพสต์</button>
+      </div>
+    </div>
+    <div class="map-legend" id="mapLegend"></div>
+    <aside class="drawer" id="drawer" aria-hidden="true">
+      <button class="drawer-x" id="drawerX" aria-label="ปิด">×</button>
+      <div id="drawerBody"></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= LEVEL ================= -->
+<section class="view page" id="v-level" hidden>
+  <div class="page-head">
+    <span class="cn big">級</span>
+    <div><h1>Leveling · ลำดับการสร้างสวน</h1>
+    <p class="lede">เล่นตามนี้ตั้งแต่เริ่มเซฟใหม่ ทีละเลเวล ติ๊กสิ่งที่สร้างแล้วและสัตว์ที่ซื้อแล้ว ระบบจะเลื่อนเลเวลปัจจุบันให้เอง หลักคิด: เริ่มจากสัตว์กินพืชราคาถูกที่ออกลูกง่ายและทนอากาศกว้าง → ฝูงทุ่งหญ้าที่ Thriving กัน → ตัวชูโรง → สัตว์ผู้ล่าและป่าฝนที่ต้องฮีตเตอร์ → อาควาเรียมกับโซนหิมะที่แพงและยากที่สุด</p></div>
+  </div>
+  <div class="lv-track" id="lvTrack"></div>
+  <div class="lv-list" id="lvList"></div>
+  <p class="fine">ตัวเลขเงิน/แขกในแต่ละเลเวลเป็นเป้าหมายแนะนำจากประสบการณ์ผู้เล่นและไกด์ชุมชน ไม่ใช่ค่าที่เกมกำหนด ค่าอาหารต่อรอบและพื้นที่ขั้นต่ำมาจาก Zoopedia ทางการ</p>
+</section>
+
+<!-- ================= TEMP ================= -->
+<section class="view page" id="v-temp" hidden>
+  <div class="page-head">
+    <span class="cn big">溫</span>
+    <div><h1>อุณหภูมิ · ใครอยู่กับใครได้</h1>
+    <p class="lede">ใส่อุณหภูมิต่ำสุด (หน้าหนาว) และสูงสุด (หน้าร้อน) ของแผนที่ที่คุณเลือกในเกม เครื่องมือจะบอกว่ากรงไหนต้องใช้ Heater หรือ Cooler กี่องศา · Aquarium และ Exhibit ตั้งอุณหภูมิในตู้เองได้ จึงแยกไว้ต่างหาก</p></div>
+  </div>
+  <div class="amb card">
+    <div class="amb-row">
+      <label>ต่ำสุดของแผนที่ <input type="number" id="ambLo" value="2" step="1"> °C</label>
+      <label>สูงสุดของแผนที่ <input type="number" id="ambHi" value="30" step="1"> °C</label>
+      <div class="amb-pre" id="ambPre"></div>
+    </div>
+    <div class="amb-sum" id="ambSum"></div>
+  </div>
+  <h2 class="h2"><span class="cn">候</span>กลุ่มภูมิอากาศของสัตว์</h2>
+  <div class="clim-groups" id="climGroups"></div>
+  <h2 class="h2"><span class="cn">表</span>ช่วงอุณหภูมิของทุกกรง</h2>
+  <div class="card chart-card"><svg id="tempChart" role="img" aria-label="ช่วงอุณหภูมิของทุกกรง"></svg></div>
+</section>
+
+<!-- ================= PAIR ================= -->
+<section class="view page" id="v-pair" hidden>
+  <div class="page-head">
+    <span class="cn big">配</span>
+    <div><h1>จับคู่สัตว์ · เลี้ยงด้วยกันได้ไหม</h1>
+    <p class="lede">เลือกสัตว์ 2 ตัวขึ้นไปเพื่อเช็กว่าใส่กรงเดียวกันได้หรือไม่ ตามความสัมพันธ์ใน Zoopedia (Thriving / Neutral) ช่วงอุณหภูมิที่ทับกัน ประเภทกรง และ biome พร้อมคำนวณพื้นที่รวมขั้นต่ำ</p></div>
+  </div>
+  <div class="card pair-pick">
+    <input type="search" id="pairQ" placeholder="พิมพ์ชื่อสัตว์ แล้วคลิกเพื่อเพิ่ม…" autocomplete="off">
+    <div class="pair-sugg" id="pairSugg"></div>
+    <div class="pair-sel" id="pairSel"></div>
+  </div>
+  <div id="pairOut"></div>
+</section>
+
+<!-- ================= ROUTE ================= -->
+<section class="view page" id="v-route" hidden>
+  <div class="page-head">
+    <span class="cn big">路</span>
+    <div><h1>เส้นทางเดิน · ไปไหนก่อนหลัง</h1>
+    <p class="lede">วงแหวนรอบทะเลสาบเป็นทางหลัก ทุกโซนแยกออกจากวงแหวน แขกเข้าที่ประตู 牌坊 ทางใต้ เดินทวนเข็มนาฬิกาจากตะวันตกขึ้นเหนือแล้ววนลงตะวันออก ปิดท้ายที่วังมังกรกลางทะเลสาบ ตารางด้านล่างบอกด้วยว่าทางเดินช่วงไหนควรสร้างในเลเวลไหน</p></div>
+  </div>
+  <div class="route-grid">
+    <div class="card route-mini"><svg id="routeMap" role="img" aria-label="เส้นทางเดินชมสวน"></svg></div>
+    <ol class="route-list" id="routeList"></ol>
+  </div>
+  <h2 class="h2"><span class="cn">築</span>ลำดับสร้างทางเดินตามเลเวล</h2>
+  <div class="path-steps" id="pathSteps"></div>
+  <h2 class="h2"><span class="cn">則</span>หลักวางทางเดิน</h2>
+  <div class="notes" id="pathNotes"></div>
+</section>
+
+<!-- ================= REGISTER ================= -->
+<section class="view page" id="v-reg" hidden>
+  <div class="page-head">
+    <span class="cn big">錄</span>
+    <div><h1>ทะเบียนสัตว์ทั้งหมด</h1><p class="lede" id="regLede"></p></div>
+  </div>
+  <div class="reg-tools card">
+    <input type="search" id="regQ" placeholder="ค้นหา เช่น panda, shark, frog">
+    <select id="regZone"><option value="">ทุกโซน</option></select>
+    <select id="regType"><option value="">ทุกประเภท</option><option value="L">Habitat</option><option value="F">Aviary</option><option value="A">Aquarium</option><option value="E">Exhibit</option></select>
+    <select id="regClim"><option value="">ทุกภูมิอากาศ</option></select>
+    <select id="regLv"><option value="">ทุกเลเวล</option></select>
+    <select id="regOwn"><option value="">ทั้งหมด</option><option value="1">มีแล้ว</option><option value="0">ยังไม่มี</option></select>
+    <label class="tg"><input type="checkbox" id="regAsia"> 亞 เอเชีย</label>
+  </div>
+  <div class="reg-grid" id="regGrid"></div>
+</section>
+
+<!-- ================= TOOLS ================= -->
+<section class="view page" id="v-tools" hidden>
+  <div class="page-head">
+    <span class="cn big">器</span>
+    <div><h1>เครื่องมือในเกมที่ต้องใช้</h1><p class="lede">เช็กลิสต์ทักษะการสร้างที่แผนนี้ต้องใช้ ติ๊กเมื่อทำเป็นแล้ว · <span id="toolProg"></span></p></div>
+  </div>
+  <div class="tools" id="toolsBox"></div>
+  <h2 class="h2"><span class="cn">存</span>ข้อมูลความคืบหน้า</h2>
+  <div class="card save-box">
+    <p>ความคืบหน้าทั้งหมด (สัตว์ที่มี สิ่งที่สร้าง เครื่องมือ) เก็บในเบราว์เซอร์นี้เท่านั้น สำรองเป็นไฟล์ได้</p>
+    <div class="row"><button class="btn" id="saveExport">⬇ ส่งออก .json</button>
+    <label class="btn btn-ghost">⬆ นำเข้า .json<input type="file" id="saveImport" accept=".json" hidden></label>
+    <button class="btn btn-ghost danger" id="saveReset">ล้างทั้งหมด</button></div>
+  </div>
+  <footer class="foot">
+    <p>ข้อมูลสัตว์ รูป headshot ความสัมพันธ์ อุณหภูมิ และพื้นที่ขั้นต่ำ ดึงจาก <a href="https://www.planetzoogame.com/2/zoopedia" target="_blank" rel="noopener">Zoopedia ทางการของ Planet Zoo 2</a> วันที่ 18 ต.ค. 2026 (136 ชนิด) · รูปและข้อมูลเป็นของ Frontier Developments</p>
+    <p>การแบ่งโซน กรงรวม ลำดับเลเวล และเส้นทาง เป็นข้อเสนอของแผนนี้ ไม่ใช่ข้อมูลจากเกม</p>
+  </footer>
+</section>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="drawer-x" id="modalX" aria-label="ปิด">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="data-animals.js?v=12"></script>
+<script src="data-img.js"></script>
+<script src="data-plan.js?v=12"></script>
+<script src="core.js?v=12"></script>
+<script src="map.js?v=12"></script>
+<script src="app.js?v=12"></script>
+</body>
+</html>
