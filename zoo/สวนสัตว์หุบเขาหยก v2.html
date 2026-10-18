@@ -1,0 +1,584 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>สวนสัตว์หุบเขาหยก v2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+Thai:wght@500;700&family=Noto+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a garden-scroll master plan. Rice-paper ground, ink lines, one vermilion seal accent, jade for living things.
+   Map → zone index → one section per zone (habitat cards) → full species register → tools & build order. */
+:root{
+  --paper:#f3efe4; --paper-2:#e9e3d2; --card:#faf7ef; --ink:#23261f; --ink-soft:#5d6055; --line:#cbc3ad;
+  --seal:#b8382a; --jade:#3f7a5e; --jade-soft:#d5e5d6; --gold:#9c7a2c;
+  --z-snow:#dde4e8; --z-silk:#ead9ae; --z-bamboo:#bfd8b5; --z-palace:#aecfdb; --z-savannah:#e3d49a; --z-river:#bcd8d3; --z-asia:#a5c897; --z-world:#c6d4a2;
+  --river:#8fb8c9; --path:#d6c093;
+  --t-L:#3f7a5e; --t-F:#9c7a2c; --t-A:#2f6f8c; --t-E:#8a4f7d;
+  --f-display:"Noto Serif Thai", Georgia, serif;
+  --f-cn:"Ma Shan Zheng", "Kaiti SC", "STKaiti", serif;
+  --f-body:"Noto Sans Thai", "Leelawadee UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#1b1d19; --paper-2:#24271f; --card:#21241e; --ink:#ece6d6; --ink-soft:#aba693; --line:#3e4237;
+  --seal:#e0604c; --jade:#7cc29d; --jade-soft:#29392f; --gold:#d4ad55;
+  --z-snow:#394247; --z-silk:#4c4429; --z-bamboo:#2f4a2f; --z-palace:#25475a; --z-savannah:#4a4424; --z-river:#294744; --z-asia:#28432a; --z-world:#3a4426;
+  --river:#3f6b7d; --path:#6b5a38;
+  --t-L:#7cc29d; --t-F:#d4ad55; --t-A:#6fb3d6; --t-E:#d08cc2; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#1b1d19; --paper-2:#24271f; --card:#21241e; --ink:#ece6d6; --ink-soft:#aba693; --line:#3e4237;
+  --seal:#e0604c; --jade:#7cc29d; --jade-soft:#29392f; --gold:#d4ad55;
+  --z-snow:#394247; --z-silk:#4c4429; --z-bamboo:#2f4a2f; --z-palace:#25475a; --z-savannah:#4a4424; --z-river:#294744; --z-asia:#28432a; --z-world:#3a4426;
+  --river:#3f6b7d; --path:#6b5a38;
+  --t-L:#7cc29d; --t-F:#d4ad55; --t-A:#6fb3d6; --t-E:#d08cc2; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:32px 72px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:52px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:clamp(21px,2.8vw,27px)} h3{font-size:16.5px}
+p{margin:0}
+a{color:inherit}
+.cn{font-family:var(--f-cn);font-weight:400}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-family:var(--f-mono)}
+.muted{color:var(--ink-soft)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
+.sec-head{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px}
+.sec-head .cn{font-size:30px;color:var(--seal);line-height:1}
+.lede{max-width:70ch;color:var(--ink-soft)}
+
+.hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.hero h1{font-size:clamp(30px,5vw,48px)}
+.hero .tag{max-width:64ch;margin-top:10px;color:var(--ink-soft)}
+.seal{width:96px;height:96px;border:3px solid var(--seal);color:var(--seal);border-radius:6px;display:grid;place-items:center;font-family:var(--f-cn);font-size:30px;line-height:1.05;transform:rotate(-4deg);text-align:center;padding:6px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 30px;margin-top:18px}
+.facts div{display:flex;flex-direction:column}
+.facts b{font-family:var(--f-display);font-size:26px}
+.facts span{font-size:13px;color:var(--ink-soft)}
+
+.map-shell{border:1px solid var(--line);background:var(--paper-2);border-radius:4px;overflow-x:auto}
+.map-shell svg{display:block;width:100%;min-width:760px;height:auto}
+.zone-shape{stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round;transition:stroke-width .15s}
+a.zone{cursor:pointer}
+a.zone:hover .zone-shape, a.zone:focus-visible .zone-shape{stroke-width:3.2;stroke:var(--seal)}
+a.zone:focus{outline:none}
+.z-cn{font-family:var(--f-cn);font-size:30px;fill:var(--ink)}
+.z-th{font-family:var(--f-display);font-size:15px;font-weight:700;fill:var(--ink)}
+.z-sp{font-family:var(--f-body);font-size:12px;fill:var(--ink-soft)}
+.z-n{font-family:var(--f-mono);font-size:12px;fill:var(--ink)}
+.house rect{fill:var(--card);stroke:var(--t-E);stroke-width:1.5}
+.house text{font-family:var(--f-cn);font-size:15px;fill:var(--t-E)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--ink-soft)}
+.key{display:inline-flex;align-items:center;gap:6px}
+.key i{width:14px;height:14px;border:1px solid var(--ink);border-radius:3px;display:inline-block}
+
+.zone-index{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.zi{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--card);text-decoration:none}
+.zi:hover{border-color:var(--seal)}
+.zi .cn{font-size:19px;white-space:nowrap;width:52px;height:52px;display:grid;place-items:center;border-radius:4px;flex:none;color:var(--ink)}
+.zi b{font-family:var(--f-display);display:block}
+.zi small{color:var(--ink-soft);font-size:12.5px}
+.typebar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;background:var(--paper-2)}
+.typebar span{display:block;height:100%}
+
+.zone-sec{border-top:3px solid var(--line);padding-top:18px}
+.zone-head{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.zone-head .badge{font-family:var(--f-cn);font-size:27px;white-space:nowrap;line-height:1;width:76px;height:76px;display:grid;place-items:center;border-radius:6px;flex:none;color:var(--ink)}
+.zone-head .info{flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-family:var(--f-mono);padding:1px 9px;border-radius:999px;border:1px solid currentColor;line-height:1.7;white-space:nowrap}
+.chip.warn{color:var(--seal)} .chip.ok{color:var(--jade)} .chip.g{color:var(--gold)}
+.tL{color:var(--t-L)} .tF{color:var(--t-F)} .tA{color:var(--t-A)} .tE{color:var(--t-E)}
+.deco{font-size:13.5px;color:var(--ink-soft);max-width:80ch}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:4px;background:var(--card);display:flex;flex-direction:column;min-width:0;scroll-margin-top:16px}
+.card.mixed{border-color:var(--jade);border-width:1.5px}
+.card:target, .card.hit{outline:3px solid var(--seal);outline-offset:2px}
+.card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px 14px 8px}
+.card-top h3{font-size:15.5px}
+.card-top h3 .cn{color:var(--seal);font-size:19px;margin-right:4px}
+.card-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.members{display:flex;flex-direction:column;gap:3px}
+.mem{display:flex;gap:8px;align-items:baseline;font-size:13.5px;min-width:0}
+.mem a{text-decoration:none;border-bottom:1px dotted var(--line)}
+.mem a:hover{border-color:var(--seal)}
+.mem .st{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-soft);flex:none;width:22px}
+.mem .st.CR,.mem .st.EN{color:var(--seal)}
+.mem .asia{font-family:var(--f-cn);color:var(--seal);font-size:13px}
+.mem .ex{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px;border-top:1px dashed var(--line);padding-top:8px}
+.spec dt{color:var(--ink-soft)} .spec dd{margin:0;font-variant-numeric:tabular-nums}
+
+.climate svg{display:block;width:100%;min-width:640px;height:auto}
+.chart-shell{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+
+.reg-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.reg-tools input,.reg-tools select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+.reg-tools input{flex:1;min-width:200px}
+.reg-tools input:focus-visible,.reg-tools select:focus-visible{outline:2px solid var(--jade);outline-offset:1px}
+.table-shell{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+table.reg{border-collapse:collapse;width:100%;font-size:13px;min-width:720px}
+.reg th{position:sticky;top:0;background:var(--paper-2);text-align:left;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.reg td{padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.reg td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.reg tr:hover td{background:var(--jade-soft)}
+.reg a{text-decoration:none;border-bottom:1px dotted var(--line)}
+.count{font-size:13px;color:var(--ink-soft)}
+
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tool-group{border:1px solid var(--line);border-radius:4px;padding:14px 16px;background:var(--card);display:flex;flex-direction:column;gap:8px}
+.tool-group h3{font-size:15.5px;display:flex;align-items:center;gap:8px}
+.tool-group h3 .cn{color:var(--seal);font-size:22px}
+.tool{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;cursor:pointer}
+.tool input{margin-top:5px;accent-color:var(--jade);width:16px;height:16px;flex:none}
+.tool b{font-weight:600}
+.tool:has(input:checked) .tl{text-decoration:line-through;color:var(--ink-soft)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.step{padding:16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px;background:var(--card)}
+.step:last-child{border-right:none}
+.step .n{font-family:var(--f-mono);color:var(--seal);font-size:13px}
+.step h3{font-size:15.5px}
+.step p{font-size:13.5px;color:var(--ink-soft)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.note{border-left:3px solid var(--seal);padding:2px 0 2px 14px}
+.note.ok{border-color:var(--jade)}
+.note b{font-family:var(--f-display)}
+.foot{font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:4px}
+.foot a{color:var(--jade)}
+@media (max-width:640px){ .hero{grid-template-columns:1fr} .seal{order:-1;width:72px;height:72px;font-size:22px} .step{border-right:none;border-bottom:1px solid var(--line)} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div>
+    <div class="eyebrow">Planet Zoo 2 · แผนแม่บท v2 · ข้อมูล Zoopedia ทางการ 17 ต.ค. 2026 (หลังอัปเดต 1.0.4)</div>
+    <h1>สวนสัตว์หุบเขาหยก <span class="cn" style="color:var(--seal)">玉谷萬獸園</span></h1>
+    <p class="tag">ครบทุกชนิดใน Zoopedia แบ่งเป็น 8 โซนตาม biome ห่อด้วยธีมจีนทั้งสวน ตรงกลางเป็นทะเลสาบตะวันตกที่มีวังมังกรเป็นอาควาเรียม ฝั่งเหนือเย็น ไล่ลงมาฝั่งใต้ที่ร้อนชื้น</p>
+    <div class="facts" id="facts"></div>
+  </div>
+  <div class="seal" aria-hidden="true">玉谷<br>萬獸</div>
+</header>
+
+<section id="map">
+  <div class="sec-head"><span class="cn">圖</span><h2>แผนผังรวม</h2><span class="muted">กดที่โซนเพื่อดูกรงทั้งหมดในโซนนั้น</span></div>
+  <div class="map-shell">
+  <svg viewBox="0 0 1200 880" role="img" aria-label="แผนผังสวนสัตว์ 8 โซน รอบทะเลสาบกลางที่มีอาควาเรียมวังมังกร">
+    <rect width="1200" height="880" fill="var(--paper-2)"/>
+    <path d="M0 52 L70 20 L120 44 L180 8 L240 46 L300 18 L360 50 L420 22 L480 54 L560 26 L620 56 L700 20 L760 50 L830 14 L900 48 L960 22 L1030 52 L1100 18 L1160 46 L1200 30 L1200 0 L0 0Z" fill="var(--line)" opacity=".55"/>
+    <!-- ring path -->
+    <ellipse cx="600" cy="400" rx="252" ry="166" fill="none" stroke="var(--path)" stroke-width="14"/>
+    <g stroke="var(--path)" stroke-width="10" stroke-linecap="round">
+      <line x1="420" y1="282" x2="330" y2="200"/><line x1="780" y1="282" x2="860" y2="200"/>
+      <line x1="350" y1="400" x2="320" y2="400"/><line x1="850" y1="400" x2="880" y2="400"/>
+      <line x1="420" y1="518" x2="320" y2="640"/><line x1="500" y1="555" x2="480" y2="630"/><line x1="780" y1="520" x2="880" y2="640"/>
+      <line x1="680" y1="566" x2="680" y2="840"/>
+    </g>
+    <!-- river -->
+    <path d="M300 0 C310 80 260 150 300 230 C330 290 420 270 470 300" fill="none" stroke="var(--river)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M440 510 C400 560 300 560 250 620 C210 670 230 760 160 880" fill="none" stroke="var(--river)" stroke-width="18" stroke-linecap="round"/>
+
+    <a class="zone" href="#z-snow"><path class="zone-shape" d="M60 70 C200 40 420 50 520 78 C540 135 522 200 472 222 C340 240 160 236 80 208 C45 165 40 110 60 70Z" fill="var(--z-snow)"/>
+      <text class="z-cn" x="100" y="128">雪域高原</text><text class="z-th" x="100" y="154">ที่ราบสูงหิมะ</text><text class="z-n" x="100" y="176" id="mn-snow"></text></a>
+    <a class="zone" href="#z-silk"><path class="zone-shape" d="M680 70 C820 45 1030 55 1140 82 C1160 135 1150 200 1100 222 C980 240 790 236 700 210 C665 170 660 115 680 70Z" fill="var(--z-silk)"/>
+      <text class="z-cn" x="730" y="128">絲路古道</text><text class="z-th" x="730" y="154">เส้นทางสายไหม</text><text class="z-n" x="730" y="176" id="mn-silk"></text>
+      <g class="house" transform="translate(1030 150)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">沙館</text></g></a>
+    <a class="zone" href="#z-bamboo"><path class="zone-shape" d="M45 262 C140 246 280 252 322 276 C342 340 338 462 304 512 C236 532 110 527 58 502 C32 422 32 322 45 262Z" fill="var(--z-bamboo)"/>
+      <g stroke="var(--jade)" stroke-width="3" stroke-linecap="round" opacity=".6"><line x1="270" y1="300" x2="270" y2="480"/><line x1="285" y1="310" x2="285" y2="490"/><line x1="255" y1="330" x2="255" y2="470"/><line x1="264" y1="360" x2="276" y2="360"/><line x1="279" y1="410" x2="291" y2="410"/></g>
+      <text class="z-cn" x="72" y="320">竹海幽谷</text><text class="z-th" x="72" y="346">หุบเขาทะเลไผ่</text><text class="z-n" x="72" y="368" id="mn-bamboo"></text>
+      <g class="house" transform="translate(110 440)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">蝶園</text></g></a>
+    <a class="zone" href="#z-palace"><ellipse class="zone-shape" cx="600" cy="400" rx="218" ry="132" fill="var(--z-palace)"/>
+      <g transform="translate(600 380)" fill="none" stroke="var(--seal)" stroke-width="3" stroke-linecap="round">
+        <path d="M-70 18 Q0 -2 70 18"/><path d="M-52 -4 Q0 -22 52 -4"/><path d="M-34 -26 Q0 -40 34 -26"/><line x1="0" y1="-40" x2="0" y2="-54"/>
+        <rect x="-44" y="18" width="88" height="26"/><line x1="-20" y1="18" x2="-20" y2="44"/><line x1="20" y1="18" x2="20" y2="44"/>
+      </g>
+      <text class="z-cn" x="600" y="462" text-anchor="middle">西湖龍宮</text><text class="z-th" x="600" y="486" text-anchor="middle">วังมังกร · อาควาเรียม</text><text class="z-n" x="600" y="506" text-anchor="middle" id="mn-palace"></text>
+      <g class="house" transform="translate(470 330)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">冷館</text></g></a>
+    <a class="zone" href="#z-savannah"><path class="zone-shape" d="M880 258 C970 246 1110 252 1160 272 C1176 362 1170 522 1140 592 C1060 612 950 607 890 587 C860 482 860 332 880 258Z" fill="var(--z-savannah)"/>
+      <text class="z-cn" x="905" y="318">萬里草原</text><text class="z-th" x="905" y="344">ทุ่งหญ้าหมื่นลี้</text><text class="z-n" x="905" y="366" id="mn-savannah"></text></a>
+    <a class="zone" href="#z-river"><path class="zone-shape" d="M45 562 C130 546 268 552 312 572 C332 632 328 742 302 812 C232 832 110 827 58 812 C32 722 32 622 45 562Z" fill="var(--z-river)"/>
+      <text class="z-cn" x="72" y="616">長江濕地</text><text class="z-th" x="72" y="642">พื้นที่ชุ่มน้ำแยงซี</text><text class="z-n" x="72" y="664" id="mn-river"></text>
+      <g class="house" transform="translate(110 740)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">水館</text></g></a>
+    <a class="zone" href="#z-world"><path class="zone-shape" d="M352 632 C430 616 560 620 610 642 C624 700 620 770 598 820 C520 836 410 832 362 818 C340 760 338 690 352 632Z" fill="var(--z-world)"/>
+      <text class="z-cn" x="376" y="684">萬國雨林</text><text class="z-th" x="376" y="710">ป่าฝนนานาชาติ</text><text class="z-n" x="376" y="732" id="mn-world"></text>
+      <g class="house" transform="translate(560 790)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">溫室</text></g></a>
+    <a class="zone" href="#z-asia"><path class="zone-shape" d="M742 640 C850 620 1060 626 1160 648 C1176 700 1170 790 1140 830 C1020 846 840 842 758 826 C732 770 728 700 742 640Z" fill="var(--z-asia)"/>
+      <text class="z-cn" x="770" y="694">南洋雨林</text><text class="z-th" x="770" y="720">ป่าฝนหนานหยาง (เอเชีย)</text><text class="z-n" x="770" y="742" id="mn-asia"></text>
+      <g class="house" transform="translate(1100 790)"><rect x="-22" y="-16" width="44" height="30" rx="4"/><text x="0" y="5" text-anchor="middle">蟲館</text></g></a>
+    <!-- plaza + gate -->
+    <g><rect x="620" y="572" width="120" height="44" rx="6" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/><text class="z-th" x="680" y="599" text-anchor="middle" style="font-size:13px">ลานประตูจันทร์</text></g>
+    <g transform="translate(680 846)"><rect x="-46" y="-24" width="92" height="7" fill="var(--seal)"/><rect x="-54" y="-32" width="108" height="7" rx="2" fill="var(--seal)"/><rect x="-40" y="-17" width="7" height="26" fill="var(--seal)"/><rect x="33" y="-17" width="7" height="26" fill="var(--seal)"/>
+      <text class="z-sp" x="0" y="26" text-anchor="middle">ประตูทางเข้า 牌坊</text></g>
+    <g transform="translate(1180 120)"><rect x="-6" y="0" width="12" height="700" rx="6" fill="var(--river)"/><rect x="-6" y="350" width="12" height="350" rx="6" fill="var(--seal)" opacity=".7"/>
+      <text class="z-sp" x="-12" y="14" text-anchor="end">หนาว</text><text class="z-sp" x="-12" y="700" text-anchor="end">ร้อนชื้น</text></g>
+  </svg>
+  </div>
+  <div class="legend">
+    <span class="key"><i style="background:var(--path)"></i>ทางเดินวงแหวนรอบทะเลสาบ</span>
+    <span class="key"><i style="background:var(--river)"></i>แม่น้ำจากเขาหิมะ ผ่านทะเลสาบ ลงพื้นที่ชุ่มน้ำ</span>
+    <span class="key"><i style="background:var(--card);border-color:var(--t-E)"></i>อาคารนิทรรศการ (Exhibit)</span>
+  </div>
+</section>
+
+<section id="zones">
+  <div class="sec-head"><span class="cn">區</span><h2>8 โซน</h2><span class="muted">แถบสีใต้ชื่อคือสัดส่วนประเภทกรงในโซน</span></div>
+  <div class="legend">
+    <span class="key"><i style="background:var(--t-L);border:none"></i>Habitat (สัตว์บก)</span>
+    <span class="key"><i style="background:var(--t-F);border:none"></i>Aviary (นกบิน)</span>
+    <span class="key"><i style="background:var(--t-A);border:none"></i>Aquarium</span>
+    <span class="key"><i style="background:var(--t-E);border:none"></i>Exhibit</span>
+  </div>
+  <div class="zone-index" id="zoneIndex"></div>
+</section>
+
+<section id="climate" class="climate">
+  <div class="sec-head"><span class="cn">氣候</span><h2>อุณหภูมิของแต่ละโซน</h2></div>
+  <p class="lede">แถบสีคือช่วงที่<b>ทุกกรงในโซนรับได้พร้อมกัน</b> (อาควาเรียมกับ Exhibit ตั้งอุณหภูมิแยกรายตู้ เลยไม่นับรวม) โซนเหนือกับโซนใต้ไม่มีช่วงที่ทับกันเลย ต้องวางฮีตเตอร์ให้โซนร้อนในหน้าหนาว และพาโซนหิมะขึ้นไปไว้บนจุดสูงสุดของแผนที่</p>
+  <div class="chart-shell"><svg id="zoneTemp" role="img" aria-label="ช่วงอุณหภูมิของแต่ละโซน"></svg></div>
+</section>
+
+<div id="zoneSections" style="display:flex;flex-direction:column;gap:52px"></div>
+
+<section id="register">
+  <div class="sec-head"><span class="cn">錄</span><h2>ทะเบียนสัตว์ทั้งหมด</h2><span class="count" id="regCount"></span></div>
+  <div class="reg-tools">
+    <label for="q" class="muted" style="font-size:13px">ค้นหา</label>
+    <input id="q" type="search" placeholder="พิมพ์ชื่อสัตว์ เช่น panda, shark, frog">
+    <label for="tsel" class="muted" style="font-size:13px">ประเภท</label>
+    <select id="tsel"><option value="">ทั้งหมด</option><option value="L">Habitat</option><option value="F">Aviary</option><option value="A">Aquarium</option><option value="E">Exhibit</option></select>
+    <label for="asel" class="muted" style="font-size:13px">ถิ่น</label>
+    <select id="asel"><option value="">ทุกทวีป</option><option value="1">เอเชีย</option></select>
+  </div>
+  <div class="table-shell"><table class="reg"><thead><tr><th>สัตว์</th><th>ประเภท</th><th>โซน</th><th>อยู่กรง</th><th style="text-align:right">อุณหภูมิ</th><th style="text-align:right">พื้นที่ขั้นต่ำ</th><th>สถานะ</th></tr></thead><tbody id="regBody"></tbody></table></div>
+</section>
+
+<section id="tools">
+  <div class="sec-head"><span class="cn">器</span><h2>เครื่องมือในเกมที่ต้องใช้</h2><span class="count" id="toolProgress"></span></div>
+  <div class="tools" id="toolsBox"></div>
+</section>
+
+<section id="order">
+  <div class="sec-head"><span class="cn">序</span><h2>ลำดับการสร้าง</h2><span class="muted">ให้โซนที่ถูกหาเงินก่อน แล้วค่อยเปิดโซนที่แพง</span></div>
+  <div class="steps">
+    <div class="step"><span class="n">เฟส 1</span><h3>ประตู ทะเลสาบ และบ่อปลาคาร์ป</h3><p>ทางเดินวงแหวน ลานประตูจันทร์ บ่อปลาคาร์ปหน้าวังมังกร และสัตว์ราคาถูกในทุ่งหญ้า เช่น เมียร์แคต หมูหูด และกวาง</p></div>
+    <div class="step"><span class="n">เฟส 2</span><h3>ทุ่งหญ้าหมื่นลี้</h3><p>ฝูงสัตว์กินพืชแอฟริกาส่วนใหญ่เป็น Thriving ได้ welfare ดีและแขกชอบ เป็นฐานรายได้หลักของสวน</p></div>
+    <div class="step"><span class="n">เฟส 3</span><h3>ป่าไผ่ เส้นทางสายไหม และพื้นที่ชุ่มน้ำ</h3><p>แพนด้าเป็นตัวชูโรงแต่อาหารแพง เปิดพร้อม marketing ส่วนอูฐ ม้า นกน้ำ และฮิปโป ใช้เติมจุดดึงแขก</p></div>
+    <div class="step"><span class="n">เฟส 4</span><h3>ป่าฝนทั้งสองโซน และอาคาร Exhibit</h3><p>ลิงใหญ่ เสือ และ Aviary ต้องใช้ฮีตเตอร์กับไฟฟ้า อาคาร Exhibit ใช้พื้นที่น้อยแต่ช่วยคะแนน education ได้มาก</p></div>
+    <div class="step"><span class="n">เฟส 5</span><h3>วังมังกร และที่ราบสูงหิมะ</h3><p>ตู้ฉลาม (ต้องการน้ำลึกเกือบ 1,724 m²) กับเสือดาวหิมะที่ต้องคุมความเย็น แพงและยากที่สุด เก็บไว้ทำท้ายสุด</p></div>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="sec-head"><span class="cn">注</span><h2>ข้อควรรู้</h2></div>
+  <div class="notes">
+    <div class="note ok"><b>กรงรวมทุกกรงผ่านการตรวจแล้ว</b><p class="muted">ทุกคู่ในกรงรวมอยู่ในรายชื่อ Thriving หรือ Neutral ของกันและกันใน Zoopedia มีช่วงอุณหภูมิที่ทับกัน และ biome ตรงกันอย่างน้อยหนึ่งแบบ</p></div>
+    <div class="note"><b>ตัวเลขพื้นที่คือค่าขั้นต่ำ</b><p class="muted">พื้นที่ของกรงรวมได้จากการบวกค่าขั้นต่ำของแต่ละชนิด (ตามกลุ่มเริ่มต้นใน Zoopedia) ถ้าเพิ่มจำนวนสัตว์ต้องขยายกรงตาม</p></div>
+    <div class="note"><b>เกม Deluxe</b><p class="muted">มีหกชนิดที่ต้องใช้ Deluxe Edition: Golden Eagle, Golden Lion Tamarin, Great Hammerhead, Axolotl, Blue and Gold Fusilier และ Longfin Batfish</p></div>
+    <div class="note"><b>Aviary ที่มีสัตว์บก</b><p class="muted">ป่าร้อยนกรวมนกเงือก นกกางเขนเขียวชวา และนกแก้ว เข้ากับนาก ส่วนลานนกน้ำรวมฟลามิงโกกับนกกระสาปากพลั่ว ทั้งสองกรงต้องมีหลังคา Aviary แต่นากไม่ยอมให้แขกเดินผ่าน</p></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>ข้อมูลสัตว์ทั้งหมดดึงจาก <a href="https://www.planetzoogame.com/2/zoopedia">Zoopedia ทางการของ Planet Zoo 2</a> วันที่ 17 ต.ค. 2026 ตัวเลขอาจเปลี่ยนเมื่อเกมอัปเดต</span>
+  <span>การแบ่งโซน การจัดกรงรวม และไอเดียตกแต่ง เป็นข้อเสนอของแผนนี้ ไม่ใช่ข้อมูลจากเกม</span>
+</footer>
+</div>
+
+<script>
+// [slug, name, type L/F/A/E, biomes, tempLo, tempHi, land, deepWater, aquatic, flight, climb, grade, height, status, asian, humidity, salinity, food, population, guestWalk]
+const S=[["sumatran-orangutan","Sumatran Orangutan","L","T",18,33,780,0,0,0,120,3,3,"CR",1,"","",1248,"1-6",0],
+["black-rhinoceros","Black Rhinoceros","L","DG",14,41,770,0,0,0,0,4,2,"CR",0,"","",836,"1-3",0],
+["common-ostrich","Common Ostrich","L","G",14,36,300,0,0,0,0,2,1.25,"LC",0,"","",235,"1-8",0],
+["javan-green-magpie","Javan Green Magpie","F","T",18,33,50,0,0,25,0,1,1,"CR",1,"","",337,"1-2",1],
+["west-indian-manatee","West Indian Manatee","A","ERVOW",23,30,0,20,150,0,0,2,1,"VU",0,"","Any",539,"1-8",1],
+["asian-small-clawed-otter","Asian Small-Clawed Otter","L","ERVTW",18,33,120,30,40,0,0,2,1.25,"VU",1,"","",385,"2-15",0],
+["binturong","Binturong","L","T",18,33,182,0,0,0,60,2,3,"VU",1,"","",468,"1-5",0],
+["giant-panda","Giant Panda","L","M",14,33,650,0,0,0,0,4,2,"VU",1,"","",1089,"1-10",0],
+["greater-flamingo","Greater Flamingo","F","EMW",14,33,100,0,80,60,0,1,1,"LC",1,"","",36,"20-500",1],
+["siamang","Siamang","L","T",18,33,240,0,0,0,60,2,3,"EN",1,"","",794,"2-6",0],
+["red-eyed-tree-frog","Red-Eyed Tree Frog","E","T",26,31,0,0,0,0,0,0,0,"LC",0,"80-90","",225,"1-5",0],
+["north-sulawesi-babirusa","North Sulawesi Babirusa","L","T",18,33,350,0,0,0,0,2,1.25,"VU",1,"","",257,"1-5",0],
+["grizzly-bear","Grizzly Bear","L","KMUW",-15,28,970,0,30,0,0,4,2,"LC",0,"","",601,"1-2",0],
+["javanese-cownose-ray","Javanese Cownose Ray","A","EOF",24,30,0,80,0,0,0,2,1,"EN",0,"","Br,Sa",297,"5-40",1],
+["koi","Koi","A","R",18,25,0,50,0,0,0,0,0,"DO",0,"","Fr",180,"1-5",0],
+["sand-tiger-shark","Sand Tiger Shark","A","F",16,28,0,420,0,0,0,3,1,"CR",0,"","Sa",715,"2-6",1],
+["bactrian-camel","Bactrian Camel","L","DGM",-40,40,650,0,0,0,0,2,1.25,"DO",1,"","",293,"2-11",0],
+["african-wild-dog","African Wild Dog","L","G",14,36,930,0,0,0,0,2,3,"EN",0,"","",391,"2-27",0],
+["threespot-damselfish","Threespot Damselfish","A","VF",24,28,0,50,0,0,0,0,0,"LC",0,"","Sa",130,"1-5",0],
+["wild-boar","Wild Boar","L","TGMW",-6,36,310,0,0,0,0,2,1.25,"LC",1,"","",111,"3-30",0],
+["long-tailed-parakeet","Long-Tailed Parakeet","F","T",18,33,6,0,0,6,0,2,1,"VU",1,"","",251,"2-12",1],
+["monarch","Monarch","E","TGM",21,30,0,0,0,0,0,0,0,"VU",1,"40-60","",225,"1-8",0],
+["amazonian-giant-centipede","Amazonian Giant Centipede","E","T",23,29,0,0,0,0,0,0,0,"NE",0,"50-84","",225,"1-2",0],
+["moon-jelly","Moon Jelly","E","EO",9,19,0,0,0,0,0,0,0,"NE",0,"80-90","Sa",225,"1-3",0],
+["goliath-beetle","Goliath Beetle","E","TG",23,36,0,0,0,0,0,0,0,"NE",0,"40-60","",225,"1-3",0],
+["giant-gourami","Giant Gourami","A","R",24,28,0,100,0,0,0,0,0,"LC",1,"","Fr,Br",125,"1-5",0],
+["giant-grouper","Giant Grouper","A","EVF",24,29,0,150,0,0,0,2,1,"DD",0,"","Br,Sa",346,"1-5",1],
+["giant-forest-scorpion","Giant Forest Scorpion","E","T",21,30,0,0,0,0,0,0,0,"NE",1,"65-85","",225,"1-6",0],
+["clown-anemonefish","Clown Anemonefish","A","F",24,28,0,50,0,0,0,0,0,"LC",0,"","Sa",120,"1-5",0],
+["asian-elephant","Asian Elephant","L","TGW",14,36,376,0,25,0,0,4,3,"EN",1,"","",1211,"3-30",0],
+["common-warthog","Common Warthog","L","G",14,36,290,0,0,0,0,2,1.25,"LC",0,"","",117,"1-7",0],
+["sacred-scarab-beetle","Sacred Scarab Beetle","E","D",20,35,0,0,0,0,0,0,0,"NE",1,"40-60","",225,"1-3",0],
+["lehmann-s-poison-frog","Lehmann's Poison Frog","E","T",26,31,0,0,0,0,0,0,0,"CR",0,"80-90","",225,"1-2",0],
+["menelaus-blue-morpho","Menelaus Blue Morpho","E","TG",21,35,0,0,0,0,0,0,0,"NE",0,"65-85","",225,"1-8",0],
+["przewalski-s-horse","Przewalski's Horse","L","DG",-26,36,460,0,0,0,0,2,1.25,"EN",1,"","",368,"3-8",0],
+["sun-bear","Sun Bear","L","TW",18,33,920,0,30,0,30,3,3,"VU",1,"","",700,"1-2",0],
+["snow-leopard","Snow Leopard","L","KU",-25,10,705,0,0,0,0,2,3,"VU",1,"","",877,"1-2",0],
+["nyala","Nyala","L","G",14,41,340,0,0,0,0,2,1.25,"LC",0,"","",175,"1-5",0],
+["indian-ocean-oriental-sweetlips","Indian Ocean Oriental Sweetlips","A","EF",24,28,0,100,0,0,0,0,0,"LC",0,"","Sa",132,"1-5",0],
+["common-rudd","Common Rudd","A","R",18,24,0,50,0,0,0,0,0,"LC",1,"","Fr",121,"1-4",0],
+["bluespine-unicornfish","Bluespine Unicornfish","A","F",24,29,0,50,0,0,0,0,0,"LC",0,"","Sa",116,"1-5",0],
+["ring-tailed-lemur","Ring-Tailed Lemur","L","T",18,33,210,0,0,0,20,2,3,"EN",0,"","",292,"3-30",1],
+["komodo-dragon","Komodo Dragon","L","VTW",18,33,285,0,15,0,0,2,1,"EN",1,"","",353,"1-2",0],
+["eurasian-bittern","Eurasian Bittern","F","MW",-6,25,40,0,25,20,0,2,1,"LC",1,"","",191,"1-2",1],
+["white-backed-vulture","White-Backed Vulture","F","DG",14,41,475,0,0,60,0,2,1,"CR",0,"","",582,"6-80",0],
+["sable-antelope","Sable Antelope","L","G",14,36,450,0,0,0,0,2,1.25,"LC",0,"","",244,"3-11",0],
+["pacific-bluefin-tuna","Pacific Bluefin Tuna","A","O",17,26,0,200,0,0,0,0,0,"NT",0,"","Sa",278,"1-5",0],
+["desert-horned-viper","Desert Horned Viper","E","D",23,31,0,0,0,0,0,0,0,"LC",1,"15-25","",225,"1-4",0],
+["black-wildebeest","Black Wildebeest","L","G",14,36,410,0,0,0,0,2,1.25,"LC",0,"","",169,"4-20",0],
+["nile-monitor","Nile Monitor","L","GW",20,41,220,0,30,0,0,2,0.5,"LC",0,"","",125,"1-3",0],
+["giant-tiger-land-snail","Giant Tiger Land Snail","E","TG",20,28,0,0,0,0,0,0,0,"NE",0,"70-80","",225,"1-3",0],
+["cloudless-sulphur","Cloudless Sulphur","E","GKM",21,28,0,0,0,0,0,0,0,"LC",0,"50-84","",225,"1-8",0],
+["clown-triggerfish","Clown Triggerfish","A","F",23,30,0,16,0,0,0,1,1,"LC",0,"","Sa",132,"1-2",1],
+["eurasian-beaver","Eurasian Beaver","L","RKM",-5,30,300,45,210,0,0,2,1.25,"LC",1,"","",304,"2-8",1],
+["sailfin-snapper","Sailfin Snapper","A","F",22,29,0,40,0,0,0,1,1,"LC",0,"","Sa",126,"1-10",1],
+["yellow-anaconda","Yellow Anaconda","E","GW",25,30,0,0,0,0,0,0,0,"LC",0,"80-90","",225,"1-2",0],
+["eastern-brown-snake","Eastern Brown Snake","E","DGM",23,29,0,0,0,0,0,0,0,"LC",0,"60-85","",225,"1-5",0],
+["sunda-pangolin","Sunda Pangolin","L","T",18,33,35,0,0,0,16,2,3,"CR",1,"","",483,"1-2",1],
+["western-lowland-gorilla","Western Lowland Gorilla","L","TW",18,33,1160,0,0,0,40,3,3,"CR",0,"","",1328,"3-6",0],
+["mexican-redknee","Mexican Redknee","E","DTM",23,29,0,0,0,0,0,0,0,"VU",0,"40-60","",225,"1-2",0],
+["palette-surgeonfish","Palette Surgeonfish","A","F",23,28,0,50,0,0,0,0,0,"LC",0,"","Sa",125,"1-5",0],
+["boeseman-s-rainbowfish","Boeseman's Rainbowfish","A","R",25,28,0,50,0,0,0,0,0,"EN",0,"","Fr",130,"1-4",0],
+["mountain-hare","Mountain Hare","L","KMU",-30,25,200,0,0,0,0,1,1.25,"LC",1,"","",121,"1-5",1],
+["malayan-tapir","Malayan Tapir","L","TW",18,33,430,0,37,0,0,2,1.25,"EN",1,"","",323,"1-2",0],
+["eurasian-lynx","Eurasian Lynx","L","KMU",-25,28,615,0,0,0,20,2,3,"LC",1,"","",602,"1-3",0],
+["great-hornbill","Great Hornbill","F","T",18,33,80,0,0,50,0,2,1,"VU",1,"","",494,"2-10",1],
+["shoebill","Shoebill","F","W",14,33,200,0,0,50,0,2,1,"VU",0,"","",714,"1-2",0],
+["spotted-hyena","Spotted Hyena","L","DG",14,41,940,0,0,0,0,3,3,"LC",0,"","",328,"2-3",0],
+["white-tailed-sea-eagle","White-Tailed Sea-Eagle","F","KMUW",-20,28,400,0,0,50,0,2,1,"LC",0,"","",866,"1-2",0],
+["old-world-swallowtail","Old World Swallowtail","E","GKMU",18,24,0,0,0,0,0,0,0,"LC",1,"40-60","",225,"1-8",0],
+["western-diamondback-rattlesnake","Western Diamondback Rattlesnake","E","DGM",24,30,0,0,0,0,0,0,0,"LC",0,"40-60","",225,"1-2",0],
+["yellow-tang","Yellow Tang","A","F",24,28,0,50,0,0,0,0,0,"LC",0,"","Sa",117,"1-4",0],
+["long-eared-owl","Long-Eared Owl","F","GKMW",-14,36,250,0,0,50,0,2,1,"LC",0,"","",264,"1-2",0],
+["giant-slippery-frog","Giant Slippery Frog","E","R",26,32,0,0,0,0,0,0,0,"EN",0,"74-86","",225,"1-2",0],
+["indo-pacific-sergeant","Indo-Pacific Sergeant","A","OF",24,28,0,50,0,0,0,0,0,"LC",0,"","Sa",194,"1-4",0],
+["cape-buffalo","Cape Buffalo","L","GW",14,36,420,0,20,0,0,3,1.25,"NT",0,"","",290,"3-15",0],
+["meerkat","Meerkat","L","DG",14,41,180,0,0,0,0,1,1.25,"LC",0,"","",176,"2-30",1],
+["dolphinfish","Dolphinfish","A","O",24,28,0,400,0,0,0,2,1,"LC",0,"","Sa",197,"1-4",1],
+["sri-lankan-rose","Sri Lankan Rose","E","T",21,35,0,0,0,0,0,0,0,"EN",1,"40-60","",225,"1-8",0],
+["grey-wolf","Grey Wolf","L","DTGKMU",-18,29,1162,0,0,0,0,3,3,"LC",1,"","",524,"2-12",0],
+["golden-trevally","Golden Trevally","A","EF",24,30,0,100,0,0,0,0,0,"LC",0,"","Sa",129,"1-5",0],
+["thomson-s-gazelle","Thomson's Gazelle","L","G",14,36,425,0,0,0,0,2,1.25,"LC",0,"","",164,"3-36",1],
+["diamondback-terrapin","Diamondback Terrapin","E","EVW",21,32,0,0,0,0,0,0,0,"VU",0,"65-80","",225,"1-8",0],
+["blackspotted-puffer","Blackspotted Puffer","A","F",23,27,0,16,0,0,0,1,1,"LC",0,"","Sa",204,"1-4",1],
+["clown-loach","Clown Loach","A","R",25,30,0,100,0,0,0,0,0,"LC",1,"","Fr",120,"1-5",0],
+["american-bullfrog","American Bullfrog","E","RW",23,29,0,0,0,0,0,0,0,"LC",0,"60-80","",225,"1-4",0],
+["indo-pacific-leopard-shark","Indo-Pacific Leopard Shark","A","EVOF",24,29,0,36,0,0,0,2,1,"EN",0,"","Sa",448,"1-20",1],
+["toco-toucan","Toco Toucan","F","TGW",14,36,50,0,0,20,0,2,1,"LC",0,"","",238,"1-2",1],
+["blacktip-reef-shark","Blacktip Reef Shark","A","EVF",22,28,0,210,0,0,0,2,1,"VU",0,"","Sa",558,"1-10",1],
+["gharial","Gharial","L","RTW",14,41,110,120,300,0,0,2,1,"CR",1,"","",489,"1-7",0],
+["gila-monster","Gila Monster","E","D",24,32,0,0,0,0,0,0,0,"NT",0,"15-25","",225,"1-4",0],
+["reticulated-giraffe","Reticulated Giraffe","L","G",12,36,1500,0,0,0,0,3,2,"EN",0,"","",838,"3-12",0],
+["african-tigerfish","African Tigerfish","A","R",22,30,0,100,0,0,0,0,0,"LC",0,"","Fr",132,"1-5",0],
+["boa-constrictor","Boa Constrictor","E","TG",23,31,0,0,0,0,0,0,0,"LC",0,"60-80","",225,"1-2",0],
+["ocellated-eagle-ray","Ocellated Eagle Ray","A","EOF",24,27,0,180,0,0,0,2,1,"EN",0,"","Sa",478,"1-16",1],
+["pacific-sardine","Pacific Sardine","A","O",15,26,0,50,0,0,0,0,0,"LC",0,"","Br,Sa",124,"1-3",0],
+["schooling-bannerfish","Schooling Bannerfish","A","F",24,28,0,50,0,0,0,0,0,"LC",0,"","Sa",121,"1-4",0],
+["aardvark","Aardvark","L","G",14,36,160,0,0,0,0,2,1,"LC",0,"","",450,"1-2",1],
+["blunthead-cichlid","Blunthead Cichlid","A","R",24,27,0,50,0,0,0,0,0,"LC",0,"","Fr",120,"1-5",0],
+["springbok","Springbok","L","DG",14,41,425,0,0,0,0,2,1.25,"LC",0,"","",164,"3-36",1],
+["african-leopard","African Leopard","L","TG",14,36,705,0,0,0,45,3,3,"VU",0,"","",848,"1-2",0],
+["gemsbok","Gemsbok","L","DG",14,41,270,0,0,0,0,2,1.25,"LC",0,"","",253,"5-10",0],
+["fire-salamander","Fire Salamander","E","MW",15,24,0,0,0,0,0,0,0,"VU",0,"60-75","",225,"1-6",0],
+["red-lionfish","Red Lionfish","A","EF",22,28,0,16,0,0,0,2,1,"LC",0,"","Sa",199,"1-20",1],
+["giant-malaysian-leaf-insect","Giant Malaysian Leaf Insect","E","T",22,30,0,0,0,0,0,0,0,"NE",1,"50-70","",225,"1-2",0],
+["hawksbill-turtle","Hawksbill Turtle","A","EVOF",22,30,0,100,0,0,0,2,1,"CR",0,"","Br,Sa",548,"1-4",1],
+["ocean-sunfish","Ocean Sunfish","A","O",10,25,0,300,0,0,0,2,1,"VU",0,"","Sa",662,"1-3",1],
+["eurasian-brown-bear","Eurasian Brown Bear","L","KMU",-15,28,970,0,30,0,0,3,3,"LC",1,"","",601,"1-2",0],
+["common-bluetongue","Common Bluetongue","E","TGM",25,35,0,0,0,0,0,0,0,"LC",0,"50-60","",225,"1-2",0],
+["masai-giraffe","Masai Giraffe","L","G",12,36,1500,0,0,0,0,2,1.25,"EN",0,"","",939,"3-12",0],
+["blue-wildebeest","Blue Wildebeest","L","G",14,36,410,0,0,0,0,2,1.25,"LC",0,"","",169,"4-20",0],
+["golden-poison-frog","Golden Poison Frog","E","T",26,31,0,0,0,0,0,0,0,"EN",0,"80-90","",225,"1-2",0],
+["red-deer","Red Deer","L","M",-5,28,360,0,0,0,0,2,1.25,"LC",1,"","",173,"3-9",1],
+["plains-zebra","Plains Zebra","L","G",14,36,460,0,0,0,0,2,1.25,"NT",0,"","",174,"3-6",0],
+["lion","Lion","L","G",14,41,810,0,0,0,0,3,3,"VU",0,"","",1262,"2-30",0],
+["european-peacock","European Peacock","E","GM",18,25,0,0,0,0,0,0,0,"LC",1,"60-80","",225,"1-8",0],
+["goodfellow-s-tree-kangaroo","Goodfellow's Tree-Kangaroo","L","T",18,33,200,0,0,0,20,1,1,"EN",1,"","",541,"1-2",1],
+["brown-trout","Brown Trout","A","R",12,19,0,50,0,0,0,0,0,"LC",1,"","Fr",125,"1-5",0],
+["danube-crested-newt","Danube Crested Newt","E","RW",12,25,0,0,0,0,0,0,0,"LC",0,"55-75","",225,"1-6",0],
+["common-hippopotamus","Common Hippopotamus","L","RGW",14,36,502,0,502,0,0,4,2,"VU",0,"","",728,"3-30",0],
+["saltwater-crocodile","Saltwater Crocodile","L","EVT",18,33,155,30,75,0,0,3,1,"LC",1,"","",391,"1-7",0],
+["blue-and-gold-fusilier","Blue and Gold Fusilier","A","F",21,31,0,50,0,0,0,0,0,"LC",0,"","Sa",125,"1-4",0],
+["red-panda","Red Panda","L","KM",-6,28,160,0,0,0,60,2,3,"EN",1,"","",756,"1-2",1],
+["humphead-wrasse","Humphead Wrasse","A","OF",22,30,0,60,0,0,0,2,1,"EN",0,"","Sa",343,"1-10",1],
+["african-savannah-elephant","African Savannah Elephant","L","DGW",14,36,502,0,25,0,0,4,3,"EN",0,"","",1322,"2-16",0],
+["western-chimpanzee","Western Chimpanzee","L","T",18,33,780,0,0,0,80,3,3,"CR",0,"","",1221,"5-15",0],
+["african-penguin","African Penguin","L","OG",3,36,180,67,135,0,0,2,1,"CR",0,"","",84,"6-500",1],
+["axolotl","Axolotl","E","R",15,20,0,0,0,0,0,0,0,"CR",0,"80-90","",225,"1-5",0],
+["golden-eagle","Golden Eagle","F","DGKMU",-30,30,400,0,0,50,0,2,1,"LC",1,"","",775,"1-2",0],
+["european-bison","European Bison","L","KM",-15,28,420,0,0,0,0,3,1.25,"NT",0,"","",304,"2-13",0],
+["great-hammerhead","Great Hammerhead","A","OF",20,28,0,960,0,0,0,3,1,"CR",0,"","Sa",1064,"1-2",1],
+["longfin-batfish","Longfin Batfish","A","F",22,28,0,100,0,0,0,0,0,"LC",0,"","Sa",130,"1-5",0],
+["sumatran-tiger","Sumatran Tiger","L","TW",18,33,705,0,40,0,30,3,3,"EN",1,"","",1200,"1-2",0],
+["secretarybird","Secretarybird","F","G",14,36,200,0,0,60,0,2,1,"EN",0,"","",625,"1-2",0],
+["golden-lion-tamarin","Golden Lion Tamarin","L","T",18,33,55,0,0,0,15,1,3,"EN",0,"","",317,"2-8",1]];
+
+const IDX={}; S.forEach((r,i)=>IDX[r[0]]=i);
+const sp=s=>{const r=S[IDX[s]]; if(!r) throw new Error('missing '+s); return {slug:r[0],n:r[1],ty:r[2],b:r[3],lo:r[4],hi:r[5],land:r[6],dw:r[7],aq:r[8],fl:r[9],cl:r[10],g:r[11],h:r[12],st:r[13],asia:r[14],hum:r[15],sal:r[16],food:r[17],pop:r[18],walk:r[19]}};
+const TYPE={L:"Habitat",F:"Aviary",A:"Aquarium",E:"Exhibit"};
+
+const ZONES=[
+ {id:"snow",cn:"雪域高原",th:"ที่ราบสูงหิมะ",biome:"Taiga · Tundra",color:"--z-snow",deco:"ปั้นภูเขาสูงไว้มุมเหนือสุด ใส่วัดแบบทิเบตเกาะหน้าผา ธงมนต์ ป่าสนดำ และหิมะ ใช้ Aviary หลังคาตาข่ายบนยอดผาสำหรับนกล่าเหยื่อ",
+  H:[{cn:"雪豹崖",th:"ผาเสือดาวหิมะ",m:["snow-leopard"]},{m:["eurasian-lynx"]},{m:["eurasian-brown-bear"]},{m:["grizzly-bear"]},{cn:"狼嶺",th:"สันเขาหมาป่า",m:["grey-wolf"]},{m:["mountain-hare"]},{cn:"金鷹台",th:"ผาอินทรีทอง",m:["golden-eagle"]},{m:["white-tailed-sea-eagle"]},{m:["long-eared-owl"]}]},
+ {id:"silk",cn:"絲路古道",th:"เส้นทางสายไหม",biome:"Desert · Steppe",color:"--z-silk",deco:"ทุ่งโล่งกับเนินทราย ป้อมดินเหนียว กระโจมมองโกลใช้เป็นที่หลบ ซากกำแพงเมืองจีนเป็นทางเดินชมวิว อาคารทะเลทรายทำเป็นโรงเตี๊ยมคาราวาน",
+  H:[{cn:"駝馬原",th:"ทุ่งอูฐและม้าป่า",m:["bactrian-camel","przewalski-s-horse"]},
+     {ex:1,cn:"沙漠館",th:"หอสัตว์ทะเลทราย",m:["sacred-scarab-beetle","desert-horned-viper","gila-monster","western-diamondback-rattlesnake","eastern-brown-snake","mexican-redknee","common-bluetongue","goliath-beetle"]}]},
+ {id:"bamboo",cn:"竹海幽谷",th:"หุบเขาทะเลไผ่",biome:"Temperate",color:"--z-bamboo",deco:"ไผ่หนาแน่นด้วย Nature brush ศาลาหลังคาโค้งใช้เป็นที่หลบ สะพานหินข้ามลำธาร สวนผีเสื้อทำเป็นเรือนกระจกทรงศาลาจีน",
+  H:[{cn:"熊貓谷",th:"หุบแพนด้า ★",m:["giant-panda","red-panda"]},{cn:"鹿苑",th:"สวนกวางป่า",m:["red-deer","european-bison","wild-boar"]},{m:["eurasian-beaver"]},{m:["eurasian-bittern"]},
+     {ex:1,cn:"蝶園",th:"สวนผีเสื้อ",m:["monarch","menelaus-blue-morpho","cloudless-sulphur","old-world-swallowtail","european-peacock","sri-lankan-rose"]}]},
+ {id:"palace",cn:"西湖龍宮",th:"วังมังกร (อาควาเรียม)",biome:"Aquarium · ทุก biome น้ำ",color:"--z-palace",deco:"อาคารแดงทองตั้งกลางทะเลสาบ ทางเข้าผ่านอุโมงค์ใต้น้ำของตู้ฉลาม บ่อปลาคาร์ปเปิดโล่งหน้าวัง ชายหาดเพนกวินอยู่ริมทะเลสาบ",
+  H:[{cn:"珊瑚宮",th:"วังปะการัง",m:["clown-anemonefish","schooling-bannerfish","longfin-batfish","threespot-damselfish","blue-and-gold-fusilier","indo-pacific-sergeant","palette-surgeonfish","indian-ocean-oriental-sweetlips","yellow-tang","golden-trevally","bluespine-unicornfish"]},
+     {cn:"鯊魚灣",th:"อ่าวฉลาม (ตู้ใหญ่)",rel:"หลายคู่เป็น Thriving",m:["giant-grouper","dolphinfish","red-lionfish","blackspotted-puffer","javanese-cownose-ray","ocellated-eagle-ray","blacktip-reef-shark","indo-pacific-leopard-shark","sand-tiger-shark","sailfin-snapper","clown-triggerfish","hawksbill-turtle","humphead-wrasse"]},
+     {cn:"外洋",th:"ฝูงปลาทะเลลึก",m:["pacific-bluefin-tuna","pacific-sardine"]},
+     {cn:"南洋河",th:"แม่น้ำหนานหยาง",m:["giant-gourami","clown-loach","boeseman-s-rainbowfish","blunthead-cichlid"]},
+     {cn:"錦鯉池",th:"บ่อปลาคาร์ป",m:["koi","common-rudd"]},
+     {m:["great-hammerhead"]},{m:["ocean-sunfish"]},{m:["west-indian-manatee"]},{m:["african-tigerfish"]},{m:["brown-trout"]},
+     {cn:"企鵝灘",th:"หาดเพนกวิน",m:["african-penguin"]},
+     {ex:1,cn:"冷水館",th:"หอน้ำเย็น",m:["moon-jelly","axolotl","fire-salamander","danube-crested-newt"]}]},
+ {id:"savannah",cn:"萬里草原",th:"ทุ่งหญ้าหมื่นลี้",biome:"Grassland · Desert (แอฟริกา)",color:"--z-savannah",deco:"ตีธีมเป็นสวนสัตว์แอฟริกาของจักรพรรดิ ทุ่งกว้างกับต้นอะคาเซีย หอชมวิวแบบเจดีย์ไม้ ทางเดินยกสูงให้แขกมองข้ามฝูงสัตว์",
+  H:[{cn:"長頸鹿原",th:"ทุ่งยีราฟ",rel:"ส่วนใหญ่ Thriving",m:["masai-giraffe","plains-zebra","common-ostrich","common-warthog","thomson-s-gazelle"]},
+     {cn:"大遷徙",th:"ทุ่งอพยพใหญ่",rel:"Thriving ทุกคู่",m:["reticulated-giraffe","blue-wildebeest","black-wildebeest","cape-buffalo","springbok","gemsbok","sable-antelope","nyala"]},
+     {cn:"象犀台",th:"ลานช้างและแรด",m:["african-savannah-elephant","black-rhinoceros"]},
+     {cn:"狐獴丘",th:"เนินเมียร์แคต",m:["meerkat","aardvark"]},
+     {cn:"獅王岩",th:"ผาราชสีห์",m:["lion"]},{m:["african-wild-dog"]},{m:["spotted-hyena"]},{m:["african-leopard"]},{m:["white-backed-vulture"]},{m:["secretarybird"]}]},
+ {id:"river",cn:"長江濕地",th:"พื้นที่ชุ่มน้ำแยงซี",biome:"Wetlands · Rivers",color:"--z-river",deco:"แม่น้ำที่ไหลออกจากทะเลสาบผ่านโซนนี้ ใส่บัว กก เรือสำปั้น และศาลาริมน้ำ ให้แขกมองจระเข้กับตะโขงผ่านกระจกใต้น้ำ",
+  H:[{cn:"鶴汀",th:"ลานนกน้ำ",m:["greater-flamingo","shoebill"]},{m:["common-hippopotamus"]},{m:["gharial"]},{m:["saltwater-crocodile"]},{m:["nile-monitor"]},
+     {ex:1,cn:"水岸館",th:"หอริมน้ำ",m:["american-bullfrog","giant-slippery-frog","diamondback-terrapin"]}]},
+ {id:"world",cn:"萬國雨林",th:"ป่าฝนนานาชาติ",biome:"Tropical (แอฟริกา · อเมริกาใต้)",color:"--z-world",deco:"ทำเป็นสวนพฤกษศาสตร์ของราชสำนัก มีเรือนกระจกโดมแบบจีน น้ำตก และหมอก สัตว์จากแอฟริกาและอเมริกาใต้อยู่โซนนี้",
+  H:[{cn:"猩猩林",th:"ป่าลิงไร้หาง",m:["western-lowland-gorilla","western-chimpanzee"]},{cn:"狐猴園",th:"สวนลีเมอร์ (เดินผ่านได้)",m:["ring-tailed-lemur","golden-lion-tamarin"]},{m:["toco-toucan"]},
+     {ex:1,cn:"雨林溫室",th:"เรือนกระจกป่าฝน",m:["red-eyed-tree-frog","lehmann-s-poison-frog","golden-poison-frog","amazonian-giant-centipede","giant-tiger-land-snail","boa-constrictor","yellow-anaconda"]}]},
+ {id:"asia",cn:"南洋雨林",th:"ป่าฝนหนานหยาง (เอเชีย)",biome:"Tropical (เอเชีย)",color:"--z-asia",deco:"วัดกลางป่ากับรากไทร น้ำตก และหมอก ใช้ Aviary โดมใหญ่ทำป่าร้อยนก ช้างเอเชียอยู่ในลานวิหารไม้แบบสิบสองปันนา",
+  H:[{cn:"猿山",th:"ภูเขาลิงใหญ่",m:["sumatran-orangutan","siamang","malayan-tapir","north-sulawesi-babirusa"]},
+     {cn:"百鳥林",th:"ป่าร้อยนก (Aviary)",m:["great-hornbill","javan-green-magpie","long-tailed-parakeet","asian-small-clawed-otter"]},
+     {cn:"虎嘯林",th:"ป่าเสือ",m:["sumatran-tiger"]},{cn:"滇象園",th:"สวนช้างยูนนาน",m:["asian-elephant"]},{m:["sun-bear"]},{m:["binturong"]},{m:["komodo-dragon"]},{m:["sunda-pangolin"]},{m:["goodfellow-s-tree-kangaroo"]},
+     {ex:1,cn:"南洋蟲館",th:"หอแมลงเอเชีย",m:["giant-forest-scorpion","giant-malaysian-leaf-insect"]}]},
+];
+
+/* compute habitat stats */
+ZONES.forEach(z=>z.H.forEach(h=>{
+  h.sp=h.m.map(sp); h.mixed=!h.ex && h.m.length>1;
+  const sum=k=>h.sp.reduce((s,a)=>s+(a[k]||0),0);
+  h.lo=Math.max(...h.sp.map(a=>a.lo)); h.hi=Math.min(...h.sp.map(a=>a.hi));
+  h.land=sum('land'); h.dw=sum('dw'); h.aq=sum('aq'); h.fl=sum('fl'); h.cl=sum('cl'); h.food=sum('food');
+  h.g=Math.max(...h.sp.map(a=>a.g)); h.bh=Math.max(...h.sp.map(a=>a.h));
+  const tys=[...new Set(h.sp.map(a=>a.ty))]; h.kind = h.ex?'E' : tys.includes('A')?'A' : tys.includes('F')?'F':'L';
+  h.walk=h.sp.every(a=>a.walk);
+  h.sal=h.kind==='A'? (h.sp.every(a=>/Fr|Any/.test(a.sal))?'น้ำจืด':'น้ำเค็ม') : '';
+}));
+/* coverage check */
+const placed={}; ZONES.forEach(z=>z.H.forEach(h=>h.m.forEach(s=>{placed[s]=(placed[s]||0)+1; })));
+const missing=S.filter(r=>!placed[r[0]]).map(r=>r[1]); const dup=Object.keys(placed).filter(k=>placed[k]>1);
+if(missing.length||dup.length) console.error('coverage', missing, dup);
+
+const fmt=n=>n.toLocaleString('en-US');
+const zoneBand=z=>{const hs=z.H.filter(h=>!h.ex && h.kind!=='A'); if(!hs.length) return null; return {lo:Math.max(...hs.map(h=>h.lo)),hi:Math.min(...hs.map(h=>h.hi))};};
+
+/* facts */
+(function(){
+  const nH=ZONES.reduce((s,z)=>s+z.H.filter(h=>!h.ex).length,0), nMix=ZONES.reduce((s,z)=>s+z.H.filter(h=>h.mixed).length,0), nEx=ZONES.reduce((s,z)=>s+z.H.filter(h=>h.ex).length,0);
+  const asia=S.filter(r=>r[14]).length;
+  document.getElementById('facts').innerHTML=[[S.length,'ชนิดสัตว์ (ครบทุกตัวใน Zoopedia)'],[8,'โซน'],[nH,'กรงและตู้'],[nMix,'กรงรวมหลายชนิด'],[nEx,'อาคาร Exhibit'],[asia,'ชนิดที่มีถิ่นในเอเชีย']].map(([a,b])=>`<div><b class="mono">${a}</b><span>${b}</span></div>`).join('');
+})();
+
+/* map counts + zone index */
+(function(){
+  ZONES.forEach(z=>{ const n=z.H.reduce((s,h)=>s+h.m.length,0); const el=document.getElementById('mn-'+z.id); if(el) el.textContent=`${n} ชนิด · ${z.H.length} กรง/อาคาร`; z.n=n; });
+  document.getElementById('zoneIndex').innerHTML=ZONES.map(z=>{
+    const c={L:0,F:0,A:0,E:0}; z.H.forEach(h=>h.sp.forEach(a=>c[a.ty]++));
+    const bar=['L','F','A','E'].filter(k=>c[k]).map(k=>`<span style="width:${c[k]/z.n*100}%;background:var(--t-${k})" title="${TYPE[k]} ${c[k]}"></span>`).join('');
+    return `<a class="zi" href="#z-${z.id}"><span class="cn" style="background:var(${z.color})">${z.cn.slice(0,2)}</span><span style="flex:1;min-width:0"><b>${z.th}</b><small>${z.biome} · ${z.n} ชนิด</small><span class="typebar">${bar}</span></span></a>`;}).join('');
+})();
+
+/* zone temperature chart */
+(function(){
+  const svg=document.getElementById('zoneTemp'); const zs=ZONES.filter(z=>zoneBand(z));
+  const W=900,L=190,R=40,T=30,rowH=34,H=T+zs.length*rowH+30; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const min=-30,max=40,x=v=>L+(v-min)/(max-min)*(W-L-R); let s='';
+  for(let v=min;v<=max;v+=10){ s+=`<line x1="${x(v)}" y1="${T-10}" x2="${x(v)}" y2="${H-26}" stroke="var(--line)" ${v===0?'stroke-width="1.6"':'stroke-dasharray="2 4"'}/><text x="${x(v)}" y="${H-8}" text-anchor="middle" font-size="12" font-family="var(--f-mono)" fill="var(--ink-soft)">${v}°C</text>`; }
+  zs.forEach((z,i)=>{ const b=zoneBand(z), y=T+i*rowH+rowH/2;
+    s+=`<text x="${L-12}" y="${y+5}" text-anchor="end" font-size="13.5" font-family="var(--f-body)" fill="var(--ink)">${z.th}</text>`;
+    s+=`<rect x="${x(b.lo)}" y="${y-9}" width="${Math.max(2,x(b.hi)-x(b.lo))}" height="18" rx="9" fill="var(${z.color})" stroke="var(--ink)"/>`;
+    s+=`<text x="${x(b.lo)-6}" y="${y+4}" text-anchor="end" font-size="11.5" font-family="var(--f-mono)" fill="var(--ink-soft)">${b.lo}</text><text x="${x(b.hi)+6}" y="${y+4}" font-size="11.5" font-family="var(--f-mono)" fill="var(--ink-soft)">${b.hi}</text>`; });
+  svg.innerHTML=s;
+})();
+
+/* zone sections */
+(function(){
+  const link=a=>`<a href="https://www.planetzoogame.com/2/zoopedia/${a.slug}" target="_blank" rel="noopener">${a.n}</a>`;
+  const out=ZONES.map(z=>{
+    const b=zoneBand(z);
+    const band=b? `<span class="chip ${b.lo<=b.hi?'ok':'warn'}">ช่วงอุณหภูมิของโซน ${b.lo} ถึง ${b.hi}°C</span>` : `<span class="chip g">ตั้งอุณหภูมิแยกรายตู้</span>`;
+    const heat= b && b.lo>=14 ? `<span class="chip warn">ต้องฮีตเตอร์ในหน้าหนาว</span>` : '';
+    const cold= b && b.hi<=12 ? `<span class="chip warn">ต้องคุมความเย็นในหน้าร้อน</span>` : '';
+    const cards=z.H.map((h,hi)=>{
+      const id=`h-${z.id}-${hi}`;
+      const title = h.cn ? `<span class="cn">${h.cn}</span>${h.th}` : h.sp[0].n;
+      const kindChip = h.ex ? `<span class="chip tE">Exhibit ${h.m.length} ตู้</span>` : `<span class="chip t${h.kind}">${TYPE[h.kind]}${h.mixed?' · รวม '+h.m.length:''}</span>`;
+      const mems=h.sp.map(a=>`<div class="mem"><span class="st ${a.st}" title="สถานะการอนุรักษ์">${a.st}</span><span style="min-width:0">${link(a)}${a.asia?' <span class="asia" title="มีถิ่นในเอเชีย">亞</span>':''}</span>${h.ex?`<span class="ex">${a.lo}–${a.hi}°C · ชื้น ${a.hum}%</span>`:''}</div>`).join('');
+      let spec='';
+      if(!h.ex){ const rows=[];
+        rows.push(['อุณหภูมิ',`${h.lo} ถึง ${h.hi}°C`]);
+        if(h.mixed) rows.push(['ความสัมพันธ์',h.rel||'Neutral ทุกคู่']);
+        if(h.land) rows.push(['พื้นที่ดิน',`${fmt(h.land)} m²`]);
+        if(h.dw) rows.push(['น้ำลึก',`${fmt(h.dw)} m²${h.sal?' · '+h.sal:''}`]);
+        if(h.aq) rows.push(['น้ำตื้น',`${fmt(h.aq)} m²`]);
+        if(h.fl) rows.push(['พื้นที่บิน',`${fmt(h.fl)} m² (ต้องมีหลังคา)`]);
+        if(h.cl) rows.push(['พื้นที่ปีน',`${fmt(h.cl)} m²`]);
+        if(h.g) rows.push(['รั้ว',`Grade ${h.g} · สูง ${h.bh} m`]);
+        rows.push(['ค่าอาหาร',`$${fmt(h.food)} ต่อรอบ`]);
+        if(h.walk) rows.push(['แขก','เดินผ่านในกรงได้']);
+        spec=`<dl class="spec">${rows.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>`;
+      } else spec=`<p class="muted" style="font-size:12.5px;border-top:1px dashed var(--line);padding-top:8px">แต่ละตู้ตั้งอุณหภูมิและความชื้นได้เอง จัดตู้ที่ค่าใกล้กันไว้ห้องเดียวกัน</p>`;
+      return `<article class="card${h.mixed?' mixed':''}" id="${id}" data-sp="${h.m.join(' ')}"><div class="card-top"><h3>${title}</h3>${kindChip}</div><div class="card-body"><div class="members">${mems}</div>${spec}</div></article>`;}).join('');
+    return `<section class="zone-sec" id="z-${z.id}"><div class="zone-head"><span class="badge" style="background:var(${z.color})">${z.cn.slice(0,2)}</span><div class="info"><h2><span class="cn" style="color:var(--seal)">${z.cn}</span> ${z.th}</h2><div class="chips"><span class="chip">${z.biome}</span><span class="chip">${z.n} ชนิด</span>${band}${heat}${cold}</div><p class="deco">${z.deco}</p></div></div><div class="cards">${cards}</div></section>`;
+  }).join('');
+  document.getElementById('zoneSections').innerHTML=out;
+})();
+
+/* register */
+(function(){
+  const where={}; ZONES.forEach(z=>z.H.forEach((h,hi)=>h.m.forEach(s=>where[s]={z,h,id:`h-${z.id}-${hi}`})));
+  const rows=S.map(r=>sp(r[0])).sort((a,b)=>a.n.localeCompare(b.n));
+  const body=document.getElementById('regBody'), q=document.getElementById('q'), t=document.getElementById('tsel'), as=document.getElementById('asel'), cnt=document.getElementById('regCount');
+  function render(){
+    const qq=q.value.trim().toLowerCase(), tt=t.value, aa=as.value;
+    const list=rows.filter(a=>(!qq||a.n.toLowerCase().includes(qq)||where[a.slug].z.th.includes(qq)) && (!tt||a.ty===tt) && (!aa||a.asia));
+    body.innerHTML=list.map(a=>{const w=where[a.slug]; const hn=w.h.cn?`${w.h.th}`:'กรงเดี่ยว';
+      const sz=a.ty==='A'?`${fmt(a.dw)} m² น้ำ`:a.ty==='E'?'ตู้':`${fmt(a.land)} m²`;
+      return `<tr><td><a href="#${w.id}">${a.n}</a>${a.asia?' <span class="cn" style="color:var(--seal)">亞</span>':''}</td><td class="t${a.ty}">${TYPE[a.ty]}</td><td>${w.z.th}</td><td>${hn}${w.h.mixed?' <span class="muted">(รวม '+w.h.m.length+')</span>':''}</td><td class="num">${a.lo}–${a.hi}°C</td><td class="num">${sz}</td><td class="mono">${a.st}</td></tr>`;}).join('');
+    cnt.textContent=`แสดง ${list.length} จาก ${S.length} ชนิด`;
+  }
+  [q,t,as].forEach(el=>el.addEventListener('input',render)); render();
+  body.addEventListener('click',e=>{const a=e.target.closest('a[href^="#h-"]'); if(!a) return; document.querySelectorAll('.card.hit').forEach(c=>c.classList.remove('hit')); const c=document.querySelector(a.getAttribute('href')); if(c) c.classList.add('hit');});
+})();
+
+/* tools */
+const TOOLS=[
+ {cn:"地",h:"ภูมิประเทศ",items:[["Terrain Sculpt + Curl tool","ปั้นที่ราบสูงหิมะ หน้าผานก และเนินทุ่งหญ้า"],["Landscape stamps","ทำภูเขาและเนินทรายได้ในคลิกเดียว"],["Terrain Paint (adaptive)","ทาพื้นผิวตามช่วงที่ Zoopedia กำหนด"],["Water tool","ขุดทะเลสาบกลาง แม่น้ำ และบ่อน้ำลึกให้ฮิปโป นาก และจระเข้"]]},
+ {cn:"林",h:"ต้นไม้และการตกแต่ง",items:[["Nature brush","บันทึกแปรงไว้ 3 แบบ: ไผ่ สนหิมะ และป่าฝน"],["Scale / Mirror","ย่อขยายเจดีย์และหินให้เข้ากับฉาก"],["Flexicolour","ใช้แดงชาด ทอง และเขียวหยกเหมือนกันทั้งสวน"],["Workshop blueprints","ค้นคำว่า Chinese, pagoda, moon gate, bamboo, temple"]]},
+ {cn:"欄",h:"กรงและรั้ว",items:[["Habitat barrier","Grade 4 สำหรับแพนด้า ช้าง แรด ฮิปโป และหมีกริซลี"],["Aviary roof","ป่าร้อยนก ลานนกน้ำ และกรงนกล่าเหยื่อทุกกรง"],["Aquarium builder + filter","ตู้ใหญ่ต้องการน้ำลึกเกือบ 1,724 m² แยกตู้น้ำจืดกับน้ำเค็ม"],["Exhibit builder","อาคาร Exhibit 6 หลัง ตั้งอุณหภูมิและความชื้นรายตู้"]]},
+ {cn:"電",h:"ระบบและพนักงาน",items:[["Power network","ลากไฟไปถึงฮีตเตอร์ ฟิลเตอร์ และตู้ Exhibit"],["Heater","ใช้กับโซนป่าฝน พื้นที่ชุ่มน้ำ และทุ่งหญ้าในหน้าหนาว"],["Keeper hut + Work zone","หนึ่งจุดต่อสองถึงสามกรงที่อยู่ติดกัน"],["Water treatment + Vet","ตั้งหลังวังมังกร ใช้ทางพนักงานใต้ดินหรือหลังกำแพง"]]},
+ {cn:"路",h:"ทางเดินและแขก",items:[["Path Curve builder","ทำวงแหวนรอบทะเลสาบและทางแยกเข้าแต่ละโซน"],["Path Stamp","สร้างลานประตูจันทร์ที่ทางเข้า"],["Staff path","วิ่งรอบนอกสวน ซ่อนด้วยกำแพงหรือแนวไผ่"],["Heatmaps","เช็กว่าร้านค้า ห้องน้ำ และ education ครอบคลุมทุกโซน"]]},
+ {cn:"教",h:"ความรู้และรายได้",items:[["Education board","ติดทุกกรงและทุกตู้ รวม 135 ชนิด"],["Speaker + Donation bin","วางคู่กันที่จุดชมวิวหลัก"],["Zoopedia ในเกม","เช็กความต้องการของสัตว์ซ้ำก่อนซื้อ"],["Marketing","โปรโมตแพนด้า ฉลาม และฝูงสัตว์ทุ่งหญ้า"]]},
+];
+(function(){
+  let saved={}; try{ saved=JSON.parse(localStorage.getItem('jvz2-tools')||'{}'); }catch(e){ saved={}; }
+  const box=document.getElementById('toolsBox');
+  box.innerHTML=TOOLS.map((g,gi)=>`<div class="tool-group"><h3><span class="cn">${g.cn}</span>${g.h}</h3>${g.items.map((t,ti)=>{const id=`tool-${gi}-${ti}`;return `<label class="tool" for="${id}"><input type="checkbox" id="${id}" ${saved[id]?'checked':''}><span class="tl"><b>${t[0]}</b><br><span class="muted">${t[1]}</span></span></label>`;}).join('')}</div>`).join('');
+  const prog=document.getElementById('toolProgress'); const upd=()=>{const all=box.querySelectorAll('input'); prog.textContent=`ติ๊กแล้ว ${[...all].filter(i=>i.checked).length} จาก ${all.length}`;};
+  box.addEventListener('change',e=>{ if(e.target.matches('input')){ saved[e.target.id]=e.target.checked; try{localStorage.setItem('jvz2-tools',JSON.stringify(saved));}catch(err){} upd(); }}); upd();
+})();
+</script>
+
+</body></html>
