@@ -84,3 +84,23 @@
     LVC: lv => (window.LEVELS[lv - 1] || {}).color || '#888',
   };
 })();
+
+/* Heater / Cooler plan for one habitat, given the map's ambient range.
+   PZ2: Habitat › Heaters and Coolers, $50 each, the effect radius shows while placing.
+   Community rule of thumb (PZ1, likely the same in PZ2): radius adjustable up to ~20 m, one huge
+   radius costs more than two medium units, and animals only need the shelter/food/water core covered. */
+(function () {
+  const UNIT_R = 14, CORE = .6;
+  window.Z.devicePlan = function (c, lo, hi) {
+    if (c.controlled) return null;
+    const heat = Math.max(0, c.lo - lo), cool = Math.max(0, hi - c.hi);
+    if (!heat && !cool) return { heat: 0, cool: 0, units: 0 };
+    const area = Math.max(c.land + c.aq * .5, 40);
+    const need = area * CORE;
+    const per = Math.PI * UNIT_R * UNIT_R;
+    const units = Math.max(1, Math.ceil(need / per));
+    const radius = units === 1 ? Math.max(6, Math.min(20, Math.round(Math.sqrt(need / Math.PI)))) : UNIT_R;
+    const span = c.hi - c.lo, pad = Math.max(1, Math.min(4, Math.round(span / 4)));
+    return { heat, cool, units, radius, area: Math.round(area), heatTo: c.lo + pad, coolTo: c.hi - pad };
+  };
+})();
