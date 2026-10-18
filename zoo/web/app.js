@@ -56,9 +56,41 @@
       animal: s => openAnimal(s), cage: id => openCage(id), zone: zid => openZone(zid),
       stop: at => { const r = window.ROUTE.find(r => r.at === at); if (r) location.hash = '#route'; },
     });
-    $('#zIn').onclick = () => window.ZooMap.zoomBy(.7); $('#zOut').onclick = () => window.ZooMap.zoomBy(1.4); $('#zFit').onclick = () => window.ZooMap.fit();
+    const M = window.ZooMap;
+    $('#zIn').onclick = () => M.zoomBy(.75); $('#zOut').onclick = () => M.zoomBy(1.33); $('#zFit').onclick = () => { M.fit(); closeDrawer(); };
+    // zone bar
+    $('#zoneBar').innerHTML = `<button data-zone="" class="on"><span class="cn">全</span>ทั้งสวน</button>` +
+      window.ZONES.map(z => `<button data-zone="${z.id}" style="--zc:${z.fill};--zi:${z.ink}"><span class="cn">${z.cn.slice(0, 2)}</span>${esc(z.th.split(' (')[0].split(' · ')[0])}</button>`).join('');
+    $('#zoneBar').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; closeDrawer(); if (b.dataset.zone) M.zoomZone(b.dataset.zone); else M.fit(); });
+    // minimap
+    const mm = $('#minimap');
+    mm.innerHTML = `<svg viewBox="0 0 ${M.W} ${M.H}">
+      <rect width="${M.W}" height="${M.H}" fill="#efe4c9"/>
+      <path d="${M.superellipse(M.LAKE, 4, 80)}" fill="#9cc7d3"/>
+      ${window.ZONES.map(z => { const r = M.zoneRect(z.id); return `<rect data-zone="${z.id}" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="60" fill="${z.id === 'palace' ? '#e9c2b4' : z.fill}" stroke="${z.ink}" stroke-width="10"/><text x="${r.x + r.w / 2}" y="${r.y + r.h / 2 + 50}" text-anchor="middle" font-family="LXGW WenKai TC" font-weight="700" font-size="150" fill="${z.ink}" opacity=".75">${z.cn.slice(0, 2)}</text>`; }).join('')}
+      <rect id="mmView" fill="rgba(184,50,42,.12)" stroke="#b8322a" stroke-width="22"/></svg>`;
+    const mmSvg = mm.querySelector('svg'), mmView = mm.querySelector('#mmView');
+    const mmPoint = e => { const r = mmSvg.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * M.W, (e.clientY - r.top) / r.height * M.H]; };
+    let mmDrag = false;
+    mm.addEventListener('pointerdown', e => { mmDrag = true; mm.setPointerCapture(e.pointerId); const [x, y] = mmPoint(e); const v = M.view(); M.go({ x: x - v.w / 2, y: y - v.h / 2, w: M.isOverview() ? 1500 : v.w }); });
+    mm.addEventListener('pointermove', e => { if (!mmDrag) return; const [x, y] = mmPoint(e); const v = M.view(); M.go({ x: x - v.w / 2, y: y - v.h / 2, w: v.w }, true); });
+    mm.addEventListener('pointerup', () => (mmDrag = false));
+    let lastZone = null;
+    M.setOnView((v, t) => {
+      mmView.setAttribute('x', v.x); mmView.setAttribute('y', v.y); mmView.setAttribute('width', v.w); mmView.setAttribute('height', v.h);
+      const over = t.w > 1900; $('#mapWrap').classList.toggle('overview', over);
+      const z = over ? '' : (M.zoneAt(t.x + t.w / 2, t.y + t.h / 2) || '');
+      if (z !== lastZone) { lastZone = z; $$('#zoneBar button').forEach(b => b.classList.toggle('on', b.dataset.zone === z)); }
+    });
+    // heater / cooler layer
+    const ambIn = () => { $('#mAmbLo').value = Z.state.amb[0]; $('#mAmbHi').value = Z.state.amb[1]; };
+    ambIn();
+    const ambUpd = () => { const lo = +$('#mAmbLo').value, hi = +$('#mAmbHi').value; if (!isNaN(lo) && !isNaN(hi)) Z.setAmb(lo, hi); };
+    $('#mAmbLo').addEventListener('change', ambUpd); $('#mAmbHi').addEventListener('change', ambUpd);
+    $('#lyDev').addEventListener('change', () => { if ($('#lyDev').checked && M.isOverview()) M.zoomZone('savannah'); mapState(); });
     const lf = $('#lvFilter'); LV.forEach(l => lf.insertAdjacentHTML('beforeend', `<option value="${l.lv}">Lv${l.lv} ${l.cn} · ${l.th}</option>`));
     ['#lvFilter', '#lyRoute', '#lyTemp', '#lyOwned'].forEach(s => $(s).addEventListener('change', mapState));
+    mapState();
     $('#mapSearch').addEventListener('input', e => mapSearch(e.target.value));
     $('#mapSearch').addEventListener('keydown', e => { if (e.key === 'Enter') { const h = $('#map .tok.hit'); if (h) openAnimal(h.dataset.s); } });
     $('#drawerX').onclick = closeDrawer;
@@ -78,7 +110,7 @@
       `<span class="lg"><i class="sw" style="border:3px solid #2f7d5d"></i>กรงรวม</span>`, `<span class="lg"><i class="sw" style="border:1.5px solid #5a5040"></i>กรงเดี่ยว</span>`,
       `<span class="lg"><i class="sw" style="border:2px solid #7b4f8a;background:#f7eef6"></i>Exhibit</span>`, `<span class="lg"><i class="sw" style="border:2px solid #2f6f8c;background:#9cc7d3"></i>Aquarium</span>`,
       ...['L', 'F', 'A', 'E'].map(k => `<span class="lg">${ticon(k)}${TYPE[k]}</span>`), `<span class="lg"><span class="asia">亞</span>ถิ่นเอเชีย</span>`,
-      `<span class="lg muted">ลาก = เลื่อน · ล้อเมาส์ = ซูม · คลิกรูป = รายละเอียด</span>`,
+      `<span class="lg"><i class="sw" style="border-radius:50%;background:rgba(255,106,77,.35);border:2px dashed #e0503c"></i>Heater</span>`, `<span class="lg"><i class="sw" style="border-radius:50%;background:rgba(77,163,255,.35);border:2px dashed #3c8ee0"></i>Cooler</span>`,
     ].join('');
     // hover tooltip
     const tip = $('#tip');
@@ -118,6 +150,14 @@
     if (!inited.map) return;
     const lv = +$('#lvFilter').value, route = $('#lyRoute').checked, temp = $('#lyTemp').checked, own = $('#lyOwned').checked;
     $('#L-route').style.display = route ? '' : 'none';
+    const dev = $('#lyDev').checked, [alo, ahi] = Z.state.amb;
+    if ($('#mAmbLo') && document.activeElement !== $('#mAmbLo') && document.activeElement !== $('#mAmbHi')) { $('#mAmbLo').value = alo; $('#mAmbHi').value = ahi; }
+    window.ZooMap.setDevices(dev, alo, ahi);
+    $('#mapWrap').classList.toggle('devmode', dev);
+    if (dev) {
+      let h = 0, c = 0; CAGES.forEach(cg => { const p = Z.devicePlan(cg, alo, ahi); if (p && p.units) { if (p.heat) h += p.units; if (p.cool) c += p.units; } });
+      $('#devSum').innerHTML = `<b style="color:#e0503c">Heater ${h}</b> · <b style="color:#3c8ee0">Cooler ${c}</b> เครื่อง · ≈ $${fmt((h + c) * 50)}`;
+    } else $('#devSum').textContent = '';
     $('#map').classList.toggle('tempmode', temp);
     $$('#map .cage').forEach(g => { const c = CAGES.find(c => c.id === g.dataset.c); g.classList.toggle('dim', !!lv && !c.m.some(s => Z.levelOf(s) === lv)); });
     $$('#map .tok').forEach(t => { t.style.opacity = lv && +t.dataset.lv !== lv ? .3 : ''; t.classList.toggle('notown', own && !Z.owned(t.dataset.s)); });
@@ -127,11 +167,11 @@
     if (q.length < 2) return;
     const hits = ALL.filter(a => a.n.toLowerCase().includes(q) || (a.zh || '').includes(q));
     hits.forEach(a => { const t = $(`#map .tok[data-s="${CSS.escape(a.slug)}"]`); t && t.classList.add('hit'); });
-    if (hits.length) { const c = WHERE[hits[0].slug]; window.ZooMap.zoomTo(c.x + c.w / 2, c.y + c.h / 2, 1100); }
+    if (hits.length) window.ZooMap.zoomCage(WHERE[hits[0].slug].id);
   }
-  function focusCage(id) { const r = window.ZooMap.cageCenter(id); if (!r) return; window.ZooMap.zoomTo(r[0], r[1], 1300); openCage(id); }
-  function openDrawer(html) { $('#drawerBody').innerHTML = html; $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#drawer').scrollTop = 0; }
-  function closeDrawer() { $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); $$('#map .cage.sel').forEach(g => g.classList.remove('sel')); }
+  function focusCage(id) { if (!window.ZooMap.cageCenter(id)) return; window.ZooMap.zoomCage(id); openCage(id); }
+  function openDrawer(html) { $('#mapWrap').classList.add('dopen'); $('#drawerBody').innerHTML = html; $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#drawer').scrollTop = 0; }
+  function closeDrawer() { $('#mapWrap').classList.remove('dopen'); $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); $$('#map .cage.sel').forEach(g => g.classList.remove('sel')); }
 
   function cageHTML(c) {
     const z = c.zone;
@@ -156,7 +196,25 @@
       mx = `<h4 style="margin:12px 0 4px;font-family:var(--f-head)">ความสัมพันธ์ในกรง</h4><div style="overflow-x:auto"><table class="rel-mx"><tr><th></th>${c.sp.map(a => `<th>${esc(a.n)}</th>`).join('')}</tr>${c.sp.map(a => `<tr><th>${esc(a.n)}</th>${c.sp.map(b => a === b ? '<td>—</td>' : (r => `<td class="r-${r}">${r === 'T' ? 'Thriving' : r === 'N' ? 'Neutral' : '✕'}</td>`)(rel(a, b))).join('')}</tr>`).join('')}</table></div>`;
     }
     const eq = c.controlled ? '' : `<div class="chips">${equipChip(c)}<span class="chip" style="color:var(--ink-soft)">จากแผนที่ ${Z.state.amb[0]}…${Z.state.amb[1]}°C</span></div>`;
-    return head + chips + eq + mems + spec + mx + `<p class="deco">${esc(z.deco)}</p>`;
+    const dev = deviceHTML(c);
+    return head + chips + eq + mems + dev + spec + mx + `<p class="deco">${esc(z.deco)}</p>`;
+  }
+  function deviceHTML(c) {
+    const [lo, hi] = Z.state.amb;
+    if (c.kind === 'A') return `<div class="devbox ctl"><h4>🌡 อุณหภูมิน้ำ</h4><p>ตู้ปลาไม่ใช้ Heater/Cooler ของ Habitat · ตั้งอุณหภูมิน้ำที่ตัวตู้/ระบบกรองให้อยู่ <b>${c.lo}–${c.hi}°C</b>${c.sal ? ' · ' + c.sal : ''}</p></div>`;
+    if (c.ex) return `<div class="devbox ctl"><h4>🌡 ตู้ Exhibit</h4><p>ตั้งอุณหภูมิ + ความชื้นทีละตู้ในหน้าต่างของตู้ ไม่ต้องวางเครื่อง</p></div>`;
+    const p = Z.devicePlan(c, lo, hi);
+    if (!p.units) return `<div class="devbox ok"><h4>✓ ไม่ต้องวางเครื่อง</h4><p>อากาศแผนที่ ${lo}…${hi}°C อยู่ในช่วง ${c.lo}…${c.hi}°C ของกรงนี้แล้ว</p></div>`;
+    const rows = [];
+    if (p.heat) rows.push(`<div class="devrow heat"><span class="dot heat"></span><div><b>Heater × ${p.units}</b> · รัศมี ~${p.radius} m · ตั้ง ~${p.heatTo}°C<br><small>หน้าหนาวต่ำกว่าที่สัตว์รับได้ ${p.heat}°C</small></div></div>`);
+    if (p.cool) rows.push(`<div class="devrow cool"><span class="dot cool"></span><div><b>Cooler × ${p.units}</b> · รัศมี ~${p.radius} m · ตั้ง ~${p.coolTo}°C<br><small>หน้าร้อนสูงเกินที่สัตว์รับได้ ${p.cool}°C</small></div></div>`);
+    return `<div class="devbox"><h4>🌡 วางเครื่องปรับอุณหภูมิ <small>(พื้นที่ ~${fmt(p.area)} m²)</small></h4>${rows.join('')}
+      <ul><li>วางเป็นกลุ่มกลางกรง ให้วงคลุม <b>shelter · จุดให้อาหาร · น้ำ</b> ไม่ต้องคลุมทุกตารางเมตร (ราว 60% ของพื้นที่พอ)</li>
+      <li>ตอนวางเกมจะโชว์รัศมีเป็นวง · เปิด Heat map (แท็บ Habitat บนแถบด้านบน) เช็กว่าแดง/ฟ้าครอบจุดที่สัตว์อยู่</li>
+      <li>รัศมีใหญ่เครื่องเดียวแพงกว่าเครื่องกลาง 2 เครื่อง → ใช้หลายเครื่องรัศมี ~${p.radius} m ดีกว่า</li>
+      <li>ต้องต่อไฟ (Power) · ซ่อนเครื่องโดยกด Shift จมลงดินเล็กน้อยหรือวางหิน/พุ่มไม้บัง</li>
+      ${p.heat && p.cool ? '<li>กรงนี้ต้องทั้งสองแบบ: เปิด Heater หน้าหนาว Cooler หน้าร้อน วางสลับกันในกลุ่มเดียว</li>' : ''}</ul>
+      <p class="fine" style="margin:4px 0 0">จำนวนเครื่องคำนวณจากพื้นที่ขั้นต่ำใน Zoopedia ÷ วงรัศมี 14 m (ค่าจากชุมชน ยังไม่ยืนยันใน PZ2) ถ้ากรงใหญ่กว่าขั้นต่ำให้เพิ่มตาม</p></div>`;
   }
   function openCage(id) {
     const c = CAGES.find(c => c.id === id); if (!c) return; selCage = id;

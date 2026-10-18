@@ -444,6 +444,8 @@
     <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f3b3d"/><stop offset=".8" stop-color="#e7dcc2" stop-opacity="0"/></linearGradient>
     <linearGradient id="tempG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a7fa8"/><stop offset=".3" stop-color="#9cc7d3"/><stop offset=".55" stop-color="#d0a23a"/><stop offset=".8" stop-color="#d9733a"/><stop offset="1" stop-color="#c0392b"/></linearGradient>
     <radialGradient id="paperV" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#5a4020" stop-opacity=".22"/></radialGradient>
+    <radialGradient id="heatG"><stop offset="0" stop-color="#ff6a4d" stop-opacity=".45"/><stop offset=".7" stop-color="#ff6a4d" stop-opacity=".22"/><stop offset="1" stop-color="#ff6a4d" stop-opacity=".06"/></radialGradient>
+    <radialGradient id="coolG"><stop offset="0" stop-color="#4da3ff" stop-opacity=".45"/><stop offset=".7" stop-color="#4da3ff" stop-opacity=".22"/><stop offset="1" stop-color="#4da3ff" stop-opacity=".06"/></radialGradient>
     <clipPath id="cc" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath>
   </defs>`;
 
@@ -465,6 +467,7 @@
     s += `<g id="L-plaza">${plazaGate()}</g>`;
     s += `<g id="L-titles">${window.ZONES.map(zoneTitle).join('')}</g>`;
     s += `<g id="L-cages">${CAGES.map(c => drawCage(c)).join('')}</g>`;
+    s += `<g id="L-devices" style="display:none" pointer-events="none"></g>`;
     s += `<g id="L-route" style="display:none">${routeLayer()}</g>`;
     s += `<g id="L-frame">${cartouche()}${compass()}${tempBar()}${seal()}${legendStrip()}<rect width="${W}" height="${H}" fill="url(#paperV)" pointer-events="none"/><rect x="6" y="6" width="${W - 12}" height="${H - 12}" fill="none" stroke="#6b4e30" stroke-width="6" pointer-events="none"/></g>`;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -500,49 +503,135 @@
     return o;
   }
 
-  /* ---------- pan / zoom ---------- */
-  let view = { x: 0, y: 0, w: W, h: H }, svgEl;
-  function apply() { svgEl.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); }
-  function clampView() {
-    const minW = 420; view.w = Math.max(minW, Math.min(W * 1.4, view.w)); view.h = view.w * H / W;
-    view.x = Math.max(-view.w * .3, Math.min(W - view.w * .7, view.x)); view.y = Math.max(-view.h * .3, Math.min(H - view.h * .7, view.y));
+  /* ---------- pan / zoom ----------
+     The viewBox always matches the element's aspect ratio, so screen <-> map maths is exact.
+     `tgt` is where we're heading, `cur` eases toward it every frame. */
+  const MIN_W = 560, OVERVIEW_W = 1900;
+  let svgEl, cur = { x: 0, y: 0, w: W, h: H }, tgt = { ...cur }, raf = 0, onView = null;
+  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function aspect() { const r = svgEl.getBoundingClientRect(); return r.width ? r.height / r.width : H / W; }
+  function clamp(v) {
+    const a = aspect(), maxW = Math.max(W, H / a) * 1.02;
+    v.w = Math.min(maxW, Math.max(MIN_W, v.w)); v.h = v.w * a;
+    const px = v.w * .06, py = v.h * .06;
+    v.x = v.w >= W ? (W - v.w) / 2 : Math.min(W - v.w + px, Math.max(-px, v.x));
+    const ins = svgEl && document.querySelector('.map-ui') ? insets() : null, sc = ins ? v.w / ins.r.width : 0;
+    const pyT = py + (ins ? ins.top * sc : 0), pyB = py + (ins ? ins.bot * sc : 0);
+    v.y = v.h >= H + pyT + pyB ? (H - v.h) / 2 - (pyT - pyB) / 2 : Math.min(H - v.h + pyB, Math.max(-pyT, v.y));
+    return v;
   }
-  function toSvg(cx, cy) { const r = svgEl.getBoundingClientRect(); const sc = Math.max(view.w / r.width, view.h / r.height); const ox = (r.width * sc - view.w) / 2, oy = (r.height * sc - view.h) / 2; return [view.x - ox + (cx - r.left) * sc, view.y - oy + (cy - r.top) * sc]; }
-  function zoomAt(f, cx, cy) { const [px, py] = toSvg(cx, cy); view.x = px - (px - view.x) * f; view.y = py - (py - view.y) * f; view.w *= f; view.h *= f; clampView(); apply(); }
-  function zoomTo(x, y, w) { view.w = w; view.h = w * H / W; view.x = x - view.w / 2; view.y = y - view.h / 2; clampView(); animate(); }
-  let animFrom = null;
-  function animate() { const target = { ...view }; const cur = svgEl.viewBox.baseVal; const from = { x: cur.x, y: cur.y, w: cur.width, h: cur.height }; const t0 = performance.now();
-    const step = t => { const k = Math.min(1, (t - t0) / 380), e = 1 - Math.pow(1 - k, 3); svgEl.setAttribute('viewBox', ['x', 'y', 'w', 'h'].map(p => from[p] + (target[p] - from[p]) * e).join(' ')); if (k < 1) requestAnimationFrame(step); };
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || document.hidden) apply(); else { requestAnimationFrame(step); setTimeout(apply, 450); } }
-  function fit() { view = { x: 0, y: 0, w: W, h: H }; animate(); }
+  function render() { svgEl.setAttribute('viewBox', `${cur.x.toFixed(1)} ${cur.y.toFixed(1)} ${cur.w.toFixed(1)} ${cur.h.toFixed(1)}`); onView && onView(cur, tgt); }
+  function tick() {
+    raf = 0; let done = true;
+    for (const p of ['x', 'y', 'w', 'h']) { const d = tgt[p] - cur[p]; cur[p] += d * .2; if (Math.abs(d) > .4) done = false; }
+    if (done) cur = { ...tgt }; render(); if (!done) raf = requestAnimationFrame(tick);
+  }
+  function go(v, instant) {
+    tgt = clamp({ ...v });
+    if (instant || reduced() || document.hidden) { cancelAnimationFrame(raf); raf = 0; cur = { ...tgt }; render(); return; }
+    if (!raf) raf = requestAnimationFrame(tick);
+    clearTimeout(go.t); go.t = setTimeout(() => { if (raf) { cancelAnimationFrame(raf); raf = 0; cur = { ...tgt }; render(); } }, 1500);
+  }
+  function screenFrac(cx, cy) { const r = svgEl.getBoundingClientRect(); return [(cx - r.left) / r.width, (cy - r.top) / r.height]; }
+  function toSvg(cx, cy) { const [fx, fy] = screenFrac(cx, cy); return [cur.x + fx * cur.w, cur.y + fy * cur.h]; }
+  function zoomAt(f, cx, cy) {
+    const [fx, fy] = screenFrac(cx, cy), px = tgt.x + fx * tgt.w, py = tgt.y + fy * tgt.h, a = aspect();
+    const nw = tgt.w * f; go({ x: px - fx * nw, y: py - fy * nw * a, w: nw });
+  }
+  // fit a map box into the part of the screen not covered by the floating UI (top panels, bottom legend)
+  function insets() {
+    const r = svgEl.getBoundingClientRect(), ui = document.querySelector('.map-ui'), lg = document.querySelector('.map-legend');
+    const top = ui ? Math.max(0, ui.getBoundingClientRect().bottom - r.top + 8) : 0;
+    const bot = lg && lg.offsetParent ? Math.max(0, r.bottom - lg.getBoundingClientRect().top + 8) : 0;
+    return { r, top: Math.min(top, r.height * .45), bot: Math.min(bot, r.height * .2) };
+  }
+  function fitBox(x, y, w, h, pad = 40) {
+    const { r, top, bot } = insets(); x -= pad; y -= pad; w += pad * 2; h += pad * 2;
+    const free = Math.max(80, r.height - top - bot);
+    const vw = Math.max(w, h * r.width / free), sc = vw / r.width;
+    return { x: x + w / 2 - vw / 2, y: y + h / 2 - (top + free / 2) * sc, w: vw };
+  }
+  function zoomTo(x, y, w) { go({ x: x - w / 2, y: y - w * aspect() / 2, w }); }
+  function fit() { go({ x: 0, y: 0, w: Math.max(W, H / aspect()) }); }
+  function zoneRect(id) { const r = ZR[id]; if (id !== 'palace') return r; const y0 = r.y - 110; return { x: Math.min(r.x, COURT.x) - 30, y: y0, w: r.w + 60, h: COURT.y + COURT.h - y0 + 10 }; }
+  function zoneAt(x, y) { for (const id in ZR) { const r = zoneRect(id); if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return id; } return null; }
+  function zoomZone(id) { const r = zoneRect(id); go(fitBox(r.x, r.y, r.w, r.h, 30)); }
+  function zoomCage(id) { const c = CAGES.find(c => c.id === id); if (!c) return; const r = zoneRect(c.zone.id); const b = fitBox(r.x, r.y, r.w, r.h, 30); const v = fitBox(c.x, c.y, c.w, c.h, 160); go(v.w < b.w ? b : v); }
+  const isOverview = () => tgt.w > OVERVIEW_W;
 
   function initInteract(svg, handlers) {
     svgEl = svg;
     const pts = new Map(); let drag = null, moved = 0, pinch = null;
-    svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * .0015), e.clientX, e.clientY); }, { passive: false });
+    svg.addEventListener('wheel', e => {
+      e.preventDefault();
+      const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+      zoomAt(Math.min(1.3, Math.max(.77, Math.exp(dy * .0013))), e.clientX, e.clientY);
+    }, { passive: false });
     svg.addEventListener('pointerdown', e => {
       pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0;
-      if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y };
-      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), w: view.w }; drag = null; }
+      if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, v: { ...cur } };
+      if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), v: { ...cur } }; drag = null; }
     });
     svg.addEventListener('pointermove', e => {
       if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
-      if (pinch && pts.size === 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); const f = (pinch.w * pinch.d / d) / view.w; zoomAt(f, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); moved = 99; return; }
-      if (!drag) return; const r = svg.getBoundingClientRect(); const sc = Math.max(view.w / r.width, view.h / r.height);
+      if (pinch && pts.size === 2) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); moved = 99;
+        const [fx, fy] = screenFrac((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), v = pinch.v, px = v.x + fx * v.w, py = v.y + fy * v.h;
+        const nw = v.w * pinch.d / d; go({ x: px - fx * nw, y: py - fy * nw * aspect(), w: nw }, true); return;
+      }
+      if (!drag) return; const r = svg.getBoundingClientRect(), sc = drag.v.w / r.width;
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y; moved = Math.max(moved, Math.hypot(dx, dy));
-      if (moved > 4) { if (!svg.classList.contains('dragging')) { try { svg.setPointerCapture(e.pointerId); } catch (_) {} } svg.classList.add('dragging'); view.x = drag.vx - dx * sc; view.y = drag.vy - dy * sc; clampView(); apply(); }
+      if (moved > 4) {
+        if (!svg.classList.contains('dragging')) { try { svg.setPointerCapture(e.pointerId); } catch (_) {} }
+        svg.classList.add('dragging'); go({ x: drag.v.x - dx * sc, y: drag.v.y - dy * sc, w: drag.v.w }, true);
+      }
     });
     const end = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (!pts.size) { drag = null; svg.classList.remove('dragging'); } };
     svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
     svg.addEventListener('click', e => {
       if (moved > 4) { e.stopPropagation(); return; }
       const el = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+      const st = el.closest('.stop'); if (st) return handlers.stop(st.dataset.at);
+      if (isOverview()) { const [x, y] = toSvg(e.clientX, e.clientY); const z = zoneAt(x, y); if (z) zoomZone(z); return; }
       const t = el.closest('.tok'); if (t) return handlers.animal(t.dataset.s, e);
       const c = el.closest('.cage'); if (c) return handlers.cage(c.dataset.c);
       const z = el.closest('.zone-hit'); if (z) return handlers.zone(z.dataset.z);
-      const st = el.closest('.stop'); if (st) return handlers.stop(st.dataset.at);
     }, true);
-    svg.addEventListener('dblclick', e => { e.preventDefault(); zoomAt(.5, e.clientX, e.clientY); });
+    svg.addEventListener('dblclick', e => { e.preventDefault(); const [x, y] = toSvg(e.clientX, e.clientY); const z = zoneAt(x, y); if (isOverview() && z) zoomZone(z); else zoomAt(.7, e.clientX, e.clientY); });
+    window.addEventListener('resize', () => go(cur, true));
+    go({ x: 0, y: 0, w: Math.max(W, H / aspect()) }, true);
+  }
+
+  /* ---------- heater / cooler overlay ---------- */
+  function deviceLayer(lo, hi) {
+    let o = '';
+    CAGES.forEach(c => {
+      const p = window.Z.devicePlan(c, lo, hi); if (!p || !p.units) return;
+      const kinds = [p.heat && 'heat', p.cool && 'cool'].filter(Boolean);
+      const bx = c.x, by = c.y + c.roof + c.head, bw = c.w, bh = c.h - c.roof - c.head;
+      const n = p.units, cols = Math.max(1, Math.min(n, Math.round(bw / Math.max(90, bh)))), rows = Math.ceil(n / cols);
+      const R = Math.max(30, Math.min(bw / cols, bh / rows) * .62);
+      kinds.forEach((k, ki) => {
+        const col = k === 'heat' ? '#e0503c' : '#3c8ee0', g = k === 'heat' ? 'url(#heatG)' : 'url(#coolG)';
+        for (let i = 0; i < n; i++) {
+          const cx = bx + bw * ((i % cols) + .5) / cols + (kinds.length > 1 ? (ki ? R * .35 : -R * .35) : 0);
+          const cy = by + bh * (Math.floor(i / cols) + .5) / rows;
+          o += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${g}" stroke="${col}" stroke-width="2.5" stroke-dasharray="9 7" stroke-opacity=".85"/>`;
+          o += `<g transform="translate(${cx} ${cy})"><circle r="13" fill="${col}" stroke="#fff" stroke-width="2.5"/><text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="${FONT_CN}">${k === 'heat' ? '熱' : '冷'}</text></g>`;
+        }
+      });
+      // short ribbon on the cage's top edge; full details live in the drawer
+      kinds.forEach((k, ki) => {
+        const col = k === 'heat' ? '#c43a28' : '#2a73c0', t = `${k === 'heat' ? '熱' : '冷'} ×${n} · ${k === 'heat' ? p.heatTo : p.coolTo}°`;
+        const tw = 74, tx = c.x + c.w - 30 - tw / 2 - ki * (tw + 6), ty = c.y + c.roof - 9;
+        o += `<g transform="translate(${tx} ${ty})"><rect x="${-tw / 2}" y="-11" width="${tw}" height="21" rx="10.5" fill="${col}" stroke="#fff" stroke-width="2"/><text y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="${FONT_TH}">${t}</text></g>`;
+      });
+    });
+    return o;
+  }
+  function setDevices(on, lo, hi) {
+    const g = svgEl.querySelector('#L-devices'); if (!g) return;
+    g.style.display = on ? '' : 'none'; if (on) g.innerHTML = deviceLayer(lo, hi);
   }
 
   function cageCenter(id) { const c = CAGES.find(c => c.id === id); return c ? [c.x + c.w / 2, c.y + c.h / 2, c] : null; }
@@ -573,5 +662,7 @@
     return new Promise(r => cv.toBlob(r, 'image/png'));
   }
 
-  window.ZooMap = { build, initInteract, zoomTo, fit, zoomBy: f => { const r = svgEl.getBoundingClientRect(); zoomAt(f, r.left + r.width / 2, r.top + r.height / 2); }, cageCenter, STOP, exportPng, W, H, ZR, routeLayer, defs, RING, superellipse, smooth, ROUTE_WAY, LAKE };
+  window.ZooMap = { build, initInteract, zoomTo, fit, zoomBy: f => { const r = svgEl.getBoundingClientRect(); zoomAt(f, r.left + r.width / 2, r.top + r.height / 2); },
+    zoomZone, zoomCage, zoneRect, zoneAt, setDevices, setOnView: f => (onView = f), go, view: () => cur, isOverview,
+    cageCenter, STOP, exportPng, W, H, ZR, COURT, routeLayer, defs, RING, superellipse, smooth, ROUTE_WAY, LAKE };
 })();

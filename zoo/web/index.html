@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+Thai:wght@500;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 <header class="top">
@@ -39,18 +39,29 @@
         <button id="zOut" title="ซูมออก">－</button>
         <button id="zFit" title="ดูทั้งแผนที่">⤢</button>
       </div>
-      <div class="map-layers">
-        <label class="sel">เลเวล
-          <select id="lvFilter"><option value="0">ทุกเลเวล</option></select>
-        </label>
-        <label class="tg"><input type="checkbox" id="lyRoute"> เส้นทางชม</label>
-        <label class="tg"><input type="checkbox" id="lyTemp"> สีอุณหภูมิ</label>
-        <label class="tg"><input type="checkbox" id="lyOwned"> เฉพาะที่มีแล้ว</label>
-        <input type="search" id="mapSearch" placeholder="ค้นหาสัตว์บนแผนที่…">
-        <button class="btn-ghost" id="exportPng" title="บันทึกภาพแผนที่ 4000×2500">⬇ PNG</button>
-        <button class="btn-ghost" id="exportPost" title="ภาพสำหรับโพสต์ 1080×1350">⬇ โพสต์</button>
+      <div class="map-stack">
+        <div class="zone-bar" id="zoneBar" role="toolbar" aria-label="ไปที่โซน"></div>
+        <div class="map-layers">
+          <label class="sel">เลเวล
+            <select id="lvFilter"><option value="0">ทุกเลเวล</option></select>
+          </label>
+          <label class="tg"><input type="checkbox" id="lyRoute"> เส้นทางชม</label>
+          <label class="tg"><input type="checkbox" id="lyTemp"> สีอุณหภูมิ</label>
+          <label class="tg"><input type="checkbox" id="lyOwned"> เฉพาะที่มีแล้ว</label>
+          <input type="search" id="mapSearch" placeholder="ค้นหาสัตว์บนแผนที่…">
+          <button class="btn-ghost" id="exportPng" title="บันทึกภาพแผนที่ 4000×2500">⬇ PNG</button>
+          <button class="btn-ghost" id="exportPost" title="ภาพสำหรับโพสต์ 1080×1350">⬇ โพสต์</button>
+        </div>
+        <div class="map-layers dev-bar">
+          <label class="tg dev-tg"><input type="checkbox" id="lyDev"> <span class="dot heat"></span><span class="dot cool"></span> วางเครื่อง Heater / Cooler</label>
+          <label>อากาศแผนที่ ต่ำสุด <input type="number" id="mAmbLo" step="1"></label>
+          <label>สูงสุด <input type="number" id="mAmbHi" step="1"> °C</label>
+          <span class="dev-sum" id="devSum"></span>
+        </div>
       </div>
     </div>
+    <div class="map-hint" id="mapHint">คลิกโซนเพื่อซูมเข้าไปดู · ล้อเมาส์ = ซูม · ลาก = เลื่อน</div>
+    <div class="minimap" id="minimap" title="คลิก/ลากเพื่อย้ายมุมมอง"></div>
     <div class="map-legend" id="mapLegend"></div>
     <aside class="drawer" id="drawer" aria-hidden="true">
       <button class="drawer-x" id="drawerX" aria-label="ปิด">×</button>
@@ -171,11 +182,11 @@
 </div>
 <div class="tip" id="tip" hidden></div>
 
-<script src="data-animals.js?v=12"></script>
+<script src="data-animals.js?v=23"></script>
 <script src="data-img.js"></script>
-<script src="data-plan.js?v=12"></script>
-<script src="core.js?v=12"></script>
-<script src="map.js?v=12"></script>
-<script src="app.js?v=12"></script>
+<script src="data-plan.js?v=23"></script>
+<script src="core.js?v=23"></script>
+<script src="map.js?v=23"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>
