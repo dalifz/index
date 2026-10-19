@@ -148,34 +148,53 @@ function render(){
     + ' <span>เลยกำหนด <b class="d">' + late + '</b></span>'
     + ' <span>เสร็จแล้ว <b class="g">' + (TASKS.length - openCnt) + '</b></span>';
 
+  // game comes from the Notion Tags; a task tagged with 2 games shows under both
   var extra = [];
-  TASKS.forEach(function(t){ if (GAMES.indexOf(t.game) < 0 && extra.indexOf(t.game) < 0) extra.push(t.game); });
+  TASKS.forEach(function(t){ gamesOf(t).forEach(function(g){
+    if (GAMES.indexOf(g) < 0 && extra.indexOf(g) < 0) extra.push(g); }); });
   var all = GAMES.concat(extra.sort());
+  if (filter !== '*' && all.indexOf(filter) < 0) filter = '*';
   var chips = '<button class="chip" data-g="*" aria-pressed="' + (filter === '*') + '">ทั้งหมด ('
             + TASKS.length + ')</button>';
   all.forEach(function(g){
-    var n = TASKS.filter(function(t){ return t.game === g; }).length;
+    var n = inGame(g).length;
     chips += '<button class="chip" data-g="' + esc(g) + '" aria-pressed="' + (filter === g) + '"'
           + (n ? '' : ' disabled') + '>' + esc(g) + ' (' + n + ')</button>';
   });
   $('chips').innerHTML = chips;
 
-  var shown = TASKS.filter(function(t){ return filter === '*' || t.game === filter; });
-  var html = '', last = null;
-  shown.forEach(function(t){
-    if (t.game !== last){
-      last = t.game;
-      var n = shown.filter(function(x){ return x.game === t.game; }).length;
-      html += '<h2>' + esc(t.game) + ' · ' + n + ' งาน</h2>';
-    }
-    html += '<article class="card r' + t.rank + (t.doneBy ? ' done' : '') + '">'
+  var html = '';
+  (filter === '*' ? all : [filter]).forEach(function(g){
+    var list = inGame(g);
+    if (!list.length) return;
+    html += '<h2>' + esc(g) + ' · ' + list.length + ' งาน</h2>';
+    list.forEach(function(t){ html += card(t); });
+  });
+  $('list').innerHTML = html || '<div class="empty">ไม่มีงานที่ต้องส่งในช่วงนี้</div>';
+  $('foot').textContent = 'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})
+    + ' · หน้านี้รีเฟรชเองทุก 2 นาที';
+
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(b){
+    b.onclick = function(){ filter = b.dataset.g; render(); };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.card input'), function(c){
+    c.onchange = function(){ tick(c.dataset.id, c.checked, c); };
+  });
+}
+
+function gamesOf(t){ return t.games && t.games.length ? t.games : [t.game || 'OTHER']; }
+function inGame(g){ return TASKS.filter(function(t){ return gamesOf(t).indexOf(g) >= 0; }); }
+
+function card(t){
+    var others = gamesOf(t).length > 1 ? ' <span class="tag t-day">' + esc(gamesOf(t).join(' + ')) + '</span>' : '';
+    return '<article class="card r' + t.rank + (t.doneBy ? ' done' : '') + '">'
       + '<input type="checkbox" data-id="' + esc(t.id) + '"' + (t.doneBy ? ' checked' : '')
       + ' aria-label="ทำเสร็จแล้ว">'
       + '<div class="body">'
       + '<div class="title"><a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.title) + '</a>'
       + (t.due ? ' <span class="due">[Duedate ' + esc(t.due) + ']</span>' : '')
       + (t.isNew && !t.doneBy ? ' <span class="tag t-new">NEW</span>' : '') + '</div>'
-      + '<div class="meta">' + dayTag(t)
+      + '<div class="meta">' + dayTag(t) + others
       + (t.pri ? '<span class="tag ' + PRI[t.rank] + '">' + esc(t.pri) + '</span>' : '')
       + '<span>จาก <b style="color:var(--fg)">' + esc(t.by || 'ไม่ระบุ') + '</b></span>'
       + (t.who ? '<span>ผู้รับผิดชอบ ' + esc(t.who) + '</span>' : '')
@@ -190,17 +209,6 @@ function render(){
       + (t.doneBy ? '<div class="done-note">เสร็จแล้วโดย ' + esc(t.doneBy)
                   + (t.doneAt ? ' · ' + esc(t.doneAt) : '') + '</div>' : '')
       + '</div></article>';
-  });
-  $('list').innerHTML = html || '<div class="empty">ไม่มีงานที่ต้องส่งในช่วงนี้</div>';
-  $('foot').textContent = 'อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})
-    + ' · หน้านี้รีเฟรชเองทุก 2 นาที';
-
-  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(b){
-    b.onclick = function(){ filter = b.dataset.g; render(); };
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.card input'), function(c){
-    c.onchange = function(){ tick(c.dataset.id, c.checked, c); };
-  });
 }
 
 function tick(id, done, el){
