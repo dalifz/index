@@ -45,6 +45,12 @@ h1{margin:0;font-size:clamp(20px,2.4vw,26px);font-weight:700;letter-spacing:-.01
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--fg)}
 label{font-size:14px;color:var(--muted)}
+.sync{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:14px;font-weight:600;
+      padding:7px 14px;border:1px solid var(--brand);border-radius:9px;background:var(--surface);color:var(--brand);cursor:pointer;transition:.15s}
+.sync:hover:not(:disabled){background:var(--brand);color:#fff}
+.sync:disabled{opacity:.6;cursor:progress}
+.sync.busy svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .chip{font:inherit;font-size:13px;padding:6px 13px;border:1px solid var(--line);background:var(--surface);
       color:var(--fg);border-radius:999px;cursor:pointer;transition:.15s}
@@ -98,6 +104,10 @@ footer{margin-top:28px;color:var(--muted);font-size:12.5px;text-align:center}
       <label for="me">ฉันคือ</label>
       <select id="me"><option value="">— เลือกชื่อ —</option></select>
       <span id="hint" style="font-size:13px;color:var(--muted)">เลือกครั้งเดียว ระบบจำไว้ให้</span>
+      <button id="sync" class="sync" type="button" title="ดึงงานล่าสุดจาก Notion ลงชีตเดี๋ยวนี้">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M20 11a8 8 0 0 0-14.3-4.9L4 8m0-4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16m0 4v-4h-4"/></svg>
+        <span>Refresh</span>
+      </button>
     </div>
     <div class="chips" id="chips"></div>
   </div>
@@ -244,6 +254,23 @@ function load(first){
     $('list').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้ ลองรีเฟรชหน้าอีกครั้ง</div>';
   });
 }
+
+// ปุ่ม Refresh = สั่ง Apps Script ดึงจาก Notion ลงชีตเดี๋ยวนี้ (เหมือนกดรัน syncNotion) แล้วโหลดรายการใหม่
+$('sync').onclick = function(){
+  var b = $('sync'), label = b.querySelector('span');
+  b.disabled = true; b.classList.add('busy'); label.textContent = 'กำลังดึงจาก Notion…';
+  api({ api:'sync' })
+    .then(function(d){
+      if (!d.ok){ toast(d.error || 'ดึงข้อมูลไม่สำเร็จ'); return; }
+      if (d.tasks){ TASKS = d.tasks; if (d.today) TODAY = d.today; render(); }
+      if (d.synced) toast('อัปเดตจาก Notion แล้ว');
+      else if (d.busy) toast('มีคนกำลังดึงอยู่ แสดงข้อมูลล่าสุดให้แล้ว');
+      else if (d.wait) toast('เพิ่งดึงไปเมื่อสักครู่ ลองใหม่ใน ' + d.wait + ' วินาที');
+      else toast('โหลดข้อมูลล่าสุดแล้ว');      // Apps Script ยังเป็นเวอร์ชันเก่า
+    })
+    .catch(function(){ toast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง'); })
+    .then(function(){ b.disabled = false; b.classList.remove('busy'); label.textContent = 'Refresh'; });
+};
 
 load(true);
 setInterval(function(){ load(false); }, 120000);
