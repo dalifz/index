@@ -28,6 +28,14 @@
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .title{font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--rev);}
   .upd{font-size:45px;font-weight:700;color:var(--rev);}
+  /* total of 4 servers (baht), sits in the header so the chart keeps its height */
+  .upd{white-space:nowrap;flex:0 0 auto;}
+  .total{margin-right:auto;margin-left:14px;padding-left:12px;border-left:1px solid var(--border);
+    min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;line-height:1.1;}
+  .total .tl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.4px;white-space:nowrap;}
+  .total .tm{font-size:11px;font-weight:700;color:var(--sub);white-space:nowrap;}
+  .total .tm b{color:var(--txt);}
+  .total .tv{font-size:clamp(18px,3.8vw,30px);font-weight:800;color:var(--txt);letter-spacing:-.5px;white-space:nowrap;}
   /* 2 x 2 number grid */
   .nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
   .col{background:rgba(255,255,255,.025);border-radius:13px;padding:8px 14px;
@@ -72,6 +80,11 @@
   <div class="card">
     <div class="top">
       <div class="title">Revenue</div>
+      <div class="total">
+        <div class="tl">Total</div>
+        <div class="tv" id="tot-today">—</div>
+        <div class="tm">เดือนนี้ <b id="tot-mtd">—</b></div>
+      </div>
       <div class="upd" id="upd"></div>
     </div>
 
@@ -216,6 +229,9 @@ function render(d){
   document.getElementById("msea-today").textContent = fmtB(today(mseaUsdM)*CONFIG.RATE);
   document.getElementById("msea-today-usd").textContent = "= " + fmtUsd(today(mseaUsdM));
   document.getElementById("msea-mtd").textContent  = fmtB(sum(mseaBM)) + "  (" + fmtUsd(sum(mseaUsdM)) + ")";
+  // Total (all 4, baht)
+  document.getElementById("tot-today").textContent = fmtB(today(thM) + today(seaBM) + today(mthM) + today(mseaBM));
+  document.getElementById("tot-mtd").textContent   = fmtB(sum(thM) + sum(seaBM) + sum(mthM) + sum(mseaBM));
 
   if(d.updatedAt){
     const dt=new Date(d.updatedAt);
