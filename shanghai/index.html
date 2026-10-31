@@ -81,7 +81,7 @@
   .ck.done{border-color:#CFE3D6}
   .chead{display:flex;align-items:center;gap:12px;padding:14px;min-height:52px;cursor:pointer;user-select:none}
   .cnum{font-size:11px;font-weight:600;color:var(--muted);width:18px;flex-shrink:0;font-variant-numeric:tabular-nums}
-  .cemoji{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);border-radius:11px;flex-shrink:0}
+  .cemoji{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);border-radius:11px;flex-shrink:0;font-size:18px}
   .cemoji .i{width:18px;height:18px}
   .ck.done .cemoji{background:var(--done-soft);color:var(--done)}.ctitle{flex:1;font-weight:600}
   .ck.done .ctitle{opacity:.55}
@@ -213,6 +213,164 @@
 
   .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:14px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.2);text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .zh{color:#FFD3DF}
+
+  /* ---- v2: match Tiara's mockup ---- */
+  :root{--bg:#FBF4F1;--line:#F2E3E3;--accent:#E8578A;--pink-grad:linear-gradient(135deg,#EE84A9 0%,#E2638F 55%,#D9578A 100%)}
+  body{background:#F1E7E3}
+  .hero{min-height:318px;margin:-16px -16px 10px;padding:20px 16px 18px;background:linear-gradient(180deg,rgba(251,244,241,0) 72%,var(--bg) 100%),linear-gradient(90deg,rgba(251,244,241,.55) 0%,rgba(251,244,241,0) 38%),url('assets/hero-bg.webp') right -64px top 0/auto 100% no-repeat;overflow:hidden}
+  .hero::before{inset:0;height:auto;background:var(--cloud) left -30px top 150px/110px 55px no-repeat;opacity:.10}
+  .hero-art{display:none}
+  .hero .kicker{font-size:12px;letter-spacing:.06em}
+  .hero h1{font-size:28px;line-height:38px;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+  .hero .sub{color:#7E6A6F;font-size:15px}
+  .seal{width:24px;height:44px;flex-direction:column;writing-mode:horizontal-tb;gap:1px;font-size:13px;line-height:15px;border-radius:4px;background:#FFF6F4;margin-left:10px;transform:none;padding-top:1px}
+  .count-box{display:inline-flex;flex-direction:column;align-items:center;margin-top:26px;background:rgba(255,232,240,.82);border:1px solid #F7C9D8;border-radius:20px;padding:12px 18px 10px;box-shadow:0 6px 18px rgba(232,87,138,.10)}
+  .count{font-size:30px;line-height:38px}
+  .count-sub{font-size:15px;color:#6F5A60}
+  .count-plane{color:var(--accent);opacity:.75;margin-top:4px;display:flex}.count-plane .i{width:20px;height:20px}
+  .today{background:var(--pink-grad);border:none;color:#fff;box-shadow:0 10px 24px rgba(217,87,138,.28)}
+  .today::after{right:12px;bottom:auto;top:12px;width:78px;height:72px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 110' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M60 6v10M22 34l38-18 38 18M30 34v8h60v-8M16 58l44-16 44 16M26 58v9h68v-9M10 84l50-17 50 17M22 84v20h76V84M52 104V90h16v14'/%3E%3Cpath d='M40 42v16M80 42v16M36 67v17M84 67v17'/%3E%3C/svg%3E") center/contain no-repeat;opacity:.22}
+  .today::before{content:'';position:absolute;right:-8px;bottom:-6px;width:120px;height:60px;background:var(--cloud) center/contain no-repeat;filter:brightness(0) invert(1);opacity:.25}
+  .today .dot{display:none}
+  .today .lbl{color:#fff;opacity:.92;font-size:13px}
+  .today h2{font-size:19px;line-height:27px;padding-right:40px;color:#fff;align-items:flex-start}
+  .today h2 .em{font-size:20px;line-height:28px}
+  .today .sum{color:rgba(255,255,255,.88);font-size:13px}
+  .today .view-btn{background:#fff;border:none;color:var(--accent);font-weight:700;padding:8px 16px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .card{border-radius:18px;padding:13px 16px;margin-bottom:10px}
+  h3{font-size:17px}
+  h3 .em{font-size:18px;line-height:1}
+  .flight{padding:6px 0}
+  .flight .leg,.flight .mid{position:relative}
+  .flight .mid{border-left:1px dashed var(--line);padding-left:10px}
+  .flight .code{font-size:19px}
+  .hotel-row{display:flex;gap:12px;align-items:center;cursor:pointer}
+  .hotel-row img{width:96px;height:66px;object-fit:cover;border-radius:10px;flex-shrink:0}
+  .hotel-row .hn{font-weight:700;font-size:15px}
+  .hotel-row .hl{font-size:13px;color:#7E6A6F;display:flex;gap:6px;align-items:center;margin-top:2px}
+  .hotel-row .chev{margin-left:auto;color:var(--accent)}
+  .hotel-more{display:none;margin-top:10px}.hotel-open .hotel-more{display:block}
+  .hotel-open .hotel-row .chev{transform:rotate(90deg)}
+  .ck-home{display:flex;align-items:center;gap:12px}
+  .ck-home .bar{flex:1;margin:0}
+  /* plan */
+  #v-plan{position:relative}
+  #v-plan::before{content:'';position:absolute;right:10px;top:4px;width:84px;height:76px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 110' fill='none' stroke='%23E9A3BA' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M60 6v10M22 34l38-18 38 18M30 34v8h60v-8M16 58l44-16 44 16M26 58v9h68v-9M10 84l50-17 50 17M22 84v20h76V84M52 104V90h16v14'/%3E%3Cpath d='M40 42v16M80 42v16M36 67v17M84 67v17'/%3E%3C/svg%3E") center/contain no-repeat;opacity:.38;pointer-events:none}
+  #v-plan::after{content:'';position:absolute;right:96px;top:14px;width:90px;height:45px;background:var(--cloud) center/contain no-repeat;opacity:.12;pointer-events:none}
+  .plan-hint{font-size:13px;margin:2px 0 12px;padding-right:0}
+  #v-plan h1{position:relative}
+  .dtab{height:44px;min-width:60px;font-size:13px;border-radius:12px}
+  .dayhero{aspect-ratio:3.3/1;object-fit:cover;object-position:50% 0;border-radius:16px;border:1.5px solid #fff;box-shadow:0 6px 18px rgba(232,87,138,.14),0 0 0 1px var(--line)}
+  .dayhero-cap{padding:4px 8px;font-size:10px;right:8px;bottom:8px}
+  .dayhead h2{font-size:20px;line-height:28px}
+  .dayhead .rt{font-size:15px;color:#B9788F;font-weight:600;margin-top:0}
+  .tl{padding-left:18px}
+  .tl::before{left:4px;background:#F4C2D2}
+  .slot{margin-bottom:6px}
+  .slot::before{left:-18px;top:15px;width:9px;height:9px;box-shadow:0 0 0 2.5px var(--bg)}
+  .slot.metro::before{background:var(--accent)}
+  .shead{padding:8px 12px;min-height:40px;border-radius:12px;gap:10px}
+  .stime{font-size:12.5px;min-width:44px}
+  .sicon{width:22px;font-size:17px;line-height:1}
+  .slabel{font-size:14px;font-weight:600;overflow:hidden;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}
+  .slot.hl .slabel,.slot.cut .slabel{white-space:normal}
+  .slabel .pl{font-size:11px;font-weight:500;color:var(--muted);margin-left:4px}
+  .scopy{display:flex;color:#C9B4BA;padding:2px;margin-left:2px}.scopy .i{width:16px;height:16px}
+  .scopy.ok{color:var(--done)}
+  .lchip{height:20px;font-size:11.5px}
+  .nav button.on .i{fill:rgba(232,87,138,.14)}
+
+  /* ---- v3: Tiara strict QA fixes (vertical rhythm / density) ---- */
+  :root{--nav-h:56px}
+  .pad{padding:12px}
+  .hero{height:286px;min-height:0;margin:-12px -12px 10px;padding:22px 14px 0;background:linear-gradient(180deg,rgba(251,244,241,0) 74%,var(--bg) 100%),linear-gradient(90deg,rgba(251,244,241,.6) 0%,rgba(251,244,241,0) 40%),url('assets/hero-bg.webp') right -52px top 0/auto 100% no-repeat}
+  .hero h1{font-size:27px;line-height:36px}
+  .count-box{position:absolute;left:14px;bottom:12px;width:158px;margin:0;padding:10px 10px 8px}
+  .count{font-size:28px;line-height:34px}
+  .count-sub{font-size:14px}
+  .today{background:linear-gradient(135deg,#DF3F82 0%,#ED6C94 100%);padding:14px 16px}
+  .today .view-btn{min-width:112px;height:34px;justify-content:center;padding:0 16px;border-radius:18px}
+  .card{padding:10px 12px;margin-bottom:8px}
+  .flight{padding:3px 0;min-height:48px}
+  .flight .code{font-size:17px;line-height:22px}.flight .city{font-size:12px;line-height:16px}
+  .between[style*="margin-bottom:6px"]{margin-bottom:2px!important}
+  .hotel-row img{width:92px;height:62px}
+  .nav button{font-size:10.5px;gap:2px}.nav .i{width:21px;height:21px}
+  /* plan */
+  #v-plan::before{width:82px;height:74px;right:0;top:8px;opacity:.18}
+  #v-plan::after{opacity:.08}
+  .plan-hint{font-size:12px;line-height:1.35;color:#A88991;padding-right:8px;margin-bottom:10px}
+  .days{gap:6px;margin:0 -12px;padding:2px 12px 12px}
+  .dtab{flex:0 0 56px;min-width:0;height:44px;padding:0;font-size:12.5px}
+  .dtab small{font-size:10.5px}
+  .dayhero-wrap{margin-bottom:0}
+  .dayhero{height:130px;aspect-ratio:auto;object-position:50% 0}
+  .dayhero-cap{display:none}
+  .dayhead{margin-bottom:10px}.dayhead h2{margin-top:14px;margin-bottom:0;line-height:26px}
+  .dayhead .rt{font-size:14px;margin-bottom:2px}
+  .tl::before{width:2px;left:3px}
+  .slot{margin-bottom:4px}
+  .slot::before{width:7px;height:7px;left:-17px;top:16px}
+  .shead{min-height:38px;padding:6px 10px;gap:6px;border-radius:10px;box-shadow:0 1px 3px rgba(90,40,50,.08);border-color:#F0DFE0}
+  .stime{font-size:12px;min-width:46px}
+  .sicon{width:20px;font-size:16px}
+  .slabel{font-size:13px;line-height:1.2;white-space:nowrap;text-overflow:ellipsis;display:block}
+  .slabel .pl{font-size:10.5px;color:#9B7F86}
+  .scopy .i{width:15px;height:15px}.chev .i{width:14px;height:14px}
+  .lchip{height:18px;font-size:11px;padding:0 6px}
+
+  /* ---- v4: Tiara QA round 2 ---- */
+  :root{--bg:#FFF8F4;--ink:#2D2023;--line:#EFDDDA;--nav-h:50px}
+  .card{background:rgba(255,255,255,.92);border-color:#EFDDDA;box-shadow:0 2px 5px rgba(80,30,40,.05)}
+  .hero{background:linear-gradient(180deg,var(--bg) 10%,rgba(255,248,244,0) 26%,rgba(255,248,244,0) 74%,var(--bg) 100%),linear-gradient(90deg,rgba(255,248,244,.6) 0%,rgba(255,248,244,0) 40%),url('assets/hero-bg.webp') right -44px bottom 0/auto 88% no-repeat}
+  .count-plane{align-self:flex-start;margin-left:30px;color:#EE7CA5;opacity:1}
+  .today{background:linear-gradient(135deg,#DB3677 0%,#E94F87 52%,#F1769D 100%)}
+  .today::after{right:14px;top:24px}
+  .today::before{right:16px;bottom:12px;width:96px;height:48px}
+  .today h2{font-size:18px;line-height:26px}
+  .flight{display:grid;grid-template-columns:1fr 1fr 24px 1fr;align-items:center}
+  .flight .leg:last-child{justify-self:end;padding-right:6px}
+  #hotel-card{padding-block:10px}
+  .hotel-row{gap:14px}
+  .hotel-row img{width:30%;height:auto;aspect-ratio:134/73}
+  .nav button{color:#AA9699;padding-top:4px;gap:1px}
+  .dtab{height:40px;border-radius:12px;border-color:#EADCDA}
+  .dayhero{height:auto;aspect-ratio:443/159}
+  .dayhead h2{margin-top:12px}
+  .dayhead{margin-bottom:6px}
+  .shead{min-height:32px;padding:4px 10px}
+  .slot{margin-bottom:5px}
+  .slot::before{top:13px}
+  .stime{font-size:12.5px}
+  .slabel{font-size:13px;line-height:1.15}
+  .scopy{margin-left:0}
+
+  /* ---- v5: Tiara QA round 3 (home) ---- */
+  :root{--nav-h:52px}
+  .hero{height:274px;background:linear-gradient(180deg,var(--bg) 10%,rgba(255,248,244,0) 30%,rgba(255,248,244,0) 74%,var(--bg) 100%),linear-gradient(90deg,rgba(255,248,244,.6) 0%,rgba(255,248,244,0) 40%),url('assets/hero-bg.webp') right -20px bottom 0/auto 78% no-repeat}
+  .count-box{padding:8px 10px 6px;background:rgba(255,238,244,.88)}
+  .count{font-size:27px;line-height:32px}
+  #hotel-card{padding:10px 14px}
+  #hotel-card h3{margin-bottom:6px!important}
+  .hotel-row img{width:112px;height:62px;aspect-ratio:auto}
+  .hotel-row .hn{margin-bottom:1px}
+  .badge{padding:3px 14px}
+  .nav button{font-size:10px;line-height:12px}
+  .dtab{height:38px;border-radius:11px}
+  .dayhead h2{margin-top:8px}
+  .shead{border-color:rgba(220,190,190,.55)}
+
+  /* ---- v6: Tiara QA round 4 (hero full-width scenery) ---- */
+  .hero{height:262px;padding:22px 20px 0;background:linear-gradient(180deg,var(--bg) 6%,rgba(255,248,244,0) 24%,rgba(255,248,244,0) 76%,var(--bg) 100%),linear-gradient(90deg,rgba(255,248,244,.75) 0%,rgba(255,248,244,.35) 34%,rgba(255,248,244,0) 52%),url('assets/hero-bg.webp') 72% 0/cover no-repeat}
+  .count-box{top:150px;bottom:auto;left:18px}
+
+  /* ---- v7: polish after QA pass ---- */
+  #app{overflow-x:clip}
+  .hero h1{font-size:29px;line-height:38px;font-weight:800}
+  .count{font-size:30px;line-height:36px;font-weight:800}
+  .seal{height:40px;margin-left:8px}
+  .scopy{color:#B79AA2}.chev{color:#C4AEB4}
+  .dtab:not(.on){color:#8E777D}
 </style>
 </head>
 <body>
@@ -222,17 +380,16 @@
   <!-- HOME -->
   <section class="view on pad" id="v-home">
     <div class="hero">
-      <img class="hero-art" src="assets/hero.webp" alt="ฉันกับแม่">
-      <div class="kicker">Shanghai with Mom</div>
-      <h1>เซี่ยงไฮ้กับแม่<span class="seal">上海</span></h1>
+            <div class="kicker">Shanghai with Mom</div>
+      <h1>เซี่ยงไฮ้กับแม่<span class="seal"><span>上</span><span>海</span></span></h1>
       <div class="sub">3–8 ธันวาคม 2026 · 2 คน</div>
-      <div class="count-box"><span class="count" id="countdown">–</span><span class="count-sub" id="countdown-sub"></span></div>
+      <div class="count-box"><span class="count" id="countdown">–</span><span class="count-sub" id="countdown-sub"></span><span class="count-plane"><i data-i="plane"></i></span></div>
     </div>
 
     <div id="today-card"></div>
 
     <div class="card">
-      <div class="between" style="margin-bottom:6px"><h3><i data-i="plane"></i>เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
+      <div class="between" style="margin-bottom:6px"><h3><span class="em">✈️</span>เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
       <div class="flight">
         <div class="leg"><div class="code">BKK</div><div class="city">08:50</div></div>
         <div class="mid">9C7290<br>3 Dec</div><div class="arrow">→</div>
@@ -243,11 +400,18 @@
         <div class="mid">9C7283<br>8 Dec</div><div class="arrow">→</div>
         <div class="leg"><div class="code">BKK</div><div class="city">15:45</div></div>
       </div>
-      <div class="muted" style="font-size:.78rem;margin-top:6px">โหลดขาไป 20kg ทั้งคู่ · ขากลับ ฉัน 30kg / แม่ 20kg · ถือขึ้น 7kg (40×30×20)</div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-bottom:6px"><i data-i="bed"></i>โรงแรม</h3>
+    <div class="card" id="hotel-card">
+      <h3 style="margin-bottom:8px"><span class="em">🏨</span>โรงแรม</h3>
+      <div class="hotel-row" onclick="document.getElementById('hotel-card').classList.toggle('hotel-open')">
+        <img src="assets/hotel.webp" alt="Jinjiang Inn">
+        <div><div class="hn">Jinjiang Inn</div>
+          <div class="hl"><span>📍</span>People's Square · Huangpu</div>
+          <div class="hl"><span>🚇</span>大世界 Dashijie · Exit 5</div></div>
+        <span class="chev"><i data-i="chev"></i></span>
+      </div>
+      <div class="hotel-more"><div class="lattice"></div>
       <div style="font-weight:700">Jinjiang Inn (People's Square)</div>
       <div class="muted" style="font-size:.85rem">锦江之星 (上海人民广场淮海东路店) Jinjiang Inn (People's Square East Huaihai Rd)<br>云南南路293号 No. 293 South Yunnan Road · 黄浦区 Huangpu District</div>
       <div class="home-station">
@@ -256,11 +420,11 @@
           <span class="ldot" style="width:17px;height:17px;font-size:.66rem;background:var(--l14);vertical-align:middle">14</span> L8+L14</div>
         <div class="muted" style="font-size:13px">Exit 5 เดิน ~5 นาที · เปลี่ยนขบวนไป-กลับสนามบินที่ 人民广场 People's Square (1 สถานีจาก 大世界 Dashijie)</div>
       </div>
+      </div>
     </div>
 
     <div class="card" onclick="go('chk')" style="cursor:pointer">
-      <div class="between"><h3><i data-i="check"></i>เตรียมตัว</h3><span class="badge" id="home-ck">0/4</span></div>
-      <div class="bar"><div id="home-bar"></div></div>
+      <div class="between"><h3 style="white-space:nowrap"><span class="em">✅</span>เตรียมตัว</h3><div class="bar" style="flex:1;margin:0 12px"><div id="home-bar"></div></div><span class="badge" id="home-ck">0/4</span></div>
     </div>
   </section>
 
@@ -279,7 +443,7 @@
   <section class="view pad" id="v-plan">
     <div class="kicker">Day by day</div>
     <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
-    <div class="plan-hint"><span><i data-i="copy"></i>แตะชื่อสถานที่ = copy ภาษาจีนไปวางใน AMap · ปัดซ้าย-ขวาเปลี่ยนวัน</span><span><i data-i="pin"></i>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก แล้วเดินหาร้านเล็กเอา (ร้าน trendy บางร้าน AMap อาจไม่มี)</span></div>
+    <div class="plan-hint"><span>💡 แตะชื่อสถานที่เพื่อ copy ภาษาจีนไป AMap · ปัดซ้าย-ขวาเปลี่ยนวัน</span></div>
     <div class="days" id="days"></div>
     <div class="dayhead" id="dayhead"></div>
     <div class="tl" id="timeline"></div>
@@ -289,11 +453,11 @@
   <section class="view pad" id="v-info">
     <div class="kicker">Travel info</div>
     <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="users"></i>ผู้เดินทาง</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">👥</span>ผู้เดินทาง</h3>
       <div class="irow">1. <b>ฉัน</b></div>
       <div class="irow">2. <b>แม่</b></div>
       <div class="muted" style="font-size:.8rem;margin-top:6px">🏨 Jinjiang Inn · 1 Double Room · 2 เตียงเดี่ยว · 5 คืน · จ่ายครบแล้ว<br>📄 เลข passport / e-ticket / confirmation ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="metro"></i>สายรถไฟฟ้าที่ใช้</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🚇</span>สายรถไฟฟ้าที่ใช้</h3>
       <div class="legrow">
         <span class="leg-item"><span class="ldot big" style="background:#e4002b">1</span>Line 1</span>
         <span class="leg-item"><span class="ldot big" style="background:var(--l2)">2</span>Line 2</span>
@@ -306,11 +470,12 @@
         <span class="leg-item"><span class="ldot big" style="background:var(--l14)">14</span>Line 14</span>
       </div>
       <div class="muted" style="font-size:.82rem;margin-top:8px">🚄 ซูโจวเป็นคนละระบบ ใช้ Suzhou Line 1/2 ต้องซื้อตั๋วแยก ใช้บัตรเซี่ยงไฮ้ไม่ได้</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="route"></i>กฎการเดินทาง</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🧭</span>กฎการเดินทาง</h3>
       <div class="irow">1. <b>Metro 🚇</b> เป็นหลัก</div>
       <div class="irow">2. <b>เดิน 🚶</b> เมื่อใกล้ + เส้นทางง่าย</div>
-      <div class="irow">3. <b>Didi 🚕</b> เมื่อ: มีกระเป๋า / เปลี่ยนรถหลายต่อ / metro เข้าถึงยาก / ประหยัดเวลามาก</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="car"></i>Didi / Taxi — ประโยคที่ต้องใช้</h3>
+      <div class="irow">3. <b>Didi 🚕</b> เมื่อ: มีกระเป๋า / เปลี่ยนรถหลายต่อ / metro เข้าถึงยาก / ประหยัดเวลามาก</div>
+      <div class="irow">4. <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> แล้วเดินหาร้านเล็กเอา (ร้าน trendy บางร้าน AMap อาจไม่มี)</div></div>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🚕</span>Didi / Taxi — ประโยคที่ต้องใช้</h3>
       <p class="muted" style="font-size:.8rem;margin-bottom:8px">💡 แตะข้อความจีน = 📋 copy ไปโชว์คนขับได้เลย</p>
       <div class="irow"><b>เลขท้ายเบอร์</b> 尾号 4451 · <i>Wěihào 4451</i><br>อ่านจีน: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic"><i data-i="copy"></i></span></span> <i>sì sì wǔ yāo</i> → "ซื่อ ซื่อ อู่ เยา"<br><span class="muted" style="font-size:.8rem">⚠️ เลข 1 ในเบอร์โทร คนจีนอ่าน 幺 yāo ไม่ใช่ 一 yī</span></div>
       <div class="irow"><b>คนขับถาม "เลขท้ายอะไร?"</b> 尾号多少？ <i>Wěihào duōshǎo?</i><br>ตอบ: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic"><i data-i="copy"></i></span></span> หรือยื่นจอ DiDi ให้ดู</div>
@@ -318,19 +483,20 @@
       <div class="irow"><b>กลับโรงแรม</b><br><span class="cp" onclick="cpy(event,this)" data-zh="请送我去云南南路293号锦江之星"><span class="zh">请送我去云南南路293号锦江之星</span><span class="ic"><i data-i="copy"></i></span></span><br><i>Qǐng sòng wǒ qù Yúnnán Nán Lù 293 hào Jǐnjiāng Zhī Xīng</i><br>= พาไป Jinjiang Inn เลขที่ 293 South Yunnan Road</div>
       <div class="irow"><b>พูดจีนไม่ได้</b><br><span class="cp" onclick="cpy(event,this)" data-zh="我不会说中文，请看手机"><span class="zh">我不会说中文，请看手机</span><span class="ic"><i data-i="copy"></i></span></span><br><i>Wǒ bú huì shuō zhōngwén, qǐng kàn shǒujī</i> = ฉันพูดจีนไม่ได้ ดูมือถือนะ</div>
       <div class="amber">ก่อนขึ้นรถเช็ค 3 อย่าง: 1.ป้ายทะเบียน 2.ยี่ห้อ/สีรถ 3.หน้าคนขับ — เทียบกับในแอป DiDi · ⚠️ สนามบิน PVG มีคนมาทัก "taxi? taxi?" เยอะมาก อย่าตามไป รถที่จองจะรอตามจุดที่แอประบุเท่านั้น</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="train"></i>รถไฟ Suzhou (Day 3)</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🚄</span>รถไฟ Suzhou (Day 3)</h3>
       <div class="irow"><b>ไป · G7372</b> · 09:26–10:03<br>上海虹桥站 Shanghai Hongqiao → 苏州站 Suzhou</div>
       <div class="irow"><b>กลับ · D951</b> · 19:53–20:21<br>苏州站 Suzhou → 上海站 Shanghai Railway Station<br><span class="muted" style="font-size:.8rem">⚠️ ขากลับลง 上海站 Shanghai Railway Station ไม่ใช่หงเฉียว (ใกล้โรงแรมกว่า)</span></div>
       <div class="muted" style="font-size:.8rem;margin-top:4px">ชั้นสอง · 2 คน · จองล่วงหน้า Trip.com · 🎫 ตั๋วออกจริง 21 พ.ย. 2026 · เลข booking ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="phone"></i>eSIM</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">📱</span>eSIM</h3>
       <div class="irow"><b>ก่อนออกจากไทย:</b> ติดตั้ง China eSIM · <b>เก็บ AIS ไว้ ห้ามลบ</b> (AIS=เบอร์/OTP, China eSIM=เน็ต)</div>
       <div class="irow"><b>China eSIM:</b> Cellular Data → China eSIM · Allow Data Switching → OFF</div>
       <div class="irow"><b>AIS:</b> Turn On This Line → ON · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="passport"></i>China Arrival Card</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🛂</span>China Arrival Card</h3>
       <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
       <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
-    <div class="card"><h3 style="margin-bottom:8px"><i data-i="plane"></i>ขากลับ (8 Dec)</h3>
-      <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 Dashijie → 人民广场 People's Square เปลี่ยน L2 → 浦东国际机场 Pudong Airport · Didi = สำรองฉุกเฉินเท่านั้น)</div></div>
+    <div class="card"><h3 style="margin-bottom:8px"><span class="em">🛫</span>ขากลับ (8 Dec)</h3>
+      <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 Dashijie → 人民广场 People's Square เปลี่ยน L2 → 浦东国际机场 Pudong Airport · Didi = สำรองฉุกเฉินเท่านั้น)</div>
+      <div class="irow"><b>กระเป๋า</b> โหลดขาไป 20kg ทั้งคู่ · ขากลับ ฉัน 30kg / แม่ 20kg · ถือขึ้น 7kg (40×30×20)</div></div>
   </section>
 
   <nav class="nav">
@@ -409,8 +575,8 @@ const DAYS=[
    {t:'17:00',icon:'🏨',label:'Check-in',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'18:00',icon:'🍜',label:'Dinner',img:'assets/day1-food-map.png',places:[P('Lao Xing Long',''),P('Yang’s Fried Dumpling',''),P('Lai Lai','')]},
    {t:'19:00',icon:'🧋',label:'Tea',places:[P('HEYTEA','')]},
-   {t:'19:30',icon:'🛍️',label:'Shopping / Walk',places:[P('Nanjing Road','')]},
-   {t:'19:50',icon:'🌃',label:'Night View',places:[P('The Bund','')]},
+   {t:'19:30',icon:'🛍️',label:'Nanjing Road',places:[P('Nanjing Road','南京路步行街')]},
+   {t:'19:50',icon:'📸',label:'The Bund',places:[P('The Bund','外滩')]},
    {t:'21:00',icon:'🚶',label:'Return',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
  {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',cardTitle:'Wukang/Tai\'an → Anfu → Huaihai → Xintiandi',summary:'Wukang/Tai\'an (early photos + Grayfleece) → Anfu → HAUS NOWHERE → Xintiandi',title:'Day 2 — Dec 4 · Wukang/Tai\'an (early photos + Grayfleece) → Anfu → Huaihai → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → Xintiandi',
@@ -534,12 +700,13 @@ function renderToday(){
   document.getElementById('countdown').textContent=
     info.state==='before'?('อีก '+info.days+' วัน'):(info.state==='today'?'กำลังเที่ยวอยู่':'จบทริปแล้ว');
   document.getElementById('countdown-sub').textContent=info.state==='before'?'จนถึงวันเดินทาง':(info.state==='today'?'เที่ยวให้สนุกนะ':'ขอบคุณที่ไปด้วยกัน');
-  const lbl=info.state==='today'?('TODAY · '+d.date):(info.state==='before'?('เริ่มทริป · '+d.date):('วันสุดท้าย · '+d.date));
+  const thd=d.date.replace(/Dec (\d+)/,'$1 ธ.ค.');
+  const lbl=info.state==='today'?('วันนี้ · '+thd):(info.state==='before'?('เริ่มทริป · '+thd):('วันสุดท้าย · '+thd));
   document.getElementById('today-card').innerHTML=
     `<div class="today" onclick="go('plan');setDay('${d.id}')">
        <span class="dot"></span>
        <div class="lbl">${lbl}</div>
-       <h2>${emoIc(d.emoji)}<span class="t2">${d.cardTitle||d.tab}</span></h2>
+       <h2><span class="em">${d.emoji}</span><span class="t2">${(d.cardTitle||d.tab).replace(/ → ([^→]+)$/,' →<br>$1')}</span></h2>
        <div class="sum">${d.summary||''}</div>
        <span class="view-btn">ดู ${d.tab}${ic('arrow')}</span>
      </div>`;
@@ -552,7 +719,7 @@ function renderChk(){
     const done=c.tasks.filter((_,i)=>state[c.id+'-'+i]).length,full=done===c.tasks.length;
     const tasks=c.tasks.map((t,i)=>`<div class="task ${state[c.id+'-'+i]?'on':''}" onclick="tgTask(event,'${c.id}',${i})"><span class="box">${CHK}</span><span class="label">${t}</span></div>`).join('');
     let act='';if(c.action)act=c.action.view?`<button class="cta" onclick="go('${c.action.view}')">${c.action.label}</button>`:`<a class="cta" href="${c.action.href}" target="_blank" rel="noopener">${c.action.label}</a>`;
-    return `<div class="ck ${full?'done':''}" id="ck-${c.id}"><div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji">${emoIc(c.emoji)}</span><span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">${ic('chev')}</span></div><div class="cbody">${tasks}${act}</div></div>`;
+    return `<div class="ck ${full?'done':''}" id="ck-${c.id}"><div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji em">${c.emoji}</span><span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">${ic('chev')}</span></div><div class="cbody">${tasks}${act}</div></div>`;
   }).join('');
   const dc=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length;
   document.getElementById('ck-count').textContent=dc+' / '+CARDS.length;
@@ -571,14 +738,14 @@ function renderDays(){
   document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
   const day=DAYS.find(d=>d.id===activeDay);
   const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}.png" loading="eager" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">${ic('zoom')}แตะดูเต็มจอ</span></div>`;
-  document.getElementById('dayhead').innerHTML=heroHTML+(day.title?`<h2>${day.title}</h2><div class="rt">${day.route||''}</div>`:`<h2>${day.tab} · ${day.date}</h2>`);
+  document.getElementById('dayhead').innerHTML=heroHTML+`<h2>${day.tab.replace('DAY','Day')} · ${day.date}</h2><div class="rt">${day.cardTitle||day.route||''}</div>`;
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
     const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
     const badge=s.hl?'<span class="hl-badge">ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">ตัดได้ · Plan B</span><br>':'';
     return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''}" id="slot-${i}">
-      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${emoIc(s.icon)}</span><span class="slabel">${badge}${lineChips(s.label)}</span><span class="chev">${ic('chev')}</span></div>
+      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${lineChips(s.label)}${plInline(s)}</span>${copyBtn(s)}<span class="chev">${ic('chev')}</span></div>
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
   if(_swipeDir){const cls=_swipeDir>0?'anim-l':'anim-r';[document.getElementById('dayhead'),tl].forEach(x=>{x.classList.remove('anim-l','anim-r');void x.offsetWidth;x.classList.add(cls);});_swipeDir=0;}
@@ -622,6 +789,10 @@ function trainCard(s){
     <div class="p-note" style="margin-top:6px">จองผ่าน Trip.com ล่วงหน้าได้เลย — ระบบเข้าคิวซื้อให้อัตโนมัติวันที่การรถไฟเปิดขาย ~20 พ.ย. (เปิดขายล่วงหน้า 15 วัน) · เติมเลขขบวน/เวลา/gate/ที่นั่งข้างบน — บันทึกอัตโนมัติ</div>
   </div>`;
 }
+/* row extras from the mockup: place names inline + quick copy */
+function plInline(s){if(s.metro||s.train||s.sz||!s.places||!s.places.length||!['food','cup'].includes(EMO[s.icon]))return '';const n=s.places.map(p=>p.en||p.zh).filter(x=>x&&!s.label.includes(x));return n.length?`<span class="pl">(${n.slice(0,3).join(' / ')})</span>`:'';}
+function copyBtn(s){if(!['metro','train','camera','city','moon','bag','pagoda','art','leaf'].includes(EMO[s.icon]))return '';const p=(s.places||[]).find(p=>p.zh);return p?`<span class="scopy" onclick="qcopy(event,this,'${p.zh.replace(/'/g,"\\'")}')">${ic('copy')}</span>`:'';}
+function qcopy(e,el,zh){e.stopPropagation();const ok=()=>{el.classList.add('ok');setTimeout(()=>el.classList.remove('ok'),1500);showToast(zh);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(ok).catch(()=>fb(zh,ok));else fb(zh,ok);}
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
 function bodyFor(s){
   let h=s.note?`<div class="p-note">${s.note}</div>`:'';
