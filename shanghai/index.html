@@ -4,109 +4,140 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Shanghai with Mom 🇨🇳</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Mali:wght@400;500;600;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* "Shanghai with Mom" — warm travel-journal minimal, subtle Chinese details (design: Tiara) */
   :root{
-    --bg:#fdf5f1; --card:#ffffff; --ink:#46393f; --muted:#b2929f; --line:#f4dfe8;
-    --accent:#e85a9b; --accent2:#ff9ec4; --accent-soft:#fce4ef; --done:#5aa17a; --done-soft:#e4f3ea;
-    --l2:#3fae4a; --l6:#b0338c; --l9:#ef8bb3; --l10:#5b9bd5; --l14:#8b6f4e;
-    --shadow:0 3px 14px rgba(232,90,155,.09); --nav-h:62px;
-    --font-cute:'Fredoka','Mali','Sarabun',sans-serif;
+    --bg:#FBF7F2; --surface:#ffffff; --ink:#332B2B; --muted:#9B858A; --line:#F1E5E5;
+    --accent:#E75B87; --accent2:#F4B7A7; --accent-soft:#FCEEF2; --tint:#FFF5F1;
+    --red:#C83A3A; --done:#5E9C76; --done-soft:#E6F2EA; --amber-bg:#FBF0DA; --amber-ink:#8A6414;
+    --l2:#3fae4a; --l6:#b0338c; --l9:#87c8ee; --l10:#c6afd4; --l14:#626020;
+    --shadow:0 8px 24px rgba(69,39,44,.08); --shadow-sm:0 1px 2px rgba(69,39,44,.05);
+    --nav-h:68px;
+    --font:-apple-system,BlinkMacSystemFont,"Sukhumvit Set","Noto Sans Thai","Leelawadee UI","Segoe UI","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+    /* faint auspicious-cloud motif */
+    --cloud:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60' fill='none' stroke='%23C83A3A' stroke-width='1.4'%3E%3Cpath d='M10 44c0-8 7-13 14-11 1-8 9-13 17-10 4-6 14-6 18 1 7-2 14 3 13 10 6 0 10 5 9 10H10z'/%3E%3Cpath d='M38 33c2-4 8-4 9 0M60 30c2-3 7-3 8 1'/%3E%3C/svg%3E");
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Mali','Sarabun','Segoe UI',system-ui,sans-serif;background:#f8ecf2;color:var(--ink);line-height:1.6;display:flex;justify-content:center}
-  h1,h2,h3,.kicker,.count,.badge,.dtab,.stime,.leg-item,.btn,.cta,.dayhero-cap{font-family:var(--font-cute)}
-  #app{width:100%;max-width:440px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:calc(var(--nav-h)+env(safe-area-inset-bottom))}
+  body{font-family:var(--font);background:#F3ECE4;color:var(--ink);line-height:1.55;font-size:15px;display:flex;justify-content:center;-webkit-font-smoothing:antialiased}
+  #app{width:100%;max-width:440px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px)}
   .pad{padding:16px}.status{height:env(safe-area-inset-top)}
-  a{color:inherit}h1{font-size:1.4rem}h2{font-size:1.15rem}h3{font-size:1rem}
+  a{color:inherit}
+  h1{font-size:23px;line-height:31px;font-weight:700;letter-spacing:-.01em}
+  h2{font-size:18px;line-height:26px;font-weight:700}
+  h3{font-size:16px;line-height:24px;font-weight:600;display:flex;align-items:center;gap:8px}
+  h3 .i{width:20px;height:20px;color:var(--accent)}
   .muted{color:var(--muted)}
-  .kicker{font-size:.76rem;font-weight:700;color:var(--accent);letter-spacing:.04em}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow);margin-bottom:13px}
+  .kicker{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
   .between{display:flex;justify-content:space-between;align-items:center}
-  .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+  .i{width:22px;height:22px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+  /* window-lattice divider */
+  .lattice{height:10px;margin:12px 0;background:
+    linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/10px 10px,
+    linear-gradient(var(--line) 1px,transparent 1px) 0 0/10px 10px;opacity:.9;
+    -webkit-mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+  .seal{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid var(--red);border-radius:5px;color:var(--red);font-size:12px;line-height:12px;font-weight:700;writing-mode:vertical-rl;letter-spacing:.05em;transform:rotate(-4deg);vertical-align:middle;margin-left:6px}
 
   /* hero */
-  .hero{background:linear-gradient(135deg,#ffe3f0,#fff0f6 55%,#e7f3ff);border:1px solid var(--line);border-radius:22px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden}
-  .hero .deco{position:absolute;right:-6px;bottom:-14px;font-size:4.6rem;opacity:.16}
-  .hero h1{font-weight:800;margin:4px 0 2px}
-  .count{font-size:1.7rem;font-weight:800;color:var(--accent)}
+  .hero{position:relative;min-height:212px;padding:2px 0 0;margin-bottom:10px}
+  .hero::before{content:'';position:absolute;inset:-16px -16px auto;height:150px;background:var(--cloud) right 6px top 4px/120px 60px no-repeat,var(--cloud) left -40px top 70px/90px 45px no-repeat;opacity:.07;pointer-events:none}
+  .hero h1{margin:4px 0 2px;display:flex;align-items:center}
+  .hero .sub{color:var(--muted);font-size:14px}
+  .hero-art{position:absolute;right:-16px;bottom:0;width:62%;max-width:250px;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 70% 64% at 56% 42%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 70% 64% at 56% 42%,#000 60%,transparent 100%)}
+  .count-box{position:relative;z-index:1;display:inline-block;margin-top:14px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:18px;padding:12px 16px;box-shadow:var(--shadow)}
+  .count{display:block;font-size:28px;line-height:36px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  .count-sub{font-size:13px;color:var(--muted)}
 
   /* TODAY card */
-  .today{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 10px 26px rgba(232,90,155,.34);cursor:pointer;position:relative;overflow:hidden}
-  .today .dot{position:absolute;top:16px;right:16px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.25);animation:pulse 1.8s infinite}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 5px rgba(255,255,255,.25)}50%{box-shadow:0 0 0 9px rgba(255,255,255,.05)}}
-  .today .lbl{font-size:.74rem;font-weight:800;letter-spacing:.08em;opacity:.9}
-  .today h2{font-size:1.35rem;font-weight:800;margin:5px 0 6px}
-  .today .sum{font-size:.9rem;opacity:.95;line-height:1.5}
-  .today .view-btn{display:inline-flex;align-items:center;gap:5px;margin-top:12px;background:rgba(255,255,255,.22);padding:8px 15px;border-radius:11px;font-weight:800;font-size:.9rem}
+  .today{position:relative;overflow:hidden;background:var(--tint);border:1px solid #F8E1E6;border-radius:20px;padding:15px 16px;margin-bottom:10px;cursor:pointer}
+  .today::after{content:'';position:absolute;right:-10px;bottom:-14px;width:130px;height:65px;background:var(--cloud) center/contain no-repeat;opacity:.08}
+  .today .dot{position:absolute;top:18px;right:18px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(231,91,135,.18);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(231,91,135,.18)}50%{box-shadow:0 0 0 8px rgba(231,91,135,.04)}}
+  .today .lbl{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.04em}
+  .today h2{margin:3px 0 3px;display:flex;align-items:flex-start;gap:8px;font-size:17px;line-height:1.35}
+  .today h2 .i{margin-top:2px}
+  .today .t2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .today h2 .i{color:var(--accent)}
+  .today .sum{font-size:13px;color:var(--muted);line-height:1.5}
+  .today .view-btn{display:inline-flex;align-items:center;gap:4px;margin-top:10px;background:var(--surface);border:1px solid #F6D9DF;color:var(--accent);padding:7px 14px;border-radius:99px;font-weight:600;font-size:13px}
+  .today .view-btn .i{width:16px;height:16px}
 
   /* flight */
   .flight{display:flex;align-items:center;gap:10px;padding:8px 0}
-  .flight .leg{flex:1;text-align:center}.flight .code{font-size:1.15rem;font-weight:800}
-  .flight .city{font-size:.75rem;color:var(--muted)}.flight .arrow{color:var(--accent);font-size:1.1rem}
-  .flight .mid{text-align:center;font-size:.72rem;color:var(--muted);min-width:58px}
+  .flight .leg{flex:1;text-align:center}.flight .code{font-size:18px;font-weight:700;letter-spacing:.02em}
+  .flight .city{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.flight .arrow{color:var(--accent);font-size:16px}
+  .flight .mid{text-align:center;font-size:11px;color:var(--muted);min-width:58px}
 
-  .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:.95rem;padding:13px;cursor:pointer;width:100%;text-decoration:none}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-family:inherit;font-weight:600;font-size:15px;padding:13px;cursor:pointer;width:100%;text-decoration:none}
   .btn-accent{background:var(--accent);color:#fff}.btn-soft{background:var(--accent-soft);color:var(--accent)}
-  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .bar{height:9px;background:#eaddcf;border-radius:99px;overflow:hidden;margin-top:8px}
-  .bar>div{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s}
+  .bar{height:6px;background:#F1E6E3;border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar>div{height:100%;width:0;border-radius:99px;background:var(--accent);transition:width .35s}
+  .home-station{margin-top:12px;background:var(--tint);border-radius:14px;padding:10px 12px}
+  .home-station .t{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.04em}
 
   /* checklist */
-  .ck{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
-  .ck.done{border-color:var(--done)}
-  .chead{display:flex;align-items:center;gap:12px;padding:15px;cursor:pointer;user-select:none}
-  .cnum{font-size:.7rem;font-weight:800;color:var(--muted);width:18px;flex-shrink:0}
-  .cemoji{font-size:1.4rem;width:33px;height:33px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);border-radius:10px;flex-shrink:0}
-  .ck.done .cemoji{background:var(--done-soft)}.ctitle{flex:1;font-weight:700}
-  .cbadge{font-size:.72rem;font-weight:700;color:var(--muted);background:#f3ece2;padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .ck{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+  .ck.done{border-color:#CFE3D6}
+  .chead{display:flex;align-items:center;gap:12px;padding:14px;min-height:52px;cursor:pointer;user-select:none}
+  .cnum{font-size:11px;font-weight:600;color:var(--muted);width:18px;flex-shrink:0;font-variant-numeric:tabular-nums}
+  .cemoji{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent);border-radius:11px;flex-shrink:0}
+  .cemoji .i{width:18px;height:18px}
+  .ck.done .cemoji{background:var(--done-soft);color:var(--done)}.ctitle{flex:1;font-weight:600}
+  .ck.done .ctitle{opacity:.55}
+  .cbadge{font-size:11px;font-weight:600;color:var(--muted);background:#F5EFEC;padding:3px 9px;border-radius:99px;white-space:nowrap}
   .ck.done .cbadge{background:var(--done-soft);color:var(--done)}
-  .chev{color:var(--muted);font-size:1.1rem;transition:transform .25s}.ck.open .chev,.slot.open .chev{transform:rotate(90deg)}
-  .cbody{display:none;padding:0 15px 14px}.ck.open .cbody{display:block}
-  .task{display:flex;align-items:flex-start;gap:11px;padding:10px 3px;border-top:1px dashed var(--line);cursor:pointer}
+  .chev{color:#CDBDC0;display:flex;transition:transform .25s}.chev .i{width:18px;height:18px}
+  .ck.open .chev,.slot.open .chev{transform:rotate(90deg)}
+  .cbody{display:none;padding:0 14px 14px}.ck.open .cbody{display:block}
+  .task{display:flex;align-items:flex-start;gap:11px;padding:10px 2px;border-top:1px solid #F4ECEA;cursor:pointer}
   .task:first-child{border-top:none}
-  .box{width:22px;height:22px;border:2px solid #d8cabb;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
-  .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .box{width:22px;height:22px;border:1.5px solid #D9C9CC;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;background:#fff}
+  .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
   .task.on .box{background:var(--done);border-color:var(--done)}.task.on .box svg{opacity:1}
-  .task .label{font-size:.94rem}.task.on .label{color:var(--muted);text-decoration:line-through}
-  .cta{display:inline-flex;align-items:center;gap:6px;margin-top:11px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.88rem;padding:10px 14px;border-radius:11px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
-  .done-banner{display:none;background:linear-gradient(135deg,#ffe3f0,#ffd6ec);border:1px solid var(--accent);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
-  .done-banner.show{display:block}.done-banner .big{font-size:2.2rem}.done-banner h2{color:var(--accent);margin:4px 0 2px}
+  .task .label{font-size:15px}.task.on .label{color:var(--muted);text-decoration:line-through;opacity:.8}
+  .cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:13px;padding:8px 14px;border-radius:99px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
+  .done-banner{display:none;background:var(--tint);border:1px solid #F6D9DF;border-radius:18px;padding:18px;text-align:center;margin-bottom:12px}
+  .done-banner.show{display:block}.done-banner .big{font-size:28px}.done-banner h2{color:var(--accent);margin:4px 0 2px}
 
   /* day tabs */
-  .days{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+  .days{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
   .days::-webkit-scrollbar{display:none}
-  .dtab{flex-shrink:0;background:#fff;border:1px solid var(--line);color:var(--muted);padding:9px 15px;border-radius:13px;font-weight:800;font-size:.85rem;cursor:pointer;text-align:center;line-height:1.15}
-  .dtab small{display:block;font-weight:600;font-size:.66rem;opacity:.8}
+  .dtab{flex-shrink:0;background:var(--surface);border:1px solid var(--line);color:var(--muted);height:48px;min-width:62px;padding:0 12px;border-radius:14px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;text-align:center;line-height:1.15}
+  .dtab small{display:block;font-weight:500;font-size:11px;opacity:.85}
   .dtab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .dayhead{margin:2px 2px 12px}.dayhead .rt{color:var(--muted);font-size:.85rem;margin-top:2px}
-  .dayhero{display:block;width:100%;border-radius:20px;margin:0 0 14px;cursor:zoom-in;border:2px solid #fff;box-shadow:0 6px 20px rgba(232,90,155,.18),0 0 0 1px var(--line);background:linear-gradient(135deg,#ffe3f0,#e7f3ff)}
+  .plan-hint{font-size:12px;color:var(--muted);margin:2px 0 12px;display:flex;flex-direction:column;gap:4px}
+  .plan-hint span{display:flex;gap:6px;align-items:flex-start}
+  .plan-hint .i{width:16px;height:16px;color:var(--accent);margin-top:2px}
+  .dayhead{margin:0 0 12px}.dayhead h2{margin-top:2px}.dayhead .rt{color:var(--muted);font-size:12px;margin-top:2px}
+  .dayhero{display:block;width:100%;border-radius:18px;margin:0 0 14px;cursor:zoom-in;background:#fff;box-shadow:var(--shadow)}
   .dayhero-wrap{position:relative;margin-bottom:14px}
   .dayhero-wrap .dayhero{margin-bottom:0}
-  .dayhero-cap{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.92);color:var(--accent);font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(232,90,155,.25);pointer-events:none}
+  .dayhero-cap{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.92);color:var(--accent);font-size:11px;font-weight:600;padding:5px 10px;border-radius:99px;box-shadow:var(--shadow-sm);pointer-events:none}
+  .dayhero-cap .i{width:14px;height:14px}
   @keyframes slideL{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
   @keyframes slideR{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
   .anim-l{animation:slideL .22s ease}.anim-r{animation:slideR .22s ease}
 
   /* slot timeline */
   .tl{position:relative;padding-left:20px}
-  .tl::before{content:'';position:absolute;left:6px;top:8px;bottom:12px;width:2px;background:var(--line)}
-  .slot{position:relative;margin-bottom:10px}
-  .slot::before{content:'';position:absolute;left:-17px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+  .tl::before{content:'';position:absolute;left:5px;top:10px;bottom:14px;width:2px;background:var(--line);border-radius:2px}
+  .slot{position:relative;margin-bottom:8px}
+  .slot::before{content:'';position:absolute;left:-19px;top:19px;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--bg)}
   .slot.metro::before{background:var(--muted)}
-  .shead{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 13px;box-shadow:var(--shadow);cursor:pointer}
+  .shead{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px;box-shadow:var(--shadow-sm);cursor:pointer;min-height:48px}
   .slot.open .shead{border-color:var(--accent)}
-  .sicon{font-size:1.25rem;width:20px;text-align:center;flex-shrink:0}
-  .stime{font-size:.76rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;min-width:46px;flex-shrink:0}
-  .slabel{flex:1;font-weight:700;font-size:.96rem}
-  .sbody{display:none;padding:12px 4px 4px}
+  .sicon{width:20px;display:flex;justify-content:center;color:#B07A86;flex-shrink:0}
+  .sicon .i{width:20px;height:20px}
+  .stime{font-size:13px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:50px;flex-shrink:0}
+  .slabel{flex:1;font-weight:600;font-size:14px;line-height:1.35}
+  .sbody{display:none;padding:10px 2px 4px}
   .slot.open .sbody{display:block;animation:fade .2s}
   @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
-  .p-note{color:var(--muted);font-size:.86rem;margin-bottom:6px}
-  .foldnote{margin-top:8px;border:1px solid var(--line,#e7ddd2);border-radius:12px;background:var(--card2,rgba(200,90,68,.05));overflow:hidden}
-  .foldnote>summary{cursor:pointer;list-style:none;padding:9px 12px;font-size:.86rem;font-weight:700;color:var(--accent,#c85a44);user-select:none}
+  .lchip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:700;margin:0 2px;vertical-align:1px;background:color-mix(in srgb,var(--c) 14%,#fff);color:color-mix(in srgb,var(--c) 80%,#000)}
+  .p-note{color:#7E6A6F;font-size:14px;margin-bottom:6px;line-height:1.6}
+  .foldnote{margin-top:8px;border:1px solid var(--line);border-radius:12px;background:var(--tint);overflow:hidden}
+  .foldnote>summary{cursor:pointer;list-style:none;padding:9px 12px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
   .foldnote>summary::-webkit-details-marker{display:none}
   .foldnote>summary::after{content:'⌄';float:right;transition:transform .2s}
   .foldnote[open]>summary::after{transform:rotate(180deg)}
@@ -114,72 +145,74 @@
   .foldnote .p-note{margin-bottom:0;line-height:1.65}
 
   /* copy chip */
-  .cp{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid transparent;border-radius:10px;padding:7px 11px;margin:4px 6px 0 0;cursor:pointer;font-size:.84rem;font-weight:600}
+  .cp{display:inline-flex;align-items:center;gap:6px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 12px;margin:4px 6px 0 0;cursor:pointer;font-size:13px;font-weight:500}
   .cp:active{border-color:var(--accent)}
-  .cp .zh{color:var(--ink);font-weight:800}.cp .ic{opacity:.65;font-size:.82rem}
+  .cp .zh{color:var(--ink);font-weight:700}
+  .cp .ic{display:flex;color:var(--accent)}.cp .ic .i{width:14px;height:14px}
   .cp.copied{background:var(--done-soft);color:var(--done);border-color:var(--done)}
   .cp.copied .zh{color:var(--done)}
 
-  /* METRO — hero */
-  .metro{background:#fff;border:1px solid var(--line);border-left:6px solid var(--mc,var(--muted));border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  /* METRO card */
+  .metro{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--mc,var(--muted));border-radius:16px;padding:14px}
   .m-sta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:3px 0}
-  .m-sta .name{font-weight:800;font-size:1.05rem}
-  .m-sta .name .zh{color:var(--muted);font-weight:700;margin-left:5px;font-size:.95rem}
-  .linepill{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1rem;margin:9px 0 3px}
-  .ldot{border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
-  .ldot.big{width:26px;height:26px;font-size:.9rem}
-  .m-dir{font-size:1.05rem;font-weight:800;padding:4px 0 4px 34px;line-height:1.3}
-  .m-dir .lead{color:var(--muted);font-size:.76rem;font-weight:700;display:block;letter-spacing:.03em}
+  .m-sta .name{font-weight:700;font-size:16px}
+  .m-sta .name .zh{color:var(--muted);font-weight:600;margin-left:5px;font-size:14px}
+  .linepill{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin:9px 0 3px}
+  .ldot{border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+  .ldot.big{width:24px;height:24px;font-size:12px}
+  .m-dir{font-size:15px;font-weight:700;padding:4px 0 4px 32px;line-height:1.3}
+  .m-dir .lead{color:var(--muted);font-size:11px;font-weight:600;display:block;letter-spacing:.03em}
   .m-dir .zh{margin-left:4px}
-  .m-arrow{color:var(--muted);padding:2px 0 2px 40px;font-size:1.1rem}
-  .m-change{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:.86rem;padding:7px 12px;border-radius:10px;margin:8px 0}
-  .m-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
-  .exit-big{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;font-weight:800;font-size:1rem;padding:9px 16px;border-radius:12px}
-  .exit-check{background:#fbe9c9;color:#a06a1f}
-  .mchip{font-size:.8rem;font-weight:700;background:#f3ece2;color:var(--ink);padding:6px 12px;border-radius:99px}
+  .m-arrow{color:var(--muted);padding:2px 0 2px 38px;font-size:16px}
+  .m-change{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:13px;padding:6px 12px;border-radius:99px;margin:8px 0}
+  .m-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding-top:11px;border-top:1px solid #F4ECEA}
+  .exit-big{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;font-weight:700;font-size:14px;padding:7px 14px;border-radius:99px}
+  .exit-check{background:var(--amber-bg);color:var(--amber-ink)}
+  .mchip{font-size:12px;font-weight:600;background:#F5EFEC;color:var(--ink);padding:5px 11px;border-radius:99px}
 
   .soon{text-align:center;color:var(--muted);padding:36px 12px}
   /* highlight (ห้ามพลาด) + cut (ตัดได้) */
-  .slot.hl .shead{border:2px solid transparent;background-image:linear-gradient(#fff,#fff),linear-gradient(90deg,#ff5f6d,#ff9f43,#ffe66d,#3ecf8e,#5aa9ff,#b794f6);background-origin:border-box;background-clip:padding-box,border-box;box-shadow:0 3px 14px rgba(124,92,255,.14)}
-  .hl-badge{display:inline-block;font-size:.62rem;font-weight:800;color:#fff;padding:2px 9px;border-radius:99px;background:linear-gradient(90deg,#ff5f6d,#ff9f43,#3ecf8e,#5aa9ff,#b794f6);margin-bottom:4px;letter-spacing:.02em}
-  .slot.cut .shead{border-color:#e79a9a;background:#fff6f5}
-  .cut-badge{display:inline-block;font-size:.62rem;font-weight:800;color:#c0392b;background:#fbe0dd;padding:2px 9px;border-radius:99px;margin-bottom:4px}
-  .planb{background:#fbe0dd;color:#a5342b;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-bottom:8px}
-  /* check list */
-  .citem{display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px dashed var(--line);cursor:pointer;font-size:.92rem}
+  .slot.hl .shead{border-color:#F2B8C8;background:var(--tint)}
+  .slot.hl::before{background:var(--red)}
+  .hl-badge{display:inline-block;font-size:10px;font-weight:700;color:var(--red);border:1px solid #E9B0B0;padding:1px 7px;border-radius:4px;margin-bottom:3px;letter-spacing:.04em}
+  .slot.cut .shead{border-style:dashed}
+  .cut-badge{display:inline-block;font-size:10px;font-weight:700;color:var(--muted);background:#F5EFEC;padding:1px 7px;border-radius:4px;margin-bottom:3px}
+  .planb{background:#FBEAEA;color:#A5342B;border-radius:12px;padding:9px 11px;font-size:13px;font-weight:500;margin-bottom:8px}
+  /* inline check list */
+  .citem{display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px solid #F4ECEA;cursor:pointer;font-size:14px}
   .citem:first-child{border-top:none}
-  .cbox{width:20px;height:20px;border:2px solid #d8cabb;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-  .cbox svg{width:11px;height:11px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .cbox{width:20px;height:20px;border:1.5px solid #D9C9CC;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .cbox svg{width:11px;height:11px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
   .citem.on .cbox{background:var(--done);border-color:var(--done)}.citem.on .cbox svg{opacity:1}
   .citem.on span{color:var(--muted);text-decoration:line-through}
   /* cute map */
-  .mapwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fbf6ee;padding:6px;-webkit-overflow-scrolling:touch}
+  .mapwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#FBF6EE;padding:6px;-webkit-overflow-scrolling:touch}
   .mapwrap svg{display:block}
-  .maphint{font-size:.76rem;color:var(--muted);margin:6px 2px 0}
+  .maphint{font-size:12px;color:var(--muted);margin:6px 2px 0}
   /* train card */
-  .train{background:#fff;border:1px solid var(--line);border-left:6px solid #4a6cf7;border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .train{background:var(--surface);border:1px solid var(--line);border-left:4px solid #4a6cf7;border-radius:16px;padding:14px}
   .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
-  .tfield label{font-size:.72rem;font-weight:700;color:var(--muted);display:block;margin-bottom:3px}
-  .tin{width:100%;font-family:inherit;font-size:.95rem;padding:9px;border:1.5px solid var(--line);border-radius:9px;background:#f8f9ff;color:var(--ink);font-weight:700}
-  .tin:focus{outline:none;border-color:#4a6cf7}
-  .amber{background:#fbeecb;color:#8a6414;border-radius:10px;padding:9px 11px;font-size:.83rem;font-weight:600;margin-top:9px}
+  .tfield label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px}
+  .tin{width:100%;font-family:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#FBF8F6;color:var(--ink);font-weight:600}
+  .tin:focus{outline:none;border-color:var(--accent)}
+  .amber{background:var(--amber-bg);color:var(--amber-ink);border-radius:12px;padding:9px 11px;font-size:13px;font-weight:500;margin-top:9px}
   /* slot image + lightbox */
   .slotimg{width:100%;border-radius:12px;margin-top:8px;cursor:zoom-in;border:1px solid var(--line);display:block}
-  .imgmodal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:80;align-items:center;justify-content:center;padding:14px}
+  .imgmodal{position:fixed;inset:0;background:rgba(30,20,22,.92);display:none;z-index:80;align-items:center;justify-content:center;padding:14px}
   .imgmodal.on{display:flex}
-  .imgmodal img{max-width:100%;max-height:100%;border-radius:8px}
-  .imgmodal-hint{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(255,255,255,.92);color:var(--accent);font-family:var(--font-cute);font-size:.72rem;font-weight:700;padding:6px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none}
-  .irow{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.irow:last-child{border:none}.irow b{color:var(--ink)}
-  .legrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
-  .leg-item{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600}
+  .imgmodal img{max-width:100%;max-height:100%;border-radius:10px}
+  .imgmodal-hint{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(255,255,255,.94);color:var(--accent);font-size:12px;font-weight:600;padding:6px 14px;border-radius:99px;white-space:nowrap;pointer-events:none}
+  .irow{padding:10px 0;border-bottom:1px solid #F4ECEA;font-size:14px}.irow:last-child{border:none}.irow b{color:var(--ink);font-weight:600}
+  .legrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500}
 
-  .nav{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;height:calc(var(--nav-h)+env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(255,252,247,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex}
-  .nav button{flex:1;background:none;border:none;color:var(--muted);font-family:inherit;font-size:.66rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
-  .nav button .ni{font-size:1.25rem}.nav button.on{color:var(--accent)}
+  .nav{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;z-index:50}
+  .nav button{flex:1;background:none;border:none;color:#B3A3A7;font-family:inherit;font-size:11px;font-weight:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+  .nav button .ni{display:flex}.nav button.on{color:var(--accent);font-weight:600}
   .view{display:none}.view.on{display:block;animation:fade .2s}
 
-  .toast{position:fixed;left:50%;bottom:calc(var(--nav-h)+22px+env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .zh{color:#ffd9cd}
+  .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:14px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.2);text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .zh{color:#FFD3DF}
 </style>
 </head>
 <body>
@@ -189,17 +222,17 @@
   <!-- HOME -->
   <section class="view on pad" id="v-home">
     <div class="hero">
-      <span class="deco">🏮</span>
-      <div class="kicker">SHANGHAI WITH MOM</div>
-      <h1>เซี่ยงไฮ้กับแม่ 🇨🇳❤️</h1>
-      <div class="muted" style="font-size:.9rem">3–8 ธันวาคม 2026 · 2 คน</div>
-      <div style="margin-top:10px"><span class="count" id="countdown">–</span></div>
+      <img class="hero-art" src="assets/hero.webp" alt="ฉันกับแม่">
+      <div class="kicker">Shanghai with Mom</div>
+      <h1>เซี่ยงไฮ้กับแม่<span class="seal">上海</span></h1>
+      <div class="sub">3–8 ธันวาคม 2026 · 2 คน</div>
+      <div class="count-box"><span class="count" id="countdown">–</span><span class="count-sub" id="countdown-sub"></span></div>
     </div>
 
     <div id="today-card"></div>
 
     <div class="card">
-      <div class="between" style="margin-bottom:6px"><h3>✈️ เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
+      <div class="between" style="margin-bottom:6px"><h3><i data-i="plane"></i>เที่ยวบิน</h3><span class="badge">Spring · PVG T2</span></div>
       <div class="flight">
         <div class="leg"><div class="code">BKK</div><div class="city">08:50</div></div>
         <div class="mid">9C7290<br>3 Dec</div><div class="arrow">→</div>
@@ -214,43 +247,39 @@
     </div>
 
     <div class="card">
-      <h3 style="margin-bottom:6px">🏨 โรงแรม</h3>
+      <h3 style="margin-bottom:6px"><i data-i="bed"></i>โรงแรม</h3>
       <div style="font-weight:700">Jinjiang Inn (People's Square)</div>
       <div class="muted" style="font-size:.85rem">锦江之星 (上海人民广场淮海东路店) Jinjiang Inn (People's Square East Huaihai Rd)<br>云南南路293号 No. 293 South Yunnan Road · 黄浦区 Huangpu District</div>
-      <div style="margin-top:9px;background:var(--accent-soft);border-radius:11px;padding:9px 11px">
-        <div style="font-size:.74rem;font-weight:700;color:var(--accent)">🚇 สถานีบ้าน (จำให้ขึ้นใจ)</div>
-        <div style="font-weight:800;margin-top:2px">大世界 Dashijie · Exit 5
+      <div class="home-station">
+        <div class="t">สถานีบ้าน (จำให้ขึ้นใจ)</div>
+        <div style="font-weight:700;margin-top:2px">大世界 Dashijie · Exit 5
           <span class="ldot" style="width:17px;height:17px;font-size:.66rem;background:var(--l14);vertical-align:middle">14</span> L8+L14</div>
-        <div class="muted" style="font-size:.82rem">🚶 Exit 5 เดิน ~5 นาที · เปลี่ยนขบวนไป-กลับสนามบินที่ 人民广场 People's Square (1 สถานีจาก 大世界 Dashijie)</div>
+        <div class="muted" style="font-size:13px">Exit 5 เดิน ~5 นาที · เปลี่ยนขบวนไป-กลับสนามบินที่ 人民广场 People's Square (1 สถานีจาก 大世界 Dashijie)</div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="between"><h3>✅ เตรียมตัว</h3><span class="badge" id="home-ck">0/4</span></div>
+    <div class="card" onclick="go('chk')" style="cursor:pointer">
+      <div class="between"><h3><i data-i="check"></i>เตรียมตัว</h3><span class="badge" id="home-ck">0/4</span></div>
       <div class="bar"><div id="home-bar"></div></div>
-    </div>
-    <div class="qgrid">
-      <button class="btn btn-soft" onclick="go('chk')">✅ เช็คลิสต์</button>
-      <button class="btn btn-accent" onclick="go('plan')">🗺️ แผนเที่ยว</button>
     </div>
   </section>
 
   <!-- CHECKLIST -->
   <section class="view pad" id="v-chk">
-    <div class="kicker">PRE-TRIP CHECKLIST</div>
+    <div class="kicker">Pre-trip checklist</div>
     <h1 style="margin:2px 0 4px">เตรียมตัวก่อนไป</h1>
-    <p class="muted" style="font-size:.88rem;margin-bottom:14px">กด card เพื่อดูรายละเอียด · ติ๊กแล้ว save เอง</p>
-    <div class="between" style="margin-bottom:4px"><b>ความคืบหน้า</b><span class="muted" id="ck-count" style="font-size:.86rem;font-weight:600">0 / 4</span></div>
+    <p class="muted" style="font-size:14px;margin-bottom:14px">แตะการ์ดเพื่อดูรายละเอียด · ติ๊กแล้วบันทึกอัตโนมัติ</p>
+    <div class="between" style="margin-bottom:4px"><b>ความคืบหน้า</b><span class="muted" id="ck-count" style="font-size:13px;font-weight:600">0 / 4</span></div>
     <div class="bar" style="margin-bottom:18px"><div id="ck-bar"></div></div>
-    <div class="done-banner" id="banner"><div class="big">🎉</div><h2>Ready for Shanghai!</h2><p class="muted">เตรียมครบแล้ว ❤️</p></div>
+    <div class="done-banner" id="banner"><div class="big"><span class="seal" style="width:40px;height:40px;font-size:16px;line-height:16px;margin:0">出发</span></div><h2>Ready for Shanghai!</h2><p class="muted">เตรียมครบแล้ว</p></div>
     <div id="ck-cards"></div>
   </section>
 
   <!-- PLAN -->
   <section class="view pad" id="v-plan">
-    <div class="kicker">DAY BY DAY</div>
+    <div class="kicker">Day by day</div>
     <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
-    <p class="muted" style="font-size:.83rem;margin-bottom:10px">💡 แตะแถบเวลา = ดู Metro · แตะชื่อ = 📋 copy จีน ไปวาง AMap · 👈 ปัดซ้าย-ขวา เปลี่ยนวัน 👉<br>🧭 <b>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก</b> (หา AMap เจอแน่) แล้วเดินหาร้านเล็กเอา — ร้าน trendy บางร้าน AMap อาจไม่มี</p>
+    <div class="plan-hint"><span><i data-i="copy"></i>แตะชื่อสถานที่ = copy ภาษาจีนไปวางใน AMap · ปัดซ้าย-ขวาเปลี่ยนวัน</span><span><i data-i="pin"></i>นำทางไป "ชื่อถนน/ห้าง" เป็นหลัก แล้วเดินหาร้านเล็กเอา (ร้าน trendy บางร้าน AMap อาจไม่มี)</span></div>
     <div class="days" id="days"></div>
     <div class="dayhead" id="dayhead"></div>
     <div class="tl" id="timeline"></div>
@@ -258,13 +287,13 @@
 
   <!-- INFO -->
   <section class="view pad" id="v-info">
-    <div class="kicker">ข้อมูล</div>
+    <div class="kicker">Travel info</div>
     <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
-    <div class="card"><h3 style="margin-bottom:8px">👥 ผู้เดินทาง</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="users"></i>ผู้เดินทาง</h3>
       <div class="irow">1. <b>ฉัน</b></div>
       <div class="irow">2. <b>แม่</b></div>
       <div class="muted" style="font-size:.8rem;margin-top:6px">🏨 Jinjiang Inn · 1 Double Room · 2 เตียงเดี่ยว · 5 คืน · จ่ายครบแล้ว<br>📄 เลข passport / e-ticket / confirmation ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">🚇 สายรถไฟฟ้าที่ใช้</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="metro"></i>สายรถไฟฟ้าที่ใช้</h3>
       <div class="legrow">
         <span class="leg-item"><span class="ldot big" style="background:#e4002b">1</span>Line 1</span>
         <span class="leg-item"><span class="ldot big" style="background:var(--l2)">2</span>Line 2</span>
@@ -277,38 +306,38 @@
         <span class="leg-item"><span class="ldot big" style="background:var(--l14)">14</span>Line 14</span>
       </div>
       <div class="muted" style="font-size:.82rem;margin-top:8px">🚄 ซูโจวเป็นคนละระบบ ใช้ Suzhou Line 1/2 ต้องซื้อตั๋วแยก ใช้บัตรเซี่ยงไฮ้ไม่ได้</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">🚕 กฎการเดินทาง</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="route"></i>กฎการเดินทาง</h3>
       <div class="irow">1. <b>Metro 🚇</b> เป็นหลัก</div>
       <div class="irow">2. <b>เดิน 🚶</b> เมื่อใกล้ + เส้นทางง่าย</div>
       <div class="irow">3. <b>Didi 🚕</b> เมื่อ: มีกระเป๋า / เปลี่ยนรถหลายต่อ / metro เข้าถึงยาก / ประหยัดเวลามาก</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">🚕 Didi / Taxi — ประโยคที่ต้องใช้</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="car"></i>Didi / Taxi — ประโยคที่ต้องใช้</h3>
       <p class="muted" style="font-size:.8rem;margin-bottom:8px">💡 แตะข้อความจีน = 📋 copy ไปโชว์คนขับได้เลย</p>
-      <div class="irow"><b>เลขท้ายเบอร์</b> 尾号 4451 · <i>Wěihào 4451</i><br>อ่านจีน: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic">📋</span></span> <i>sì sì wǔ yāo</i> → "ซื่อ ซื่อ อู่ เยา"<br><span class="muted" style="font-size:.8rem">⚠️ เลข 1 ในเบอร์โทร คนจีนอ่าน 幺 yāo ไม่ใช่ 一 yī</span></div>
-      <div class="irow"><b>คนขับถาม "เลขท้ายอะไร?"</b> 尾号多少？ <i>Wěihào duōshǎo?</i><br>ตอบ: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic">📋</span></span> หรือยื่นจอ DiDi ให้ดู</div>
-      <div class="irow"><b>แนะนำตัว</b><br><span class="cp" onclick="cpy(event,this)" data-zh="我是尾号4451的乘客"><span class="zh">我是尾号4451的乘客</span><span class="ic">📋</span></span><br><i>Wǒ shì wěihào 4451 de chéngkè</i> = ฉันคือผู้โดยสารเลขท้าย 4451</div>
-      <div class="irow"><b>กลับโรงแรม</b><br><span class="cp" onclick="cpy(event,this)" data-zh="请送我去云南南路293号锦江之星"><span class="zh">请送我去云南南路293号锦江之星</span><span class="ic">📋</span></span><br><i>Qǐng sòng wǒ qù Yúnnán Nán Lù 293 hào Jǐnjiāng Zhī Xīng</i><br>= พาไป Jinjiang Inn เลขที่ 293 South Yunnan Road</div>
-      <div class="irow"><b>พูดจีนไม่ได้</b><br><span class="cp" onclick="cpy(event,this)" data-zh="我不会说中文，请看手机"><span class="zh">我不会说中文，请看手机</span><span class="ic">📋</span></span><br><i>Wǒ bú huì shuō zhōngwén, qǐng kàn shǒujī</i> = ฉันพูดจีนไม่ได้ ดูมือถือนะ</div>
+      <div class="irow"><b>เลขท้ายเบอร์</b> 尾号 4451 · <i>Wěihào 4451</i><br>อ่านจีน: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic"><i data-i="copy"></i></span></span> <i>sì sì wǔ yāo</i> → "ซื่อ ซื่อ อู่ เยา"<br><span class="muted" style="font-size:.8rem">⚠️ เลข 1 ในเบอร์โทร คนจีนอ่าน 幺 yāo ไม่ใช่ 一 yī</span></div>
+      <div class="irow"><b>คนขับถาม "เลขท้ายอะไร?"</b> 尾号多少？ <i>Wěihào duōshǎo?</i><br>ตอบ: <span class="cp" onclick="cpy(event,this)" data-zh="四四五幺"><span class="zh">四四五幺</span><span class="ic"><i data-i="copy"></i></span></span> หรือยื่นจอ DiDi ให้ดู</div>
+      <div class="irow"><b>แนะนำตัว</b><br><span class="cp" onclick="cpy(event,this)" data-zh="我是尾号4451的乘客"><span class="zh">我是尾号4451的乘客</span><span class="ic"><i data-i="copy"></i></span></span><br><i>Wǒ shì wěihào 4451 de chéngkè</i> = ฉันคือผู้โดยสารเลขท้าย 4451</div>
+      <div class="irow"><b>กลับโรงแรม</b><br><span class="cp" onclick="cpy(event,this)" data-zh="请送我去云南南路293号锦江之星"><span class="zh">请送我去云南南路293号锦江之星</span><span class="ic"><i data-i="copy"></i></span></span><br><i>Qǐng sòng wǒ qù Yúnnán Nán Lù 293 hào Jǐnjiāng Zhī Xīng</i><br>= พาไป Jinjiang Inn เลขที่ 293 South Yunnan Road</div>
+      <div class="irow"><b>พูดจีนไม่ได้</b><br><span class="cp" onclick="cpy(event,this)" data-zh="我不会说中文，请看手机"><span class="zh">我不会说中文，请看手机</span><span class="ic"><i data-i="copy"></i></span></span><br><i>Wǒ bú huì shuō zhōngwén, qǐng kàn shǒujī</i> = ฉันพูดจีนไม่ได้ ดูมือถือนะ</div>
       <div class="amber">ก่อนขึ้นรถเช็ค 3 อย่าง: 1.ป้ายทะเบียน 2.ยี่ห้อ/สีรถ 3.หน้าคนขับ — เทียบกับในแอป DiDi · ⚠️ สนามบิน PVG มีคนมาทัก "taxi? taxi?" เยอะมาก อย่าตามไป รถที่จองจะรอตามจุดที่แอประบุเท่านั้น</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">🚄 รถไฟ Suzhou (Day 3)</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="train"></i>รถไฟ Suzhou (Day 3)</h3>
       <div class="irow"><b>ไป · G7372</b> · 09:26–10:03<br>上海虹桥站 Shanghai Hongqiao → 苏州站 Suzhou</div>
       <div class="irow"><b>กลับ · D951</b> · 19:53–20:21<br>苏州站 Suzhou → 上海站 Shanghai Railway Station<br><span class="muted" style="font-size:.8rem">⚠️ ขากลับลง 上海站 Shanghai Railway Station ไม่ใช่หงเฉียว (ใกล้โรงแรมกว่า)</span></div>
       <div class="muted" style="font-size:.8rem;margin-top:4px">ชั้นสอง · 2 คน · จองล่วงหน้า Trip.com · 🎫 ตั๋วออกจริง 21 พ.ย. 2026 · เลข booking ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">📱 eSIM</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="phone"></i>eSIM</h3>
       <div class="irow"><b>ก่อนออกจากไทย:</b> ติดตั้ง China eSIM · <b>เก็บ AIS ไว้ ห้ามลบ</b> (AIS=เบอร์/OTP, China eSIM=เน็ต)</div>
       <div class="irow"><b>China eSIM:</b> Cellular Data → China eSIM · Allow Data Switching → OFF</div>
       <div class="irow"><b>AIS:</b> Turn On This Line → ON · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div></div>
-    <div class="card"><h3 style="margin-bottom:8px">🛂 China Arrival Card</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="passport"></i>China Arrival Card</h3>
       <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
       <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
-    <div class="card"><h3 style="margin-bottom:8px">🛫 ขากลับ (8 Dec)</h3>
+    <div class="card"><h3 style="margin-bottom:8px"><i data-i="plane"></i>ขากลับ (8 Dec)</h3>
       <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 Dashijie → 人民广场 People's Square เปลี่ยน L2 → 浦东国际机场 Pudong Airport · Didi = สำรองฉุกเฉินเท่านั้น)</div></div>
   </section>
 
   <nav class="nav">
-    <button class="on" data-v="home" onclick="go('home')"><span class="ni">🏠</span>หน้าหลัก</button>
-    <button data-v="chk" onclick="go('chk')"><span class="ni">✅</span>เช็คลิสต์</button>
-    <button data-v="plan" onclick="go('plan')"><span class="ni">🗺️</span>แผนเที่ยว</button>
-    <button data-v="info" onclick="go('info')"><span class="ni">ℹ️</span>ข้อมูล</button>
+    <button class="on" data-v="home" onclick="go('home')"><span class="ni"><i data-i="home"></i></span>หน้าหลัก</button>
+    <button data-v="chk" onclick="go('chk')"><span class="ni"><i data-i="check"></i></span>เช็คลิสต์</button>
+    <button data-v="plan" onclick="go('plan')"><span class="ni"><i data-i="map"></i></span>แผนเที่ยว</button>
+    <button data-v="info" onclick="go('info')"><span class="ni"><i data-i="info"></i></span>ข้อมูล</button>
   </nav>
 </div>
 <div class="toast" id="toast"></div>
@@ -316,7 +345,51 @@
 
 <script>
 const P=(en,zh)=>({en,zh});
-const LC={1:'#e4002b',2:'var(--l2)',6:'var(--l6)',7:'#ef7d28',8:'#0092d0',9:'var(--l9)',10:'var(--l10)',11:'#871c2b',12:'#007a5e',14:'var(--l14)',18:'#b8860b'};
+const LC={1:'#e4002b',2:'#3fae4a',6:'#b0338c',7:'#ef7d28',8:'#0092d0',9:'#87c8ee',10:'#c6afd4',11:'#871c2b',12:'#007a5e',14:'#626020',18:'#b8860b'};
+/* line icons (one set, 24px grid) */
+const I={
+ home:'<path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>',
+ check:'<rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+ map:'<path d="M9 4.5L3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2-6-2z"/><path d="M9 4.5v13M15 6.5v13"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.2"/>',
+ plane:'<path d="M3.5 11.5l17-7.5-7.5 17-2-7.5z"/><path d="M11 13.5l9.5-9.5"/>',
+ train:'<rect x="5.5" y="3" width="13" height="14" rx="4"/><path d="M5.5 10.5h13M9 21l1.5-4M15 21l-1.5-4"/><path d="M9 14h.01M15 14h.01"/>',
+ metro:'<circle cx="12" cy="12" r="9"/><path d="M8 16V8.5l4 5 4-5V16"/>',
+ walk:'<circle cx="13.5" cy="4.5" r="1.7"/><path d="M9.5 21l2.2-6.2 2.8 2.7V21M8.5 12.5l2.3-4.2 3.2 1 1.8 3.2M11.7 14.8l-.9-6.5"/>',
+ bed:'<path d="M3 18.5V6.5M3 13.5h18v5M21 13.5a3 3 0 00-3-3h-7v3"/><circle cx="7" cy="10.5" r="1.6"/>',
+ food:'<path d="M3.5 11h17a8.5 8.5 0 01-17 0z"/><path d="M8.5 7.5c0-1 1-1.2 1-2.3M12 7.5c0-1 1-1.2 1-2.3M15.5 7.5c0-1 1-1.2 1-2.3"/>',
+ cup:'<path d="M5 8.5h11v5.5a5 5 0 01-5 5h-1a5 5 0 01-5-5z"/><path d="M16 10.5h1.5a2 2 0 010 4H16M9 3.5v2.2M12 3.5v2.2"/>',
+ bag:'<path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8V6.5a3 3 0 016 0V8"/>',
+ camera:'<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8.5 7l1.4-2.8h4.2L15.5 7"/>',
+ art:'<path d="M12 3a9 9 0 100 18c1 0 1.6-.7 1.6-1.5 0-.9-.6-1.3-.6-2.2 0-1.1.9-1.8 2-1.8h2.1a4 4 0 004-4C21 6.9 17 3 12 3z"/><path d="M7.5 11h.01M10 7.2h.01M14.8 7.4h.01"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+ passport:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="10.5" r="3"/><path d="M9 16.5h6"/>',
+ pagoda:'<path d="M4 9.5L12 5l8 4.5M6.5 9.5V12h11V9.5M3.5 15.5L12 12l8.5 3.5M6.5 15.5V21h11v-5.5M10.5 21v-3.5h3V21M12 5V3"/>',
+ city:'<path d="M3.5 21h17M5 21V10h5v11M10 21V5h5.5v16M15.5 21v-8H19v8"/><path d="M7.5 13h.01M7.5 16.5h.01M12.7 8.5h.01M12.7 12h.01M12.7 15.5h.01"/>',
+ moon:'<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>',
+ car:'<path d="M4.5 16.5h15M6 16.5l1.6-5.2a2 2 0 011.9-1.3h5a2 2 0 011.9 1.3l1.6 5.2M4.5 16.5V19h2.5v-1.5h10V19h2.5v-2.5"/><path d="M8 14h.01M16 14h.01"/>',
+ luggage:'<rect x="6" y="7" width="12" height="13" rx="2.5"/><path d="M9.5 7V4.5h5V7M10 11v5M14 11v5M8.5 20v1.5M15.5 20v1.5"/>',
+ leaf:'<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19l8-8"/>',
+ alarm:'<circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.6M4.5 5l2.5-2M19.5 5L17 3"/>',
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.6c2.6.2 4.5 2.1 4.5 4.9"/>',
+ phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+ route:'<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3 3 0 000-6H9a3 3 0 010-6h6.8"/>',
+ shield:'<path d="M12 3l7 3v5.5c0 4.6-3 7.8-7 9.5-4-1.7-7-4.9-7-9.5V6z"/><path d="M9 12l2 2 4-4.5"/>',
+ copy:'<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 8.5V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7.5a2 2 0 002 2h2.5"/>',
+ pin:'<path d="M12 21s-6.5-5.7-6.5-11a6.5 6.5 0 0113 0c0 5.3-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+ chev:'<path d="M9.5 6l6 6-6 6"/>',
+ zoom:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3M11 8.5v5M8.5 11h5"/>',
+ arrow:'<path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"/>',
+ dot:'<circle cx="12" cy="12" r="3"/>'
+};
+const ic=(n,cls='')=>`<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n]||I.dot}</svg>`;
+/* emoji in the data -> line icon */
+const EMO={'🚇':'metro','🚉':'metro','📸':'camera','🚶':'walk','🛍️':'bag','👜':'bag','👟':'bag','👗':'bag','🖤':'bag','🏨':'bed','🍜':'food','🦀':'food','🥟':'food','🍞':'food','🥐':'food','🚕':'car','🚄':'train','🏙️':'city','🌆':'city','🌃':'moon','🍵':'cup','🧋':'cup','☕':'cup','✈️':'plane','🛫':'plane','⏰':'alarm','🧳':'luggage','🛂':'passport','🏮':'pagoda','🛕':'pagoda','🎨':'art','🍁':'leaf','🌿':'leaf','📱':'phone','🛡️':'shield','🇨🇳':'passport'};
+const emoIc=e=>ic(EMO[e]||'dot');
+/* "Line 2" in a label -> coloured line chip */
+const lineChips=t=>t.replace(/Line (\d+)/g,(m,n)=>`<span class="lchip" style="--c:${LC[n]||'#9B858A'}">Line ${n}</span>`);
+function hydrateIcons(root=document){root.querySelectorAll('i[data-i]').forEach(el=>{el.outerHTML=ic(el.dataset.i);});}
+
 
 const CARDS=[
   {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
@@ -459,15 +532,16 @@ function tripDay(){
 function renderToday(){
   const info=tripDay(),d=DAYS.find(x=>x.id===info.id);
   document.getElementById('countdown').textContent=
-    info.state==='before'?('อีก '+info.days+' วัน จนถึงวันเดินทาง'):(info.state==='today'?'กำลังเที่ยวอยู่ 🎒':'จบทริปแล้ว ❤️');
+    info.state==='before'?('อีก '+info.days+' วัน'):(info.state==='today'?'กำลังเที่ยวอยู่':'จบทริปแล้ว');
+  document.getElementById('countdown-sub').textContent=info.state==='before'?'จนถึงวันเดินทาง':(info.state==='today'?'เที่ยวให้สนุกนะ':'ขอบคุณที่ไปด้วยกัน');
   const lbl=info.state==='today'?('TODAY · '+d.date):(info.state==='before'?('เริ่มทริป · '+d.date):('วันสุดท้าย · '+d.date));
   document.getElementById('today-card').innerHTML=
     `<div class="today" onclick="go('plan');setDay('${d.id}')">
        <span class="dot"></span>
        <div class="lbl">${lbl}</div>
-       <h2>${d.emoji} ${d.cardTitle||d.tab}</h2>
+       <h2>${emoIc(d.emoji)}<span class="t2">${d.cardTitle||d.tab}</span></h2>
        <div class="sum">${d.summary||''}</div>
-       <span class="view-btn">ดู ${d.tab} →</span>
+       <span class="view-btn">ดู ${d.tab}${ic('arrow')}</span>
      </div>`;
 }
 
@@ -478,7 +552,7 @@ function renderChk(){
     const done=c.tasks.filter((_,i)=>state[c.id+'-'+i]).length,full=done===c.tasks.length;
     const tasks=c.tasks.map((t,i)=>`<div class="task ${state[c.id+'-'+i]?'on':''}" onclick="tgTask(event,'${c.id}',${i})"><span class="box">${CHK}</span><span class="label">${t}</span></div>`).join('');
     let act='';if(c.action)act=c.action.view?`<button class="cta" onclick="go('${c.action.view}')">${c.action.label}</button>`:`<a class="cta" href="${c.action.href}" target="_blank" rel="noopener">${c.action.label}</a>`;
-    return `<div class="ck ${full?'done':''}" id="ck-${c.id}"><div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji">${c.emoji}</span><span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">›</span></div><div class="cbody">${tasks}${act}</div></div>`;
+    return `<div class="ck ${full?'done':''}" id="ck-${c.id}"><div class="chead" onclick="tgCard('${c.id}')"><span class="cnum">${c.n}</span><span class="cemoji">${emoIc(c.emoji)}</span><span class="ctitle">${c.title}</span><span class="cbadge">${full?'✓ เสร็จ':done+'/'+c.tasks.length}</span><span class="chev">${ic('chev')}</span></div><div class="cbody">${tasks}${act}</div></div>`;
   }).join('');
   const dc=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length;
   document.getElementById('ck-count').textContent=dc+' / '+CARDS.length;
@@ -492,19 +566,19 @@ function tgTask(e,cid,i){e.stopPropagation();const k=cid+'-'+i;state[k]=!state[k
   document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';}
 
 /* PLAN */
-function cpChip(p){const copy=p.zh||p.en;const disp=(p.en&&p.zh&&p.en!==p.zh)?`<span>${p.en}</span> · <span class="zh">${p.zh}</span>`:`<span class="zh">${copy}</span>`;return `<span class="cp" onclick="cpy(event,this)" data-zh="${copy}">${disp}<span class="ic">📋</span></span>`;}
+function cpChip(p){const copy=p.zh||p.en;const disp=(p.en&&p.zh&&p.en!==p.zh)?`<span>${p.en}</span> · <span class="zh">${p.zh}</span>`:`<span class="zh">${copy}</span>`;return `<span class="cp" onclick="cpy(event,this)" data-zh="${copy}">${disp}<span class="ic">${ic('copy')}</span></span>`;}
 function renderDays(){
   document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
   const day=DAYS.find(d=>d.id===activeDay);
-  const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}.png" loading="eager" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">🔍 แตะดูเต็มจอ</span></div>`;
+  const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}.png" loading="eager" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">${ic('zoom')}แตะดูเต็มจอ</span></div>`;
   document.getElementById('dayhead').innerHTML=heroHTML+(day.title?`<h2>${day.title}</h2><div class="rt">${day.route||''}</div>`:`<h2>${day.tab} · ${day.date}</h2>`);
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
     const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
-    const badge=s.hl?'<span class="hl-badge">🌈 ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">✂️ ตัดได้ · Plan B</span><br>':'';
+    const badge=s.hl?'<span class="hl-badge">ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">ตัดได้ · Plan B</span><br>':'';
     return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''}" id="slot-${i}">
-      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${s.label}</span><span class="chev">›</span></div>
+      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${emoIc(s.icon)}</span><span class="slabel">${badge}${lineChips(s.label)}</span><span class="chev">${ic('chev')}</span></div>
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
   if(_swipeDir){const cls=_swipeDir>0?'anim-l':'anim-r';[document.getElementById('dayhead'),tl].forEach(x=>{x.classList.remove('anim-l','anim-r');void x.offsetWidth;x.classList.add(cls);});_swipeDir=0;}
@@ -659,7 +733,7 @@ function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.styl
 function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
 
 /* INIT */
-renderToday();renderChk();renderDays();initSwipe();initModalSwipe();
+hydrateIcons();renderToday();renderChk();renderDays();initSwipe();initModalSwipe();
 document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
 document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
 </script>
