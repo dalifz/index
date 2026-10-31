@@ -262,7 +262,7 @@
     <h1 style="margin:2px 0 12px">ข้อมูลเดินทาง</h1>
     <div class="card"><h3 style="margin-bottom:8px">👥 ผู้เดินทาง</h3>
       <div class="irow">1. <b>ฉัน</b></div>
-      <div class="irow">2. <b>แม่</b> (แม่)</div>
+      <div class="irow">2. <b>แม่</b></div>
       <div class="muted" style="font-size:.8rem;margin-top:6px">🏨 Jinjiang Inn · 1 Double Room · 2 เตียงเดี่ยว · 5 คืน · จ่ายครบแล้ว<br>📄 เลข passport / e-ticket / confirmation ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
     <div class="card"><h3 style="margin-bottom:8px">🚇 สายรถไฟฟ้าที่ใช้</h3>
       <div class="legrow">
@@ -330,9 +330,9 @@ const DAYS=[
   slots:[
    {t:'14:05',icon:'✈️',label:'Arrive',places:[P('PVG T2 — Shanghai Pudong International Airport','浦东国际机场T2')]},
    {t:'15:30',icon:'🚄',label:'Maglev (ถ้าทัน)',note:'Pudong Airport → Longyang Road · ใช้เฉพาะถ้าผ่าน ตม. + รับกระเป๋าทันเวลา · ถ้าไม่ทัน → ขึ้น Metro ที่ 浦东国际机场 Pudong International Airport → ลงที่ 人民广场 People\'s Square แล้วต่อไป 大世界 Dashijie · ไม่ต้องฝืน',places:[P('Longyang Road','龙阳路')]},
-   {t:'15:40',icon:'🚇',label:'Metro · Line 2 → 徐泾东 Xujing East',note:'Longyang Road → People’s Square',places:[P('People’s Square','人民广场')]},
-   {t:'~16:00',icon:'🚇',label:'Metro · Line 8 → 沈杜公路 Shendu Highway',note:'People’s Square → Dashijie',places:[P('Dashijie','大世界')]},
-   {t:'~16:15',icon:'🚶',label:'Walk',note:'Dashijie → Jinjiang Inn',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'~15:50',icon:'🚇',label:'Metro · Line 2 → 徐泾东 Xujing East',note:'Longyang Road → People’s Square · ลง Maglev แล้วเดินไปสถานี Metro ~10 นาที',places:[P('People’s Square','人民广场')]},
+   {t:'~16:20',icon:'🚇',label:'Metro · Line 8 → 沈杜公路 Shendu Highway',note:'People’s Square → Dashijie',places:[P('Dashijie','大世界')]},
+   {t:'~16:35',icon:'🚶',label:'Walk',note:'Dashijie → Jinjiang Inn',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'17:00',icon:'🏨',label:'Check-in',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'18:00',icon:'🍜',label:'Dinner',img:'assets/day1-food-map.png',places:[P('Lao Xing Long',''),P('Yang’s Fried Dumpling',''),P('Lai Lai','')]},
    {t:'19:00',icon:'🧋',label:'Tea',places:[P('HEYTEA','')]},
@@ -365,19 +365,19 @@ const DAYS=[
    {t:'07:40',icon:'🚇',label:'Metro',note:'ขึ้นที่ 大世界 Dashijie → ลงที่ 虹桥火车站 Hongqiao Railway Station · ยืนยันทิศใน AMap',places:[P('Dashijie','大世界'),P('Hongqiao Railway Station','虹桥火车站')]},
    {t:'08:35',icon:'🚉',label:'Station',note:'ถึง 上海虹桥站 Shanghai Hongqiao · ตรวจพาสปอร์ต + สแกนกระเป๋า · ⛔ ประตูขึ้นรถปิดก่อนรถออก 5 นาที (09:21)',places:[P('Shanghai Hongqiao','上海虹桥站')]},
    {t:'09:26–10:03',icon:'🚄',label:'HSR ✅ G7372',note:'ชั้นสอง · 2 คน · ตั๋วออกจริง 21 พ.ย.',places:[P('Shanghai Hongqiao','上海虹桥站'),P('Suzhou','苏州站')]},
-   {t:'10:10–10:45',icon:'🚇',label:'Metro',note:'ขึ้นที่ 苏州火车站 Suzhou Railway Station → ลงที่ 相门 Xiangmen · เปลี่ยนที่ 广济南路 Guangji South Road (Suzhou Line 2 → Line 1) · รวมเดินออกจากชานชาลา ~35 นาที',places:[P('Suzhou Railway Station','苏州火车站'),P('Xiangmen','相门')]},
-   {t:'10:50',icon:'🦀',label:'Brunch',note:'เช็คชื่อร้านใน AMap อีกครั้ง',places:[P('Crab Noodles','')]},
-   {t:'11:30',icon:'🚶',label:'City Walk',places:[P('Pingjiang Road','平江路')]},
+   {t:'10:20–10:55',icon:'🚇',label:'Metro',note:'ขึ้นที่ 苏州火车站 Suzhou Railway Station → ลงที่ 相门 Xiangmen · เปลี่ยนที่ 广济南路 Guangji South Road (Suzhou Line 2 → Line 1) · ลงรถไฟแล้วเดินออกจากชานชาลาไป Metro ~15 นาที · นั่ง Metro ~35 นาที',places:[P('Suzhou Railway Station','苏州火车站'),P('Xiangmen','相门')]},
+   {t:'11:00',icon:'🦀',label:'Brunch',note:'เช็คชื่อร้านใน AMap อีกครั้ง',places:[P('Crab Noodles','')]},
+   {t:'11:45',icon:'🚶',label:'City Walk',places:[P('Pingjiang Road','平江路')]},
    {t:'12:45',icon:'🚶',label:'Explore',places:[P('Renheng Cang Street','')]},
    {t:'13:30',icon:'🍵',label:'Matcha',places:[P('THE MATCHA TOKYO','')]},
    {t:'14:15',icon:'🚇',label:'Metro · Suzhou Line 1 → 木渎 Mudu',note:'ขึ้นที่ 相门 Xiangmen → ลงที่ 石路 Shilu (Exit 1) · เปลี่ยนที่ 广济南路 Guangji South Road · (乐桥 Leqiao เป็นสาย 1+4 ไม่มีสาย 2 — จุดเปลี่ยน 1↔2 คือ 广济南路 Guangji South Road)',places:[P('Xiangmen','相门'),P('Shilu','石路')]},
    {t:'14:45',icon:'🛍️',label:'Shopping',note:'ค้น AMap ด้วยชื่อจีน · 石路 Shilu Exit 1 เดินถึงเลย · เปิด 10:00–22:00',places:[P('Suzhou MixC World','苏州万象天地')]},
-   {t:'14:45',icon:'🎨',label:'Art',places:[P('HONG ART GALLERY','')]},
+   {t:'15:15',icon:'🎨',label:'Art',places:[P('HONG ART GALLERY','')]},
    {t:'15:45',icon:'👜',label:'Shopping',note:'⏳ เวลาไม่พอตัดได้',places:[P('TAGI','')]},
    {t:'16:15',icon:'👟',label:'Shopping',note:'⏳ เวลาไม่พอตัดได้',places:[P('ROAD RHINO','')]},
    {t:'16:45',icon:'🌃',label:'Walk',places:[P('Shantang Street (Old Street)','山塘街')]},
-   {t:'17:30–18:55',icon:'🍜',label:'Dinner + Walk',places:[P('Shantang Street','山塘街')]},
-   {t:'19:00–19:25',icon:'🚇',label:'Metro',note:'19:00–19:05 ออกจาก 山塘街 Shantang Street · ขึ้นที่ 山塘街 Shantang Street → ลงที่ 苏州火车站 Suzhou Railway Station · 1 สถานี (ติดกัน) · ~19:20–19:25 ถึงสถานี ตรวจพาสปอร์ต · ⛔ ประตูขึ้นรถปิด 19:48',places:[P('Shantang Street','山塘街'),P('Suzhou Railway Station','苏州火车站')]},
+   {t:'17:30–18:25',icon:'🍜',label:'Dinner + Walk',places:[P('Shantang Street','山塘街')]},
+   {t:'18:30–18:55',icon:'🚇',label:'Metro',note:'⏰ ออกจาก 山塘街 Shantang Street ไม่เกิน 18:30 · ขึ้นที่ 山塘街 Shantang Street → ลงที่ 苏州火车站 Suzhou Railway Station · 1 สถานี (ติดกัน) · ~18:50–18:55 ถึงสถานี ตรวจพาสปอร์ต + สแกนกระเป๋า + หาชานชาลา · เผื่อเวลา ~1 ชม. · ⛔ ประตูขึ้นรถปิด 19:48',places:[P('Shantang Street','山塘街'),P('Suzhou Railway Station','苏州火车站')]},
    {t:'19:53–20:21',icon:'🚄',label:'HSR ✅ D951',note:'ชั้นสอง · 2 คน · ตั๋วออกจริง 21 พ.ย. · ⚠️ ลง 上海站 Shanghai Railway Station ไม่ใช่หงเฉียว (ใกล้โรงแรมกว่า)',places:[P('Suzhou','苏州站'),P('Shanghai Railway Station','上海站')]},
    {t:'20:35–21:00',icon:'🚇',label:'Metro',note:'ลงจากชานชาลา + เดินไปสถานี Metro ~15 นาที · ขึ้นที่ 上海火车站 Shanghai Railway Station → ลงที่ 大世界 Dashijie · เปลี่ยนที่ 人民广场 People\'s Square · ยืนยันทิศใน AMap',places:[P('Shanghai Railway Station','上海火车站'),P('Dashijie','大世界')]},
    {t:'~21:10',icon:'🏨',label:'Hotel',note:'พรุ่งนี้ตื่น 05:40 ไป Bund (ตัดได้ถ้าแม่เหนื่อย)',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
@@ -386,7 +386,7 @@ const DAYS=[
   slots:[
    {t:'05:40',icon:'⏰',label:'ตื่น / แต่งตัว',note:'แต่งตัวอุ่นๆ: เสื้อคลุม + ถุงน่องบุขน + ผ้าพันคอ + ถุงมือ · 🔴 ตัดได้ทั้งช่วงเช้า ถ้าแม่เหนื่อย → เริ่มวันที่ 09:00 ตามเดิม'},
    {t:'06:00',icon:'🚶',label:'Walk',note:'Jinjiang Inn → 外滩观景台 The Bund Viewing Deck (ฝั่ง 南京东路 East Nanjing Road) · ~1.2 กม. ~20 นาที',places:[P('外滩观景台 Bund Observation Deck','')]},
-   {t:'06:15',icon:'📸',label:'Photo ⭐',note:'🌅 พระอาทิตย์ขึ้น 06:39 หลัง 东方明珠 Oriental Pearl · ฟ้าเริ่มสว่าง 06:12',img:'assets/day4-shoothing Location.png',places:[P('外滩观景台 Bund Observation Deck','')]},
+   {t:'06:20',icon:'📸',label:'Photo ⭐',note:'🌅 พระอาทิตย์ขึ้น 06:39 หลัง 东方明珠 Oriental Pearl · ฟ้าเริ่มสว่าง 06:12',img:'assets/day4-shoothing Location.png',places:[P('外滩观景台 Bund Observation Deck','')]},
    {t:'06:50',icon:'📸',label:'Photo',note:'ประตูเหนือ · เดิน 279 ม.',places:[P('和平饭店 (北门) Peace Hotel','')]},
    {t:'07:05',icon:'📸',label:'Photo',note:'สะพานเหล็ก · เดิน 410 ม.',places:[P('外白渡桥 Waibaidu Bridge','')]},
    {t:'07:15',icon:'📸',label:'Photo',note:'ค้น AMap: 外滩源 Rockbund',places:[P('โบสถ์อิฐแดง 外滩源 Rockbund','')]},
