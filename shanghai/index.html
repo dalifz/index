@@ -371,6 +371,44 @@
   .seal{height:40px;margin-left:8px}
   .scopy{color:#B79AA2}.chev{color:#C4AEB4}
   .dtab:not(.on){color:#8E777D}
+
+  /* backup food guide */
+  #v-food{position:relative}
+  #v-food h1{max-width:360px}
+  .food-intro{font-size:13px;color:var(--muted);margin:3px 0 12px}
+  .food-days{display:flex;gap:7px;overflow-x:auto;margin:0 -12px;padding:2px 12px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .food-days::-webkit-scrollbar{display:none}
+  .food-tab{flex:0 0 auto;min-height:44px;padding:0 13px;border:1px solid #EADCDA;border-radius:13px;background:var(--surface);color:#806A70;font-family:inherit;font-size:12.5px;font-weight:700;white-space:nowrap;cursor:pointer}
+  .food-tab.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 5px 14px rgba(232,87,138,.2)}
+  .food-dayhead{margin:0 0 11px;padding:11px 12px;border-radius:14px;background:var(--accent-soft);border:1px solid #F5DCE4}
+  .food-area{display:flex;align-items:flex-start;gap:7px;font-size:14px;font-weight:700;line-height:1.45;color:var(--ink)}
+  .food-area .i{width:18px;height:18px;margin-top:1px;color:var(--accent)}
+  .food-hint{margin:4px 0 0 25px;font-size:12.5px;line-height:1.45;color:#8C6D76}
+  .food-card{padding:14px;margin-bottom:10px}
+  .food-name{font-size:18px;line-height:1.35;letter-spacing:-.01em}
+  .food-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .food-role,.food-verify{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;line-height:1.2}
+  .food-role{background:var(--accent-soft);color:var(--accent)}
+  .food-verify{background:var(--amber-bg);color:var(--amber-ink)}
+  .food-copy{min-height:44px;max-width:100%;margin-top:11px;text-align:left;font-family:inherit;line-height:1.35}
+  .food-copy .zh{overflow-wrap:anywhere}
+  .food-copy.ok{background:var(--done-soft);color:var(--done);border-color:var(--done)}
+  .food-copy.ok .zh{color:var(--done)}
+  .food-meta{margin-top:9px}
+  .food-meta-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;color:#766166;font-size:13px;line-height:1.45}
+  .food-meta-row .i{width:17px;height:17px;margin-top:1px;color:#B9788F}
+  .food-phone{display:inline-flex;align-items:center;min-height:44px;margin:-9px 0;padding:8px 4px;color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+  .food-note{margin-top:9px;padding-top:9px;border-top:1px solid #F4ECEA;color:#674F55;font-size:14px;line-height:1.6}
+  .food-actions{display:flex;justify-content:flex-end;margin-top:10px}
+  .food-amap{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:0 15px;border-radius:13px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none}
+  .food-amap .i{width:17px;height:17px}
+  .food-empty{text-align:center;padding:32px 18px}
+  .food-empty .em{display:block;font-size:28px;margin-bottom:6px}
+  .food-empty p{font-size:15px;font-weight:600;color:#745E64}
+  @media (max-width:370px){
+    .nav button{font-size:9.5px}.nav .i{width:20px;height:20px}
+    .food-tab{padding-inline:11px}
+  }
 </style>
 </head>
 <body>
@@ -449,6 +487,15 @@
     <div class="tl" id="timeline"></div>
   </section>
 
+  <!-- BACKUP FOOD -->
+  <section class="view pad" id="v-food">
+    <div class="kicker">Backup food guide</div>
+    <h1 style="margin:2px 0 2px">🍜 ร้านน่าสนใจ (สำรอง) แยกตามวัน</h1>
+    <p class="food-intro">แตะชื่อจีนเพื่อคัดลอก · เปิด AMap เพื่อดูสาขาและเส้นทาง</p>
+    <div class="food-days" id="food-days" aria-label="เลือกรายการร้านตามวัน"></div>
+    <div id="food-list"></div>
+  </section>
+
   <!-- INFO -->
   <section class="view pad" id="v-info">
     <div class="kicker">Travel info</div>
@@ -517,6 +564,7 @@
     <button class="on" data-v="home" onclick="go('home')"><span class="ni"><i data-i="home"></i></span>หน้าหลัก</button>
     <button data-v="chk" onclick="go('chk')"><span class="ni"><i data-i="check"></i></span>เช็คลิสต์</button>
     <button data-v="plan" onclick="go('plan')"><span class="ni"><i data-i="map"></i></span>แผนเที่ยว</button>
+    <button data-v="food" onclick="go('food')"><span class="ni"><i data-i="food"></i></span>กิน</button>
     <button data-v="info" onclick="go('info')"><span class="ni"><i data-i="info"></i></span>ข้อมูล</button>
   </nav>
 </div>
@@ -701,8 +749,40 @@ const DAYS=[
   ]},
 ];
 
+const FOOD={
+  '1':{tab:'D1 · 3 ธ.ค.',area:"People's Square / 南京东路 / The Bund",items:[
+    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',where:'ในห้าง 上海市第一百货 (南京东路800号)',note:'ทานระหว่างช้อปที่ 第一百货 ได้ · คิวยาวช่วงเสาร์อาทิตย์ เช็ค Dianping',tag:'มื้อเที่ยง/เย็น'},
+    {name:'很久以前羊肉串 Longtime Ago (南京路第一百货店)',zh:'很久以前羊肉串 南京路第一百货店',where:'ห้างเดียวกับ 第一百货',note:'เนื้อแกะเสียบไม้ · ตอนเย็นคิวเกิน 200 → กดคิวใน WeChat ค้น "很久以前羊肉串" → 排队订座',tag:'มื้อเย็น'},
+    {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',note:'อาหารเซี่ยงไฮ้ดั้งเดิม · AMap 4.5 ~¥75/คน · สำรองมื้อเย็น · ร้านอยู่ย่าน 豫园 Yuyuan (ไม่ใช่ 南京东路) — DiDi ~10 นาทีจาก Bund',verify:'ชื่อ/สาขาใน AMap',tag:'สำรองมื้อเย็น'},
+    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',note:'ข้าวราดแกงจีน · สำรองมื้อเย็นถ้าอยากกินง่ายๆ (ดูรายละเอียดในกลุ่ม "ทุกวัน")',tag:'สำรอง'}
+  ]},
+  '2':{tab:'D2 · 4 ธ.ค.',area:'Wukang / Anfu / Huaihai / Xintiandi',items:[
+    {name:'很久以前羊肉串 Longtime Ago (陕西南路店)',zh:'很久以前羊肉串 陕西南路店',where:'ใกล้ Huaihai / Xintiandi',note:'มื้อเย็นก่อนหรือหลังเดิน Xintiandi · กดคิว WeChat ล่วงหน้า',tag:'มื้อเย็น'}
+  ]},
+  '3':{tab:'D3 · 5 ธ.ค.',area:'Suzhou',empty:'ยังไม่มีร้านเพิ่ม — กินตามแพลนเดิม',items:[]},
+  '4':{tab:'D4 · 6 ธ.ค.',area:"Jing'an / West Nanjing / Yuyuan",items:[
+    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',note:'มื้อเที่ยงแทน Hong Shou Fang: จาก Plaza 66 นั่ง Line 2 静安寺 → 人民广场 (2 สถานี) · กินเสร็จ Line 2 ไป 南京西路 1 สถานี ต่อแพลนเดิม',tag:'มื้อเที่ยง'},
+    {name:'很久以前羊肉串 Longtime Ago (南京西路818广场店)',zh:'很久以前羊肉串 南京西路818广场店',where:'ใกล้ West Nanjing Road',note:'ร้านใหญ่ คิวเดินเร็วกว่าสาขาถนนนานจิง',tag:'มื้อเย็น'},
+    {name:'Latina 拉蒂娜',zh:'拉蒂娜 铜仁路88号',where:'铜仁路88号 2F (Jing\'an)',phone:'021-6320 3566',note:'บราซิลปิ้งย่างไม่อั้นเนื้อ · ราคาสูง อิ่มหนัก',tag:'มื้อพิเศษ'},
+    {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',where:'ย่าน Yuyuan',note:'สำรองถ้าคิว Nanxiang ยาวเกิน',verify:true,tag:'สำรองมื้อเย็น'}
+  ]},
+  '5':{tab:'D5 · 7 ธ.ค.',area:'1000 Trees / 巨富长 / Hengshan / Sinan / Lujiazui',items:[
+    {name:'🛍️ adidas Outlet 阿迪达斯(一频道折扣店)',zh:'阿迪达斯 一频道折扣店 巴黎春天陕西路店',where:'长寿路155号 巴黎春天(陕西路店) 4F',note:'ร้านลดราคา · เข้าประตู 东北1门 เดินตรง 20m ขึ้นบันไดเลื่อน · หลัง 1000 Trees ช่วง 11:15–12:30 · ต่อ Line 7 长寿路 → 常熟路 ไม่ต้องเปลี่ยนสาย',tag:'ช้อป'},
+    {name:'新发现 New Found',zh:'新发现',note:'อาหารหางโจว รสไม่จัด เหมาะกับแม่ · ส่วนใหญ่อยู่ในห้าง · สำรองมื้อเย็นแทนฟู้ดคอร์ท Super Brand Mall',tag:'สำรองมื้อเย็น'},
+    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',note:'สำรองมื้อเย็นเหมือนกัน (ถ้าราคา Super Brand Mall สูงไป)',tag:'สำรอง'}
+  ]},
+  '6':{tab:'D6 · 8 ธ.ค.',area:'Airport',empty:'ไม่มี — เช้าไปสนามบิน',items:[]},
+  'all':{tab:'ทุกวัน',area:'ร้านเครือ หลายสาขา',hint:'ค้น AMap แล้วเลือก "附近" ใกล้ที่สุด',items:[
+    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',hours:'ส่วนใหญ่ 10:00–21:00 (กินเช้าไม่ได้)',note:'ข้าวราดแกงจีน หยิบกับข้าวใส่ถาด สแกนจ่ายด้วย AI · ข้าวเติมได้ไม่อั้น น้ำชาฟรี · แนะนำ 青椒肉丝 หมูผัดพริกหยวก'},
+    {name:'周骏牛肉串 Zhou Jun',zh:'周骏牛肉串',hours:'17:00–03:00',note:'เนื้อวัวเสียบไม้ปิ้ง · มื้อเย็น/มื้อดึก'},
+    {name:'新发现 New Found',zh:'新发现',hours:'เปิดทั้งวัน',note:'อาหารหางโจว 90+ สาขา ส่วนใหญ่ในห้าง'},
+    {name:'咬强羊肉面 Yaoqiang Mutton Noodles',zh:'咬强羊肉面',note:'บะหมี่เนื้อแกะ · มื้อเช้า/เที่ยงเร็วๆ · กลิ่นแกะแรง ถามแม่ก่อน'}
+  ]}
+};
+
 let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
 let activeDay='1';
+let activeFoodDay='1';
 
 function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
@@ -714,6 +794,41 @@ function tripDay(){
   if(n<s)return{state:'before',id:'1',days:Math.ceil((s-n)/86400000)};
   if(n>e)return{state:'after',id:'6'};
   return{state:'today',id:String(Math.floor((n-s)/86400000)+1)};
+}
+
+/* BACKUP FOOD */
+function initialFoodDay(){
+  try{const saved=localStorage.getItem('shhFoodDay');if(saved&&FOOD[saved])return saved;}catch(e){}
+  const td=tripDay();return td.state==='today'?td.id:'1';
+}
+function foodEsc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function foodCard(r){
+  const meta=[];
+  if(r.where)meta.push(`<div class="food-meta-row">${ic('pin')}<span>${foodEsc(r.where)}</span></div>`);
+  if(r.hours)meta.push(`<div class="food-meta-row">${ic('clock')}<span>${foodEsc(r.hours)}</span></div>`);
+  if(r.phone){const tel=r.phone.replace(/[^\d+]/g,'');meta.push(`<div class="food-meta-row">${ic('phone')}<a class="food-phone" href="tel:${tel}">${foodEsc(r.phone)}</a></div>`);}
+  const tags=(r.tag?`<span class="food-role">${foodEsc(r.tag)}</span>`:'')+(r.verify?`<span class="food-verify" title="${foodEsc(r.verify===true?'เช็คชื่อ/สาขาใน AMap':r.verify)}">⚠ เช็ค AMap</span>`:'');
+  return `<article class="card food-card">
+    <h2 class="food-name">${foodEsc(r.name)}</h2>
+    ${tags?`<div class="food-tags">${tags}</div>`:''}
+    <button type="button" class="cp food-copy" data-zh="${foodEsc(r.zh)}" onclick="qcopy(event,this,this.dataset.zh)" aria-label="คัดลอกชื่อจีน ${foodEsc(r.zh)}"><span class="zh">${foodEsc(r.zh)}</span><span class="ic">${ic('copy')}</span></button>
+    ${meta.length?`<div class="food-meta">${meta.join('')}</div>`:''}
+    <div class="food-note">${foodEsc(r.note)}</div>
+    <div class="food-actions"><a class="food-amap" href="https://uri.amap.com/search?keyword=${encodeURIComponent(r.zh)}" target="_blank" rel="noopener" aria-label="ค้น ${foodEsc(r.zh)} ใน AMap">${ic('map')} AMap</a></div>
+  </article>`;
+}
+function renderFood(){
+  document.getElementById('food-days').innerHTML=Object.keys(FOOD).map(id=>`<button type="button" class="food-tab ${id===activeFoodDay?'on':''}" onclick="setFoodDay('${id}')" aria-pressed="${id===activeFoodDay}">${FOOD[id].tab}</button>`).join('');
+  const day=FOOD[activeFoodDay];
+  const head=`<div class="food-dayhead"><div class="food-area">${ic('pin')}<span>${foodEsc(day.area)}</span></div>${day.hint?`<div class="food-hint">${foodEsc(day.hint)}</div>`:''}</div>`;
+  const body=day.items.length?day.items.map(foodCard).join(''):`<div class="card food-empty"><span class="em">🍽️</span><p>${foodEsc(day.empty)}</p></div>`;
+  document.getElementById('food-list').innerHTML=head+body;
+}
+function setFoodDay(id){
+  if(!FOOD[id])return;activeFoodDay=id;
+  try{localStorage.setItem('shhFoodDay',id);}catch(e){}
+  renderFood();
+  const tab=document.querySelector('.food-tab.on');if(tab)tab.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
 }
 function renderToday(){
   const info=tripDay(),d=DAYS.find(x=>x.id===info.id);
@@ -924,7 +1039,7 @@ function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.styl
 function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
 
 /* INIT */
-hydrateIcons();renderToday();renderChk();renderDays();initSwipe();initModalSwipe();
+hydrateIcons();activeFoodDay=initialFoodDay();renderToday();renderChk();renderDays();renderFood();initSwipe();initModalSwipe();
 document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
 document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
 </script>
