@@ -30,7 +30,8 @@
 
   var PYODIDE_VERSION = '0.26.4';
   var PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v' + PYODIDE_VERSION + '/full/';
-  var PY_FILES = ['__init__.py', 'normalize.py', 'sheet.py', 'db.py', 'checker.py', 'api.py'];
+  // GitHub Pages (Jekyll) hides files starting with '_', so __init__.py is served as pkg_init.py
+  var PY_FILES = ['pkg_init.py', 'normalize.py', 'sheet.py', 'db.py', 'checker.py', 'api.py'];
   var GAMES = ['pc', 'mobile'];
   var SESSION_KEY = 'qaitem_pw';
 
@@ -65,7 +66,10 @@
           return r.text();
         });
       }));
-      files.forEach(function (src, i) { py.FS.writeFile('/app/qaitem/' + PY_FILES[i], src); });
+      files.forEach(function (src, i) {
+        var name = PY_FILES[i] === 'pkg_init.py' ? '__init__.py' : PY_FILES[i];
+        py.FS.writeFile('/app/qaitem/' + name, src);
+      });
       py.runPython('import sys\nsys.path.insert(0, "/app")\nimport qaitem.api as qa\nimport json');
       state.manifest = await fetch(base + 'data/manifest.json', { cache: 'no-cache' })
         .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
