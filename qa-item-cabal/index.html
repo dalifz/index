@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="QA Item Cabal — ตรวจสอบข้อมูลไอเทมในเอกสารโปรโมชั่นและกิจกรรมก่อนส่งต่อ">
+  <title>QA Item Cabal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
+
+  <div id="global-status" class="sr-only" role="status" aria-live="polite"></div>
+
+  <section id="loading-screen" class="gate-screen" aria-labelledby="loading-title">
+    <div class="gate-ambient" aria-hidden="true"></div>
+    <div class="gate-card loading-card">
+      <div class="gate-brand">
+        <svg class="brand-mark brand-mark--large" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="mark-frame" d="M22 3 38 9v11c0 10-6.7 17.2-16 21-9.3-3.8-16-11-16-21V9l16-6Z"/>
+          <path class="mark-check" d="m13.5 21.5 5.3 5.2 11.7-12"/>
+          <path class="mark-scan" d="M11 33h22"/>
+        </svg>
+        <div>
+          <p class="eyebrow">ระบบตรวจสอบคุณภาพ</p>
+          <h1 id="loading-title">QA Item Cabal</h1>
+        </div>
+      </div>
+      <div class="loading-orbit" aria-hidden="true"><span></span></div>
+      <p id="loading-step" class="loading-step">กำลังเตรียมระบบตรวจสอบ</p>
+      <div class="progress-track" role="progressbar" aria-label="ความคืบหน้าการโหลด" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4">
+        <span id="loading-progress" style="width:4%"></span>
+      </div>
+      <p class="loading-note">กำลังเปิด Python engine สำหรับตรวจข้อมูลในเครื่องของคุณ</p>
+      <div id="loading-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
+      <button id="retry-init" class="button button--secondary" type="button" hidden>ลองโหลดอีกครั้ง</button>
+    </div>
+  </section>
+
+  <section id="unlock-screen" class="gate-screen" aria-labelledby="unlock-title" hidden>
+    <div class="gate-ambient" aria-hidden="true"></div>
+    <div class="gate-card unlock-card">
+      <div class="gate-brand">
+        <svg class="brand-mark brand-mark--large" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="mark-frame" d="M22 3 38 9v11c0 10-6.7 17.2-16 21-9.3-3.8-16-11-16-21V9l16-6Z"/>
+          <path class="mark-check" d="m13.5 21.5 5.3 5.2 11.7-12"/>
+          <path class="mark-scan" d="M11 33h22"/>
+        </svg>
+        <div>
+          <p class="eyebrow">ฐานข้อมูลเข้ารหัส</p>
+          <h1 id="unlock-title">เปิดฐานข้อมูลของทีม</h1>
+        </div>
+      </div>
+      <p class="gate-copy">ข้อมูลไอเทมถูกเข้ารหัส กรุณาใส่รหัสผ่านทีมเพื่อเริ่มตรวจเอกสาร</p>
+      <form id="unlock-form" novalidate>
+        <label class="field-label" for="team-password">รหัสผ่านทีม</label>
+        <div class="input-with-action">
+          <input id="team-password" name="password" type="password" autocomplete="current-password" required autofocus>
+          <button class="icon-button input-action" type="button" data-toggle-password="team-password" aria-label="แสดงรหัสผ่าน">
+            <span aria-hidden="true">ดู</span>
+          </button>
+        </div>
+        <div id="unlock-error" class="field-message field-message--error" role="alert" hidden></div>
+        <button id="unlock-button" class="button button--primary button--wide" type="submit">
+          <span>เปิดฐานข้อมูล</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
+      <p class="privacy-note">รหัสจะจำไว้เฉพาะแท็บนี้ และไม่ถูกส่งออกจากเบราว์เซอร์</p>
+    </div>
+  </section>
+
+  <div id="app-shell" class="app-shell" hidden>
+    <header class="topbar">
+      <a class="product-brand" href="#check" data-nav="check" aria-label="QA Item Cabal หน้าตรวจเอกสาร">
+        <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+          <path class="mark-frame" d="M22 3 38 9v11c0 10-6.7 17.2-16 21-9.3-3.8-16-11-16-21V9l16-6Z"/>
+          <path class="mark-check" d="m13.5 21.5 5.3 5.2 11.7-12"/>
+          <path class="mark-scan" d="M11 33h22"/>
+        </svg>
+        <span>
+          <strong>QA Item</strong>
+          <small>CABAL</small>
+        </span>
+      </a>
+
+      <div class="game-switcher" role="group" aria-label="เลือกเกม">
+        <button class="game-option is-active" type="button" data-game="pc" aria-pressed="true">
+          <span class="game-dot"></span>
+          <span><small>ฐานข้อมูล</small><strong>Cabal PC</strong></span>
+        </button>
+        <button class="game-option" type="button" data-game="mobile" aria-pressed="false">
+          <span class="game-dot"></span>
+          <span><small>ฐานข้อมูล</small><strong>Cabal Mobile</strong></span>
+        </button>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="db-health" aria-label="สถานะฐานข้อมูล">
+          <span class="status-dot"></span>
+          <span><strong id="top-db-items">—</strong> ไอเทม</span>
+          <span class="db-health__date" id="top-db-date">อัปเดต —</span>
+          <span class="pending-chip" id="top-db-pending" hidden>รออัปเดต 0</span>
+        </div>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="สลับธีมสี"><span aria-hidden="true">◐</span></button>
+        <button id="lock-button" class="icon-button icon-button--text" type="button" aria-label="ล็อกฐานข้อมูล">
+          <span aria-hidden="true">⌁</span><span class="hide-on-small">ล็อก</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <nav class="main-nav">
+          <button class="nav-item is-active" type="button" data-view="check">
+            <span class="nav-icon" aria-hidden="true">✓</span><span>ตรวจเอกสาร</span>
+          </button>
+          <button class="nav-item" type="button" data-view="items">
+            <span class="nav-icon" aria-hidden="true">⌘</span><span>ฐานข้อมูลไอเทม</span>
+          </button>
+          <button class="nav-item" type="button" data-view="add">
+            <span class="nav-icon" aria-hidden="true">＋</span><span>เพิ่มไอเทม</span><span class="admin-tag">ผู้ดูแล</span>
+          </button>
+          <button class="nav-item" type="button" data-view="history">
+            <span class="nav-icon" aria-hidden="true">↺</span><span>ประวัติ</span>
+          </button>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="confidence-mark"><span>✓</span><p><strong>ตรวจด้วย Python</strong><small>กฎเดียวกับระบบกลาง</small></p></div>
+          <p id="engine-version" class="version-label">Engine พร้อมใช้งาน</p>
+        </div>
+      </aside>
+
+      <main id="main-content" class="main-content">
+        <section id="view-check" class="view is-active" data-view-panel="check" aria-labelledby="check-title">
+          <div id="check-workspace">
+            <div class="page-heading page-heading--split">
+              <div>
+                <p class="section-kicker"><span class="accent-pip"></span>ตรวจสอบก่อนส่งต่อ</p>
+                <h1 id="check-title">ตรวจเอกสารไอเทม</h1>
+                <p>วางลิงก์ Google Sheet หรือเลือกไฟล์ Excel ระบบจะชี้จุดผิดพร้อมค่าที่ควรเป็น</p>
+              </div>
+              <div class="trust-chip"><span aria-hidden="true">●</span> ข้อมูลประมวลผลในเบราว์เซอร์</div>
+            </div>
+
+            <div id="source-inputs" class="source-grid">
+              <article id="google-source-card" class="source-card">
+                <div class="source-card__head">
+                  <div class="source-icon source-icon--sheets" aria-hidden="true"><span></span></div>
+                  <div><h2>Google Sheet</h2><p>อ่านจากเอกสารต้นฉบับโดยตรง</p></div>
+                </div>
+                <form id="google-form" class="source-form">
+                  <label class="sr-only" for="sheet-url">ลิงก์ Google Sheet</label>
+                  <input id="sheet-url" type="url" inputmode="url" autocomplete="off" placeholder="วางลิงก์ Google Sheet" required>
+                  <button id="load-sheets-button" class="button button--primary" type="submit">โหลดรายชื่อชีท</button>
+                </form>
+                <p id="google-disabled-note" class="source-note" hidden>ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet</p>
+                <div id="google-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
+              </article>
+
+              <article class="source-card">
+                <div class="source-card__head">
+                  <div class="source-icon source-icon--excel" aria-hidden="true">X</div>
+                  <div><h2>ไฟล์ Excel</h2><p>รองรับ .xlsx, .xls ขนาดไม่เกิน 30 MB</p></div>
+                </div>
+                <label id="file-drop" class="file-drop" for="excel-file" tabindex="0">
+                  <input id="excel-file" type="file" accept=".xlsx,.xls,.xlsm" hidden>
+                  <span class="file-drop__icon" aria-hidden="true">↑</span>
+                  <span><strong>ลากไฟล์มาวาง</strong> หรือเลือกจากเครื่อง</span>
+                </label>
+                <div id="excel-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
+              </article>
+            </div>
+
+            <article id="sheet-picker-panel" class="panel picker-panel" hidden>
+              <div class="panel-head panel-head--responsive">
+                <div>
+                  <p class="eyebrow">แหล่งข้อมูลที่เลือก</p>
+                  <h2 id="source-title">—</h2>
+                  <p id="source-meta" class="muted-text">—</p>
+                </div>
+                <button id="clear-source" class="button button--ghost" type="button">เปลี่ยนเอกสาร</button>
+              </div>
+              <div class="picker-toolbar">
+                <label class="check-control"><input id="select-all-sheets" type="checkbox" checked><span>เลือกชีทที่มองเห็นทั้งหมด</span></label>
+                <label class="switch-control"><input id="show-hidden-sheets" type="checkbox"><span class="switch-ui"></span><span>แสดงชีทที่ซ่อน</span></label>
+              </div>
+              <div id="sheet-list" class="sheet-list" role="group" aria-label="เลือกชีทที่จะตรวจ"></div>
+              <div id="game-mismatch" class="inline-alert inline-alert--warn mismatch-alert" hidden>
+                <div><strong id="mismatch-title">ชื่อเอกสารดูเหมือนเป็นอีกเกม</strong><p id="mismatch-copy"></p></div>
+                <button id="switch-detected-game" class="button button--secondary button--small" type="button">เปลี่ยนฐานข้อมูล</button>
+              </div>
+              <div id="check-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
+              <div class="run-bar">
+                <div><span id="selected-sheet-count">0 ชีท</span><small id="selected-row-count">0 แถวโดยประมาณ</small></div>
+                <button id="run-check" class="button button--primary button--run" type="button" disabled>
+                  <span aria-hidden="true">✓</span><span>เริ่มตรวจเอกสาร</span>
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <section id="results-screen" class="results-screen" aria-labelledby="results-title" hidden>
+            <div class="results-topline">
+              <button id="back-to-check" class="button button--ghost" type="button">← ตรวจเอกสารอื่น</button>
+              <div class="results-actions">
+                <button id="copy-report" class="button button--secondary" type="button">คัดลอกรายงาน</button>
+                <button id="download-csv" class="button button--secondary" type="button">ดาวน์โหลด CSV</button>
+                <button id="rerun-check" class="button button--primary" type="button">ตรวจใหม่</button>
+              </div>
+            </div>
+
+            <article id="result-hero" class="result-hero">
+              <div class="verdict-block">
+                <div id="verdict-icon" class="verdict-icon" aria-hidden="true">!</div>
+                <div>
+                  <p id="result-source" class="eyebrow">—</p>
+                  <h1 id="results-title">พบจุดที่ต้องแก้</h1>
+                  <p id="result-subtitle">—</p>
+                </div>
+              </div>
+              <dl class="summary-grid">
+                <div><dt>แถวที่ตรวจ</dt><dd id="summary-rows">0</dd></div>
+                <div class="summary-error"><dt>แถวที่ผิด</dt><dd id="summary-error-rows">0</dd></div>
+                <div class="summary-warn"><dt>แถวน่าสงสัย</dt><dd id="summary-warn-rows">0</dd></div>
+                <div class="summary-ok"><dt>แถวปกติ</dt><dd id="summary-ok-rows">0</dd></div>
+              </dl>
+            </article>
+
+            <div id="result-notes" class="notice-stack" hidden></div>
+
+            <div id="finding-tools" class="finding-tools">
+              <div class="severity-filters" role="group" aria-label="กรองระดับผลตรวจ">
+                <label class="filter-chip filter-chip--error"><input type="checkbox" data-severity="error" checked><span>ผิด <strong id="count-errors">0</strong></span></label>
+                <label class="filter-chip filter-chip--warn"><input type="checkbox" data-severity="warn" checked><span>น่าสงสัย <strong id="count-warnings">0</strong></span></label>
+                <label class="filter-chip"><input type="checkbox" data-severity="info"><span>ข้อมูล <strong id="count-infos">0</strong></span></label>
+              </div>
+              <div class="finding-selects">
+                <label><span class="sr-only">กรองชีท</span><select id="filter-sheet"><option value="">ทุกชีท</option></select></label>
+                <label><span class="sr-only">กรองโปรโมชั่น</span><select id="filter-pack"><option value="">ทุกโปรโมชั่น</option></select></label>
+                <label><span class="sr-only">กรองกฎ</span><select id="filter-rule"><option value="">ทุกกฎ</option></select></label>
+                <label class="filter-search"><span aria-hidden="true">⌕</span><input id="filter-text" type="search" placeholder="ค้นหาไอเทม, แถว, ค่า…"></label>
+              </div>
+            </div>
+
+            <div class="findings-heading">
+              <div><h2>รายการที่พบ</h2><p id="filtered-count">—</p></div>
+              <p class="result-hint"><span aria-hidden="true">↗</span> กดที่เซลล์เพื่อเปิดตำแหน่งใน Google Sheet</p>
+            </div>
+            <div id="findings-root" class="findings-root"></div>
+            <div id="findings-empty" class="empty-state" hidden>
+              <span aria-hidden="true">⌕</span><h3>ไม่พบรายการตามตัวกรอง</h3><p>ลองเปลี่ยนระดับ ชีท โปรโมชั่น หรือคำค้นหา</p>
+            </div>
+            <div id="perfect-state" class="perfect-state" hidden>
+              <div class="perfect-mark" aria-hidden="true">✓</div>
+              <p class="eyebrow">ผ่านการตรวจสอบ</p>
+              <h2>ตรวจครบแล้ว ไม่พบจุดผิด</h2>
+              <p>เอกสารนี้พร้อมส่งต่อ ทีมถัดไปทำงานได้อย่างมั่นใจ</p>
+            </div>
+            <button id="load-more-findings" class="button button--secondary load-more" type="button" hidden>แสดงรายการเพิ่ม</button>
+          </section>
+        </section>
+
+        <section id="view-items" class="view" data-view-panel="items" aria-labelledby="items-title" hidden>
+          <div class="page-heading page-heading--split">
+            <div><p class="section-kicker"><span class="accent-pip"></span>ข้อมูลอ้างอิง</p><h1 id="items-title">ฐานข้อมูลไอเทม</h1><p>ค้นหาด้วย ItemIndex, ItemKind, Item Name หรือ Display Name</p></div>
+            <div class="stat-card"><strong id="items-total">—</strong><span>รายการในฐานข้อมูล <b id="items-game-label">PC</b></span></div>
+          </div>
+          <article class="panel data-panel">
+            <div class="table-toolbar">
+              <label class="large-search"><span aria-hidden="true">⌕</span><input id="item-search" type="search" autocomplete="off" placeholder="ค้นหา เช่น 33556820 หรือ Force Wing Elixir"><kbd>/</kbd></label>
+              <p id="item-result-count" class="muted-text">แสดง 100 รายการแรก</p>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table item-table">
+                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Stackable</th><th>Itemmove</th><th>Item Name</th><th>Display Name</th><th>Period</th></tr></thead>
+                <tbody id="item-table-body"></tbody>
+              </table>
+            </div>
+            <div id="items-empty" class="table-empty" hidden>ไม่พบไอเทมที่ตรงกับคำค้นหา</div>
+          </article>
+        </section>
+
+        <section id="view-add" class="view" data-view-panel="add" aria-labelledby="add-title" hidden>
+          <div class="page-heading">
+            <p class="section-kicker"><span class="accent-pip"></span>สำหรับผู้ดูแลระบบ</p>
+            <h1 id="add-title">เพิ่มไอเทมเข้าฐานข้อมูล</h1>
+            <p>ระบบจะตรวจค่ากับกฎชุดเดียวกับหน้าเอกสารก่อนอนุญาตให้บันทึก</p>
+          </div>
+          <form id="add-item-form" class="add-layout" novalidate>
+            <article class="panel form-panel">
+              <div class="panel-head"><div><p class="eyebrow">ข้อมูลอ้างอิงไอเทม</p><h2>ข้อมูลไอเทม</h2></div><span id="add-game-badge" class="game-badge">CABAL PC</span></div>
+              <div class="form-grid form-grid--numbers">
+                <label><span>ItemKind <em>*</em></span><input name="kind" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 70368777738580"></label>
+                <label><span>ItemIndex <em>*</em></span><input name="index" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 33556820"></label>
+                <label><span>ItemOption <em>*</em></span><input name="option" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 65536000001"></label>
+                <label><span>DurationIndex <em>*</em></span><input name="duration" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="0, 9, 12…"></label>
+              </div>
+              <div class="form-grid">
+                <label class="span-2"><span>Item Name <em>*</em></span><input name="name" type="text" autocomplete="off" required placeholder="ชื่อไอเทมตามฐานข้อมูล"></label>
+                <label class="span-2"><span>Display Name</span><input name="display_name" type="text" autocomplete="off" placeholder="ชื่อที่แสดงในเอกสาร (ถ้ามี)"></label>
+                <label class="span-2"><span>Period</span><input name="period" type="text" autocomplete="off" placeholder="เช่น 7 Days, 1 Day, Permanent, ถาวร"></label>
+              </div>
+              <div class="binary-grid">
+                <fieldset><legend>Stackable <em>*</em></legend><div class="segment-control"><label><input type="radio" name="stackable" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="stackable" value="No"><span>No</span></label></div></fieldset>
+                <fieldset><legend>Itemmove <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
+              </div>
+            </article>
+
+            <aside class="add-sidebar">
+              <article class="panel validation-panel">
+                <p class="eyebrow">ตรวจข้อมูลทันที</p>
+                <div id="validation-idle" class="validation-idle"><span aria-hidden="true">◇</span><p><strong>รอข้อมูลไอเทม</strong><small>กรอกช่องบังคับเพื่อเริ่มตรวจ</small></p></div>
+                <div id="validation-running" class="validation-idle" hidden><span class="mini-spinner" aria-hidden="true"></span><p><strong>กำลังตรวจข้อมูล</strong><small>ใช้กฎจาก Python engine</small></p></div>
+                <div id="validation-result" hidden>
+                  <div id="validation-state" class="validation-state"></div>
+                  <ul id="validation-errors" class="message-list message-list--error"></ul>
+                  <ul id="validation-warnings" class="message-list message-list--warn"></ul>
+                </div>
+              </article>
+              <article class="panel token-panel">
+                <label class="field-label" for="github-token">GitHub token ของ admin</label>
+                <div class="input-with-action">
+                  <input id="github-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+                  <button class="icon-button input-action" type="button" data-toggle-password="github-token" aria-label="แสดง token"><span aria-hidden="true">ดู</span></button>
+                </div>
+                <p>ใช้สิทธิ์เขียนเฉพาะ repo ข้อมูล เก็บไว้ในเบราว์เซอร์เครื่องนี้ด้วย localStorage</p>
+              </article>
+              <div id="add-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
+              <div id="add-success" class="success-card" role="status" hidden></div>
+              <button id="save-item" class="button button--primary button--wide" type="submit" disabled>ตรวจแล้วบันทึกไอเทม</button>
+            </aside>
+          </form>
+        </section>
+
+        <section id="view-history" class="view" data-view-panel="history" aria-labelledby="history-title" hidden>
+          <div class="page-heading page-heading--split">
+            <div><p class="section-kicker"><span class="accent-pip"></span>ย้อนหลัง 30 รายการต่อเกม</p><h1 id="history-title">ประวัติการตรวจ</h1><p>บันทึกไว้ในเบราว์เซอร์เครื่องนี้ ลิงก์ Google Sheet เปิดกลับไปยังต้นฉบับได้</p></div>
+            <button id="clear-history" class="button button--ghost button--danger" type="button">ล้างประวัติเกมนี้</button>
+          </div>
+          <article class="panel history-panel">
+            <div id="history-list" class="history-list"></div>
+            <div id="history-empty" class="empty-state" hidden><span aria-hidden="true">↺</span><h3>ยังไม่มีประวัติการตรวจ</h3><p>เมื่อเริ่มตรวจเอกสาร รายการล่าสุดจะแสดงที่นี่</p></div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

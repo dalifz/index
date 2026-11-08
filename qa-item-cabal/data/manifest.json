@@ -1,0 +1,15 @@
+{
+ "engine": "2.0.0",
+ "built_at": "2026-11-08T05:26:33+00:00",
+ "games": {
+  "pc": {
+   "items": 7
+  },
+  "mobile": {
+   "items": 8
+  }
+ },
+ "config": {
+  "sheet_api": false
+ }
+}
