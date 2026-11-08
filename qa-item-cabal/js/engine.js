@@ -35,8 +35,9 @@
   var GAMES = ['pc', 'mobile'];
   var SESSION_KEY = 'qaitem_pw';
 
-  var base = (document.currentScript && document.currentScript.src) ?
-    document.currentScript.src.replace(/js\/engine\.js.*$/, '') : './';
+  var src = (document.currentScript && document.currentScript.src) || '';
+  var base = src ? src.replace(/js\/engine\.js.*$/, '') : './';
+  var ver = (src.match(/[?&]v=([^&]+)/) || [])[1] || String(Date.now());
 
   var py = null, initPromise = null;
   var state = { bundles: {}, config: null, manifest: null, pending: { pc: [], mobile: [] } };
@@ -61,7 +62,7 @@
       progress(onProgress, 'กำลังโหลดกฎตรวจ', 70);
       py.FS.mkdirTree('/app/qaitem');
       var files = await Promise.all(PY_FILES.map(function (f) {
-        return fetch(base + 'py/qaitem/' + f, { cache: 'no-cache' }).then(function (r) {
+        return fetch(base + 'py/qaitem/' + f + '?v=' + ver, { cache: 'no-cache' }).then(function (r) {
           if (!r.ok) throw new Error('โหลด ' + f + ' ไม่ได้');
           return r.text();
         });
