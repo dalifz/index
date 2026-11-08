@@ -515,7 +515,7 @@
         Day 1 — ช้อป Nanjing Road ในห้าง/ร้านใหญ่ แล้วเลื่อน The Bund ไป Day 4 หรือ 5<br>
         Day 2 — อยู่ใน HAUS NOWHERE / ร้าน Huaihai / Xintiandi Style และเรียก Didi ข้ามช่วงถนน<br>
         Day 3 Suzhou — ลด Pingjiang + Shantang; เพิ่มเวลา Suzhou MixC World / HONG ART GALLERY<br>
-        Day 4 — ตัด Bund sunrise; อยู่ Plaza 66 / Jing’an Kerry Centre / Zhangyuan และกินในอาคาร Yuyuan<br>
+        Day 4 — ตัด Bund ช่วงเช้า → ไปรอ Longtime Ago (第一百货 ในห้าง) 11:00 แล้ว อยู่ Plaza 66 / Jing’an Kerry Centre / Zhangyuan และกินในอาคาร Yuyuan<br>
         Day 5 — เข้า 1000 Trees; ตัด city walk แล้วไป Super Brand Mall / IFC Mall ที่ Lujiazui</div>
       <div class="muted" style="font-size:.76rem;margin-top:6px">อ้างอิง: <a href="https://worldweather.wmo.int/en/city.html?cityId=240" target="_blank" rel="noopener">WMO/CMA</a> · <a href="https://ds.data.jma.go.jp/tcc/tcc/products/climate/normal/parts/NrmMonth_e.php?stn=58362" target="_blank" rel="noopener">JMA Climate Normals</a> · ค่าปกติ Xujiahui 1991–2020 (CMA) · อัปเดต 31 ต.ค. 2026</div></div>
     <div class="card"><h3 style="margin-bottom:8px"><span class="em">🚇</span>สายรถไฟฟ้าที่ใช้</h3>
@@ -629,7 +629,7 @@ const CARDS=[
 const DAYS=[
  {id:'1',tab:'DAY 1',date:'Dec 3',emoji:'✈️',cardTitle:'Arrival → Tianjin Rd Food → Nanjing Road → The Bund Lights',summary:'PVG 08:45 → Jinjiang Inn → 天津路 Lunch → 第一百货 → Nanjing East Road → The Bund ไฟเปิด → Rockbund',title:'Day 1 — Dec 3 · Arrival → Tianjin Rd Food → Nanjing Road Shopping → The Bund Lights → Rockbund',route:'PVG → 大世界 → 天津路 Tianjin Rd → 第一百货 → 南京东路 → 外滩 The Bund → 外滩源 Rockbund',
   slots:[
-   {t:'03:20–08:45',icon:'✈️',label:'Flight 9C7294',note:'BKK → PVG T2 · ออกจากบ้านคืนวันที่ 2 ราว 00:00–00:30 · เช็ค passport · นอนบนเครื่อง',places:[P('PVG T2 — Shanghai Pudong International Airport','浦东国际机场T2')]},
+   {t:'03:20–08:45',icon:'✈️',label:'Flight 9C7294',note:'BKK → PVG T2 · ออกจากบ้าน 22:00 คืนวันพุธที่ 2 ธ.ค. · เคาน์เตอร์ Spring เปิด 00:20 (3 ชม.ก่อนบิน) ไปรอหน้าเคาน์เตอร์ · เช็ค passport · นอนบนเครื่อง',places:[P('PVG T2 — Shanghai Pudong International Airport','浦东国际机场T2')]},
    {t:'08:45–09:45',icon:'🛂',label:'ตม. + รับกระเป๋า',note:'กรอก China Arrival Card ไว้ก่อน · ซื้อซิม / เติมบัตรเมโทรที่สนามบินถ้ายังไม่มี'},
    {t:'09:45–11:10',icon:'🚇',label:'Metro · Line 2 → 徐泾东 · Line 8 → 沈杜公路',note:'浦东国际机场 Pudong Airport ขึ้น Line 2 ทิศ 徐泾东 Xujing East → ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · ~1 ชม. 25 นาที · มีกระเป๋า + เหนื่อย → DiDi ~1 ชม. แทนได้',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
    {t:'11:15',icon:'🧳',label:'ฝากกระเป๋า',note:'Check-in ได้ 14:00 · ฝากกระเป๋าที่ล็อบบี้ก่อน · ลองขอ early check-in',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
@@ -642,7 +642,7 @@ const DAYS=[
    {t:'16:45–17:15',icon:'🚶',label:'Walk → The Bund',note:'เดิน ~10 นาที · หาจุดตั้งกล้องก่อน · 🌇 พระอาทิตย์ตก ~16:50 ฟ้าสีน้ำเงินหลังจากนั้นถ่ายสวย',places:[P('The Bund','外滩')]},
    {t:'~18:00',icon:'🎥',label:'The Bund ไฟเปิด ⭐',note:'อัดคอนเทนต์ช่วงไฟค่อยๆ เปิด · เวลาเปิดไฟฤดูหนาว ~18:00 (ไม่มีเวลาทางการ มาก่อน 17:15 ชัวร์สุด) · ลมริมแม่น้ำแรง ~5°C ใส่อุ่นๆ',places:[P('The Bund','外滩')]},
    {t:'18:30–19:30',icon:'🎄',label:'Rockbund คริสต์มาส',note:'ตรอกตึกอิฐสีน้ำตาล 圆明园路 Yuanmingyuan Road · เดินจาก Bund ~10 นาที · ปกติมีงานคริสต์มาส คนเยอะ · ⚠️ ใกล้วันไปค้น 外滩源 圣诞 ใน Xiaohongshu ดูว่าเริ่มจัดหรือยัง',places:[P('Rockbund','外滩源'),P('Yuanmingyuan Road','圆明园路')]},
-   {t:'19:30–20:30',icon:'🍜',label:'Dinner',note:'แถว Bund / 南京东路 · เลือกหน้างาน'},
+   {t:'19:30–20:30',icon:'🍢',label:'Street Food ถนนนานจิง ⭐',note:'เดินกินเล่นทางกลับโรงแรม (แบบคลิป "ตะลุยกินสตรีทฟู้ด ถนนหนานจิง") · 天津路 Tianjin Road หลังถนนนานจิง: Lailai Xiaolongbao / Xie Sanbao / Fat Girl Noodle / Chabaidao · 第一食品 First Food Hall ขนมของฝาก · 黄河路 Huanghe Road ใกล้ People\'s Square · ปิดท้าย 云南南路 Yunnan South Road ข้างโรงแรม',places:[P('Tianjin Road','天津路'),P('First Food Hall','第一食品商店'),P('Huanghe Road Food Street','黄河路美食街')]},
    {t:'~20:30',icon:'🏨',label:'กลับโรงแรม (+ Check-in ถ้ายังไม่ได้รับห้อง)',note:'เดินมาทั้งวัน → DiDi ~10 นาที หรือ Metro: 南京东路 East Nanjing Road ขึ้น Line 2 ทิศ 徐泾东 Xujing East → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → ลง 大世界 Dashijie Exit 5',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
  {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',cardTitle:'Wukang/Tai\'an → Anfu → Huaihai → Xintiandi',summary:'Wukang/Tai\'an (early photos + Grayfleece) → Anfu → HAUS NOWHERE → Xintiandi',title:'Day 2 — Dec 4 · Wukang/Tai\'an (early photos + Grayfleece) → Anfu → Huaihai → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → Xintiandi',
@@ -685,57 +685,52 @@ const DAYS=[
    {t:'18:30–18:55',icon:'🚇',label:'Metro',note:'⏰ ออกจาก 山塘街 Shantang Street ไม่เกิน 18:30 · ขึ้นที่ 山塘街 Shantang Street → ลงที่ 苏州火车站 Suzhou Railway Station · 1 สถานี (ติดกัน) · ~18:50–18:55 ถึงสถานี ตรวจพาสปอร์ต + สแกนกระเป๋า + หาชานชาลา · เผื่อเวลา ~1 ชม. · ⛔ ประตูขึ้นรถปิด 19:48',places:[P('Shantang Street','山塘街'),P('Suzhou Railway Station','苏州火车站')]},
    {t:'19:53–20:21',icon:'🚄',label:'HSR ✅ D951',note:'ชั้นสอง · 2 คน · ตั๋วออกจริง 21 พ.ย. · ⚠️ ลง 上海站 Shanghai Railway Station ไม่ใช่หงเฉียว (ใกล้โรงแรมกว่า)',places:[P('Suzhou','苏州站'),P('Shanghai Railway Station','上海站')]},
    {t:'20:35–21:00',icon:'🚇',label:'Metro',note:'ลงจากชานชาลา + เดินไปสถานี Metro ~15 นาที · ขึ้นที่ 上海火车站 Shanghai Railway Station → ลงที่ 大世界 Dashijie · เปลี่ยนที่ 人民广场 People\'s Square · ยืนยันทิศใน AMap',places:[P('Shanghai Railway Station','上海火车站'),P('Dashijie','大世界')]},
-   {t:'~21:10',icon:'🏨',label:'Hotel',note:'พรุ่งนี้ตื่น 05:40 ไป Bund (ตัดได้ถ้าแม่เหนื่อย)',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'~21:10',icon:'🏨',label:'Hotel',note:'พรุ่งนี้ออก 07:30 ถ่าย The Bund ช่วงเช้า (ไม่ต้องตื่นดูพระอาทิตย์ขึ้น)',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'4',tab:'DAY 4',date:'Dec 6',emoji:'🛕',cardTitle:'Bund Sunrise → Longhua → Jing’an → Yuyuan',summary:'Bund Sunrise → Longhua → Jing’an → West Nanjing → Yuyuan',title:'Day 4 — Dec 6 · Bund Sunrise → Longhua → Jing’an → West Nanjing → Zhangyuan → Yuyuan',route:'Bund Sunrise 外滩日出 → Longhua 龙华 → Jing’an → Yuyuan 豫园',
+ {id:'4',tab:'DAY 4',date:'Dec 6',emoji:'🛕',cardTitle:'Bund Morning → Longtime Ago → Longhua → Jing’an → Yuyuan',summary:'Bund ช่วงเช้า → Longtime Ago → Longhua → Jing’an → West Nanjing → Yuyuan',title:'Day 4 — Dec 6 · Bund Morning → Longtime Ago → Longhua → Jing’an → West Nanjing → Zhangyuan → Yuyuan',route:'外滩 Bund ช่วงเช้า → 第一百货 Longtime Ago → Longhua 龙华 → Jing’an → Yuyuan 豫园',
   slots:[
-   {t:'05:40',icon:'⏰',label:'ตื่น / แต่งตัว',note:'แต่งตัวอุ่นๆ: เสื้อคลุม + ถุงน่องบุขน + ผ้าพันคอ + ถุงมือ · 🔴 ตัดได้ทั้งช่วงเช้า ถ้าแม่เหนื่อย → เริ่มวันที่ 09:00 ตามเดิม'},
-   {t:'06:00',icon:'🚶',label:'Walk',note:'Jinjiang Inn → 外滩观景台 The Bund Viewing Deck (ฝั่ง 南京东路 East Nanjing Road) · ~1.2 กม. ~20 นาที',places:[P('外滩观景台 Bund Observation Deck','')]},
-   {t:'06:20',icon:'📸',label:'Photo ⭐',note:'🌅 พระอาทิตย์ขึ้น 06:39 หลัง 东方明珠 Oriental Pearl · ฟ้าเริ่มสว่าง 06:12',img:'assets/day4-shoothing Location.png',places:[P('外滩观景台 Bund Observation Deck','')]},
-   {t:'06:50',icon:'📸',label:'Photo',note:'ประตูเหนือ · เดิน 279 ม.',places:[P('和平饭店 (北门) Peace Hotel','')]},
-   {t:'07:05',icon:'📸',label:'Photo',note:'สะพานเหล็ก · เดิน 410 ม.',places:[P('外白渡桥 Waibaidu Bridge','')]},
-   {t:'07:15',icon:'📸',label:'Photo',note:'ค้น AMap: 外滩源 Rockbund',places:[P('โบสถ์อิฐแดง 外滩源 Rockbund','')]},
-   {t:'07:20',icon:'📸',label:'Photo',note:'เดิน ~100 ม. · ☕ 沩 flower coffee bar ถัดไป 183 ม. — น่าจะยังไม่เปิด เช็ค AMap ก่อน',places:[P('乍浦路桥 Zhapu Road Bridge','')]},
-   {t:'07:30',icon:'🚇',label:'Return',note:'→ Jinjiang Inn · ใช้ AMap (หรือเดินย้อนริมแม่น้ำ)'},
-   {t:'~08:00',icon:'🍞',label:'Breakfast',note:'พักที่โรงแรม + หาอาหารเช้าแถว 云南南路 South Yunnan Road'},
-   {t:'09:00',icon:'🚇',label:'Metro',places:[P('Dashijie','大世界'),P('Longhua','龙华')]},
-   {t:'~10:00',icon:'📸',label:'Photo',places:[P('Longhua','龙华')]},
-   {t:'~10:45',icon:'🚇',label:'Metro',places:[P('Longhua','龙华'),P('Jing’an','静安')]},
-   {t:'11:30',icon:'🏙️',label:'Explore',places:[P('Jing’an','静安')]},
-   {t:'12:00',icon:'🛍️',label:'Shopping',places:[P('Plaza 66','')]},
-   {t:'13:00',icon:'🍜',label:'Lunch',places:[P('Hong Shou Fang','')]},
-   {t:'14:00',icon:'🍜',label:'Food',note:'หรือเลือกกิน 1 ร้าน',places:[P('Hui Flavor','')]},
-   {t:'15:00',icon:'🚇',label:'Metro',places:[P('West Nanjing Road','南京西路')]},
+   {t:'07:30',icon:'🚶',label:'ออกจากโรงแรม',note:'แต่งตัวอุ่นๆ: เสื้อคลุม + ผ้าพันคอ + ถุงมือ · เดิน Jinjiang Inn → 外滩 The Bund ~20 นาที (ฝั่ง 南京东路 East Nanjing Road) · ไม่ต้องตื่นดูพระอาทิตย์ขึ้น',places:[P('The Bund','外滩')]},
+   {t:'08:00–09:00',icon:'📸',label:'The Bund ช่วงเช้า ⭐',note:'แดดเช้าส่องตึกเก่าฝั่ง Bund สวยสุดของวัน (ถ่ายคน+ตึกไม่ย้อนแสง) · 和平饭店 Peace Hotel · 海关大楼 Customs House หอนาฬิกา · 汇丰银行 HSBC Building · วันอาทิตย์เช้าคนยังน้อย',img:'assets/day4-shoothing Location.png',places:[P('外滩 The Bund',''),P('和平饭店 Peace Hotel',''),P('海关大楼 Customs House','')]},
+   {t:'09:00–09:45',icon:'📸',label:'Photo',note:'外白渡桥 Waibaidu Bridge สะพานเหล็ก → 外滩源 Rockbund โบสถ์อิฐแดง / ตรอก 圆明园路 (ถ้าประดับคริสต์มาสแล้ว ตอนเช้าไม่มีคนบัง) → 乍浦路桥 Zhapu Road Bridge',places:[P('外白渡桥 Waibaidu Bridge',''),P('外滩源 Rockbund','圆明园路')]},
+   {t:'09:45–10:30',icon:'☕',label:'Cafe / พักขา',note:'นั่งพักคาเฟ่แถว 外滩源 Rockbund · ☕ 沩 flower coffee bar (ใกล้ 乍浦路桥 · เช็คเวลาเปิดใน AMap) · กินเบาๆ เก็บท้องไว้มื้อเที่ยง · 🔴 แม่เหนื่อย → เดินกลับพักโรงแรมก่อนได้'},
+   {t:'10:30–10:55',icon:'🚶',label:'Walk → 第一百货',note:'เดิน 南京东路 East Nanjing Road ถนนคนเดิน ~1.5 กม. ~20–25 นาที → ห้าง 第一百货 ตึก B ชั้น 6 · ไปรอหน้าร้านก่อนเปิด',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
+   {t:'11:00–12:00',icon:'🍢',label:'Lunch ⭐ Longtime Ago',note:'很久以前羊肉串 (南京路第一百货店) · 第一百货 ตึก B ชั้น 6 · เปิด 11:00 ไปตอนเปิดคิวสั้น (ตอนเย็นคิวเกิน 200) · ~¥99/คน · เนื้อแกะเสียบไม้ ผักย่าง ข้าวโพดหวาน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('很久以前羊肉串 Longtime Ago','很久以前羊肉串 南京路第一百货店')]},
+   {t:'12:15–13:00',icon:'🚇',label:'Metro → Longhua',note:'人民广场 People\'s Square ขึ้น Line 1 ทิศ 莘庄 Xinzhuang → 5 สถานี ลง 徐家汇 Xujiahui → เปลี่ยน Line 11 ทิศ 迪士尼 Disney Resort → 2 สถานี ลง 龙华 Longhua · ~30–40 นาที · ยืนยันใน AMap · หรือ DiDi',places:[P('People’s Square','人民广场'),P('Longhua','龙华')]},
+   {t:'13:00–14:00',icon:'🛕',label:'Longhua',note:'วัดหลงหัว + เจดีย์ · ถ่ายรูป',places:[P('Longhua Temple','龙华寺')]},
+   {t:'14:00–14:30',icon:'🚇',label:'Metro · Line 12',note:'龙华 Longhua ขึ้น Line 12 ทิศ 金海路 Jinhai Road → ลง 南京西路 West Nanjing Road · สายเดียว ไม่ต้องเปลี่ยน · ยืนยันใน AMap',places:[P('Longhua','龙华'),P('West Nanjing Road','南京西路')]},
+   {t:'14:30–15:30',icon:'🛍️',label:'Plaza 66 / Jing\'an',note:'恒隆广场 Plaza 66 · เดินเล่นย่าน Jing\'an · (ตัดมื้อเที่ยง Hong Shou Fang / Hui Flavor ออก — กิน Longtime Ago แล้ว)',places:[P('Plaza 66','恒隆广场')]},
    {t:'15:30',icon:'🛍️',label:'Shopping',places:[P('Louis Vuitton','')]},
    {t:'16:00',icon:'☕',label:'Cafe',places:[P('Starbucks','')]},
    {t:'16:15',icon:'🥐',label:'Bakery',places:[P('London Bakery','')]},
    {t:'16:30–17:00',icon:'🏙️',label:'Explore',note:'威海路 Weihai Road · สั้นลง 1 ชม. เพื่อไปให้ทัน 南翔 Nanxiang · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Originals Concept Store ตึก W6 ใน 张园 (茂名北路258号 North Maoming Road · ใกล้สถานี 南京西路) · ⏳ เวลาน้อย ถ้าอยากเลือกนานตัด London Bakery ได้',places:[P('Zhangyuan','张园'),P('Adidas ร้านที่มี Shanghai Collection · Originals Concept Store W6','张园 W6 茂名北路258号')]},
    {t:'17:00',icon:'🚇',label:'Metro',places:[P('West Nanjing Road','南京西路'),P('Yuyuan Garden','豫园')]},
    {t:'17:30–18:45',icon:'🥟',label:'Dinner ⭐',note:'南翔馒头店 Nanxiang Mantou (豫园店 Yuyuan branch) · 豫园路85–87号 No. 85–87 Yuyuan Road (ติดสะพาน 九曲桥 Nine-Zigzag Bridge) · ☎ 021-6355-4206 · 🥤 蟹黄汤包 Crab Roe Soup Dumpling ซุปเปาลูกใหญ่เสียบหลอดดูด ~¥42–49/ลูก — ต้องนั่งกินชั้น 2–3 (ชั้น 1 ซื้อกลับไม่มีหลอด) · ⚠️ ร้านปิด 19:00–20:00 (แหล่งข้อมูลไม่ตรงกัน) + คิวยาว → ห้ามมาสาย เช็ค AMap ก่อนไป',places:[P('南翔馒头店 Nanxiang Mantou (豫园店)','豫园路85–87号')]},
-   {t:'18:45–21:00',icon:'🏮',label:'Walk + Shopping',note:'ไฟกลางคืนสวยสุด',places:[P('Yuyuan Garden / Old Street','豫园老街')]},
+   {t:'18:45–21:00',icon:'🏮',label:'Walk + Shopping',note:'ไฟกลางคืนสวยสุด · 🍢 ทางเลือกตลาดสตรีทฟู้ด: BFC 外滩风景线周末市集 ตลาดเสาร์-อาทิตย์ริมแม่น้ำ (~17:00–23:00 · วิว Lujiazui · เดินจาก Yuyuan ~10 นาที · ~¥50–80/คน) ⚠️ ข้อมูลเวลาจากเว็บเดียว ใกล้วันเช็ค Dianping/Xiaohongshu ว่า ธ.ค. ยังเปิดไหม',places:[P('Yuyuan Garden / Old Street','豫园老街')]},
    {t:'21:00',icon:'🚇',label:'Metro · Line 14 → 封浜 Fengbang · 1 สถานี',places:[P('Yuyuan Garden','豫园'),P('Dashijie','大世界')]},
    {t:'~21:20',icon:'🏨',label:'Hotel',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',cardTitle:'1000 Trees → 巨富长 → Hengshan → Sinan → Lujiazui',summary:'1000 Trees → 巨富长 Julu·Fumin·Changle → 衡山路 Hengshan Road → 思南公馆 Sinan Mansions → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · 1000 Trees → 巨富长 → Hengshan Road → Sinan Mansions → Lujiazui',route:'天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 衡山路 Hengshan → 思南公馆 Sinan → 陆家嘴 Lujiazui',
+ {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',cardTitle:'Ginkgo Street → New Sukiyaki → 1000 Trees → 巨富长 → Hengshan → Sinan → Lujiazui',summary:'1000 Trees → 巨富长 Julu·Fumin·Changle → 衡山路 Hengshan Road → 思南公馆 Sinan Mansions → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · 1000 Trees → 巨富长 → Hengshan Road → Sinan Mansions → Lujiazui',route:'天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 衡山路 Hengshan → 思南公馆 Sinan → 陆家嘴 Lujiazui',
   slots:[
-   {t:'07:30–08:30',icon:'🍞',label:'Breakfast',note:'หาอาหารเช้าแถวโรงแรม 云南南路 South Yunnan Road · เช้านี้ไม่ต้องรีบ'},
-   {t:'09:15',icon:'🚇',label:'Metro',note:'ขึ้นที่ 大世界 Dashijie → ลงที่ 江宁路 Jiangning Road · ยืนยันทิศใน AMap',places:[P('Dashijie','大世界'),P('Jiangning Road','江宁路')]},
-   {t:'09:45–10:10',icon:'📸',label:'Photo',note:'มุมคลาสสิกของ 天安千树 1000 Trees — ยืนถ่ายจากริมน้ำเห็นเสาเรียงเป็นภูเขา · ข้างในยังไม่เปิด (เปิด 10:00)',places:[P('苏州河 Suzhou Creek','')]},
-   {t:'10:10–11:15',icon:'📸',label:'1000 Trees ⭐',note:'莫干山路600号 No. 600 Moganshan Road (普陀区 Putuo District) · เปิด 10:00–22:00 · ติด M50 ย่านศิลปะ · ⚠️ ธันวาคมต้นไม้ผลัดใบ เหลือแต่กิ่ง — จุดขายคือโครงสร้างเสา ไม่ใช่ใบเขียวแบบในเน็ต',places:[P('天安千树 1000 Trees','莫干山路600号')]},
-   {t:'11:15–11:45',icon:'🚇',label:'Metro',note:'ขึ้นที่ 江宁路 Jiangning Road Line 13 ทิศ 张江路 Zhangjiang Road → 1 สถานี ลง 汉中路 Hanzhong Road → เปลี่ยน Line 1 ทิศ 莘庄 Xinzhuang → 5 สถานี ลง 常熟路 Changshu Road · ทางเลือกสั้นกว่า: Line 13 ทิศ 金运路 Jinyun Road → 长寿路 Changshou Road → Line 7 ทิศ 花木路 Huamu Road → 常熟路 · ยืนยันใน AMap',places:[P('Jiangning Road','江宁路'),P('Changshu Road','常熟路')]},
-   {t:'11:45–12:00',icon:'🚶',label:'Walk ไปจุดเริ่ม',note:'ค้น AMap 「富民路38号」 Suzie\'s Garden · หัวถนน 富民路 Fumin Road ฝั่ง 延安中路 Yan\'an Middle Road · เดินจากสถานี ~15 นาที',places:[P('Suzie\'s Garden','富民路38号')]},
-   {t:'12:00–14:15',icon:'🛍️',label:'City Walk ⭐ 巨富长 Julu · Fumin · Changle',note:'เดินลงใต้ตาม 富民路 Fumin Road (เลขที่เพิ่มขึ้นเรื่อยๆ) → แยก 巨鹿路 Julu Road → จบที่ 长乐路 Changle Road · แตะ note ดูหมุดครบ 8 จุด',places:[P('Julu Road','巨鹿路'),P('Fumin Road','富民路'),P('Changle Road','长乐路')],foldnote:'<b>巨富长 Julu × Fumin × Changle</b> — เดินลงใต้ตาม 富民路 Fumin Road เลขที่เพิ่มขึ้นเรื่อยๆ<br><br>① <b>富民路38号 Suzie\'s Garden</b> — ไวน์บาร์ + เบเกอรี่ · เปิด 11:30<br>② <b>富民路83-3号 MEL BOURNE 猫尔本</b> — บรันช์คาเฟ่ ถ่ายรูปหน้าร้าน · เปิด 10:00–22:00 · ~¥154/คน<br>③ <b>แยก 巨鹿路 Julu Road</b> — เลี้ยวเดินเล่นถ่ายรูปสั้นๆ แล้วกลับมา 富民路 Fumin Road<br>④ <b>富民路160号 旬福食堂 Junfu Canteen</b> — 🍜 ข้าวเที่ยง แกงกะหรี่ซุปฮอกไกโด · ⚠️ คิวยาว รอเกิน 20 นาทีเปลี่ยนร้าน<br>⑤ <b>富民路184号 LABELHOOD 蕾虎</b> — ร้านรวมแบรนด์ดีไซเนอร์จีน 4 ชั้น<br>⑥ <b>富民路 保罗花园 Paul Garden</b> — ANNAKIKI ร้านแฟล็กชิป<br>⑦ <b>富民路210弄 SLAB TOWN 石板城咖啡</b> — คาเฟ่ในวิลล่าเก่า หัวมุม 长乐路 Changle Road · แวะพักขาก่อนเดินต่อ<br>⑧ <b>เลี้ยวเดิน 长乐路 Changle Road</b>'},
-   {t:'14:15–14:35',icon:'🚶',label:'Walk',note:'จาก 长乐路 Changle Road → ค้น AMap 「衡山路8号」 Hengshan Rd. No.8 · เดินลงใต้ข้าม 淮海中路 Middle Huaihai Road ~20 นาที'},
-   {t:'14:35–15:40',icon:'🍁',label:'City Walk 衡山路',note:'衡山路 Hengshan Road เดินลงใต้ไปเรื่อยๆ: ① 衡山路8号 Hengshan Rd. No.8 → ② 永平里 Yongpingli (ดังเรื่องกุหลาบ ธันวาไม่บาน) → ③ 衡山坊 Hengshan Fang · ⏳ ถ้าแม่ล้า: เดินถึง 永平里 Yongpingli พอ แล้วเรียก DiDi ไป 思南公馆 Sinan Mansions',places:[P('Hengshan Road','衡山路')]},
-   {t:'15:40–16:00',icon:'🚕',label:'Didi (ตัดได้)',note:'衡山路 Hengshan Road → 五里桥路 Wuliqiao Road · ~15 นาที · 🔴 (ตัดได้) ถ้าไม่ทัน/แม่เหนื่อย → นั่ง Metro ไป 新天地 Xintiandi ตามเดิม: ขึ้นที่ 衡山路 → เปลี่ยนที่ 陕西南路 Shaanxi South Road → ลง 新天地',places:[P('Wuliqiao Road','五里桥路')]},
-   {t:'16:00–16:30',icon:'🍂',label:'Ginkgo Street ⭐ (ตัดได้)',note:'ถนนแปะก๊วย 五里桥路 · แสงบ่ายแก่ๆ สีทองสวย · ⚠️ ก่อนไปค้น 五里桥路 银杏 ใน Xiaohongshu/Dianping ดูว่าใบยังเหลืองอยู่ไหม · 🔴 (ตัดได้)',places:[P('Wuliqiao Road','五里桥路')]},
-   {t:'16:30–16:45',icon:'🚕',label:'Didi (ตัดได้)',note:'五里桥路 Wuliqiao Road → 思南公馆 Sinan Mansions · ~10 นาที · 🔴 (ตัดได้ พร้อมถนนแปะก๊วย)',places:[P('思南公馆 Sinan Mansions','思南路')]},
-   {t:'16:45–17:15',icon:'📸',label:'Sinan Mansions ⭐',note:'复兴中路 Middle Fuxing Road / 思南路 Sinan Road · บ้านวิลล่าอิฐแดงยุค 1920s · 🌇 อาทิตย์ตก ~16:50 · (ถ้าตัดถนนแปะก๊วย → มาถึงเร็วขึ้นได้ เดินจากสถานี 新天地 Xintiandi ~10 นาที)',places:[P('思南公馆 Sinan Mansions','思南路')]},
-   {t:'17:15–17:30',icon:'🚕',label:'Didi',note:'思南公馆 Sinan Mansions → Jinjiang Inn · ~10 นาที',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
-   {t:'17:30–17:45',icon:'🏨',label:'Rest',note:'พักโรงแรม · วางถุงช้อป (ถ้าตัดถนนแปะก๊วย จะได้พักนานขึ้น)'},
+   {t:'08:00',icon:'🍞',label:'ออกจากโรงแรม',note:'กินเบาๆ ก่อนออก (巴比馒头 Babi Mantou / ร้านแถว 云南南路) เก็บท้องไว้สุกี้ · DiDi → 五里桥路 Wuliqiao Road ~10–15 นาที',places:[P('Wuliqiao Road','五里桥路')]},
+   {t:'08:15–09:30',icon:'🍂',label:'Ginkgo Street ⭐',note:'ถนนแปะก๊วย 五里桥路 · แสงเช้าสวย ถนนยังโล่ง รถ/คนน้อยกว่าในคลิป · ⚠️ ก่อนไปค้น 五里桥路 银杏 ใน Xiaohongshu ดูว่าใบยังเหลืองไหม · 🔴 (ตัดได้) ใบร่วงหมด/แม่เหนื่อย → เดินเล่น 人民公园 People\'s Park แทน',places:[P('Wuliqiao Road','五里桥路')]},
+   {t:'09:30–10:00',icon:'🚇',label:'Metro หรือ Didi',note:'五里桥路 Wuliqiao Road → 上海市第一百货 (人民广场) · ① 🚇 Metro: เดินไปสถานี 西藏南路 Xizang South Road → Line 8 ทิศ 市光路 Shiguang Road → 4 สถานี ลง 人民广场 People\'s Square ออกฝั่ง 南京东路 · ~¥3–4 · (สถานีที่ใกล้สุดขึ้นกับจุดถ่ายรูป — กด AMap แท็บ 公交/地铁 เช็ค) ② 🚕 DiDi ~15–20 นาที ~¥20–30 (เช้าวันจันทร์รถอาจติด) · แม่ยังไหว → Metro / เดินมาเยอะแล้ว → DiDi',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
+   {t:'10:00–10:30',icon:'⏳',label:'รอหน้าร้าน / เดินเล่น',note:'ถึงเร็ว → เดินถนน 南京东路 ตอนร้านยังไม่เปิด ถ่ายรูปไม่ติดคน · ห้าง 第一百货 ตึก B ชั้น 6 · ไปรอก่อนเปิด 10:30 คิวจะสั้น',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
+   {t:'10:30–11:45',icon:'🍲',label:'New Sukiyaki ⭐',note:'牛New寿喜烧 (人民广场店) · 第一百货 ตึก B ชั้น 6 B02-F06 · รอบกลางวัน 10:30–14:30 · ~¥176/คน · มื้อหลักของวัน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('牛New寿喜烧 New Sukiyaki','牛New寿喜烧 人民广场店')]},
+   {t:'11:45–12:05',icon:'🚕',label:'Didi',note:'第一百货 → 天安千树 1000 Trees · ~15–20 นาที',places:[P('天安千树 1000 Trees','莫干山路600号')]},
+   {t:'12:05–12:30',icon:'📸',label:'Photo',note:'มุมคลาสสิกของ 天安千树 1000 Trees — ยืนถ่ายจากริมน้ำเห็นเสาเรียงเป็นภูเขา · ตอนบ่ายเปิดแล้ว',places:[P('苏州河 Suzhou Creek','')]},
+   {t:'12:30–13:15',icon:'📸',label:'1000 Trees ⭐',note:'莫干山路600号 No. 600 Moganshan Road (普陀区 Putuo District) · เปิด 10:00–22:00 · ติด M50 ย่านศิลปะ · ⚠️ ธันวาคมต้นไม้ผลัดใบ เหลือแต่กิ่ง — จุดขายคือโครงสร้างเสา ไม่ใช่ใบเขียวแบบในเน็ต',places:[P('天安千树 1000 Trees','莫干山路600号')]},
+   {t:'13:15–13:40',icon:'🚇',label:'Metro',note:'ขึ้นที่ 江宁路 Jiangning Road Line 13 ทิศ 张江路 Zhangjiang Road → 1 สถานี ลง 汉中路 Hanzhong Road → เปลี่ยน Line 1 ทิศ 莘庄 Xinzhuang → 5 สถานี ลง 常熟路 Changshu Road · ทางเลือกสั้นกว่า: Line 13 ทิศ 金运路 Jinyun Road → 长寿路 Changshou Road → Line 7 ทิศ 花木路 Huamu Road → 常熟路 · ยืนยันใน AMap',places:[P('Jiangning Road','江宁路'),P('Changshu Road','常熟路')]},
+   {t:'13:40–13:55',icon:'🚶',label:'Walk ไปจุดเริ่ม',note:'ค้น AMap 「富民路38号」 Suzie\'s Garden · หัวถนน 富民路 Fumin Road ฝั่ง 延安中路 Yan\'an Middle Road · เดินจากสถานี ~15 นาที',places:[P('Suzie\'s Garden','富民路38号')]},
+   {t:'13:55–15:30',icon:'🛍️',label:'City Walk ⭐ 巨富长 Julu · Fumin · Changle',note:'(กิน New Sukiyaki แล้ว ไม่ต้องแวะกินข้าวเที่ยง Junfu Canteen) · เดินลงใต้ตาม 富民路 Fumin Road (เลขที่เพิ่มขึ้นเรื่อยๆ) → แยก 巨鹿路 Julu Road → จบที่ 长乐路 Changle Road · แตะ note ดูหมุดครบ 8 จุด',places:[P('Julu Road','巨鹿路'),P('Fumin Road','富民路'),P('Changle Road','长乐路')],foldnote:'<b>巨富长 Julu × Fumin × Changle</b> — เดินลงใต้ตาม 富民路 Fumin Road เลขที่เพิ่มขึ้นเรื่อยๆ<br><br>① <b>富民路38号 Suzie\'s Garden</b> — ไวน์บาร์ + เบเกอรี่ · เปิด 11:30<br>② <b>富民路83-3号 MEL BOURNE 猫尔本</b> — บรันช์คาเฟ่ ถ่ายรูปหน้าร้าน · เปิด 10:00–22:00 · ~¥154/คน<br>③ <b>แยก 巨鹿路 Julu Road</b> — เลี้ยวเดินเล่นถ่ายรูปสั้นๆ แล้วกลับมา 富民路 Fumin Road<br>④ <b>富民路160号 旬福食堂 Junfu Canteen</b> — 🍜 ข้าวเที่ยง แกงกะหรี่ซุปฮอกไกโด · ⚠️ คิวยาว รอเกิน 20 นาทีเปลี่ยนร้าน<br>⑤ <b>富民路184号 LABELHOOD 蕾虎</b> — ร้านรวมแบรนด์ดีไซเนอร์จีน 4 ชั้น<br>⑥ <b>富民路 保罗花园 Paul Garden</b> — ANNAKIKI ร้านแฟล็กชิป<br>⑦ <b>富民路210弄 SLAB TOWN 石板城咖啡</b> — คาเฟ่ในวิลล่าเก่า หัวมุม 长乐路 Changle Road · แวะพักขาก่อนเดินต่อ<br>⑧ <b>เลี้ยวเดิน 长乐路 Changle Road</b>'},
+   {t:'15:30–15:45',icon:'🚶',label:'Walk',note:'จาก 长乐路 Changle Road → ค้น AMap 「衡山路8号」 Hengshan Rd. No.8 · เดินลงใต้ข้าม 淮海中路 Middle Huaihai Road ~20 นาที'},
+   {t:'15:45–16:25',icon:'🍁',label:'City Walk 衡山路',note:'衡山路 Hengshan Road เดินลงใต้ไปเรื่อยๆ: ① 衡山路8号 Hengshan Rd. No.8 → ② 永平里 Yongpingli (ดังเรื่องกุหลาบ ธันวาไม่บาน) → ③ 衡山坊 Hengshan Fang · ⏳ ถ้าแม่ล้า: เดินถึง 永平里 Yongpingli พอ แล้วเรียก DiDi ไป 思南公馆 Sinan Mansions',places:[P('Hengshan Road','衡山路')]},
+   {t:'16:25–16:45',icon:'🚇',label:'Metro',note:'ขึ้นที่ 衡山路 Hengshan Road Line 1 ทิศ 富锦路 Fujin Road → 2 สถานี ลง 陕西南路 Shaanxi South Road → เปลี่ยน Line 10 ทิศ 基隆路 Jilong Road → 1 สถานี ลง 新天地 Xintiandi · ยืนยันใน AMap · เดินต่อไป Sinan ~10 นาที (หรือ DiDi ~10 นาที)',places:[P('Hengshan Road','衡山路'),P('Xintiandi','新天地')]},
+   {t:'16:50–17:20',icon:'📸',label:'Sinan Mansions ⭐',note:'复兴中路 Middle Fuxing Road / 思南路 Sinan Road · บ้านวิลล่าอิฐแดงยุค 1920s · 🌇 อาทิตย์ตก ~16:50 · เดินจากสถานี 新天地 Xintiandi ~10 นาที',places:[P('思南公馆 Sinan Mansions','思南路')]},
+   {t:'17:20–17:35',icon:'🚕',label:'Didi',note:'思南公馆 Sinan Mansions → Jinjiang Inn · ~10 นาที',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'17:35–17:45',icon:'🏨',label:'Rest',note:'พักโรงแรม · วางถุงช้อป'},
    {t:'17:50',icon:'🚇',label:'Metro',note:'ขึ้นที่ 大世界 Dashijie → ลงที่ 陆家嘴 Lujiazui · 2 สถานี ไม่ต้องเปลี่ยนสาย',places:[P('Dashijie','大世界'),P('Lujiazui','陆家嘴')]},
    {t:'18:05–19:30',icon:'🌃',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('陆家嘴 Lujiazui','')]},
-   {t:'19:30–20:30',icon:'🍜',label:'Dinner',note:'ฟู้ดคอร์ท · 💡 ถ้าราคาสูงไป กลับไปกินแถวโรงแรม 云南南路 South Yunnan Road ก็ได้',places:[P('正大广场 Super Brand Mall','')]},
+   {t:'19:30–20:30',icon:'🍜',label:'Dinner',note:'ฟู้ดคอร์ท · 💡 ถ้าราคาสูงไป กลับไปกินแถวโรงแรม 云南南路 South Yunnan Road ก็ได้ · 🍢 ทางเลือก: แม่อยากเดินสตรีทฟู้ดอีกรอบ → Line 2 陆家嘴 → 南京东路 1 สถานี เดินกินถนนนานจิง / 天津路 แล้วเดินกลับโรงแรม',places:[P('正大广场 Super Brand Mall','')]},
    {t:'20:45',icon:'🚇',label:'Metro',note:'ขึ้นที่ 陆家嘴 Lujiazui → ลงที่ 大世界 Dashijie · 2 สถานี',places:[P('Lujiazui','陆家嘴'),P('Dashijie','大世界')]},
    {t:'~21:00',icon:'🏨',label:'Hotel',note:'เก็บกระเป๋าให้เสร็จคืนนี้ พรุ่งนี้ออก 07:00',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
@@ -751,17 +746,20 @@ const DAYS=[
 
 const FOOD={
   '1':{tab:'D1 · 3 ธ.ค.',area:"People's Square / 南京东路 / The Bund",items:[
+    {name:'蘿春閣 Luo Chun Ge (1920)',zh:'萝春阁',where:"ย่าน People's Square · เดินจาก People's Square ~10 นาที",link:'https://surl.amap.com/g1r5p741a7lP',note:'ร้านเก่าแก่ตั้งแต่ 1920 เพิ่งกลับมาเปิดใหม่ 2026 · บะหมี่มันปู ¥158 (แบ่งกิน 2–3 คน) · เซิงเจียน/เสี่ยวหลงเปา 4 ชิ้น ¥29 · แนะนำมื้อเย็นขากลับจาก Bund: Line 2 南京东路 → 人民广场 1 สถานี กินแล้วกลับโรงแรมใกล้ · เช็คเวลาปิดใน AMap',tag:'มื้อเย็น ⭐'},
     {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',where:'ในห้าง 上海市第一百货 (南京东路800号)',note:'ทานระหว่างช้อปที่ 第一百货 ได้ · คิวยาวช่วงเสาร์อาทิตย์ เช็ค Dianping',tag:'มื้อเที่ยง/เย็น'},
-    {name:'很久以前羊肉串 Longtime Ago (南京路第一百货店)',zh:'很久以前羊肉串 南京路第一百货店',where:'ห้างเดียวกับ 第一百货',note:'เนื้อแกะเสียบไม้ · ตอนเย็นคิวเกิน 200 → กดคิวใน WeChat ค้น "很久以前羊肉串" → 排队订座',tag:'มื้อเย็น'},
+    {name:'很久以前羊肉串 Longtime Ago (南京路第一百货店)',zh:'很久以前羊肉串 南京路第一百货店',where:'ห้างเดียวกับ 第一百货',note:'✅ สาขานี้อยู่ในแพลนหลักแล้ว: Day 4 11:00 (ไปตอนเปิด คิวสั้น) · เนื้อแกะเสียบไม้ · ตอนเย็นคิวเกิน 200 → กดคิวใน WeChat ค้น "很久以前羊肉串" → 排队订座',tag:'มื้อเย็น'},
     {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',note:'อาหารเซี่ยงไฮ้ดั้งเดิม · AMap 4.5 ~¥75/คน · สำรองมื้อเย็น · ร้านอยู่ย่าน 豫园 Yuyuan (ไม่ใช่ 南京东路) — DiDi ~10 นาทีจาก Bund',verify:'ชื่อ/สาขาใน AMap',tag:'สำรองมื้อเย็น'},
     {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',note:'ข้าวราดแกงจีน · สำรองมื้อเย็นถ้าอยากกินง่ายๆ (ดูรายละเอียดในกลุ่ม "ทุกวัน")',tag:'สำรอง'}
   ]},
   '2':{tab:'D2 · 4 ธ.ค.',area:'Wukang / Anfu / Huaihai / Xintiandi',items:[
+    {name:'陶陶居 Tao Tao Ju',zh:'陶陶居 新天地',where:'สาขา 新天地 Xintiandi (สาขาแรกในเซี่ยงไฮ้) · มีอีกสาขาที่ห้าง 新世界 ถนนนานจิง',note:'ติ่มซำกวางตุ้งแบรนด์เก่าแก่จากกว่างโจว · เหมาะมื้อเย็นตอนเดิน Xintiandi · ⚠️ ข้อมูลสาขาจากข่าวเก่า เช็คใน AMap ว่ายังเปิดอยู่',verify:'สาขาใน AMap',tag:'มื้อเย็น ⭐'},
     {name:'很久以前羊肉串 Longtime Ago (陕西南路店)',zh:'很久以前羊肉串 陕西南路店',where:'ใกล้ Huaihai / Xintiandi',note:'มื้อเย็นก่อนหรือหลังเดิน Xintiandi · กดคิว WeChat ล่วงหน้า',tag:'มื้อเย็น'}
   ]},
   '3':{tab:'D3 · 5 ธ.ค.',area:'Suzhou',empty:'ยังไม่มีร้านเพิ่ม — กินตามแพลนเดิม',items:[]},
   '4':{tab:'D4 · 6 ธ.ค.',area:"Jing'an / West Nanjing / Yuyuan",items:[
-    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',note:'มื้อเที่ยงแทน Hong Shou Fang: จาก Plaza 66 นั่ง Line 2 静安寺 → 人民广场 (2 สถานี) · กินเสร็จ Line 2 ไป 南京西路 1 สถานี ต่อแพลนเดิม',tag:'มื้อเที่ยง'},
+    {name:'卞姐蛋饼 Bian Jie Dan Bing (丰盛里店)',zh:'卞姐蛋饼 丰盛里店',where:'威海路680号-2 · ใกล้ทางออก 12 สถานี 南京西路 West Nanjing Road (Line 2/12/13)',link:'https://surl.amap.com/7hnXhQG13ghv',note:'แพนเค้กไข่ 蛋饼 สไตล์เซี่ยงไฮ้ (ไส้หมูสันใน/เบคอน/ปาท่องโก๋) · เกี๊ยวน้ำ 馄饨 · ซุปเห็ดหูหนูขาว/น้ำถั่วเขียว · ~¥15/คน · แวะของว่างตอนไป 张园 Zhangyuan ช่วงบ่าย (ถนนเดียวกัน) · ร้าน 蛋饼 มักปิดเร็ว เช็คเวลาก่อน · เช็คเวลาเปิด',tag:'มื้อเช้า ⭐'},
+    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',note:'✅ อยู่ในแพลนหลักแล้ว: Day 5 10:30 (ไปรอหน้าร้านตอนเปิด)',tag:'มื้อเที่ยง'},
     {name:'很久以前羊肉串 Longtime Ago (南京西路818广场店)',zh:'很久以前羊肉串 南京西路818广场店',where:'ใกล้ West Nanjing Road',note:'ร้านใหญ่ คิวเดินเร็วกว่าสาขาถนนนานจิง',tag:'มื้อเย็น'},
     {name:'Latina 拉蒂娜',zh:'拉蒂娜 铜仁路88号',where:'铜仁路88号 2F (Jing\'an)',phone:'021-6320 3566',note:'บราซิลปิ้งย่างไม่อั้นเนื้อ · ราคาสูง อิ่มหนัก',tag:'มื้อพิเศษ'},
     {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',where:'ย่าน Yuyuan',note:'สำรองถ้าคิว Nanxiang ยาวเกิน',verify:true,tag:'สำรองมื้อเย็น'}
@@ -773,6 +771,7 @@ const FOOD={
   ]},
   '6':{tab:'D6 · 8 ธ.ค.',area:'Airport',empty:'ไม่มี — เช้าไปสนามบิน',items:[]},
   'all':{tab:'ทุกวัน',area:'ร้านเครือ หลายสาขา',hint:'ค้น AMap แล้วเลือก "附近" ใกล้ที่สุด',items:[
+    {name:'巴比馒头 Babi Mantou',zh:'巴比馒头',hours:'ส่วนใหญ่เปิดเช้า',note:'ซาลาเปาเครือราคาถูก มีเกือบทุกหัวมุม · มื้อเช้าเร็วๆ ใกล้โรงแรม (เช่น Day 2 ก่อนออก 07:00 / Day 5 มื้อเช้า) · ซื้อถือไปกินได้'},
     {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',hours:'ส่วนใหญ่ 10:00–21:00 (กินเช้าไม่ได้)',note:'ข้าวราดแกงจีน หยิบกับข้าวใส่ถาด สแกนจ่ายด้วย AI · ข้าวเติมได้ไม่อั้น น้ำชาฟรี · แนะนำ 青椒肉丝 หมูผัดพริกหยวก'},
     {name:'周骏牛肉串 Zhou Jun',zh:'周骏牛肉串',hours:'17:00–03:00',note:'เนื้อวัวเสียบไม้ปิ้ง · มื้อเย็น/มื้อดึก'},
     {name:'新发现 New Found',zh:'新发现',hours:'เปิดทั้งวัน',note:'อาหารหางโจว 90+ สาขา ส่วนใหญ่ในห้าง'},
@@ -814,7 +813,7 @@ function foodCard(r){
     <button type="button" class="cp food-copy" data-zh="${foodEsc(r.zh)}" onclick="qcopy(event,this,this.dataset.zh)" aria-label="คัดลอกชื่อจีน ${foodEsc(r.zh)}"><span class="zh">${foodEsc(r.zh)}</span><span class="ic">${ic('copy')}</span></button>
     ${meta.length?`<div class="food-meta">${meta.join('')}</div>`:''}
     <div class="food-note">${foodEsc(r.note)}</div>
-    <div class="food-actions"><a class="food-amap" href="https://uri.amap.com/search?keyword=${encodeURIComponent(r.zh)}" target="_blank" rel="noopener" aria-label="ค้น ${foodEsc(r.zh)} ใน AMap">${ic('map')} AMap</a></div>
+    <div class="food-actions"><a class="food-amap" href="${r.link?foodEsc(r.link):'https://uri.amap.com/search?keyword='+encodeURIComponent(r.zh)}" target="_blank" rel="noopener" aria-label="ค้น ${foodEsc(r.zh)} ใน AMap">${ic('map')} AMap</a></div>
   </article>`;
 }
 function renderFood(){
