@@ -9,6 +9,7 @@ Severity:
   warn  -> suspicious, a person should look
   info  -> worth knowing, not a mistake
 """
+import re
 from collections import Counter
 
 from .normalize import (is_e_notation, name_key, period_key, qty_in_name, text,
@@ -42,9 +43,11 @@ RULES = {
 }
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
-NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME"}
+NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
 ALWAYS_ERROR = {"NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
-                "ITEMMOVE", "PERIOD", "AMOUNT", "MISSING"}
+                "ITEMMOVE", "AMOUNT", "MISSING"}
+# "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
+TIME_IN_NAME = re.compile(r"\(\s*(\d+\s*(?:days?|d|วัน|hours?|hrs?\.?|h|ชั่วโมง|ชม\.?|minutes?|mins?\.?|นาที))\s*\)", re.I)
 ALWAYS_INFO = {"NEW_VARIANT"}
 
 NUMERIC = ("kind", "index", "option", "duration")
@@ -231,7 +234,8 @@ class Checker:
 
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
-        if q is not None and stack and opt is not None and opt != q:
+        # ItemOption = (value << 16) | count for some items, e.g. Raid Energy Capsule 50/100 x1 = 3276801
+        if q is not None and stack and opt is not None and opt != q and (opt & 0xFFFF) != q:
             f("QTY_OPTION", "option", opt, q,
               "ชื่อไอเทมบอก x%s แต่ ItemOption = %s" % (q, opt))
 
@@ -245,10 +249,14 @@ class Checker:
                       "DurationIndex %s ไม่มีในตารางระยะเวลาของ %s" % (dur, db.game.upper()))
             elif per:
                 pk = period_key(per)
-                if pk != ref.get("key"):
+                # DurationIndex can be the effect time written in the name, e.g.
+                # "Blessing Bead (1 Day)" = DurationIndex 9 while Own Period is 7 Days
+                in_name = {period_key(t) for t in TIME_IN_NAME.findall(name + " " + dname)}
+                if pk != ref.get("key") and ref.get("key") not in in_name:
                     thai = any("฀" <= ch <= "๿" for ch in per)
                     want = (ref.get("th") if thai and ref.get("th") else ref.get("period"))
-                    f("PERIOD", "period", per, want, "DurationIndex %s หมายถึง %s" % (dur, want))
+                    f("PERIOD", "period", per, want,
+                      "DurationIndex %s หมายถึง %s แต่ Period เขียน %s และชื่อไอเทมก็ไม่ได้ระบุเวลานี้" % (dur, want, per))
             else:
                 f("MISSING", "period", "", ref.get("period"), "Period ว่าง")
 
