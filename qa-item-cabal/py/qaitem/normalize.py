@@ -47,9 +47,10 @@ def is_e_notation(v):
 
 def yes_no(v):
     s = text(v).lower()
-    if s in ("yes", "y", "true", "1", "ใช่"):
+    if s in ("yes", "y", "true", "1", "ใช่", "tradable", "trade"):
         return True
-    if s in ("no", "n", "false", "0", "ไม่"):
+    if s in ("no", "n", "false", "0", "ไม่", "bind", "bound", "character bind", "account bind",
+             "char bind", "ผูกตัว"):
         return False
     return None
 
@@ -66,7 +67,16 @@ def name_key(v):
     """
     s = unicodedata.normalize("NFKC", text(v)).lower()
     s = QTY_SUFFIX.sub("", s)
+    for rx, rep in _NAME_UNITS:      # "(15 นาที)" == "(15 min)"
+        s = rx.sub(rep, s)
     return re.sub(r"[^0-9a-z฀-๿]", "", s)
+
+
+_NAME_UNITS = [
+    (re.compile(r"นาที|minutes?|mins?\.?"), "min"),
+    (re.compile(r"ชั่วโมง|ชม\.?|hours?|hrs?\.?"), "hr"),
+    (re.compile(r"วัน|days?"), "day"),
+]
 
 
 def qty_in_name(v):
@@ -150,6 +160,37 @@ def kind_fields(kind, index):
     }
 
 
+_PLUS_N = re.compile(r"\+\s*(\d{1,2})(?!\d)")
+_SLASH_N = re.compile(r"\(\s*(\d{1,2})\s*/\s*15\s*\)")
+
+
 def upgrade_in_name(name):
-    m = UPGRADE_IN_NAME.search(unicodedata.normalize("NFKC", text(name)))
-    return int(m.group(1) or m.group(2)) if m else None
+    """'+20' wins over '(13/15)'; other '(4 / 5)' counters (Extreme / Divine level) are ignored."""
+    s = unicodedata.normalize("NFKC", text(name))
+    m = _PLUS_N.search(s) or _SLASH_N.search(s)
+    return int(m.group(1)) if m else None
+
+
+KNOWN_FLAG_BITS = BIND_BITS | (UPGRADE_MASK << UPGRADE_SHIFT) | EXPIRY_BIT
+
+
+def flag_residual(mask):
+    """Part of ItemKind - ItemIndex that is NOT bind / +N / expiry (unknown high flags)."""
+    return mask & ~KNOWN_FLAG_BITS
+
+
+_UPGRADE_TOKENS = re.compile(r"\+\s*\d{1,2}\b|(?:chaos\s*)?upgrade\s*\(\s*\d{1,2}\s*/\s*\d{1,2}\s*\)\]?", re.I)
+
+
+def strip_upgrade(name):
+    """'Arcana of Chaos +14' -> 'Arcana of Chaos' (the +N is stored in ItemKind)."""
+    return _UPGRADE_TOKENS.sub(" ", unicodedata.normalize("NFKC", text(name)))
+
+
+def describe_kind(kf):
+    parts = ["ผูกตัว" if kf["bound"] else "เทรดได้"]
+    if kf["upgrade"]:
+        parts.append("+%d" % kf["upgrade"])
+    if kf["expiry"]:
+        parts.append("มีวันหมดอายุ")
+    return " ".join(parts)

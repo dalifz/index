@@ -18,12 +18,14 @@ ALIASES = {
     "itemoption": "option",
     "option": "option",
     "durationindex": "duration",
-    "duration": "duration",
+    "duration": "period",          # "Duration" column holds ถาวร / 7 วัน, not the index
     "durationidx": "duration",
     "stackable": "stackable",
     "stack": "stackable",
     "itemmove": "itemmove",
     "move": "itemmove",
+    "trade": "itemmove",
+    "tradable": "itemmove",
     "itemname": "name",
     "name": "name",
     "amount": "amount",
@@ -79,6 +81,8 @@ def _header_segments(row):
     segs.append(cur)
     out = []
     for m in segs:
+        if "name" not in m and "display_name" in m:
+            m["name"] = m["display_name"]      # some sheets only have "Display Name"
         if "name" in m and ("kind" in m or "index" in m):
             out.append((min(m.values()), max(m.values()), m))
     return out

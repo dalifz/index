@@ -83,24 +83,33 @@ def validate_item(bundle, raw):
         raw = json.loads(raw)
     it = clean_item(raw)
     errors, warnings = [], []
-    for fld in ("kind", "index", "option", "duration"):
+    for fld in ("kind", "index", "option"):
         if it[fld] is None:
             errors.append("%s ต้องเป็นเลขจำนวนเต็ม" % fld)
-    for fld in ("stackable", "itemmove"):
-        if it[fld] is None:
-            errors.append("%s ต้องเป็น Yes หรือ No" % fld)
+    if it["duration"] is None:
+        if text(raw.get("duration")):
+            errors.append("duration ต้องเป็นเลขจำนวนเต็ม")
+        else:
+            warnings.append("ไม่มี DurationIndex (เอกสารต้นทางไม่มีคอลัมน์นี้)")
+    if it["itemmove"] is None:
+        errors.append("itemmove ต้องเป็น Yes หรือ No")
+    if it["stackable"] is None:
+        if text(raw.get("stackable")):
+            errors.append("stackable ต้องเป็น Yes หรือ No")
+        else:
+            warnings.append("ไม่มี Stackable (เอกสารต้นทางไม่มีคอลัมน์นี้)")
     if not it["name"]:
         errors.append("ต้องมี Item Name")
     if errors:
         return {"ok": False, "item": it, "errors": errors, "warnings": warnings}
 
     # run the same row checks the document checker uses
-    row = {"sheet": "ฟอร์มเพิ่มไอเทม", "pack": "-", "row": 1, "columns": [
-        "kind", "index", "option", "duration", "stackable", "itemmove", "name", "display_name", "period"],
-        "values": {k: (yn(it[k]) if k in ("stackable", "itemmove") else it[k])
-                   for k in ("kind", "index", "option", "duration", "stackable", "itemmove",
-                             "name", "display_name", "period")},
-        "cells": {}}
+    # only check the fields this item actually has (source sheets may lack some columns)
+    cols = [k for k in ("kind", "index", "option", "duration", "stackable", "itemmove",
+                        "name", "display_name", "period") if it[k] not in (None, "")]
+    row = {"sheet": "ฟอร์มเพิ่มไอเทม", "pack": "-", "row": 1, "columns": cols,
+           "values": {k: (yn(it[k]) if k in ("stackable", "itemmove") else it[k]) for k in cols},
+           "cells": {}}
     row["display"] = {k: text(x) for k, x in row["values"].items()}
     for fd in Checker(db).check_row(row):
         if fd["code"] in ("UNKNOWN_ITEM", "NEW_VARIANT"):

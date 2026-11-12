@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (full_name_key, kind_fields, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (describe_kind, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -29,6 +29,8 @@ RULES = {
     "KIND":            "ItemKind ไม่ตรงกับฐานข้อมูล",
     "KIND_STRUCT":     "ItemKind ไม่ได้สร้างจาก ItemIndex",
     "KIND_FLAG":       "ItemKind มี flag ที่ไม่เคยพบ",
+    "KIND_VARIANT":    "ItemKind แบบนี้ยังไม่เคยเห็นสำหรับไอเทมนี้",
+    "NO_ID":           "ไม่มีเลขไอเทม",
     "BIND_BIT":        "ItemKind กับ Itemmove ขัดกัน",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
@@ -49,7 +51,8 @@ NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIO
 ALWAYS_ERROR = {"NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
-TIME_IN_NAME = re.compile(r"\(\s*(\d+\s*(?:days?|d|วัน|hours?|hrs?\.?|h|ชั่วโมง|ชม\.?|minutes?|mins?\.?|นาที))\s*\)", re.I)
+TIME_IN_NAME = re.compile(
+    r"(?:\(\s*|\s)(\d+\s*(?:days?|d|วัน|hours?|hrs?|h|ชั่วโมง|ชม|minutes?|mins?|นาที))\.?\s*(?:\)|$)", re.I)
 ALWAYS_INFO = {"NEW_VARIANT"}
 
 NUMERIC = ("kind", "index", "option", "duration")
@@ -61,6 +64,7 @@ class Checker:
         self.db = db
         self.confirmed = set((db.rules or {}).get("confirmed", []))
         self.masks = db.known_masks()
+        self.residuals = {flag_residual(m) for m in self.masks if m >= 0} | {0}
 
     def severity(self, code):
         if code in ALWAYS_INFO:
@@ -127,7 +131,12 @@ class Checker:
             if text(raw) == "":
                 n[fld] = None
                 if fld in ("kind", "index"):
-                    f("MISSING", fld, "", "ใส่ " + FIELD_LABELS[fld], FIELD_LABELS[fld] + " ว่าง")
+                    if text(v.get("name")) or text(v.get("display_name")):
+                        if fld == "kind" or text(v.get("kind")) == "":
+                            f("NO_ID", fld, "", "ใส่ " + FIELD_LABELS[fld],
+                              "แถวนี้ไม่มี %s ถ้าเป็นรางวัลที่ไม่ใช่ไอเทม (เช่น Title) ข้ามได้" % FIELD_LABELS[fld])
+                    else:
+                        f("MISSING", fld, "", "ใส่ " + FIELD_LABELS[fld], FIELD_LABELS[fld] + " ว่าง")
                 continue
             if is_e_notation(raw):
                 n[fld] = None
@@ -177,12 +186,25 @@ class Checker:
             # the content with ItemOption -> compare names with the same option first
             same_opt = [c for c in cands if opt is not None and c["option"] == opt]
             named = same_opt or cands
-            db_names = {name_key(c["name"]) for c in named} | {name_key(c["display_name"]) for c in named}
+            # the +N in a name lives in ItemKind, so "Belt +14" and "Belt +15" are one item
+            kf_doc = kind_fields(kind, idx)
+            key = (lambda x: name_key(strip_upgrade(x))) if (kf_doc and kf_doc["upgrade"]) else name_key
+            db_names = set()
+            for c in named:
+                for x in [c["name"], c["display_name"]] + c.get("aliases", []):
+                    db_names.add(key(x))
             db_names.discard("")
-            name_ok = (nk in db_names) or (dname and name_key(dname) in db_names)
+            name_ok = (key(name) in db_names) or bool(dname and key(dname) in db_names)
+            container = len({name_key(c["name"]) for c in cands}) > 1 and not same_opt and opt is not None
             kinds = db.values(idx, "kind")
             identity_broken = False
-            if name and not name_ok:
+            if name and not name_ok and container and not other_idx:
+                # a box that picks its content by ItemOption, with an option we have never seen
+                identity_broken = True
+                f("UNKNOWN_ITEM", "option", opt, "",
+                  "ItemIndex %s เป็นกล่องที่ใช้ ItemOption เลือกของข้างใน ยังไม่เคยเห็น ItemOption %s (\"%s\") "
+                  "ในคลัง ถ้าเป็นของใหม่ ให้ admin เพิ่มเข้าคลัง" % (idx, opt, name))
+            elif name and not name_ok:
                 identity_broken = True
                 real = sorted({c["name"] for c in named if c["name"]})
                 hit_kinds = {h["kind"] for h in name_hits}
@@ -205,8 +227,15 @@ class Checker:
                       "ชื่อไม่ตรงกับไอเทม ItemIndex %s ในฐานข้อมูล" % idx)
             # ItemKind must be one the database knows for this index
             if not identity_broken and kind is not None and kinds and kind not in kinds:
-                f("KIND", "kind", kind, " / ".join(map(str, kinds)),
-                  "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
+                kf = kind_fields(kind, idx)
+                if kf and kf["mask"] & 0xFFF == 0 and flag_residual(kf["mask"]) in self.residuals:
+                    # a clean ItemKind (bind / +N / expiry) we just have not seen for this item yet
+                    f("KIND_VARIANT", "kind", kind, " / ".join(map(str, kinds)),
+                      "ไอเทมนี้ในคลังเคยใช้ ItemKind %s แต่เอกสารนี้เป็นแบบ %s ให้ recheck ว่าตั้งใจ"
+                      % (" / ".join(map(str, kinds)), describe_kind(kf)))
+                else:
+                    f("KIND", "kind", kind, " / ".join(map(str, kinds)),
+                      "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
             for fld, val in (("stackable", stack), ("itemmove", move)):
                 ref = db.constant(idx, fld)
                 if val is not None and ref is not None and val != ref:
@@ -230,7 +259,7 @@ class Checker:
                 f("KIND_STRUCT", "kind", kind, "",
                   "ItemKind ควรเท่ากับ ItemIndex + flag แต่ %s - %s = %s" % (kind, idx, mask))
             else:
-                if mask not in self.masks:
+                if mask & 0xFFF or flag_residual(mask) not in self.residuals:
                     f("KIND_FLAG", "kind", kind, "",
                       "ItemKind - ItemIndex = %s (0x%X) ไม่เคยพบใน %s ตรวจว่าก๊อปเลขมาถูกตัวไหม"
                       % (mask, mask, db.game.upper()))
@@ -289,6 +318,13 @@ class Checker:
     def _library_diff(self, r, n, stack, move, name, dname, already):
         keys = {full_name_key(name), full_name_key(dname)} - {""}
         lib = [it for k in keys for it in self.db.by_full_name.get(k, [])]
+        # bound / tradable and timed / permanent versions are different products
+        kf = kind_fields(n["kind"], n["index"])
+        if kf and kf["mask"] & 0xFFF == 0:
+            def same_kind(it):
+                k2 = kind_fields(it["kind"], it["index"])
+                return k2 is None or (k2["bound"], k2["expiry"]) == (kf["bound"], kf["expiry"])
+            lib = [it for it in lib if same_kind(it)]
         if not lib:
             return []
         doc = dict(n, stackable=stack, itemmove=move)
