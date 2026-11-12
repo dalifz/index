@@ -355,7 +355,7 @@ class Checker:
             return []                      # matches one known version exactly
         done = {x["field"] for x in already if x["severity"] != "info"}
         found = []
-        for f in ("index", "kind", "option", "duration", "itemmove"):
+        for f in ("index", "kind", "option", "itemmove"):   # duration varies per event (Dalif 2026-11-12)
             vals = {it[f] for it in lib if it[f] is not None}
             if doc[f] is None or not vals or doc[f] in vals or FIELD_LABELS[f] in done:
                 continue
