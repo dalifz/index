@@ -66,6 +66,8 @@ class Checker:
     def __init__(self, db):
         self.db = db
         self.confirmed = set((db.rules or {}).get("confirmed", []))
+        # items that legitimately have no item numbers in this game (rules.json "no_id_items")
+        self.no_id_keys = [name_key(n) for n in ((db.rules or {}).get("no_id_items") or {})]
         self.masks = db.known_masks()
         self.residuals = {flag_residual(m) for m in self.masks if m >= 0} | {0}
 
@@ -129,6 +131,11 @@ class Checker:
         out = []
         f = lambda *a: out.append(self._f(r, *a))  # noqa: E731
         cols = set(r["columns"])
+
+        # 0. items that have no numbers in this game at all (e.g. PC "Platinum Wing")
+        nk0 = name_key(v.get("name") or v.get("display_name"))
+        if nk0 and any(nk0.startswith(k) for k in self.no_id_keys) and                 not any(text(v.get(fld)) for fld in ("kind", "index", "option")):
+            return out
 
         # 1. numbers must be exact whole numbers
         n = {}
