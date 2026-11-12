@@ -22,8 +22,13 @@
     validation: null,
     validationNonce: 0,
     editOriginal: null,
-    rules: {}
+    rules: {},
+    auth: { client_id: '', api_url: '', allow_team_password: true },
+    googleBusy: false,
+    googleInitializedClient: '',
+    sessionExpiryHandled: false
   };
+  var googleIdentityPromise = null;
 
   function byId(id) { return document.getElementById(id); }
   function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
@@ -46,6 +51,7 @@
   }
   function errorMessage(error, fallback) {
     if (!error) return fallback || 'เกิดข้อผิดพลาดที่ไม่คาดคิด';
+    if (handleSessionExpired(error)) return '';
     if (error.message === 'wrong-password') return 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจแล้วลองอีกครั้ง';
     if (error.name === 'TypeError' && /fetch|network|load/i.test(error.message || '')) {
       return 'เชื่อมต่อไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง';
@@ -59,6 +65,7 @@
     el.hidden = !message;
   }
   function toast(message, type) {
+    if (!message) return;
     var el = node('div', 'toast' + (type === 'error' ? ' is-error' : ''), message);
     byId('toast-region').appendChild(el);
     window.setTimeout(function () {
@@ -104,6 +111,7 @@
     document.documentElement.dataset.theme = theme;
     safeStorageSet(STORAGE.theme, theme);
     byId('theme-toggle').setAttribute('aria-label', theme === 'dark' ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด');
+    renderGoogleButton();
   }
 
   // Thai Kedmanee keyboard -> the English key in the same place. The team password is
@@ -115,12 +123,143 @@
     }).join('');
   }
 
+  function googleSignInAvailable() {
+    return !!(state.auth.client_id && state.auth.api_url);
+  }
+
+  function signedInUser() {
+    try { return window.QAEngine && window.QAEngine.user ? window.QAEngine.user() : null; }
+    catch (e) { return null; }
+  }
+
+  function canEditItems() {
+    try {
+      return !!(window.QAEngine && window.QAEngine.isUnlocked && window.QAEngine.isUnlocked() &&
+        window.QAEngine.canEditItems && window.QAEngine.canEditItems());
+    }
+    catch (e) { return false; }
+  }
+
+  function googleIdentity() {
+    return window.google && window.google.accounts && window.google.accounts.id;
+  }
+
+  function disableGoogleAutoSelect() {
+    var identity = googleIdentity();
+    if (identity && identity.disableAutoSelect) identity.disableAutoSelect();
+  }
+
+  function ensureGoogleIdentity() {
+    if (!state.auth.client_id) return Promise.resolve(false);
+    if (googleIdentity()) {
+      try {
+        initializeGoogleIdentity();
+        return Promise.resolve(true);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
+    if (googleIdentityPromise) return googleIdentityPromise;
+    googleIdentityPromise = new Promise(function (resolve, reject) {
+      var script = document.querySelector('script[data-google-identity]');
+      if (!script) {
+        script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.dataset.googleIdentity = 'true';
+        document.head.appendChild(script);
+      }
+      script.addEventListener('load', function () {
+        try {
+          initializeGoogleIdentity();
+          resolve(true);
+        } catch (error) {
+          googleIdentityPromise = null;
+          reject(error);
+        }
+      }, { once: true });
+      script.addEventListener('error', function () {
+        googleIdentityPromise = null;
+        reject(new Error('โหลด Google Sign-In ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง'));
+      }, { once: true });
+    });
+    return googleIdentityPromise;
+  }
+
+  function initializeGoogleIdentity() {
+    var identity = googleIdentity();
+    if (!identity || !state.auth.client_id) return;
+    if (state.googleInitializedClient !== state.auth.client_id) {
+      identity.initialize({
+        client_id: state.auth.client_id,
+        callback: function (response) { loginWithGoogle(response && response.credential); },
+        auto_select: true,
+        cancel_on_tap_outside: false
+      });
+      state.googleInitializedClient = state.auth.client_id;
+    }
+    renderGoogleButton();
+  }
+
+  function googleButtonTheme() {
+    var theme = document.documentElement.dataset.theme;
+    if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return theme === 'dark' ? 'filled_black' : 'outline';
+  }
+
+  function renderGoogleButton() {
+    var container = byId('google-signin-button');
+    var identity = googleIdentity();
+    if (!container || !identity || !googleSignInAvailable() || byId('google-auth-panel').hidden) return;
+    container.replaceChildren();
+    identity.renderButton(container, {
+      theme: googleButtonTheme(),
+      size: 'large',
+      text: 'signin_with',
+      shape: 'pill',
+      locale: 'th'
+    });
+  }
+
+  function setGoogleBusy(busy) {
+    state.googleBusy = !!busy;
+    byId('google-auth-panel').classList.toggle('is-busy', state.googleBusy);
+    byId('google-auth-panel').setAttribute('aria-busy', state.googleBusy ? 'true' : 'false');
+    byId('google-busy').hidden = !state.googleBusy;
+  }
+
+  async function loginWithGoogle(idToken) {
+    if (!idToken || state.googleBusy) return;
+    setGoogleBusy(true);
+    showInline('google-auth-error', '');
+    try {
+      await window.QAEngine.loginWithGoogle(idToken);
+      state.sessionExpiryHandled = false;
+      enterApp();
+    } catch (error) {
+      disableGoogleAutoSelect();
+      if (!handleSessionExpired(error)) {
+        var message = error && error.message === 'not-allowed'
+          ? 'อีเมล ' + textValue(error.email, 'นี้') + ' ยังไม่มีสิทธิ์ใช้งาน ติดต่อ admin (Dalif)'
+          : errorMessage(error, 'Sign in with Google ไม่สำเร็จ');
+        showInline('google-auth-error', message);
+      }
+    } finally {
+      setGoogleBusy(false);
+      renderGoogleButton();
+    }
+  }
+
   function setupStaticEvents() {
     var savedTheme = safeStorageGet(STORAGE.theme, '');
     if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
 
     byId('retry-init').addEventListener('click', initEngine);
     byId('unlock-form').addEventListener('submit', unlock);
+    byId('show-team-password').addEventListener('click', showTeamPassword);
+    byId('back-to-google').addEventListener('click', function () { showUnlock({ preferGoogle: true }); });
+    byId('sheet-signin-button').addEventListener('click', returnToGoogleSignIn);
     var pw = byId('team-password');
     pw.addEventListener('input', function () {
       var fixed = thaiToEnglish(pw.value);
@@ -138,7 +277,7 @@
         showInline('unlock-hint', '');
       }
     });
-    byId('lock-button').addEventListener('click', lockApp);
+    byId('lock-button').addEventListener('click', logoutApp);
     byId('theme-toggle').addEventListener('click', function () {
       var current = document.documentElement.dataset.theme;
       if (!current) current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -204,6 +343,12 @@
         byId('loading-screen').querySelector('[role="progressbar"]').setAttribute('aria-valuenow', String(pct));
       });
       state.rules = window.QAEngine.rules() || {};
+      state.auth = window.QAEngine.authConfig ? window.QAEngine.authConfig() : state.auth;
+      if (state.auth.client_id) {
+        ensureGoogleIdentity().catch(function (error) {
+          if (googleSignInAvailable()) showInline('google-auth-error', errorMessage(error, 'โหลด Google Sign-In ไม่สำเร็จ'));
+        });
+      }
       if (window.QAEngine.isUnlocked()) enterApp();
       else showUnlock();
     } catch (error) {
@@ -213,12 +358,36 @@
     }
   }
 
-  function showUnlock() {
+  function showUnlock(options) {
+    options = options || {};
+    var useGoogle = googleSignInAvailable() && options.preferTeam !== true;
     byId('loading-screen').hidden = true;
     byId('app-shell').hidden = true;
     byId('unlock-screen').hidden = false;
-    byId('team-password').focus();
+    showInline('unlock-error', '');
+    showInline('unlock-hint', '');
+    if (!options.keepGoogleError) showInline('google-auth-error', '');
+    setGoogleBusy(false);
+    byId('google-auth-panel').hidden = !useGoogle;
+    byId('team-auth-panel').hidden = useGoogle;
+    byId('show-team-password').hidden = !useGoogle || !state.auth.allow_team_password;
+    byId('back-to-google').hidden = !googleSignInAvailable() || !state.auth.allow_team_password;
+    if (useGoogle) {
+      byId('unlock-eyebrow').textContent = 'บัญชีทีม QA';
+      byId('unlock-title').textContent = 'Sign in เพื่อเริ่มตรวจเอกสาร';
+      byId('unlock-copy').textContent = 'ใช้บัญชี Google ของคุณเพื่อระบุตัวตนและบันทึกประวัติการทำงานของทีม';
+      ensureGoogleIdentity().then(renderGoogleButton).catch(function (error) {
+        showInline('google-auth-error', errorMessage(error, 'โหลด Google Sign-In ไม่สำเร็จ'));
+      });
+    } else {
+      byId('unlock-eyebrow').textContent = 'ฐานข้อมูลเข้ารหัส';
+      byId('unlock-title').textContent = googleSignInAvailable() ? 'เปิดด้วยรหัสผ่านทีม' : 'เปิดฐานข้อมูลของทีม';
+      byId('unlock-copy').textContent = 'ข้อมูลไอเทมถูกเข้ารหัส กรุณาใส่รหัสผ่านทีมเพื่อเริ่มตรวจเอกสาร';
+      window.setTimeout(function () { byId('team-password').focus(); }, 0);
+    }
   }
+
+  function showTeamPassword() { showUnlock({ preferTeam: true }); }
 
   async function unlock(event) {
     event.preventDefault();
@@ -245,18 +414,22 @@
   function enterApp() {
     byId('loading-screen').hidden = true;
     byId('unlock-screen').hidden = true;
+    byId('google-auth-panel').hidden = true;
     byId('app-shell').hidden = false;
     document.body.dataset.game = state.game;
     var token = safeStorageGet(STORAGE.token, '');
     byId('github-token').value = token;
+    state.sessionExpiryHandled = false;
+    updateUserUI();
+    updateRoleUI();
+    updateSaveIdentityUI();
     updateGameUI();
     updateSheetCapability();
     showView(state.view);
     announce('ระบบพร้อมใช้งาน ฐานข้อมูล ' + GAME_LABEL[state.game]);
   }
 
-  function lockApp() {
-    window.QAEngine.lock();
+  function resetWorkspace() {
     state.result = null;
     state.resultContext = null;
     state.lastWorkbook = null;
@@ -273,8 +446,111 @@
     resetItemValidation();
     byId('team-password').value = '';
     showInline('unlock-error', '');
-    showUnlock();
-    announce('ล็อกฐานข้อมูลแล้ว');
+    showInline('google-auth-error', '');
+  }
+
+  async function logoutApp() {
+    var button = byId('lock-button');
+    var user = signedInUser();
+    withBusy(button, true, user ? 'กำลังออก…' : 'กำลังล็อก…');
+    disableGoogleAutoSelect();
+    try {
+      if (user && window.QAEngine.logout) await window.QAEngine.logout();
+      else window.QAEngine.lock();
+    } finally {
+      resetWorkspace();
+      withBusy(button, false);
+      showUnlock({ preferGoogle: true });
+      announce(user ? 'ออกจากระบบแล้ว' : 'ล็อกฐานข้อมูลแล้ว');
+    }
+  }
+
+  function returnToGoogleSignIn() {
+    window.QAEngine.lock();
+    resetWorkspace();
+    showUnlock({ preferGoogle: true });
+    announce('กรุณา Sign in with Google เพื่ออ่าน Google Sheet');
+  }
+
+  function handleSessionExpired(error) {
+    if (!error || error.message !== 'session-expired') return false;
+    if (state.sessionExpiryHandled) return true;
+    state.sessionExpiryHandled = true;
+    disableGoogleAutoSelect();
+    if (window.QAEngine && window.QAEngine.logout) window.QAEngine.logout().catch(function () { /* session is already gone */ });
+    resetWorkspace();
+    showUnlock({ preferGoogle: true });
+    toast('หมดเวลาการใช้งาน กรุณา sign in ใหม่', 'error');
+    announce('หมดเวลาการใช้งาน กรุณา sign in ใหม่');
+    return true;
+  }
+
+  function safePictureUrl(value) {
+    try {
+      var url = new URL(String(value || ''));
+      return url.protocol === 'https:' ? url.href : '';
+    } catch (e) { return ''; }
+  }
+
+  function updateUserUI() {
+    var user = signedInUser();
+    var avatar = byId('user-avatar');
+    avatar.replaceChildren();
+    if (user) {
+      var displayName = textValue(user.name, user.email || 'ผู้ใช้งาน');
+      var picture = safePictureUrl(user.picture);
+      if (picture) {
+        var image = node('img');
+        image.src = picture;
+        image.alt = '';
+        image.referrerPolicy = 'no-referrer';
+        image.addEventListener('error', function () {
+          avatar.replaceChildren(node('span', '', displayName.charAt(0) || '?'));
+        }, { once: true });
+        avatar.appendChild(image);
+      } else {
+        avatar.textContent = displayName.charAt(0) || '?';
+      }
+      byId('user-name').textContent = displayName;
+      byId('user-email').textContent = user.email || '';
+      byId('user-email').hidden = !user.email;
+      byId('user-role').textContent = user.role === 'admin' ? 'Admin' : 'QA';
+      byId('user-role').className = 'role-badge ' + (user.role === 'admin' ? 'role-badge--admin' : 'role-badge--qa');
+      byId('user-chip').setAttribute('aria-label', displayName + ' · ' + (user.role === 'admin' ? 'Admin' : 'QA'));
+      byId('lock-icon').textContent = '↪';
+      byId('lock-label').textContent = 'ออกจากระบบ';
+      byId('lock-button').setAttribute('aria-label', 'ออกจากระบบ');
+    } else {
+      avatar.textContent = '⌁';
+      byId('user-name').textContent = 'โหมดรหัสทีม';
+      byId('user-email').textContent = '';
+      byId('user-email').hidden = true;
+      byId('user-role').textContent = 'รหัสทีม';
+      byId('user-role').className = 'role-badge role-badge--team';
+      byId('user-chip').setAttribute('aria-label', 'โหมดรหัสทีม');
+      byId('lock-icon').textContent = '⌁';
+      byId('lock-label').textContent = 'ล็อก';
+      byId('lock-button').setAttribute('aria-label', 'ล็อกฐานข้อมูล');
+    }
+  }
+
+  function updateRoleUI() {
+    var editable = canEditItems();
+    var user = signedInUser();
+    document.body.dataset.role = user ? user.role : 'team';
+    all('[data-admin-only]').forEach(function (element) { element.hidden = !editable; });
+    if (!editable && state.view === 'add') state.view = 'check';
+  }
+
+  function updateSaveIdentityUI() {
+    var user = signedInUser();
+    byId('token-panel').hidden = !!user;
+    byId('backend-save-panel').hidden = !user;
+    if (!user) return;
+    byId('save-as-email').textContent = user.email || user.name || 'บัญชี Google นี้';
+    var canSave = false;
+    try { canSave = !!window.QAEngine.canSaveViaBackend(); } catch (e) { canSave = false; }
+    byId('backend-save-note').hidden = canSave;
   }
 
   function changeGame(game) {
@@ -332,14 +608,20 @@
   function updateSheetCapability() {
     var enabled = false;
     try { enabled = window.QAEngine.hasSheetApi(); } catch (e) { enabled = false; }
+    var needsGoogleSignIn = !enabled && !!state.auth.api_url && !signedInUser() && googleSignInAvailable();
     byId('sheet-url').disabled = !enabled;
     byId('sheet-names').disabled = !enabled;
     byId('load-sheets-button').disabled = !enabled;
     byId('google-disabled-note').hidden = enabled;
+    byId('google-disabled-copy').textContent = needsGoogleSignIn
+      ? 'Sign in with Google เพื่ออ่านจาก Google Sheet'
+      : 'ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet';
+    byId('sheet-signin-button').hidden = !needsGoogleSignIn;
     byId('google-source-card').classList.toggle('is-disabled', !enabled);
   }
 
   function showView(view) {
+    if (view === 'add' && !canEditItems()) view = 'check';
     if (!byId('view-' + view)) view = 'check';
     state.view = view;
     all('[data-view-panel]').forEach(function (panel) {
@@ -875,7 +1157,7 @@
       await navigator.clipboard.writeText(text);
       toast('คัดลอกรายงานแล้ว พร้อมวางในแชต');
     } catch (error) {
-      toast('คัดลอกไม่สำเร็จ กรุณาอนุญาต clipboard แล้วลองอีกครั้ง', 'error');
+      if (!handleSessionExpired(error)) toast('คัดลอกไม่สำเร็จ กรุณาอนุญาต clipboard แล้วลองอีกครั้ง', 'error');
     } finally {
       withBusy(button, false);
     }
@@ -919,6 +1201,7 @@
 
   function renderItems() {
     if (!window.QAEngine || !window.QAEngine.isUnlocked()) return;
+    var editable = canEditItems();
     var query = byId('item-search').value.trim();
     var items;
     try { items = window.QAEngine.searchItems(state.game, query, 100) || []; }
@@ -940,16 +1223,18 @@
         td.title = textValue(item[field]);
         tr.appendChild(td);
       });
-      var actionCell = node('td', 'row-action');
-      var editButton = node('button', 'edit-row-button');
-      editButton.type = 'button';
-      editButton.title = 'แก้ไข ' + textValue(item.name, 'ไอเทมนี้');
-      editButton.setAttribute('aria-label', 'แก้ไข ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
-      editButton.appendChild(node('span', 'edit-row-icon', '✎'));
-      editButton.appendChild(node('span', '', 'แก้ไข'));
-      editButton.addEventListener('click', function () { beginItemEdit(item); });
-      actionCell.appendChild(editButton);
-      tr.appendChild(actionCell);
+      if (editable) {
+        var actionCell = node('td', 'row-action');
+        var editButton = node('button', 'edit-row-button');
+        editButton.type = 'button';
+        editButton.title = 'แก้ไข ' + textValue(item.name, 'ไอเทมนี้');
+        editButton.setAttribute('aria-label', 'แก้ไข ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
+        editButton.appendChild(node('span', 'edit-row-icon', '✎'));
+        editButton.appendChild(node('span', '', 'แก้ไข'));
+        editButton.addEventListener('click', function () { beginItemEdit(item); });
+        actionCell.appendChild(editButton);
+        tr.appendChild(actionCell);
+      }
       fragment.appendChild(tr);
     });
     body.appendChild(fragment);
@@ -999,7 +1284,7 @@
   }
 
   function renderEditSearchResults() {
-    if (!window.QAEngine || !window.QAEngine.isUnlocked() || state.editOriginal) return;
+    if (!window.QAEngine || !window.QAEngine.isUnlocked() || !canEditItems() || state.editOriginal) return;
     var query = byId('edit-item-search').value.trim();
     var results = byId('edit-search-results');
     var hint = byId('edit-search-hint');
@@ -1033,7 +1318,7 @@
   }
 
   function beginItemEdit(item) {
-    if (!item) return;
+    if (!item || !canEditItems()) return;
     state.editOriginal = item;
     state.validation = null;
     state.validationNonce += 1;
@@ -1210,11 +1495,11 @@
   function updateSaveButtonState() {
     var valid = !!(state.validation && state.validation.ok);
     var changed = !state.editOriginal || itemChanges(addItemData(), state.editOriginal).length > 0;
-    byId('save-item').disabled = !valid || !changed;
+    byId('save-item').disabled = !canEditItems() || !valid || !changed;
   }
 
   async function validateAddForm() {
-    if (!window.QAEngine || !window.QAEngine.isUnlocked()) return null;
+    if (!window.QAEngine || !window.QAEngine.isUnlocked() || !canEditItems()) return null;
     var item = addItemData();
     var nonce = ++state.validationNonce;
     byId('add-success').hidden = true;
@@ -1303,13 +1588,19 @@
   async function saveItem(event) {
     event.preventDefault();
     var button = byId('save-item');
+    var user = signedInUser();
     var token = byId('github-token').value.trim();
     var original = state.editOriginal;
     var wasEdit = !!original;
     var draft = addItemData();
-    safeStorageSet(STORAGE.token, token);
+    if (!user) safeStorageSet(STORAGE.token, token);
     showInline('add-error', '');
     byId('add-success').hidden = true;
+    if (!canEditItems()) {
+      showInline('add-error', 'บัญชี QA ไม่มีสิทธิ์เพิ่มหรือแก้ไขไอเทม');
+      showView('check');
+      return;
+    }
     if (wasEdit && !itemChanges(draft, original).length) {
       updateSaveButtonState();
       return;
@@ -1320,10 +1611,10 @@
       state.validation = validation;
       renderValidation(validation);
       if (!validation.ok) throw new Error('ข้อมูลยังไม่ผ่านกฎบังคับ กรุณาแก้ช่องที่แจ้งก่อนบันทึก');
-      if (!token) throw new Error('กรุณาใส่ GitHub token ของ admin');
+      if (!user && !token) throw new Error('กรุณาใส่ GitHub token ของ admin');
       var result = wasEdit
-        ? await window.QAEngine.updateItem(state.game, original, validation.item, token)
-        : await window.QAEngine.addItem(state.game, validation.item, token);
+        ? await window.QAEngine.updateItem(state.game, original, validation.item, user ? undefined : token)
+        : await window.QAEngine.addItem(state.game, validation.item, user ? undefined : token);
       var changes = wasEdit ? itemChanges(result.item || validation.item, original) : [];
       finishItemSave();
       renderItems();

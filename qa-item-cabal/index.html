@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112074431">
+  <link rel="stylesheet" href="css/app.css?v=20261112083055">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -51,27 +51,45 @@
           <path class="mark-scan" d="M11 33h22"/>
         </svg>
         <div>
-          <p class="eyebrow">ฐานข้อมูลเข้ารหัส</p>
+          <p id="unlock-eyebrow" class="eyebrow">ฐานข้อมูลเข้ารหัส</p>
           <h1 id="unlock-title">เปิดฐานข้อมูลของทีม</h1>
         </div>
       </div>
-      <p class="gate-copy">ข้อมูลไอเทมถูกเข้ารหัส กรุณาใส่รหัสผ่านทีมเพื่อเริ่มตรวจเอกสาร</p>
-      <form id="unlock-form" novalidate>
-        <label class="field-label" for="team-password">รหัสผ่านทีม</label>
-        <div class="input-with-action">
-          <input id="team-password" name="password" type="password" autocomplete="current-password" required autofocus lang="en" autocapitalize="off" autocorrect="off" spellcheck="false">
-          <button class="icon-button input-action" type="button" data-toggle-password="team-password" aria-label="แสดงรหัสผ่าน">
-            <span aria-hidden="true">ดู</span>
-          </button>
+      <p id="unlock-copy" class="gate-copy">ข้อมูลไอเทมถูกเข้ารหัส กรุณาใส่รหัสผ่านทีมเพื่อเริ่มตรวจเอกสาร</p>
+
+      <div id="google-auth-panel" class="google-auth-panel" hidden>
+        <div id="google-button-wrap" class="google-button-wrap">
+          <div id="google-signin-button" aria-label="Sign in with Google"></div>
         </div>
-        <div id="unlock-hint" class="field-message" role="status" aria-live="polite" hidden></div>
-        <div id="unlock-error" class="field-message field-message--error" role="alert" hidden></div>
-        <button id="unlock-button" class="button button--primary button--wide" type="submit">
-          <span>เปิดฐานข้อมูล</span>
-          <span aria-hidden="true">→</span>
+        <div id="google-busy" class="google-auth-busy" role="status" aria-live="polite" hidden>
+          <span class="mini-spinner" aria-hidden="true"></span>
+          <span>กำลังตรวจสอบบัญชีและเปิดฐานข้อมูล…</span>
+        </div>
+        <div id="google-auth-error" class="field-message field-message--error auth-error" role="alert" hidden></div>
+        <button id="show-team-password" class="quiet-auth-link" type="button" hidden>ใช้รหัสผ่านทีมแทน</button>
+      </div>
+
+      <div id="team-auth-panel">
+        <form id="unlock-form" novalidate>
+          <label class="field-label" for="team-password">รหัสผ่านทีม</label>
+          <div class="input-with-action">
+            <input id="team-password" name="password" type="password" autocomplete="current-password" required autofocus lang="en" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <button class="icon-button input-action" type="button" data-toggle-password="team-password" aria-label="แสดงรหัสผ่าน">
+              <span aria-hidden="true">ดู</span>
+            </button>
+          </div>
+          <div id="unlock-hint" class="field-message" role="status" aria-live="polite" hidden></div>
+          <div id="unlock-error" class="field-message field-message--error" role="alert" hidden></div>
+          <button id="unlock-button" class="button button--primary button--wide" type="submit">
+            <span>เปิดฐานข้อมูล</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <button id="back-to-google" class="quiet-auth-link quiet-auth-link--back" type="button" hidden>
+          <span aria-hidden="true">←</span> กลับไป Sign in with Google
         </button>
-      </form>
-      <p class="privacy-note">รหัสจะจำไว้เฉพาะแท็บนี้ และไม่ถูกส่งออกจากเบราว์เซอร์</p>
+        <p class="privacy-note">รหัสจะจำไว้เฉพาะแท็บนี้ และไม่ถูกส่งออกจากเบราว์เซอร์</p>
+      </div>
     </div>
   </section>
 
@@ -107,9 +125,16 @@
           <span class="db-health__date" id="top-db-date">อัปเดต —</span>
           <span class="pending-chip" id="top-db-pending" hidden>รออัปเดต 0</span>
         </div>
+        <div id="user-chip" class="user-chip" aria-label="ผู้ใช้งานปัจจุบัน">
+          <span id="user-avatar" class="user-avatar" aria-hidden="true">⌁</span>
+          <span class="user-identity">
+            <strong id="user-name">โหมดรหัสทีม</strong>
+            <span class="user-meta"><span id="user-role" class="role-badge role-badge--team">รหัสทีม</span><small id="user-email" hidden></small></span>
+          </span>
+        </div>
         <button id="theme-toggle" class="icon-button" type="button" aria-label="สลับธีมสี"><span aria-hidden="true">◐</span></button>
         <button id="lock-button" class="icon-button icon-button--text" type="button" aria-label="ล็อกฐานข้อมูล">
-          <span aria-hidden="true">⌁</span><span class="hide-on-small">ล็อก</span>
+          <span id="lock-icon" aria-hidden="true">⌁</span><span id="lock-label" class="hide-on-small">ล็อก</span>
         </button>
       </div>
     </header>
@@ -123,7 +148,7 @@
           <button class="nav-item" type="button" data-view="items">
             <span class="nav-icon" aria-hidden="true">⌘</span><span>ฐานข้อมูลไอเทม</span>
           </button>
-          <button class="nav-item" type="button" data-view="add">
+          <button class="nav-item" type="button" data-view="add" data-admin-only>
             <span class="nav-icon" aria-hidden="true">＋</span><span>เพิ่ม/แก้ไข ไอเทม</span><span class="admin-tag">ผู้ดูแล</span>
           </button>
           <button class="nav-item" type="button" data-view="history">
@@ -167,7 +192,10 @@
                   </label>
                   <p class="source-hint">ใส่ชื่อชีทแล้วกดปุ่ม → อ่านเฉพาะชีทนั้นและตรวจทันที · ถ้าก๊อปลิงก์จากแท็บที่เปิดอยู่ ระบบเลือกแท็บนั้นให้เอง</p>
                 </form>
-                <p id="google-disabled-note" class="source-note" hidden>ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet</p>
+                <div id="google-disabled-note" class="source-note source-note--action" hidden>
+                  <span id="google-disabled-copy">ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet</span>
+                  <button id="sheet-signin-button" class="button button--secondary button--small" type="button" hidden>Sign in with Google</button>
+                </div>
                 <div id="google-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
               </article>
 
@@ -286,7 +314,7 @@
             </div>
             <div class="table-wrap">
               <table class="data-table item-table">
-                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Trade</th><th>Item Name</th><th>Display Name</th><th>Period</th><th class="action-column">จัดการ</th></tr></thead>
+                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Trade</th><th>Item Name</th><th>Display Name</th><th>Period</th><th class="action-column" data-admin-only>จัดการ</th></tr></thead>
                 <tbody id="item-table-body"></tbody>
               </table>
             </div>
@@ -354,13 +382,17 @@
                   <ul id="validation-warnings" class="message-list message-list--warn"></ul>
                 </div>
               </article>
-              <article class="panel token-panel">
+              <article id="token-panel" class="panel token-panel">
                 <label class="field-label" for="github-token">GitHub token ของ admin</label>
                 <div class="input-with-action">
                   <input id="github-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
                   <button class="icon-button input-action" type="button" data-toggle-password="github-token" aria-label="แสดง token"><span aria-hidden="true">ดู</span></button>
                 </div>
                 <p>ใช้สิทธิ์เขียนเฉพาะ repo ข้อมูล เก็บไว้ในเบราว์เซอร์เครื่องนี้ด้วย localStorage</p>
+              </article>
+              <article id="backend-save-panel" class="panel save-identity-panel" hidden>
+                <div class="save-identity-head"><span aria-hidden="true">✓</span><p>บันทึกในชื่อ<strong id="save-as-email">—</strong></p></div>
+                <p id="backend-save-note" class="backend-save-note" hidden>Backend ยังไม่มี GitHub token — การบันทึกจะยังไม่สำเร็จ กรุณาติดต่อ admin (Dalif)</p>
               </article>
               <div id="add-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
               <div id="add-success" class="success-card" role="status" hidden></div>
@@ -386,7 +418,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112074431"></script>
-  <script src="js/app.js?v=20261112074431"></script>
+  <script src="js/engine.js?v=20261112083055"></script>
+  <script src="js/app.js?v=20261112083055"></script>
 </body>
 </html>

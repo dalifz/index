@@ -25,6 +25,16 @@
  *   await QAEngine.updateItem(game, original, item, token) -> {commit_url, item}; edit a library row
  *   QAEngine.rules()                           -> {CODE: Thai title}
  *
+ * Google sign-in (Apps Script backend, see apps-script/Code.gs):
+ *   QAEngine.authConfig()                      -> {client_id, api_url, allow_team_password} (public, no secrets)
+ *   await QAEngine.loginWithGoogle(idToken)    -> user {email, name, role:'qa'|'admin', picture}; also unlocks data
+ *        throws Error('not-allowed') (err.email set) when the email is not in the Users sheet
+ *   QAEngine.user()                            -> signed-in user or null (null when unlocked by team password)
+ *   QAEngine.canEditItems()                    -> true for admin (via backend) or when a GitHub token is used
+ *   await QAEngine.logout()
+ *   Signed-in users: check / add / edit are written to the audit log automatically;
+ *   addItem / updateItem go through the backend (token argument ignored).
+ *
  * workbook = {source, url?, sheets:[{name, values:[[...]], display:[[...]], hidden}]}
  */
 (function () {
@@ -36,6 +46,7 @@
   var PY_FILES = ['pkg_init.py', 'normalize.py', 'sheet.py', 'db.py', 'checker.py', 'api.py'];
   var GAMES = ['pc', 'mobile'];
   var SESSION_KEY = 'qaitem_pw';
+  var AUTH_KEY = 'qaitem_auth';
 
   var src = (document.currentScript && document.currentScript.src) || '';
   var base = src ? src.replace(/js\/engine\.js.*$/, '') : './';
@@ -43,7 +54,7 @@
 
   var py = null, initPromise = null;
   var state = { bundles: {}, config: null, manifest: null, pending: { pc: [], mobile: [] },
-                edits: { pc: [], mobile: [] } };
+                edits: { pc: [], mobile: [] }, auth: {}, session: null, user: null, canSave: false };
 
   function progress(cb, step, pct) { if (cb) try { cb(step, pct); } catch (e) { /* ignore */ } }
 
@@ -77,6 +88,12 @@
       py.runPython('import sys\nsys.path.insert(0, "/app")\nimport qaitem.api as qa\nimport json');
       state.manifest = await fetch(base + 'data/manifest.json', { cache: 'no-cache' })
         .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+      state.auth = await fetch(base + 'data/auth.json?v=' + ver, { cache: 'no-cache' })
+        .then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
+      try {
+        var a = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+        if (a && a.session && a.exp > Date.now()) { state.session = a.session; state.user = a.user; state.canSave = !!a.can_save; }
+      } catch (e) { /* ignore */ }
       progress(onProgress, 'พร้อมใช้งาน', 100);
       if (!isUnlocked()) {
         var saved = null;
@@ -126,7 +143,61 @@
   function isUnlocked() { return !!state.bundles.pc; }
   function lock() {
     state.bundles = {}; state.config = null;
-    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ }
+    state.session = null; state.user = null; state.canSave = false;
+    try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
+  }
+
+  // ------------------------------------------------------- Google sign-in
+  function authConfig() {
+    var a = state.auth || {};
+    return { client_id: a.client_id || '', api_url: a.api_url || '',
+             allow_team_password: a.allow_team_password !== false };
+  }
+
+  // POST with a text/plain body = "simple" CORS request, no preflight (Apps Script cannot answer OPTIONS)
+  async function backend(action, payload) {
+    var url = authConfig().api_url;
+    if (!url) throw new Error('ยังไม่ได้ตั้งค่า Apps Script');
+    var body = Object.assign({ action: action, session: state.session }, payload || {});
+    var r = await fetch(url, { method: 'POST', body: JSON.stringify(body), redirect: 'follow' });
+    if (!r.ok) throw new Error('ติดต่อ Apps Script ไม่ได้ (' + r.status + ')');
+    var j = await r.json();
+    if (!j.ok) {
+      if (j.error === 'session-expired') {
+        state.session = null; state.user = null;
+        try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
+        throw new Error('session-expired');
+      }
+      var err = new Error(j.error || 'Apps Script ตอบกลับผิดพลาด');
+      if (j.email) err.email = j.email;
+      throw err;
+    }
+    return j;
+  }
+
+  async function loginWithGoogle(idToken) {
+    var j = await backend('login', { id_token: idToken });
+    state.session = j.session; state.user = j.user; state.canSave = !!j.can_save;
+    try {
+      sessionStorage.setItem(AUTH_KEY, JSON.stringify({ session: j.session, user: j.user, can_save: j.can_save,
+                                                       exp: Date.now() + (j.expires_in || 21600) * 1000 }));
+    } catch (e) { /* ignore */ }
+    if (!j.data_password) throw new Error('Apps Script ยังไม่ได้ตั้ง DATA_PASSWORD');
+    await unlock(j.data_password);
+    return j.user;
+  }
+
+  async function logout() {
+    if (state.session) { try { await backend('logout'); } catch (e) { /* ignore */ } }
+    lock();
+  }
+
+  function currentUser() { return state.user; }
+  function canEditItems() { return state.user ? state.user.role === 'admin' : true; }
+
+  function audit(event, game, detail) {
+    if (!state.session) return;
+    backend('log', { event: event, game: game, detail: detail }).catch(function () { /* never block the user */ });
   }
 
   function bundle(game) {
@@ -172,6 +243,9 @@
     var out = await callPy('check_workbook_json', JSON.stringify(bundle(game)), JSON.stringify(workbook));
     var res = JSON.parse(out);
     res.url = workbook.url || null;
+    audit('check', game, { source: workbook.source, url: workbook.url || null,
+                           sheets: (workbook.sheets || []).map(function (s) { return s.name; }),
+                           rows: res.summary.rows, errors: res.summary.errors, warnings: res.summary.warnings });
     return res;
   }
 
@@ -218,22 +292,17 @@
   }
 
   // -------------------------------------------------------- Google Sheet
-  function hasSheetApi() { return !!(state.config && state.config.sheet_api_url); }
+  // Google Sheets are read by the Apps Script backend, which needs a signed-in Google user
+  function hasSheetApi() { return !!(authConfig().api_url && state.session); }
 
-  async function sheetApi(params) {
-    if (!hasSheetApi()) throw new Error('ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet (Apps Script)');
-    var q = new URLSearchParams(Object.assign({ key: state.config.sheet_api_key }, params));
-    var r = await fetch(state.config.sheet_api_url + '?' + q.toString(), { redirect: 'follow' });
-    if (!r.ok) throw new Error('อ่าน Google Sheet ไม่ได้ (' + r.status + ')');
-    var j = await r.json();
-    if (!j.ok) throw new Error(j.error === 'unauthorized' ? 'ตัวอ่าน Google Sheet ปฏิเสธ key' : (j.error || 'อ่าน Google Sheet ไม่ได้'));
-    return j;
+  function listGoogleSheet(url) {
+    if (!hasSheetApi()) return Promise.reject(new Error('ต้อง Sign in with Google ก่อนถึงจะอ่าน Google Sheet ได้'));
+    return backend('list', { id: url });
   }
 
-  function listGoogleSheet(url) { return sheetApi({ action: 'list', id: url }); }
-
   async function readGoogleSheet(url, names) {
-    var j = await sheetApi({ action: 'read', id: url, sheets: (names || []).join('|') });
+    if (!hasSheetApi()) throw new Error('ต้อง Sign in with Google ก่อนถึงจะอ่าน Google Sheet ได้');
+    var j = await backend('read', { id: url, sheets: names || [] });
     return { source: j.title, url: url, sheets: j.sheets };
   }
 
@@ -258,6 +327,7 @@
   async function addItem(game, item, token) {
     var res = await validateItem(game, item);
     if (!res.ok) { var e = new Error(res.errors.join('\n')); e.validation = res; throw e; }
+    if (state.session) return saveViaBackend(game, res, null);
     if (!token) throw new Error('ต้องใส่ GitHub token ของ admin');
     return commitItems(game, token, function (data) {
       var it = Object.assign({}, res.item, { added_at: new Date().toISOString().slice(0, 10), source: 'web' });
@@ -274,6 +344,7 @@
     if (!original) throw new Error('ไม่รู้ว่าจะแก้ไอเทมตัวไหน');
     var res = await validateItem(game, item, original);
     if (!res.ok) { var e = new Error(res.errors.join('\n')); e.validation = res; throw e; }
+    if (state.session) return saveViaBackend(game, res, original);
     if (!token) throw new Error('ต้องใส่ GitHub token ของ admin');
     var from = identity(original);
     return commitItems(game, token, function (data) {
@@ -292,6 +363,15 @@
       state.edits[game].push({ from: from, item: done.item });
       return { commit_url: done.commit_url, item: done.item, warnings: res.warnings };
     });
+  }
+
+  // Signed-in admin: the backend commits as the shared token and writes the audit log (before -> after).
+  async function saveViaBackend(game, res, original) {
+    if (!state.user || state.user.role !== 'admin') throw new Error('ต้องเป็น admin ถึงจะเพิ่ม/แก้ไอเทมได้');
+    var j = await backend('save_item', { game: game, item: res.item, original: original || null });
+    if (original) state.edits[game].push({ from: identity(original), item: j.item });
+    else state.pending[game].push(j.item);
+    return { commit_url: j.commit_url, item: j.item, warnings: res.warnings };
   }
 
   // Read data/<game>/items.json from the private repo, change it, write it back (retry on conflicts).
@@ -341,6 +421,8 @@
     hasSheetApi: hasSheetApi, readExcel: readExcel, listGoogleSheet: listGoogleSheet,
     readGoogleSheet: readGoogleSheet, check: check, reportCSV: reportCSV, reportText: reportText,
     searchItems: searchItems, validateItem: validateItem, addItem: addItem, updateItem: updateItem,
+    authConfig: authConfig, loginWithGoogle: loginWithGoogle, logout: logout, user: currentUser,
+    canEditItems: canEditItems, canSaveViaBackend: function () { return !!state.canSave; },
     identity: identity, rules: rules,
     manifest: function () { return state.manifest; }
   };
