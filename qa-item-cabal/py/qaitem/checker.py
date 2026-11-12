@@ -31,10 +31,10 @@ RULES = {
     "KIND_FLAG":       "ItemKind มี flag ที่ไม่เคยพบ",
     "KIND_VARIANT":    "ItemKind แบบนี้ยังไม่เคยเห็นสำหรับไอเทมนี้",
     "NO_ID":           "ไม่มีเลขไอเทม",
-    "BIND_BIT":        "ItemKind กับ Itemmove ขัดกัน",
+    "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
-    "ITEMMOVE":        "Itemmove ไม่ตรงกับฐานข้อมูล",
+    "ITEMMOVE":        "Trade ไม่ตรงกับฐานข้อมูล",
     "QTY_OPTION":      "จำนวนในชื่อไม่ตรงกับ ItemOption",
     "PERIOD":          "Period ไม่ตรงกับ DurationIndex",
     "DURATION_UNKNOWN": "DurationIndex ไม่มีในตาราง",
@@ -57,7 +57,7 @@ TIME_IN_NAME = re.compile(
 ALWAYS_INFO = {"NEW_VARIANT"}
 
 NUMERIC = ("kind", "index", "option", "duration")
-REQUIRED_COLUMNS = ("kind", "index", "option", "duration", "stackable", "itemmove", "name", "period")
+REQUIRED_COLUMNS = ("kind", "index", "option", "duration", "itemmove", "name", "period")
 
 
 class Checker:
@@ -91,9 +91,9 @@ class Checker:
                                         "ตารางนี้ไม่มีคอลัมน์ " + ", ".join(FIELD_LABELS[f] for f in missing)
                                         + " จึงตรวจช่องนั้นไม่ได้"))
             findings.extend(self.check_row(r))
-            ident = (r["sheet"], r.get("table", r["pack"]), to_int(r["values"].get("index")),
+            ident = (r["sheet"], r.get("table", r["pack"]), to_int(r["values"].get("kind")), to_int(r["values"].get("index")),
                      to_int(r["values"].get("option")), to_int(r["values"].get("duration")))
-            if ident[2] is not None:
+            if ident[3] is not None:
                 seen[ident] += 1
                 if seen[ident] == 2:
                     findings.append(self._f(r, "DUPLICATE", "index", r["values"].get("index"), "",
@@ -152,7 +152,7 @@ class Checker:
                   "ค่าในเซลล์ถูกต้อง แต่แสดงเป็น E ถ้ามีคนก๊อปไปใช้จะได้เลขผิด ให้ตั้ง Format เป็น Number ไม่มีทศนิยม")
 
         stack = move = None
-        for fld in ("stackable", "itemmove"):
+        for fld in ("itemmove",):
             if fld in cols and text(v.get(fld)) != "":
                 b = yes_no(v.get(fld))
                 if b is None:
@@ -237,7 +237,7 @@ class Checker:
                 else:
                     f("KIND", "kind", kind, " / ".join(map(str, kinds)),
                       "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
-            for fld, val in (("stackable", stack), ("itemmove", move)):
+            for fld, val in (("itemmove", move),):
                 ref = db.constant(idx, fld)
                 if val is not None and ref is not None and val != ref:
                     f(fld.upper(), fld, yn(val), yn(ref),
@@ -267,7 +267,7 @@ class Checker:
                 kf = kind_fields(kind, idx)
                 if move is not None and kf["bound"] == move:  # bound but movable, or free but No
                     f("BIND_BIT", "itemmove", yn(move), yn(not kf["bound"]),
-                      "ItemKind %s flag ผูกตัว (0x1000 หรือ 0x80000) แต่ Itemmove = %s"
+                      "ItemKind %s flag ผูกตัว (+4096 หรือ +524288) แต่ Trade = %s"
                       % ("มี" if kf["bound"] else "ไม่มี", yn(move)))
                 # +N enhancement level lives in ItemKind bits 13-17
                 n_name = upgrade_in_name(name) if kf["upgrade"] else None
@@ -279,7 +279,7 @@ class Checker:
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
         # ItemOption = (value << 16) | count for some items, e.g. Raid Energy Capsule 50/100 x1 = 3276801
-        if q is not None and stack and opt is not None and not option_matches_qty(opt, q)                 and not any(x["code"] == "LIBRARY_DIFF" and x["field"] == "ItemOption" for x in out):
+        if q is not None and opt is not None and not option_matches_qty(opt, q)                 and not any(x["code"] == "LIBRARY_DIFF" and x["field"] == "ItemOption" for x in out):
             f("QTY_OPTION", "option", opt, q,
               "ชื่อไอเทมบอก x%s แต่ ItemOption = %s — ItemOption ส่วนใหญ่คือจำนวน ให้ recheck" % (q, opt))
 
@@ -338,17 +338,17 @@ class Checker:
             lib = [it for it in lib if same_kind(it)]
         if not lib:
             return []
-        doc = dict(n, stackable=stack, itemmove=move)
+        doc = dict(n, itemmove=move)
         if any(all(doc[f] is None or doc[f] == it[f] for f in ("kind", "index", "option", "duration"))
                for it in lib):
             return []                      # matches one known version exactly
         done = {x["field"] for x in already if x["severity"] != "info"}
         found = []
-        for f in ("index", "kind", "option", "duration", "stackable", "itemmove"):
+        for f in ("index", "kind", "option", "duration", "itemmove"):
             vals = {it[f] for it in lib if it[f] is not None}
             if doc[f] is None or not vals or doc[f] in vals or FIELD_LABELS[f] in done:
                 continue
-            show = (lambda x: yn(x)) if f in ("stackable", "itemmove") else str
+            show = (lambda x: yn(x)) if f == "itemmove" else str
             want = " / ".join(sorted(show(x) for x in vals))
             # history: how often the library saw it, and where (Dalif: say what is normally used)
             seen = sum(it.get("seen", 1) for it in lib)

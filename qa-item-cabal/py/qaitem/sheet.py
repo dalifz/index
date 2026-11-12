@@ -45,7 +45,7 @@ FIELD_LABELS = {
     "option": "ItemOption",
     "duration": "DurationIndex",
     "stackable": "Stackable",
-    "itemmove": "Itemmove",
+    "itemmove": "Trade (Itemmove)",
     "name": "Item Name",
     "amount": "Amount",
     "amount_ea": "Amount EA",

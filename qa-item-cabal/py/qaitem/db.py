@@ -9,7 +9,7 @@ from collections import defaultdict
 
 from .normalize import full_name_key, name_key, period_key, text, to_int, yes_no
 
-ITEM_FIELDS = ("kind", "index", "option", "duration", "stackable", "itemmove",
+ITEM_FIELDS = ("kind", "index", "option", "duration", "itemmove",
                "name", "display_name", "period")
 
 
@@ -20,7 +20,6 @@ def clean_item(raw):
         "index": to_int(raw.get("index")),
         "option": to_int(raw.get("option")),
         "duration": to_int(raw.get("duration")),
-        "stackable": yes_no(raw.get("stackable")) if not isinstance(raw.get("stackable"), bool) else raw.get("stackable"),
         "itemmove": yes_no(raw.get("itemmove")) if not isinstance(raw.get("itemmove"), bool) else raw.get("itemmove"),
         "name": text(raw.get("name")),
         "display_name": text(raw.get("display_name")),

@@ -856,7 +856,7 @@
     items.forEach(function (item) {
       var tr = node('tr');
       ['kind', 'index', 'option', 'duration'].forEach(function (field) { tr.appendChild(node('td', 'num', textValue(item[field]))); });
-      ['stackable', 'itemmove'].forEach(function (field) {
+      ['itemmove'].forEach(function (field) {
         var td = node('td');
         td.appendChild(node('span', 'boolean-pill', booleanText(item[field])));
         tr.appendChild(td);
@@ -908,7 +908,6 @@
       index: data.get('index') || '',
       option: data.get('option') || '',
       duration: data.get('duration') || '',
-      stackable: data.get('stackable') || '',
       itemmove: data.get('itemmove') || '',
       name: data.get('name') || '',
       display_name: data.get('display_name') || '',
@@ -917,7 +916,7 @@
   }
 
   function requiredAddFieldsPresent(item) {
-    return ['kind', 'index', 'option', 'duration', 'stackable', 'itemmove', 'name'].every(function (field) {
+    return ['kind', 'index', 'option', 'duration', 'itemmove', 'name'].every(function (field) {
       return String(item[field] === undefined || item[field] === null ? '' : item[field]).trim() !== '';
     });
   }

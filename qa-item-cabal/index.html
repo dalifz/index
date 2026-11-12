@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112061732">
+  <link rel="stylesheet" href="css/app.css?v=20261112062917">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -277,7 +277,7 @@
             </div>
             <div class="table-wrap">
               <table class="data-table item-table">
-                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Stackable</th><th>Itemmove</th><th>Item Name</th><th>Display Name</th><th>Period</th></tr></thead>
+                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Trade</th><th>Item Name</th><th>Display Name</th><th>Period</th></tr></thead>
                 <tbody id="item-table-body"></tbody>
               </table>
             </div>
@@ -306,8 +306,7 @@
                 <label class="span-2"><span>Period</span><input name="period" type="text" autocomplete="off" placeholder="เช่น 7 Days, 1 Day, Permanent, ถาวร"></label>
               </div>
               <div class="binary-grid">
-                <fieldset><legend>Stackable <em>*</em></legend><div class="segment-control"><label><input type="radio" name="stackable" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="stackable" value="No"><span>No</span></label></div></fieldset>
-                <fieldset><legend>Itemmove <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
+                <fieldset><legend>Trade (เทรดได้ไหม) <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
               </div>
             </article>
 
@@ -354,7 +353,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112061732"></script>
-  <script src="js/app.js?v=20261112061732"></script>
+  <script src="js/engine.js?v=20261112062917"></script>
+  <script src="js/app.js?v=20261112062917"></script>
 </body>
 </html>

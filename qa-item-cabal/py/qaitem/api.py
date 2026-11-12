@@ -92,12 +92,7 @@ def validate_item(bundle, raw):
         else:
             warnings.append("ไม่มี DurationIndex (เอกสารต้นทางไม่มีคอลัมน์นี้)")
     if it["itemmove"] is None:
-        errors.append("itemmove ต้องเป็น Yes หรือ No")
-    if it["stackable"] is None:
-        if text(raw.get("stackable")):
-            errors.append("stackable ต้องเป็น Yes หรือ No")
-        else:
-            warnings.append("ไม่มี Stackable (เอกสารต้นทางไม่มีคอลัมน์นี้)")
+        errors.append("Trade (Itemmove) ต้องเป็น Yes หรือ No")
     if not it["name"]:
         errors.append("ต้องมี Item Name")
     if errors:
@@ -105,10 +100,10 @@ def validate_item(bundle, raw):
 
     # run the same row checks the document checker uses
     # only check the fields this item actually has (source sheets may lack some columns)
-    cols = [k for k in ("kind", "index", "option", "duration", "stackable", "itemmove",
+    cols = [k for k in ("kind", "index", "option", "duration", "itemmove",
                         "name", "display_name", "period") if it[k] not in (None, "")]
     row = {"sheet": "ฟอร์มเพิ่มไอเทม", "pack": "-", "row": 1, "columns": cols,
-           "values": {k: (yn(it[k]) if k in ("stackable", "itemmove") else it[k]) for k in cols},
+           "values": {k: (yn(it[k]) if k == "itemmove" else it[k]) for k in cols},
            "cells": {}}
     row["display"] = {k: text(x) for k, x in row["values"].items()}
     for fd in Checker(db).check_row(row):
