@@ -412,6 +412,11 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
 .source-icon--sheets span::after { top: 12px; }
 .source-icon--excel { background: #e7f3ed; color: #1d6f42; font-family: var(--font-mono); }
 .source-form { display: flex; gap: 8px; }
+.source-form--stacked { flex-direction: column; gap: 10px; }
+.source-form__row { display: flex; gap: 8px; }
+.source-form__extra { display: grid; gap: 5px; color: var(--text-soft); font-size: 12px; font-weight: 600; }
+.source-form__extra em { color: var(--text-faint); font-style: normal; font-weight: 500; }
+.source-hint { margin: 0; color: var(--text-faint); font-size: 11.5px; line-height: 1.5; }
 .file-drop { display: flex; min-height: 46px; align-items: center; justify-content: center; gap: 9px; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-muted); color: var(--text-soft); cursor: pointer; font-size: 13px; transition: border .16s, background .16s; }
 .file-drop:hover, .file-drop.is-dragging { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
 .file-drop__icon { color: var(--accent); font-size: 18px; font-weight: 700; }
@@ -698,7 +703,7 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
   .page-heading--split, .results-topline, .findings-heading { align-items: stretch; flex-direction: column; }
   .trust-chip, .stat-card { align-self: flex-start; margin-top: 0; }
   .source-grid, .sheet-list { grid-template-columns: 1fr; }
-  .source-form { flex-direction: column; }
+  .source-form, .source-form__row { flex-direction: column; }
   .panel-head--responsive, .picker-toolbar, .mismatch-alert, .run-bar { align-items: stretch; flex-direction: column; }
   .run-bar .button { width: 100%; }
   .results-actions { display: grid; grid-template-columns: repeat(2, 1fr); }

@@ -333,6 +333,7 @@
     var enabled = false;
     try { enabled = window.QAEngine.hasSheetApi(); } catch (e) { enabled = false; }
     byId('sheet-url').disabled = !enabled;
+    byId('sheet-names').disabled = !enabled;
     byId('load-sheets-button').disabled = !enabled;
     byId('google-disabled-note').hidden = enabled;
     byId('google-source-card').classList.toggle('is-disabled', !enabled);
@@ -397,6 +398,8 @@
   async function loadGoogleSheetList(event) {
     event.preventDefault();
     var url = byId('sheet-url').value.trim();
+    var wanted = byId('sheet-names').value.split(/[,|\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    var gidMatch = url.match(/[#&?]gid=(\d+)/);
     var button = byId('load-sheets-button');
     showInline('google-error', '');
     if (!url) {
@@ -421,7 +424,26 @@
           };
         })
       };
+      // which tabs to check: names typed by the user, else the tab the link was copied from
+      var key = function (s) { return String(s || '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase(); };
+      var pre = new Set(), missing = [];
+      wanted.forEach(function (name) {
+        var i = state.source.sheets.findIndex(function (sheet) { return key(sheet.name) === key(name); });
+        if (i < 0) missing.push(name); else pre.add(i);
+      });
+      if (missing.length) {
+        var near = state.source.sheets.map(function (s) { return s.name; })
+          .filter(function (n) { return missing.some(function (m) { return key(n).indexOf(key(m).slice(0, 6)) >= 0; }); })
+          .slice(0, 5);
+        throw new Error('ไม่พบชีท "' + missing.join('", "') + '" ในไฟล์นี้' + (near.length ? ' — ใกล้เคียง: ' + near.join(', ') : ''));
+      }
+      if (!pre.size && gidMatch) {
+        var g = state.source.sheets.findIndex(function (sheet) { return String(sheet.gid) === gidMatch[1]; });
+        if (g >= 0) pre.add(g);
+      }
+      state.source.preselect = pre.size ? pre : null;
       presentSource();
+      if (wanted.length) await runCheck();   // names given -> go straight to the result
     } catch (error) {
       showInline('google-error', errorMessage(error, 'อ่านรายชื่อชีทไม่สำเร็จ'));
     } finally {
@@ -485,6 +507,7 @@
     byId('source-inputs').hidden = false;
     byId('sheet-picker-panel').hidden = true;
     byId('sheet-url').value = '';
+    byId('sheet-names').value = '';
     showInline('google-error', '');
     showInline('excel-error', '');
     showInline('check-error', '');
@@ -495,13 +518,14 @@
     root.replaceChildren();
     if (!state.source) return;
     var showHidden = byId('show-hidden-sheets').checked;
+    var pre = state.source.preselect;
     state.source.sheets.forEach(function (sheet, index) {
-      if (sheet.hidden && !showHidden) return;
+      if (sheet.hidden && !showHidden && !(pre && pre.has(index))) return;
       var label = node('label', 'sheet-option');
       var input = node('input');
       input.type = 'checkbox';
       input.dataset.index = index;
-      input.checked = !sheet.hidden;
+      input.checked = pre ? pre.has(index) : !sheet.hidden;
       input.setAttribute('aria-label', 'เลือกชีท ' + sheet.name);
       label.appendChild(input);
       label.appendChild(node('span', 'sheet-option__name', sheet.name));

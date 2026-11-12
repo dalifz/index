@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112073736">
+  <link rel="stylesheet" href="css/app.css?v=20261112074431">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -154,10 +154,18 @@
                   <div class="source-icon source-icon--sheets" aria-hidden="true"><span></span></div>
                   <div><h2>Google Sheet</h2><p>อ่านจากเอกสารต้นฉบับโดยตรง</p></div>
                 </div>
-                <form id="google-form" class="source-form">
-                  <label class="sr-only" for="sheet-url">ลิงก์ Google Sheet</label>
-                  <input id="sheet-url" type="url" inputmode="url" autocomplete="off" placeholder="วางลิงก์ Google Sheet" required>
-                  <button id="load-sheets-button" class="button button--primary" type="submit">โหลดรายชื่อชีท</button>
+                <form id="google-form" class="source-form source-form--stacked">
+                  <div class="source-form__row">
+                    <label class="sr-only" for="sheet-url">ลิงก์ Google Sheet</label>
+                    <input id="sheet-url" type="url" inputmode="url" autocomplete="off" placeholder="วางลิงก์ Google Sheet" required>
+                    <button id="load-sheets-button" class="button button--primary" type="submit">โหลดรายชื่อชีท</button>
+                  </div>
+                  <label class="source-form__extra" for="sheet-names">
+                    <span>ชื่อชีท <em>(ไม่บังคับ)</em></span>
+                    <input id="sheet-names" type="text" autocomplete="off" spellcheck="false"
+                           placeholder="วางชื่อชีท เช่น Promotion 4.11 — หลายชีทคั่นด้วย ,">
+                  </label>
+                  <p class="source-hint">ใส่ชื่อชีทแล้วกดปุ่ม → อ่านเฉพาะชีทนั้นและตรวจทันที · ถ้าก๊อปลิงก์จากแท็บที่เปิดอยู่ ระบบเลือกแท็บนั้นให้เอง</p>
                 </form>
                 <p id="google-disabled-note" class="source-note" hidden>ยังไม่ได้ตั้งค่าตัวอ่าน Google Sheet</p>
                 <div id="google-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
@@ -378,7 +386,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112073736"></script>
-  <script src="js/app.js?v=20261112073736"></script>
+  <script src="js/engine.js?v=20261112074431"></script>
+  <script src="js/app.js?v=20261112074431"></script>
 </body>
 </html>
