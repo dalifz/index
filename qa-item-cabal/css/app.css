@@ -238,6 +238,9 @@ h1, h2, h3 { line-height: 1.24; letter-spacing: -.022em; }
 .privacy-note { margin: 18px 0 0; color: var(--text-faint); font-size: 12px; text-align: center; }
 .google-auth-panel { display: grid; justify-items: center; }
 .google-button-wrap { display: grid; min-height: 48px; place-items: center; transition: opacity .18s ease; }
+/* Google's button is a light-scheme iframe; in dark mode the browser paints it an opaque white
+   backdrop unless the embedding element uses the same color-scheme. */
+.google-button-wrap, .google-button-wrap iframe { color-scheme: light; background: transparent; }
 .google-auth-panel.is-busy .google-button-wrap { visibility: hidden; opacity: 0; }
 .google-auth-busy { display: flex; min-height: 48px; align-items: center; justify-content: center; gap: 10px; margin-top: -48px; color: var(--text-soft); font-size: 13px; }
 .google-auth-busy .mini-spinner { width: 22px; height: 22px; border-radius: 50%; }
