@@ -90,7 +90,7 @@ class Checker:
                                         "ตารางนี้ไม่มีคอลัมน์ " + ", ".join(FIELD_LABELS[f] for f in missing)
                                         + " จึงตรวจช่องนั้นไม่ได้"))
             findings.extend(self.check_row(r))
-            ident = (r["sheet"], r["pack"], to_int(r["values"].get("index")),
+            ident = (r["sheet"], r.get("table", r["pack"]), to_int(r["values"].get("index")),
                      to_int(r["values"].get("option")), to_int(r["values"].get("duration")))
             if ident[2] is not None:
                 seen[ident] += 1

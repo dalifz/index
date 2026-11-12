@@ -111,6 +111,7 @@ def parse_sheet(name, values, display=None):
     rows, notes = [], []
     tables = []          # active tables: {lo, hi, map, row, pack}
     last_pack, pending_title = "", ""
+    titles = []          # recent free-text lines above the next table
     for ri, row in enumerate(values):
         row = list(row or [])
         disp = list(display[ri]) if ri < len(display) and display[ri] else []
@@ -120,8 +121,8 @@ def parse_sheet(name, values, display=None):
         new = []
         for lo, hi, m in _header_segments(row):
             tables = [t for t in tables if t["hi"] < lo or t["lo"] > hi]
-            pack = last_pack or pending_title or ("ตาราง %s%d" % (col_letter(lo), ri + 1))
-            last_pack, pending_title = "", ""
+            pack = last_pack or " · ".join(titles[-2:]) or ("ตาราง %s%d" % (col_letter(lo), ri + 1))
+            last_pack, pending_title, titles = "", "", []
             new.append({"lo": lo, "hi": hi, "map": m, "row": ri, "pack": pack,
                         "table": "%s%d" % (col_letter(lo), ri + 1)})
         # "Product Name | <value>" labels apply to the next table found
@@ -134,6 +135,9 @@ def parse_sheet(name, values, display=None):
             first = next((text(v) for v in row if text(v)), "")
             if first and not any(_hkey(v) in ALIASES for v in row) and to_int(first) is None:
                 pending_title = first
+                # labels such as "EV :" or "Total:" are not table titles
+                if not first.rstrip().endswith(":") and len(first) <= 80:
+                    titles.append(first)
             continue
         keep = []
         for t in tables:
