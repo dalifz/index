@@ -194,3 +194,15 @@ def describe_kind(kf):
     if kf["expiry"]:
         parts.append("มีวันหมดอายุ")
     return " ".join(parts)
+
+
+# a value written in brackets inside a name, e.g. "Penetration Potion (100) x5" or "Force Gem Package (2,000)"
+VALUE_IN_NAME = re.compile(r"\(\s*\d[\d,]*\s*\)")
+
+
+def has_value(name):
+    return bool(VALUE_IN_NAME.search(unicodedata.normalize("NFKC", text(name))))
+
+
+def without_value(name):
+    return VALUE_IN_NAME.sub(" ", unicodedata.normalize("NFKC", text(name)))

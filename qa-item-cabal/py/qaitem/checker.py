@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (describe_kind, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (describe_kind, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -39,16 +39,17 @@ RULES = {
     "PERIOD":          "Period ไม่ตรงกับ DurationIndex",
     "DURATION_UNKNOWN": "DurationIndex ไม่มีในตาราง",
     "DISPLAY_NAME":    "Item Name กับ Display Name ไม่ตรงกัน",
+    "NAME_VALUE":      "ชื่อไอเทมไม่ได้บอกค่าในวงเล็บ",
     "AMOUNT":          "Amount ไม่ถูกต้อง",
     "DUPLICATE":       "ไอเทมซ้ำในแพ็คเดียวกัน",
     "NEW_VARIANT":     "รูปแบบใหม่ที่ยังไม่เคยใช้",
-    "LIBRARY_DIFF":    "ไม่ตรงกับคลังไอเทม (ให้ recheck)",
+    "LIBRARY_DIFF":    "ไม่ตรงกับประวัติในคลังไอเทม",
     "MISSING_COLUMN":  "ตารางไม่มีคอลัมน์ที่ต้องตรวจ",
 }
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
@@ -303,6 +304,16 @@ class Checker:
             else:
                 f("MISSING", "period", "", ref.get("period"), "Period ว่าง")
 
+        # 5b. the library spells this item with its value in brackets -> the document must too
+        #     (Dalif 2026-11-12: "Penetration Potion x5" must be "Penetration Potion (100) x5")
+        if name and not has_value(name) and idx is not None:
+            same = [c for c in db.by_index.get(idx, []) if opt is None or c["option"] == opt]
+            want = sorted({c["name"] for c in same if has_value(c["name"])
+                           and name_key(without_value(c["name"])) == name_key(name)})
+            if want:
+                f("NAME_VALUE", "name", name, " / ".join(want[:3]),
+                  "ชื่อต้องบอกค่าในวงเล็บ ในคลังเขียนว่า \"%s\"" % want[0])
+
         # 6. Item Name vs Display Name
         if name and dname and name_key(name) != name_key(dname):
             f("DISPLAY_NAME", "display_name", dname, name,
@@ -339,9 +350,16 @@ class Checker:
                 continue
             show = (lambda x: yn(x)) if f in ("stackable", "itemmove") else str
             want = " / ".join(sorted(show(x) for x in vals))
+            # history: how often the library saw it, and where (Dalif: say what is normally used)
+            seen = sum(it.get("seen", 1) for it in lib)
+            src = sorted({s.strip() for it in lib for s in it.get("source", "").replace("harvest:", "").split(",")
+                          if s.strip()})
+            history = "เคยใช้ %s = %s มาแล้ว %d ครั้ง" % (FIELD_LABELS[f], want, seen)
+            if src:
+                history += " (เช่น %s)" % ", ".join(src[:2])
             found.append(self._f(r, "LIBRARY_DIFF", f, show(doc[f]), want,
-                                 "\"%s\" ในคลังไอเทมใช้ %s = %s แต่เอกสารนี้ใส่ %s ให้ recheck"
-                                 % (lib[0]["name"], FIELD_LABELS[f], want, show(doc[f]))))
+                                 "\"%s\" %s แต่เอกสารนี้ใส่ %s ไม่ตรงกับประวัติ ต้องแก้ หรือถ้าตั้งใจเปลี่ยน ให้ยืนยันกับทีมก่อน"
+                                 % (lib[0]["name"], history, show(doc[f]))))
         return found
 
     def _expected_from_db(self, fld, v):
