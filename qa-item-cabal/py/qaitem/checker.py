@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (full_name_key, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -39,6 +39,7 @@ RULES = {
     "AMOUNT":          "Amount ไม่ถูกต้อง",
     "DUPLICATE":       "ไอเทมซ้ำในแพ็คเดียวกัน",
     "NEW_VARIANT":     "รูปแบบใหม่ที่ยังไม่เคยใช้",
+    "LIBRARY_DIFF":    "ไม่ตรงกับคลังไอเทม (ให้ recheck)",
     "MISSING_COLUMN":  "ตารางไม่มีคอลัมน์ที่ต้องตรวจ",
 }
 
@@ -217,6 +218,10 @@ class Checker:
                 f("NEW_VARIANT", "option", opt, "",
                   "ยังไม่เคยมี ItemOption %s + DurationIndex %s สำหรับไอเทมนี้ในฐานข้อมูล (ไม่ได้แปลว่าผิด)" % (opt, dur))
 
+        # 2b. library: the exact same item name (quantity included) is already in the
+        # database -> every number should be the same as last time
+        out.extend(self._library_diff(r, n, stack, move, name, dname, out))
+
         # 3. ItemKind is ItemIndex plus flag bits (skip when the identity is already wrong)
         if kind is not None and idx is not None and not any(
                 x["code"] in ("INDEX_NAME", "KIND") for x in out):
@@ -239,9 +244,9 @@ class Checker:
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
         # ItemOption = (value << 16) | count for some items, e.g. Raid Energy Capsule 50/100 x1 = 3276801
-        if q is not None and stack and opt is not None and not option_matches_qty(opt, q):
+        if q is not None and stack and opt is not None and not option_matches_qty(opt, q)                 and not any(x["code"] == "LIBRARY_DIFF" and x["field"] == "ItemOption" for x in out):
             f("QTY_OPTION", "option", opt, q,
-              "ชื่อไอเทมบอก x%s แต่ ItemOption = %s" % (q, opt))
+              "ชื่อไอเทมบอก x%s แต่ ItemOption = %s — ItemOption ส่วนใหญ่คือจำนวน ให้ recheck" % (q, opt))
 
         # 5. DurationIndex <-> Period
         if dur is not None and "period" in cols:
@@ -275,6 +280,28 @@ class Checker:
             if a is None or a < 1:
                 f("AMOUNT", "amount", v.get("amount"), "เลขจำนวนเต็ม ≥ 1", "Amount ต้องเป็นเลขจำนวนเต็มตั้งแต่ 1")
         return out
+
+    def _library_diff(self, r, n, stack, move, name, dname, already):
+        keys = {full_name_key(name), full_name_key(dname)} - {""}
+        lib = [it for k in keys for it in self.db.by_full_name.get(k, [])]
+        if not lib:
+            return []
+        doc = dict(n, stackable=stack, itemmove=move)
+        if any(all(doc[f] is None or doc[f] == it[f] for f in ("kind", "index", "option", "duration"))
+               for it in lib):
+            return []                      # matches one known version exactly
+        done = {x["field"] for x in already if x["severity"] != "info"}
+        found = []
+        for f in ("index", "kind", "option", "duration", "stackable", "itemmove"):
+            vals = {it[f] for it in lib if it[f] is not None}
+            if doc[f] is None or not vals or doc[f] in vals or FIELD_LABELS[f] in done:
+                continue
+            show = (lambda x: yn(x)) if f in ("stackable", "itemmove") else str
+            want = " / ".join(sorted(show(x) for x in vals))
+            found.append(self._f(r, "LIBRARY_DIFF", f, show(doc[f]), want,
+                                 "\"%s\" ในคลังไอเทมใช้ %s = %s แต่เอกสารนี้ใส่ %s ให้ recheck"
+                                 % (lib[0]["name"], FIELD_LABELS[f], want, show(doc[f]))))
+        return found
 
     def _expected_from_db(self, fld, v):
         idx = to_int(v.get("index"))

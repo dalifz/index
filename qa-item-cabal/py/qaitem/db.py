@@ -7,7 +7,7 @@ differ in ItemOption / DurationIndex.
 import json
 from collections import defaultdict
 
-from .normalize import name_key, period_key, text, to_int, yes_no
+from .normalize import full_name_key, name_key, period_key, text, to_int, yes_no
 
 ITEM_FIELDS = ("kind", "index", "option", "duration", "stackable", "itemmove",
                "name", "display_name", "period")
@@ -52,6 +52,7 @@ class ItemDB:
         self.meta = meta or {}
         self.by_index = defaultdict(list)
         self.by_name = defaultdict(list)
+        self.by_full_name = defaultdict(list)
         for it in self.items:
             if it["index"] is not None:
                 self.by_index[it["index"]].append(it)
@@ -59,6 +60,9 @@ class ItemDB:
                 k = name_key(n)
                 if k and it not in self.by_name[k]:
                     self.by_name[k].append(it)
+                fk = full_name_key(n)
+                if fk and it not in self.by_full_name[fk]:
+                    self.by_full_name[fk].append(it)
 
     # ---- loading -----------------------------------------------------------
     @classmethod
