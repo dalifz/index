@@ -29,6 +29,12 @@ def clean_item(raw):
     for k in ("note", "added_by", "added_at", "source"):
         if text(raw.get(k)):
             it[k] = text(raw.get(k))
+    # other spellings people used for this item in real documents
+    aliases = [text(x) for x in (raw.get("aliases") or []) if text(x) and text(x) != it["name"]]
+    if aliases:
+        it["aliases"] = aliases
+    if to_int(raw.get("seen")):
+        it["seen"] = to_int(raw.get("seen"))
     return it
 
 
@@ -49,7 +55,7 @@ class ItemDB:
         for it in self.items:
             if it["index"] is not None:
                 self.by_index[it["index"]].append(it)
-            for n in (it["name"], it["display_name"]):
+            for n in [it["name"], it["display_name"]] + it.get("aliases", []):
                 k = name_key(n)
                 if k and it not in self.by_name[k]:
                     self.by_name[k].append(it)

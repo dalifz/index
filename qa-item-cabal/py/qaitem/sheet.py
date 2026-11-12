@@ -8,7 +8,7 @@ text above the header.
 import re
 import unicodedata
 
-from .normalize import col_letter, text
+from .normalize import col_letter, text, to_int
 
 ALIASES = {
     "itemkind": "kind",
@@ -29,6 +29,7 @@ ALIASES = {
     "amount": "amount",
     "amt": "amount",
     "amountea": "amount_ea",
+    "จำนวน": "amount",
     "displayname": "display_name",
     "itemdisplayname": "display_name",
     "period": "period",
@@ -58,73 +59,98 @@ def _hkey(v):
     return re.sub(r"[\s_.\-/()]", "", s)
 
 
-def _header_map(row):
-    m = {}
+def _header_segments(row):
+    """Item-table headers in one row -> [(lo, hi, {field: col})].
+
+    Several tables can sit side by side (e.g. gacha sheets: main table L:AA and
+    a cost table AE:AQ), so a row is cut into segments: a new segment starts
+    when a field repeats or after a wide gap of non-header cells.
+    """
+    segs, cur, last = [], {}, None
     for i, v in enumerate(row):
         f = ALIASES.get(_hkey(v))
-        if f and f not in m:
-            m[f] = i
-    if "name" in m and ("kind" in m or "index" in m):
-        return m
-    return None
+        if not f:
+            continue
+        if f in cur or (last is not None and i - last > 6):
+            segs.append(cur)
+            cur = {}
+        cur[f] = i
+        last = i
+    segs.append(cur)
+    out = []
+    for m in segs:
+        if "name" in m and ("kind" in m or "index" in m):
+            out.append((min(m.values()), max(m.values()), m))
+    return out
+
+
+def _header_map(row):
+    segs = _header_segments(row)
+    return segs[0][2] if segs else None
 
 
 def _is_blank(row):
     return not any(text(v) for v in row)
 
 
+PLACEHOLDER = ("-", "—", "–")
+
+
 def parse_sheet(name, values, display=None):
     """Return (rows, notes).
 
     rows: list of dicts {sheet, pack, row, cells{field: addr}, values{field: raw},
-          display{field: str}}
+          display{field: str}, columns, table}
     notes: problems that stop part of the sheet from being read.
     """
     display = display or []
     rows, notes = [], []
-    header, header_row = None, -1
+    tables = []          # active tables: {lo, hi, map, row, pack}
     last_pack, pending_title = "", ""
     for ri, row in enumerate(values):
         row = list(row or [])
         disp = list(display[ri]) if ri < len(display) and display[ri] else []
-        # pack name label: "Product Name | <value>"
+        if _is_blank(row):
+            tables = []
+            continue
+        new = []
+        for lo, hi, m in _header_segments(row):
+            tables = [t for t in tables if t["hi"] < lo or t["lo"] > hi]
+            pack = last_pack or pending_title or ("ตาราง %s%d" % (col_letter(lo), ri + 1))
+            last_pack, pending_title = "", ""
+            new.append({"lo": lo, "hi": hi, "map": m, "row": ri, "pack": pack,
+                        "table": "%s%d" % (col_letter(lo), ri + 1)})
+        # "Product Name | <value>" labels apply to the next table found
         for ci, v in enumerate(row):
             if _hkey(v) in PACK_LABELS:
-                nxt = next((text(x) for x in row[ci + 1:] if text(x)), "")
+                nxt = next((text(x) for x in row[ci + 1:ci + 4] if text(x)), "")
                 if nxt:
                     last_pack = nxt
-        hm = _header_map(row)
-        if hm:
-            header, header_row = hm, ri
-            pack = last_pack or pending_title
-            last_pack, pending_title = "", ""
-            current_pack = pack or "(ไม่มีชื่อแพ็ค)"
-            continue
-        if _is_blank(row):
-            if header is not None and ri > header_row:
-                header = None
-            continue
-        if header is None:
-            # remember the latest free text line as a fallback table title
+        if not tables and not new:
             first = next((text(v) for v in row if text(v)), "")
-            if first and not any(_hkey(v) in ALIASES for v in row):
+            if first and not any(_hkey(v) in ALIASES for v in row) and to_int(first) is None:
                 pending_title = first
             continue
-        if any(text(v).lower() == "total" for v in row):
-            header = None
-            continue
-        vals, cells, disps = {}, {}, {}
-        for f, ci in header.items():
-            vals[f] = row[ci] if ci < len(row) else None
-            disps[f] = text(disp[ci]) if ci < len(disp) else text(vals[f])
-            cells[f] = col_letter(ci) + str(ri + 1)
-        if not any(text(vals.get(f)) for f in ("kind", "index", "name")):
-            notes.append({"sheet": name, "row": ri + 1,
-                          "message": "มีข้อมูลใต้หัวตาราง แต่ไม่มี ItemKind / ItemIndex / ชื่อไอเทม"})
-            continue
-        rows.append({"sheet": name, "pack": current_pack, "row": ri + 1,
-                     "values": vals, "display": disps, "cells": cells,
-                     "columns": sorted(header)})
+        keep = []
+        for t in tables:
+            m = t["map"]
+            vals = {f: (row[ci] if ci < len(row) else None) for f, ci in m.items()}
+            if not any(text(x) for x in vals.values()):
+                continue                       # this table ended
+            if any(text(row[ci]).lower() == "total" for ci in range(t["lo"], min(t["hi"] + 1, len(row)))):
+                continue
+            keep.append(t)
+            if text(vals.get("kind")) in PLACEHOLDER and text(vals.get("index")) in PLACEHOLDER + ("",):
+                continue                       # gacha cost line such as "Limited Orb x1" with "-" ids
+            disps = {f: (text(disp[ci]) if ci < len(disp) else text(vals[f])) for f, ci in m.items()}
+            cells = {f: col_letter(ci) + str(ri + 1) for f, ci in m.items()}
+            if not any(text(vals.get(f)) for f in ("kind", "index", "name")):
+                notes.append({"sheet": name, "row": ri + 1,
+                              "message": "มีข้อมูลใต้หัวตาราง แต่ไม่มี ItemKind / ItemIndex / ชื่อไอเทม"})
+                continue
+            rows.append({"sheet": name, "pack": t["pack"], "row": ri + 1, "table": t["table"],
+                         "values": vals, "display": disps, "cells": cells, "columns": sorted(m)})
+        tables = keep + new
     return rows, notes
 
 

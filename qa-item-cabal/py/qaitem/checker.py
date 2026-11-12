@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (is_e_notation, name_key, period_key, qty_in_name, text,
+from .normalize import (is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -172,14 +172,18 @@ class Checker:
                   "ไม่พบ ItemIndex %s และชื่อนี้ในฐานข้อมูล %s ถ้าเป็นไอเทมใหม่ ให้ admin ตรวจแล้วเพิ่มเข้าฐานข้อมูล"
                   % (idx, db.game.upper()))
         elif cands:
-            db_names = {name_key(c["name"]) for c in cands} | {name_key(c["display_name"]) for c in cands}
+            # container items (e.g. costume GiftBox 33558006) share one ItemIndex and pick
+            # the content with ItemOption -> compare names with the same option first
+            same_opt = [c for c in cands if opt is not None and c["option"] == opt]
+            named = same_opt or cands
+            db_names = {name_key(c["name"]) for c in named} | {name_key(c["display_name"]) for c in named}
             db_names.discard("")
             name_ok = (nk in db_names) or (dname and name_key(dname) in db_names)
             kinds = db.values(idx, "kind")
             identity_broken = False
             if name and not name_ok:
                 identity_broken = True
-                real = sorted({c["name"] for c in cands if c["name"]})
+                real = sorted({c["name"] for c in named if c["name"]})
                 hit_kinds = {h["kind"] for h in name_hits}
                 if other_idx and kind is not None and kind in hit_kinds and kind not in kinds:
                     # ItemKind and name agree on another item -> the ItemIndex is the wrong cell
@@ -235,7 +239,7 @@ class Checker:
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
         # ItemOption = (value << 16) | count for some items, e.g. Raid Energy Capsule 50/100 x1 = 3276801
-        if q is not None and stack and opt is not None and opt != q and (opt & 0xFFFF) != q:
+        if q is not None and stack and opt is not None and not option_matches_qty(opt, q):
             f("QTY_OPTION", "option", opt, q,
               "ชื่อไอเทมบอก x%s แต่ ItemOption = %s" % (q, opt))
 

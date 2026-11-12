@@ -110,3 +110,10 @@ def col_letter(i):
         i, r = divmod(i - 1, 26)
         s = chr(65 + r) + s
     return s
+
+
+def option_matches_qty(option, qty):
+    """ItemOption carries the count either plainly (x300 -> 300) or in its low
+    bits with a value above it: Raid Energy Capsule 50/100 x1 = 50<<16 | 1,
+    Penetration Potion x5 = 50<<8 | 5 (= 12805)."""
+    return option == qty or (option & 0xFFFF) == qty or (option & 0xFF) == qty
