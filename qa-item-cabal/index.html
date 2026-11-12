@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112062917">
+  <link rel="stylesheet" href="css/app.css?v=20261112064850">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -123,7 +123,7 @@
             <span class="nav-icon" aria-hidden="true">⌘</span><span>ฐานข้อมูลไอเทม</span>
           </button>
           <button class="nav-item" type="button" data-view="add">
-            <span class="nav-icon" aria-hidden="true">＋</span><span>เพิ่มไอเทม</span><span class="admin-tag">ผู้ดูแล</span>
+            <span class="nav-icon" aria-hidden="true">＋</span><span>เพิ่ม/แก้ไข ไอเทม</span><span class="admin-tag">ผู้ดูแล</span>
           </button>
           <button class="nav-item" type="button" data-view="history">
             <span class="nav-icon" aria-hidden="true">↺</span><span>ประวัติ</span>
@@ -277,7 +277,7 @@
             </div>
             <div class="table-wrap">
               <table class="data-table item-table">
-                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Trade</th><th>Item Name</th><th>Display Name</th><th>Period</th></tr></thead>
+                <thead><tr><th>ItemKind</th><th>ItemIndex</th><th>ItemOption</th><th>DurationIndex</th><th>Trade</th><th>Item Name</th><th>Display Name</th><th>Period</th><th class="action-column">จัดการ</th></tr></thead>
                 <tbody id="item-table-body"></tbody>
               </table>
             </div>
@@ -288,25 +288,49 @@
         <section id="view-add" class="view" data-view-panel="add" aria-labelledby="add-title" hidden>
           <div class="page-heading">
             <p class="section-kicker"><span class="accent-pip"></span>สำหรับผู้ดูแลระบบ</p>
-            <h1 id="add-title">เพิ่มไอเทมเข้าฐานข้อมูล</h1>
-            <p>ระบบจะตรวจค่ากับกฎชุดเดียวกับหน้าเอกสารก่อนอนุญาตให้บันทึก</p>
+            <h1 id="add-title">เพิ่ม/แก้ไข ไอเทม</h1>
+            <p>เพิ่มรายการใหม่หรือแก้ข้อมูลเดิม โดยระบบจะตรวจด้วยกฎชุดเดียวกับหน้าเอกสารก่อนบันทึก</p>
           </div>
+
+          <section id="add-mode-panel" class="panel item-mode-card" aria-labelledby="add-mode-title">
+            <div class="item-mode-copy">
+              <span class="mode-badge">โหมดเพิ่มใหม่</span>
+              <div><h2 id="add-mode-title">เพิ่มไอเทมใหม่</h2><p>กรอกฟอร์มด้านล่าง หรือค้นหาไอเทมในคลังเพื่อเปลี่ยนเป็นโหมดแก้ไข</p></div>
+            </div>
+            <div class="item-edit-picker">
+              <label for="edit-item-search">ค้นหาไอเทมเดิมเพื่อแก้ไข</label>
+              <div class="quick-search-box"><span aria-hidden="true">⌕</span><input id="edit-item-search" type="search" autocomplete="off" placeholder="ItemIndex, ItemKind หรือชื่อไอเทม" aria-controls="edit-search-results" aria-describedby="edit-search-hint"></div>
+              <div id="edit-search-results" class="quick-search-results" role="group" aria-label="ผลค้นหาไอเทมที่จะแก้ไข" hidden></div>
+              <p id="edit-search-hint" class="picker-hint" aria-live="polite">เลือกหนึ่งรายการเพื่อเปิดข้อมูลเดิมในฟอร์ม</p>
+            </div>
+          </section>
+
+          <section id="edit-mode-banner" class="edit-mode-banner" aria-labelledby="edit-mode-title" hidden>
+            <div class="edit-mode-icon" aria-hidden="true">✎</div>
+            <div class="edit-mode-copy">
+              <p class="eyebrow">โหมดแก้ไข</p>
+              <h2 id="edit-mode-title">กำลังแก้ไข: <span id="edit-item-name">—</span> <small>(ItemIndex <span id="edit-item-index">—</span>)</small></h2>
+              <p id="edit-item-meta">—</p>
+            </div>
+            <button id="cancel-item-edit" class="button button--secondary button--small" type="button">ยกเลิกการแก้ไข</button>
+          </section>
+
           <form id="add-item-form" class="add-layout" novalidate>
             <article class="panel form-panel">
-              <div class="panel-head"><div><p class="eyebrow">ข้อมูลอ้างอิงไอเทม</p><h2>ข้อมูลไอเทม</h2></div><span id="add-game-badge" class="game-badge">CABAL PC</span></div>
+              <div class="panel-head"><div><p class="eyebrow">ข้อมูลอ้างอิงไอเทม</p><h2 id="item-form-title">ข้อมูลไอเทมใหม่</h2></div><span id="add-game-badge" class="game-badge">CABAL PC</span></div>
               <div class="form-grid form-grid--numbers">
-                <label><span>ItemKind <em>*</em></span><input name="kind" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 70368777738580"></label>
-                <label><span>ItemIndex <em>*</em></span><input name="index" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 33556820"></label>
-                <label><span>ItemOption <em>*</em></span><input name="option" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 65536000001"></label>
-                <label><span>DurationIndex <em>*</em></span><input name="duration" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="0, 9, 12…"></label>
+                <label class="item-field" data-item-field="kind"><span>ItemKind <em>*</em></span><input name="kind" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 70368777738580"></label>
+                <label class="item-field" data-item-field="index"><span>ItemIndex <em>*</em></span><input name="index" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 33556820"></label>
+                <label class="item-field" data-item-field="option"><span>ItemOption <em>*</em></span><input name="option" class="mono-input" type="text" inputmode="numeric" autocomplete="off" required placeholder="เช่น 65536000001"></label>
+                <label class="item-field" data-item-field="duration"><span>DurationIndex</span><input name="duration" class="mono-input" type="text" inputmode="numeric" autocomplete="off" placeholder="0, 9, 12… หรือเว้นว่าง"></label>
               </div>
               <div class="form-grid">
-                <label class="span-2"><span>Item Name <em>*</em></span><input name="name" type="text" autocomplete="off" required placeholder="ชื่อไอเทมตามฐานข้อมูล"></label>
-                <label class="span-2"><span>Display Name</span><input name="display_name" type="text" autocomplete="off" placeholder="ชื่อที่แสดงในเอกสาร (ถ้ามี)"></label>
-                <label class="span-2"><span>Period</span><input name="period" type="text" autocomplete="off" placeholder="เช่น 7 Days, 1 Day, Permanent, ถาวร"></label>
+                <label class="span-2 item-field" data-item-field="name"><span>Item Name <em>*</em></span><input name="name" type="text" autocomplete="off" required placeholder="ชื่อไอเทมตามฐานข้อมูล"></label>
+                <label class="span-2 item-field" data-item-field="display_name"><span>Display Name</span><input name="display_name" type="text" autocomplete="off" placeholder="ชื่อที่แสดงในเอกสาร (ถ้ามี)"></label>
+                <label class="span-2 item-field" data-item-field="period"><span>Period</span><input name="period" type="text" autocomplete="off" placeholder="เช่น 7 Days, 1 Day, Permanent, ถาวร"></label>
               </div>
               <div class="binary-grid">
-                <fieldset><legend>Trade (เทรดได้ไหม) <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
+                <fieldset class="item-field" data-item-field="itemmove"><legend>Trade (เทรดได้ไหม) <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
               </div>
             </article>
 
@@ -331,7 +355,7 @@
               </article>
               <div id="add-error" class="inline-alert inline-alert--error" role="alert" hidden></div>
               <div id="add-success" class="success-card" role="status" hidden></div>
-              <button id="save-item" class="button button--primary button--wide" type="submit" disabled>ตรวจแล้วบันทึกไอเทม</button>
+              <button id="save-item" class="button button--primary button--wide" type="submit" disabled>บันทึกไอเทมใหม่</button>
             </aside>
           </form>
         </section>
@@ -353,7 +377,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112062917"></script>
-  <script src="js/app.js?v=20261112062917"></script>
+  <script src="js/engine.js?v=20261112064850"></script>
+  <script src="js/app.js?v=20261112064850"></script>
 </body>
 </html>

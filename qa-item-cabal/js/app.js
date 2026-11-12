@@ -21,6 +21,7 @@
     findingLimit: FINDING_BATCH,
     validation: null,
     validationNonce: 0,
+    editOriginal: null,
     rules: {}
   };
 
@@ -73,7 +74,13 @@
       button.textContent = label || 'กำลังดำเนินการ…';
       button.setAttribute('aria-busy', 'true');
     } else {
-      if (button.dataset.originalHtml) button.innerHTML = button.dataset.originalHtml;
+      if (button.dataset.nextLabel) {
+        button.textContent = button.dataset.nextLabel;
+      } else if (button.dataset.originalHtml) {
+        button.innerHTML = button.dataset.originalHtml;
+      }
+      delete button.dataset.originalHtml;
+      delete button.dataset.nextLabel;
       button.removeAttribute('aria-busy');
       button.disabled = false;
     }
@@ -144,6 +151,9 @@
         if (state.view === 'items') {
           event.preventDefault();
           byId('item-search').focus();
+        } else if (state.view === 'add' && !state.editOriginal) {
+          event.preventDefault();
+          byId('edit-item-search').focus();
         } else if (state.result && !byId('results-screen').hidden) {
           event.preventDefault();
           byId('filter-text').focus();
@@ -225,12 +235,16 @@
     state.resultContext = null;
     state.lastWorkbook = null;
     state.filteredFindings = [];
+    state.editOriginal = null;
     state.view = 'check';
     clearSource();
     byId('results-screen').hidden = true;
     byId('check-workspace').hidden = false;
     byId('findings-root').replaceChildren();
     byId('item-table-body').replaceChildren();
+    clearItemForm();
+    updateItemModeUI();
+    resetItemValidation();
     byId('team-password').value = '';
     showInline('unlock-error', '');
     showUnlock();
@@ -240,6 +254,8 @@
   function changeGame(game) {
     if (game !== 'pc' && game !== 'mobile') return;
     if (state.game === game) return;
+    var cancelledEdit = !!state.editOriginal;
+    if (cancelledEdit) cancelItemEdit({ silent: true });
     state.game = game;
     document.body.dataset.game = game;
     state.validationNonce += 1;
@@ -247,11 +263,15 @@
     updateMismatch();
     if (state.view === 'items') renderItems();
     if (state.view === 'history') renderHistory();
-    if (state.view === 'add') scheduleValidation();
+    if (state.view === 'add') {
+      clearEditSearch();
+      scheduleValidation();
+    }
     if (state.result && !byId('results-screen').hidden) {
       closeResults();
       toast('เปลี่ยนฐานข้อมูลแล้ว กรุณาตรวจเอกสารอีกครั้ง');
     }
+    if (cancelledEdit) toast('ยกเลิกการแก้ไขแล้ว เพราะเปลี่ยนฐานข้อมูลเกม');
     announce('เปลี่ยนเป็นฐานข้อมูล ' + GAME_LABEL[game]);
   }
 
@@ -837,6 +857,12 @@
   }
 
   /* ---------------------------------------------------------------- items */
+  var ITEM_FIELDS = ['kind', 'index', 'option', 'duration', 'itemmove', 'name', 'display_name', 'period'];
+  var ITEM_FIELD_LABELS = {
+    kind: 'ItemKind', index: 'ItemIndex', option: 'ItemOption', duration: 'DurationIndex',
+    itemmove: 'Trade', name: 'Item Name', display_name: 'Display Name', period: 'Period'
+  };
+
   function setupItemEvents() {
     byId('item-search').addEventListener('input', debounce(renderItems, 150));
   }
@@ -856,16 +882,24 @@
     items.forEach(function (item) {
       var tr = node('tr');
       ['kind', 'index', 'option', 'duration'].forEach(function (field) { tr.appendChild(node('td', 'num', textValue(item[field]))); });
-      ['itemmove'].forEach(function (field) {
-        var td = node('td');
-        td.appendChild(node('span', 'boolean-pill', booleanText(item[field])));
-        tr.appendChild(td);
-      });
+      var tradeCell = node('td');
+      tradeCell.appendChild(node('span', 'boolean-pill', booleanText(item.itemmove)));
+      tr.appendChild(tradeCell);
       ['name', 'display_name', 'period'].forEach(function (field) {
         var td = node('td', '', textValue(item[field]));
         td.title = textValue(item[field]);
         tr.appendChild(td);
       });
+      var actionCell = node('td', 'row-action');
+      var editButton = node('button', 'edit-row-button');
+      editButton.type = 'button';
+      editButton.title = 'แก้ไข ' + textValue(item.name, 'ไอเทมนี้');
+      editButton.setAttribute('aria-label', 'แก้ไข ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
+      editButton.appendChild(node('span', 'edit-row-icon', '✎'));
+      editButton.appendChild(node('span', '', 'แก้ไข'));
+      editButton.addEventListener('click', function () { beginItemEdit(item); });
+      actionCell.appendChild(editButton);
+      tr.appendChild(actionCell);
       fragment.appendChild(tr);
     });
     body.appendChild(fragment);
@@ -882,8 +916,9 @@
     return textValue(value);
   }
 
-  /* ---------------------------------------------------------------- add */
+  /* ----------------------------------------------------------- add / edit */
   var scheduleValidation = debounce(validateAddForm, 320);
+  var scheduleEditSearch = debounce(renderEditSearchResults, 140);
 
   function setupAddItemEvents() {
     var form = byId('add-item-form');
@@ -892,12 +927,157 @@
         safeStorageSet(STORAGE.token, event.target.value);
         return;
       }
+      state.validation = null;
+      renderItemDiffs();
+      updateSaveButtonState();
       scheduleValidation();
     });
     form.addEventListener('change', function (event) {
-      if (event.target.id !== 'github-token') scheduleValidation();
+      if (event.target.id !== 'github-token') {
+        state.validation = null;
+        renderItemDiffs();
+        updateSaveButtonState();
+        scheduleValidation();
+      }
     });
     form.addEventListener('submit', saveItem);
+    byId('edit-item-search').addEventListener('input', scheduleEditSearch);
+    byId('cancel-item-edit').addEventListener('click', function () {
+      cancelItemEdit();
+      byId('edit-item-search').focus();
+    });
+  }
+
+  function renderEditSearchResults() {
+    if (!window.QAEngine || !window.QAEngine.isUnlocked() || state.editOriginal) return;
+    var query = byId('edit-item-search').value.trim();
+    var results = byId('edit-search-results');
+    var hint = byId('edit-search-hint');
+    results.replaceChildren();
+    if (!query) {
+      results.hidden = true;
+      hint.textContent = 'เลือกหนึ่งรายการเพื่อเปิดข้อมูลเดิมในฟอร์ม';
+      return;
+    }
+    var items;
+    try { items = window.QAEngine.searchItems(state.game, query, 8) || []; }
+    catch (error) {
+      results.hidden = true;
+      hint.textContent = errorMessage(error, 'ค้นหาไอเทมไม่สำเร็จ');
+      return;
+    }
+    items.forEach(function (item) {
+      var button = node('button', 'quick-result');
+      button.type = 'button';
+      var copy = node('span', 'quick-result-copy');
+      copy.appendChild(node('strong', '', textValue(item.name, item.display_name || 'ไม่ระบุชื่อ')));
+      copy.appendChild(node('small', '', 'ItemIndex ' + textValue(item.index) + ' · ItemKind ' + textValue(item.kind)));
+      button.appendChild(copy);
+      button.appendChild(node('span', 'quick-result-action', 'แก้ไข →'));
+      button.addEventListener('click', function () { beginItemEdit(item); });
+      results.appendChild(button);
+    });
+    if (!items.length) results.appendChild(node('p', 'quick-result-empty', 'ไม่พบไอเทมที่ตรงกับคำค้นหา'));
+    results.hidden = false;
+    hint.textContent = items.length ? 'พบ ' + formatNumber(items.length) + ' รายการ เลือกรายการที่ต้องการแก้ไข' : 'ลองค้นหาด้วย ItemIndex หรือชื่อส่วนอื่น';
+  }
+
+  function beginItemEdit(item) {
+    if (!item) return;
+    state.editOriginal = item;
+    state.validation = null;
+    state.validationNonce += 1;
+    fillItemForm(item);
+    clearEditSearch();
+    showInline('add-error', '');
+    byId('add-success').hidden = true;
+    updateItemModeUI();
+    renderItemDiffs();
+    showView('add');
+    validateAddForm();
+    window.requestAnimationFrame(function () {
+      var banner = byId('edit-mode-banner');
+      banner.setAttribute('tabindex', '-1');
+      banner.focus();
+    });
+    announce('เปิดโหมดแก้ไข ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
+  }
+
+  function cancelItemEdit(options) {
+    options = options || {};
+    state.editOriginal = null;
+    state.validationNonce += 1;
+    clearItemForm();
+    clearEditSearch();
+    updateItemModeUI();
+    renderItemDiffs();
+    resetItemValidation();
+    showInline('add-error', '');
+    if (!options.keepSuccess) byId('add-success').hidden = true;
+    if (!options.silent) announce('ยกเลิกการแก้ไข กลับสู่โหมดเพิ่มไอเทมใหม่');
+  }
+
+  function clearEditSearch() {
+    var input = byId('edit-item-search');
+    var results = byId('edit-search-results');
+    if (input) input.value = '';
+    if (results) {
+      results.replaceChildren();
+      results.hidden = true;
+    }
+    if (byId('edit-search-hint')) byId('edit-search-hint').textContent = 'เลือกหนึ่งรายการเพื่อเปิดข้อมูลเดิมในฟอร์ม';
+  }
+
+  function fillItemForm(item) {
+    var form = byId('add-item-form');
+    ITEM_FIELDS.forEach(function (field) {
+      if (field === 'itemmove') return;
+      var input = form.elements[field];
+      if (input) input.value = item[field] === undefined || item[field] === null ? '' : String(item[field]);
+    });
+    var trade = booleanText(item.itemmove);
+    var radio = form.querySelector('[name="itemmove"][value="' + (trade === 'No' ? 'No' : 'Yes') + '"]');
+    if (radio) radio.checked = true;
+  }
+
+  function clearItemForm() {
+    var form = byId('add-item-form');
+    if (!form) return;
+    ITEM_FIELDS.forEach(function (field) {
+      if (field === 'itemmove') return;
+      var input = form.elements[field];
+      if (input) input.value = '';
+    });
+    var yes = form.querySelector('[name="itemmove"][value="Yes"]');
+    if (yes) yes.checked = true;
+  }
+
+  function updateItemModeUI() {
+    var editing = !!state.editOriginal;
+    byId('add-mode-panel').hidden = editing;
+    byId('edit-mode-banner').hidden = !editing;
+    byId('item-form-title').textContent = editing ? 'แก้ไขข้อมูลไอเทม' : 'ข้อมูลไอเทมใหม่';
+    setSaveButtonLabel(editing ? 'บันทึกการแก้ไข' : 'บันทึกไอเทมใหม่');
+    if (!editing) return;
+    byId('edit-item-name').textContent = textValue(state.editOriginal.name, state.editOriginal.display_name || 'ไม่ระบุชื่อ');
+    byId('edit-item-index').textContent = textValue(state.editOriginal.index);
+    var meta = [];
+    if (state.editOriginal.seen !== undefined && state.editOriginal.seen !== null) {
+      meta.push('พบในเอกสาร ' + formatNumber(state.editOriginal.seen) + ' ครั้ง');
+    }
+    if (state.editOriginal.source) meta.push('แหล่งที่มา: ' + String(state.editOriginal.source));
+    byId('edit-item-meta').textContent = meta.length ? meta.join(' · ') : 'รายการจากคลังไอเทม ' + GAME_LABEL[state.game];
+  }
+
+  function setSaveButtonLabel(label) {
+    var button = byId('save-item');
+    if (button.getAttribute('aria-busy') === 'true') {
+      button.dataset.nextLabel = label;
+      return;
+    }
+    button.textContent = label;
+    delete button.dataset.originalHtml;
+    delete button.dataset.nextLabel;
   }
 
   function addItemData() {
@@ -915,10 +1095,72 @@
     };
   }
 
+  function comparableItemValue(value, field) {
+    if (value === undefined || value === null) return '';
+    var normalized = String(value).trim();
+    if (field === 'itemmove') {
+      if (/^(yes|true|1)$/i.test(normalized)) return 'Yes';
+      if (/^(no|false|0)$/i.test(normalized)) return 'No';
+    }
+    return normalized;
+  }
+
+  function itemChanges(item, original) {
+    if (!original) return [];
+    return ITEM_FIELDS.filter(function (field) {
+      return comparableItemValue(item[field], field) !== comparableItemValue(original[field], field);
+    }).map(function (field) {
+      return {
+        field: field,
+        label: ITEM_FIELD_LABELS[field],
+        before: comparableItemValue(original[field], field),
+        after: comparableItemValue(item[field], field)
+      };
+    });
+  }
+
+  function diffValue(value) { return value === '' ? '(ว่าง)' : value; }
+
+  function renderItemDiffs() {
+    var changes = itemChanges(addItemData(), state.editOriginal);
+    var byField = {};
+    changes.forEach(function (change) { byField[change.field] = change; });
+    all('.item-field', byId('add-item-form')).forEach(function (container) {
+      var field = container.dataset.itemField;
+      var change = byField[field];
+      var diff = container.querySelector('.field-diff');
+      if (!diff) {
+        diff = node('small', 'field-diff');
+        diff.setAttribute('aria-live', 'polite');
+        container.appendChild(diff);
+      }
+      container.classList.toggle('is-changed', !!change);
+      diff.hidden = !change;
+      diff.textContent = change ? 'เดิม: ' + diffValue(change.before) + ' → ใหม่: ' + diffValue(change.after) : '';
+    });
+    return changes;
+  }
+
   function requiredAddFieldsPresent(item) {
-    return ['kind', 'index', 'option', 'duration', 'itemmove', 'name'].every(function (field) {
+    return ['kind', 'index', 'option', 'itemmove', 'name'].every(function (field) {
       return String(item[field] === undefined || item[field] === null ? '' : item[field]).trim() !== '';
     });
+  }
+
+  function resetItemValidation() {
+    state.validation = null;
+    byId('validation-idle').hidden = false;
+    byId('validation-running').hidden = true;
+    byId('validation-result').hidden = true;
+    renderMessageList(byId('validation-errors'), []);
+    renderMessageList(byId('validation-warnings'), []);
+    byId('save-item').disabled = true;
+  }
+
+  function updateSaveButtonState() {
+    var valid = !!(state.validation && state.validation.ok);
+    var changed = !state.editOriginal || itemChanges(addItemData(), state.editOriginal).length > 0;
+    byId('save-item').disabled = !valid || !changed;
   }
 
   async function validateAddForm() {
@@ -927,12 +1169,9 @@
     var nonce = ++state.validationNonce;
     byId('add-success').hidden = true;
     showInline('add-error', '');
+    renderItemDiffs();
     if (!requiredAddFieldsPresent(item)) {
-      state.validation = null;
-      byId('validation-idle').hidden = false;
-      byId('validation-running').hidden = true;
-      byId('validation-result').hidden = true;
-      byId('save-item').disabled = true;
+      resetItemValidation();
       return null;
     }
     byId('validation-idle').hidden = true;
@@ -940,7 +1179,7 @@
     byId('validation-result').hidden = true;
     byId('save-item').disabled = true;
     try {
-      var result = await window.QAEngine.validateItem(state.game, item);
+      var result = await window.QAEngine.validateItem(state.game, item, state.editOriginal || undefined);
       if (nonce !== state.validationNonce) return null;
       state.validation = result;
       renderValidation(result);
@@ -950,6 +1189,7 @@
       state.validation = null;
       byId('validation-running').hidden = true;
       showInline('add-error', errorMessage(error, 'ตรวจข้อมูลไอเทมไม่สำเร็จ'));
+      updateSaveButtonState();
       return null;
     }
   }
@@ -960,10 +1200,14 @@
     byId('validation-result').hidden = false;
     var stateEl = byId('validation-state');
     stateEl.className = 'validation-state ' + (result.ok ? 'is-valid' : 'is-invalid');
-    stateEl.textContent = result.ok ? '✓ ผ่านกฎบังคับ บันทึกได้' : '! พบข้อมูลที่ต้องแก้';
+    if (result.ok && state.editOriginal && !itemChanges(addItemData(), state.editOriginal).length) {
+      stateEl.textContent = '✓ ข้อมูลถูกต้อง แต่ยังไม่มีค่าที่เปลี่ยน';
+    } else {
+      stateEl.textContent = result.ok ? '✓ ผ่านกฎบังคับ บันทึกได้' : '! พบข้อมูลที่ต้องแก้';
+    }
     renderMessageList(byId('validation-errors'), result.errors || []);
     renderMessageList(byId('validation-warnings'), result.warnings || []);
-    byId('save-item').disabled = !result.ok;
+    updateSaveButtonState();
   }
 
   function renderMessageList(root, messages) {
@@ -972,43 +1216,79 @@
     messages.forEach(function (message) { root.appendChild(node('li', '', message)); });
   }
 
+  function renderItemSaveSuccess(wasEdit, result, changes) {
+    var success = byId('add-success');
+    success.replaceChildren();
+    success.appendChild(node('strong', '', wasEdit
+      ? 'แก้ไขแล้ว: ' + textValue(result.item && result.item.name, 'ไอเทม')
+      : 'บันทึกไอเทมใหม่แล้ว ใช้งานในแท็บนี้ได้ทันที'));
+    if (wasEdit && changes.length) {
+      var list = node('ul', 'saved-diff-list');
+      changes.forEach(function (change) {
+        list.appendChild(node('li', '', change.label + ': ' + diffValue(change.before) + ' → ' + diffValue(change.after)));
+      });
+      success.appendChild(list);
+    }
+    success.appendChild(node('p', 'success-note', 'ฐานข้อมูลออนไลน์จะอัปเดตภายใน 1–2 นาที'));
+    if (result.commit_url) {
+      var link = node('a', 'success-link', 'เปิด commit บน GitHub ↗');
+      link.href = result.commit_url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      success.appendChild(link);
+    }
+    success.hidden = false;
+  }
+
+  function finishItemSave() {
+    state.editOriginal = null;
+    state.validationNonce += 1;
+    clearItemForm();
+    clearEditSearch();
+    updateItemModeUI();
+    renderItemDiffs();
+    resetItemValidation();
+  }
+
   async function saveItem(event) {
     event.preventDefault();
     var button = byId('save-item');
     var token = byId('github-token').value.trim();
+    var original = state.editOriginal;
+    var wasEdit = !!original;
+    var draft = addItemData();
     safeStorageSet(STORAGE.token, token);
     showInline('add-error', '');
     byId('add-success').hidden = true;
-    withBusy(button, true, 'กำลังตรวจและบันทึก…');
+    if (wasEdit && !itemChanges(draft, original).length) {
+      updateSaveButtonState();
+      return;
+    }
+    withBusy(button, true, wasEdit ? 'กำลังบันทึกการแก้ไข…' : 'กำลังตรวจและบันทึก…');
     try {
-      var validation = await window.QAEngine.validateItem(state.game, addItemData());
+      var validation = await window.QAEngine.validateItem(state.game, draft, original || undefined);
       state.validation = validation;
       renderValidation(validation);
       if (!validation.ok) throw new Error('ข้อมูลยังไม่ผ่านกฎบังคับ กรุณาแก้ช่องที่แจ้งก่อนบันทึก');
       if (!token) throw new Error('กรุณาใส่ GitHub token ของ admin');
-      var result = await window.QAEngine.addItem(state.game, validation.item, token);
-      updateGameUI();
-      var success = byId('add-success');
-      success.replaceChildren();
-      var title = node('strong', '', 'บันทึกไอเทมแล้ว ใช้งานในแท็บนี้ได้ทันที');
-      success.appendChild(title);
-      success.appendChild(document.createElement('br'));
-      success.appendChild(document.createTextNode('ฐานข้อมูลออนไลน์จะอัปเดตภายใน 1–2 นาที'));
-      if (result.commit_url) {
-        success.appendChild(document.createElement('br'));
-        var link = node('a', '', 'เปิด commit บน GitHub ↗');
-        link.href = result.commit_url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        success.appendChild(link);
-      }
-      success.hidden = false;
-      toast('เพิ่มไอเทมเรียบร้อย');
+      var result = wasEdit
+        ? await window.QAEngine.updateItem(state.game, original, validation.item, token)
+        : await window.QAEngine.addItem(state.game, validation.item, token);
+      var changes = wasEdit ? itemChanges(result.item || validation.item, original) : [];
+      finishItemSave();
+      renderItems();
+      renderItemSaveSuccess(wasEdit, result, changes);
+      toast(wasEdit ? 'แก้ไขไอเทมเรียบร้อย' : 'บันทึกไอเทมใหม่เรียบร้อย');
+      announce(wasEdit ? 'แก้ไขไอเทมสำเร็จ และกลับสู่โหมดเพิ่มใหม่แล้ว' : 'บันทึกไอเทมใหม่สำเร็จ');
     } catch (error) {
-      showInline('add-error', errorMessage(error, 'บันทึกไอเทมไม่สำเร็จ'));
+      if (error.validation) {
+        state.validation = error.validation;
+        renderValidation(error.validation);
+      }
+      showInline('add-error', errorMessage(error, wasEdit ? 'บันทึกการแก้ไขไม่สำเร็จ' : 'บันทึกไอเทมใหม่ไม่สำเร็จ'));
     } finally {
       withBusy(button, false);
-      button.disabled = !(state.validation && state.validation.ok);
+      updateSaveButtonState();
     }
   }
 

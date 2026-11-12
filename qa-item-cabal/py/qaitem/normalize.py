@@ -45,8 +45,18 @@ def is_e_notation(v):
     return isinstance(v, str) and bool(E_NOTATION.match(v))
 
 
+# words people write in an id cell when the item has no number yet
+NO_ID_WORDS = {"new", "ใหม่", "tbd", "n/a", "na", "รอเลข", "รอ", "?"}
+
+
+def is_no_id(v):
+    return text(v).lower() in NO_ID_WORDS
+
+
 def yes_no(v):
     s = text(v).lower()
+    if "bind" in s or "bound" in s or "ผูก" in s:       # Character / Account bind, "Charactor Binding"
+        return False
     if s in ("yes", "y", "true", "1", "ใช่", "tradable", "trade"):
         return True
     if s in ("no", "n", "false", "0", "ไม่", "bind", "bound", "character bind", "account bind",
@@ -179,12 +189,18 @@ def flag_residual(mask):
     return mask & ~KNOWN_FLAG_BITS
 
 
-_UPGRADE_TOKENS = re.compile(r"\+\s*\d{1,2}\b|(?:chaos\s*)?upgrade\s*\(\s*\d{1,2}\s*/\s*\d{1,2}\s*\)\]?", re.I)
+_UPGRADE_TOKENS = re.compile(r"\(\s*chaos\s*upgrade\s*\+?\s*\d{1,2}\s*\)|\+\s*\d{1,2}\b|(?:chaos\s*)?upgrade\s*\(\s*\d{1,2}\s*/\s*\d{1,2}\s*\)\]?", re.I)
 
 
 def strip_upgrade(name):
     """'Arcana of Chaos +14' -> 'Arcana of Chaos' (the +N is stored in ItemKind)."""
     return _UPGRADE_TOKENS.sub(" ", unicodedata.normalize("NFKC", text(name)))
+
+
+def variant_key(kf):
+    """Which version of an item this ItemKind is: bind type, expiry flag and unknown high flags.
+    Items differing here are different products (bound / tradable / timed / event versions)."""
+    return (kf["mask"] & BIND_BITS, kf["expiry"], flag_residual(kf["mask"]))
 
 
 def describe_kind(kf):

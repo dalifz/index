@@ -8,7 +8,7 @@ text above the header.
 import re
 import unicodedata
 
-from .normalize import col_letter, text, to_int
+from .normalize import col_letter, text, to_int, yes_no
 
 ALIASES = {
     "itemkind": "kind",
@@ -29,6 +29,8 @@ ALIASES = {
     "itemname": "name",
     "name": "name",
     "amount": "amount",
+    "#": "amount",
+    "durations": "period",
     "amt": "amount",
     "amountea": "amount_ea",
     "จำนวน": "amount",
@@ -97,7 +99,8 @@ def _is_blank(row):
     return not any(text(v) for v in row)
 
 
-PLACEHOLDER = ("-", "—", "–")
+PLACEHOLDER = ("-", "—", "–", "ว่าง")
+NOT_AN_ITEM = re.compile(r"^\s*ตัวอักษร\s*\S{1,2}\s*$")
 
 
 def parse_sheet(name, values, display=None):
@@ -148,10 +151,25 @@ def parse_sheet(name, values, display=None):
             if any(text(row[ci]).lower() == "total" for ci in range(t["lo"], min(t["hi"] + 1, len(row)))):
                 continue
             keep.append(t)
-            if text(vals.get("kind")) in PLACEHOLDER and text(vals.get("index")) in PLACEHOLDER + ("",):
-                continue                       # gacha cost line such as "Limited Orb x1" with "-" ids
+            if text(vals.get("kind")) in PLACEHOLDER + ("",) and text(vals.get("index")) in PLACEHOLDER + ("",) \
+                    and (text(vals.get("kind")) or text(vals.get("index"))):
+                continue                       # gacha cost line ("Limited Orb x1" with "-") or "ว่าง" slot
+            # Event Pass sheets put the bind type ("Account bind") in a column called "Option"
+            if "option" in m and yes_no(vals.get("option")) is False and to_int(vals.get("option")) is None:
+                if text(vals.get("itemmove")) == "":
+                    vals["itemmove"] = vals["option"]
+                    m = dict(m, itemmove=m["option"])
+                vals["option"] = None
+            for nf in ("name", "display_name"):
+                # a name cell sometimes carries the description on the next lines
+                if isinstance(vals.get(nf), str) and "\n" in vals[nf].strip():
+                    vals[nf] = vals[nf].strip().splitlines()[0].strip()
+            if NOT_AN_ITEM.match(text(vals.get("name"))):
+                continue                       # e.g. "ตัวอักษร Y" letter-collect labels
             disps = {f: (text(disp[ci]) if ci < len(disp) else text(vals[f])) for f, ci in m.items()}
             cells = {f: col_letter(ci) + str(ri + 1) for f, ci in m.items()}
+            if not any(text(vals.get(f)) for f in ("kind", "index", "name", "option", "display_name")):
+                continue                       # unfilled template row (only default Yes/No left)
             if not any(text(vals.get(f)) for f in ("kind", "index", "name")):
                 notes.append({"sheet": name, "row": ri + 1,
                               "message": "มีข้อมูลใต้หัวตาราง แต่ไม่มี ItemKind / ItemIndex / ชื่อไอเทม"})
@@ -162,10 +180,20 @@ def parse_sheet(name, values, display=None):
     return rows, notes
 
 
-def parse_workbook(workbook):
+REFERENCE_SHEETS = re.compile(r"^\s*(data\s*item|appendix|item\s*list|item\s*code)\s*$", re.I)
+
+
+def is_reference_sheet(name):
+    """Lookup sheets inside a plan (e.g. 'Data Item', 'Appendix') — not part of what QA checks."""
+    return bool(REFERENCE_SHEETS.match(text(name)))
+
+
+def parse_workbook(workbook, include_reference=False):
     """workbook = {"source": str, "sheets": [{"name", "values", "display"?}]}"""
-    all_rows, notes, tables = [], [], 0
+    all_rows, notes = [], []
     for sh in workbook.get("sheets", []):
+        if not include_reference and is_reference_sheet(sh.get("name", "")):
+            continue
         r, n = parse_sheet(sh.get("name", "Sheet"), sh.get("values") or [], sh.get("display"))
         if not r and not n:
             continue

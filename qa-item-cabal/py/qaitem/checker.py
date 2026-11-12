@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (describe_kind, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -31,6 +31,8 @@ RULES = {
     "KIND_FLAG":       "ItemKind มี flag ที่ไม่เคยพบ",
     "KIND_VARIANT":    "ItemKind แบบนี้ยังไม่เคยเห็นสำหรับไอเทมนี้",
     "NO_ID":           "ไม่มีเลขไอเทม",
+    "NEW_ID":          "ไอเทมใหม่ยังไม่มีเลข",
+    "NO_PERIOD":       "Period ว่าง",
     "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
@@ -124,14 +126,20 @@ class Checker:
 
         # 1. numbers must be exact whole numbers
         n = {}
+        new_ids = [fld for fld in NUMERIC if fld in cols and is_no_id(v.get(fld))]
+        if new_ids:
+            f("NEW_ID", new_ids[0], v.get(new_ids[0]), "",
+              "ไอเทมนี้ยังไม่มีเลข (เขียนว่า \"%s\") ต้องใส่ ItemKind / ItemIndex จริงก่อนส่งต่อ" % text(v.get(new_ids[0])))
         for fld in NUMERIC:
-            if fld not in cols:
+            if fld not in cols or fld in new_ids:
                 n[fld] = None
                 continue
             raw = v.get(fld)
             if text(raw) == "":
                 n[fld] = None
                 if fld in ("kind", "index"):
+                    if new_ids:
+                        continue
                     if text(v.get("name")) or text(v.get("display_name")):
                         if fld == "kind" or text(v.get("kind")) == "":
                             f("NO_ID", fld, "", "ใส่ " + FIELD_LABELS[fld],
@@ -302,7 +310,8 @@ class Checker:
                     f("PERIOD", "period", per, want,
                       "DurationIndex %s หมายถึง %s แต่ Period เขียน %s และชื่อไอเทมก็ไม่ได้ระบุเวลานี้" % (dur, want, per))
             else:
-                f("MISSING", "period", "", ref.get("period"), "Period ว่าง")
+                f("NO_PERIOD", "period", "", ref.get("th") or ref.get("period"),
+                  "Period ว่าง — DurationIndex %s หมายถึง %s" % (dur, ref.get("th") or ref.get("period")))
 
         # 5b. the library spells this item with its value in brackets -> the document must too
         #     (Dalif 2026-11-12: "Penetration Potion x5" must be "Penetration Potion (100) x5")
@@ -330,11 +339,13 @@ class Checker:
         keys = {full_name_key(name), full_name_key(dname)} - {""}
         lib = [it for k in keys for it in self.db.by_full_name.get(k, [])]
         # bound / tradable and timed / permanent versions are different products
-        kf = kind_fields(n["kind"], n["index"])
+        idx_for_kind = n["index"] if n["index"] is not None else next(
+            (it["index"] for it in lib if it["index"] is not None), None)
+        kf = kind_fields(n["kind"], idx_for_kind)
         if kf and kf["mask"] & 0xFFF == 0:
             def same_kind(it):
                 k2 = kind_fields(it["kind"], it["index"])
-                return k2 is None or (k2["bound"], k2["expiry"]) == (kf["bound"], kf["expiry"])
+                return k2 is None or variant_key(k2) == variant_key(kf)
             lib = [it for it in lib if same_kind(it)]
         if not lib:
             return []

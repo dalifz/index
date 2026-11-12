@@ -73,14 +73,30 @@ def report_csv_json(result_json, include_info=False):
 
 
 # ---- adding items ---------------------------------------------------------
-def validate_item(bundle, raw):
-    """Check a new item before it goes into the database.
+def item_identity(it):
+    """Stable identity of a library row: numbers + loose name."""
+    it = clean_item(it)
+    return (it["kind"], it["index"], it["option"], it["duration"], name_key(it["name"]))
 
+
+def validate_item(bundle, raw, original=None):
+    """Check a new or edited item before it goes into the database.
+
+    original: the library row being edited (it is left out of the comparison,
+    so the item is not "already in the database" or "different from history"
+    against its own old values).
     Returns {"ok": bool, "item": cleaned, "errors": [...], "warnings": [...]}.
     """
-    db = ItemDB.from_bundle(bundle)
+    if isinstance(bundle, str):
+        bundle = json.loads(bundle)
     if isinstance(raw, str):
         raw = json.loads(raw)
+    if isinstance(original, str):
+        original = json.loads(original) if original else None
+    if original:
+        key = item_identity(original)
+        bundle = dict(bundle, items=[i for i in bundle.get("items", []) if item_identity(i) != key])
+    db = ItemDB.from_bundle(bundle)
     it = clean_item(raw)
     errors, warnings = [], []
     for fld in ("kind", "index", "option"):
@@ -120,8 +136,8 @@ def validate_item(bundle, raw):
     return {"ok": not errors, "item": it, "errors": errors, "warnings": warnings}
 
 
-def validate_item_json(bundle_json, raw_json):
-    return json.dumps(validate_item(bundle_json, raw_json), ensure_ascii=False)
+def validate_item_json(bundle_json, raw_json, original_json=None):
+    return json.dumps(validate_item(bundle_json, raw_json, original_json), ensure_ascii=False)
 
 
 def rule_catalogue():

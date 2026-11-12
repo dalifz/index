@@ -21,6 +21,8 @@
  *   QAEngine.searchItems(game, query, limit)   -> items
  *   await QAEngine.validateItem(game, item)    -> {ok, item, errors[], warnings[]}
  *   await QAEngine.addItem(game, item, token)  -> {commit_url}; item also usable at once
+ *   await QAEngine.validateItem(game, item, original)  validate an EDIT of library row `original`
+ *   await QAEngine.updateItem(game, original, item, token) -> {commit_url, item}; edit a library row
  *   QAEngine.rules()                           -> {CODE: Thai title}
  *
  * workbook = {source, url?, sheets:[{name, values:[[...]], display:[[...]], hidden}]}
@@ -40,7 +42,8 @@
   var ver = (src.match(/[?&]v=([^&]+)/) || [])[1] || String(Date.now());
 
   var py = null, initPromise = null;
-  var state = { bundles: {}, config: null, manifest: null, pending: { pc: [], mobile: [] } };
+  var state = { bundles: {}, config: null, manifest: null, pending: { pc: [], mobile: [] },
+                edits: { pc: [], mobile: [] } };
 
   function progress(cb, step, pct) { if (cb) try { cb(step, pct); } catch (e) { /* ignore */ } }
 
@@ -130,8 +133,13 @@
     if (GAMES.indexOf(game) < 0) throw new Error('game ต้องเป็น pc หรือ mobile');
     var b = state.bundles[game];
     if (!b) throw new Error('ยังไม่ได้ปลดล็อกข้อมูล');
-    if (!state.pending[game].length) return b;
-    return Object.assign({}, b, { items: b.items.concat(state.pending[game]) });
+    if (!state.pending[game].length && !state.edits[game].length) return b;
+    var items = b.items.map(function (it) {
+      var hit = null;
+      state.edits[game].forEach(function (e) { if (identity(it) === e.from) hit = e.item; });
+      return hit || it;
+    });
+    return Object.assign({}, b, { items: items.concat(state.pending[game]) });
   }
 
   function stats(game) {
@@ -143,11 +151,20 @@
              pending: state.pending[game].length };
   }
 
+  // same identity as qaitem.api.item_identity (numbers + name without spaces/case)
+  function identity(it) {
+    var nk = String(it.name || '').normalize('NFKC').toLowerCase().replace(/\s*[x×]\s*[\d,]+\s*$/, '')
+      .replace(/[^0-9a-z\u0E00-\u0E7F]/g, '');
+    return [it.kind, it.index, it.option, it.duration == null ? '' : it.duration].map(function (v) {
+      return v == null || v === '' ? '' : String(Number(String(v).replace(/,/g, '')));
+    }).join('|') + '|' + nk;
+  }
+
   // -------------------------------------------------------------- python
-  async function callPy(fn, a, b) {
+  async function callPy(fn, a, b, c) {
     await init();
-    py.globals.set('_a', a); py.globals.set('_b', b);
-    var out = py.runPython('qa.' + fn + '(_a, _b)');
+    py.globals.set('_a', a); py.globals.set('_b', b); py.globals.set('_c', c === undefined ? null : c);
+    var out = py.runPython('qa.' + fn + (c === undefined ? '(_a, _b)' : '(_a, _b, _c)'));
     return out;
   }
 
@@ -164,8 +181,9 @@
     return py.runPython('qa.report_csv_json(_a, _b)');
   }
 
-  async function validateItem(game, item) {
-    return JSON.parse(await callPy('validate_item_json', JSON.stringify(bundle(game)), JSON.stringify(item)));
+  async function validateItem(game, item, original) {
+    return JSON.parse(await callPy('validate_item_json', JSON.stringify(bundle(game)), JSON.stringify(item),
+                                   original ? JSON.stringify(original) : ''));
   }
 
   function rules() {
@@ -241,6 +259,43 @@
     var res = await validateItem(game, item);
     if (!res.ok) { var e = new Error(res.errors.join('\n')); e.validation = res; throw e; }
     if (!token) throw new Error('ต้องใส่ GitHub token ของ admin');
+    return commitItems(game, token, function (data) {
+      var it = Object.assign({}, res.item, { added_at: new Date().toISOString().slice(0, 10), source: 'web' });
+      data.items.push(it);
+      return { item: it, message: 'data(' + game + '): add ' + it.name + ' [' + it.index + ']' };
+    }).then(function (done) {
+      state.pending[game].push(done.item);
+      return { commit_url: done.commit_url, item: done.item, warnings: res.warnings };
+    });
+  }
+
+  // Edit a row that is already in the library (fix a wrong number / name).
+  async function updateItem(game, original, item, token) {
+    if (!original) throw new Error('ไม่รู้ว่าจะแก้ไอเทมตัวไหน');
+    var res = await validateItem(game, item, original);
+    if (!res.ok) { var e = new Error(res.errors.join('\n')); e.validation = res; throw e; }
+    if (!token) throw new Error('ต้องใส่ GitHub token ของ admin');
+    var from = identity(original);
+    return commitItems(game, token, function (data) {
+      var i = data.items.findIndex(function (x) { return identity(x) === from; });
+      if (i < 0) throw new Error('ไม่พบไอเทมเดิมในคลังบน GitHub (อาจมีคนแก้ไปแล้ว) โหลดหน้าใหม่แล้วลองอีกครั้ง');
+      var old = data.items[i];
+      var it = Object.assign({}, old, res.item, { edited_at: new Date().toISOString().slice(0, 10) });
+      // keep the old spelling as an alias so documents written the old way still match
+      if (old.name && old.name !== it.name) {
+        it.aliases = (old.aliases || []).filter(function (a) { return a !== it.name; });
+        if (it.aliases.indexOf(old.name) < 0) it.aliases.push(old.name);
+      }
+      data.items[i] = it;
+      return { item: it, message: 'data(' + game + '): edit ' + it.name + ' [' + it.index + ']' };
+    }).then(function (done) {
+      state.edits[game].push({ from: from, item: done.item });
+      return { commit_url: done.commit_url, item: done.item, warnings: res.warnings };
+    });
+  }
+
+  // Read data/<game>/items.json from the private repo, change it, write it back (retry on conflicts).
+  async function commitItems(game, token, change) {
     var repo = (state.config && state.config.data_repo) || 'dalifz/qa-item-cabal';
     var path = 'data/' + game + '/items.json';
     var api = 'https://api.github.com/repos/' + repo + '/contents/' + path;
@@ -255,18 +310,16 @@
         await fetch(api + '?ref=main', { headers: Object.assign({}, headers, { Accept: 'application/vnd.github.raw+json' }) })
           .then(function (r) { return r.text(); });
       var data = JSON.parse(text);
-      var it = Object.assign({}, res.item, { added_at: new Date().toISOString().slice(0, 10), source: 'web' });
-      data.items.push(it);
+      var ch = change(data);
       var put = await fetch(api, {
         method: 'PUT', headers: headers,
-        body: JSON.stringify({ message: 'data(' + game + '): add ' + it.name + ' [' + it.index + ']',
+        body: JSON.stringify({ message: ch.message,
                                content: utf8ToB64(JSON.stringify(data, null, 1) + '\n'), sha: m.sha, branch: 'main' })
       });
       if (put.status === 409 || put.status === 422) continue; // someone else committed first, retry
       if (!put.ok) throw new Error('บันทึกขึ้น GitHub ไม่สำเร็จ (' + put.status + ')');
       var done = await put.json();
-      state.pending[game].push(it);
-      return { commit_url: done.commit && done.commit.html_url, item: it, warnings: res.warnings };
+      return { commit_url: done.commit && done.commit.html_url, item: ch.item };
     }
     throw new Error('มีคนแก้ข้อมูลพร้อมกัน ลองใหม่อีกครั้ง');
   }
@@ -287,7 +340,8 @@
     games: GAMES, init: init, unlock: unlock, lock: lock, isUnlocked: isUnlocked, stats: stats,
     hasSheetApi: hasSheetApi, readExcel: readExcel, listGoogleSheet: listGoogleSheet,
     readGoogleSheet: readGoogleSheet, check: check, reportCSV: reportCSV, reportText: reportText,
-    searchItems: searchItems, validateItem: validateItem, addItem: addItem, rules: rules,
+    searchItems: searchItems, validateItem: validateItem, addItem: addItem, updateItem: updateItem,
+    identity: identity, rules: rules,
     manifest: function () { return state.manifest; }
   };
 })();
