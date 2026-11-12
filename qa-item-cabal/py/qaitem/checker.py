@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (UPGRADE_BITS, chaos_upgrade_in_name, kind_with_upgrade, describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -35,6 +35,7 @@ RULES = {
     "NO_PERIOD":       "Period ว่าง",
     "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
+    "CHAOS_UPGRADE":   "ItemKind ไม่ตรงกับ Chaos Upgrade ในชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
     "ITEMMOVE":        "Trade ไม่ตรงกับฐานข้อมูล",
     "QTY_OPTION":      "จำนวนในชื่อไม่ตรงกับ ItemOption",
@@ -51,7 +52,7 @@ RULES = {
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
@@ -248,7 +249,13 @@ class Checker:
                     f("NAME", "name", name, " / ".join(real[:3]),
                       "ชื่อไม่ตรงกับไอเทม ItemIndex %s ในฐานข้อมูล" % idx)
             # ItemKind must be one the database knows for this index
-            if not identity_broken and kind is not None and kinds and kind not in kinds:
+            chaos_ok = False
+            ch = chaos_upgrade_in_name(name) or chaos_upgrade_in_name(dname)
+            kfx = kind_fields(kind, idx) if kind is not None else None
+            if ch and kfx and kfx["upgrade"] == ch[0]:
+                base = (kfx["mask"] & ~UPGRADE_BITS)
+                chaos_ok = any(kind_fields(k, idx) and (kind_fields(k, idx)["mask"] & ~UPGRADE_BITS) == base for k in kinds)
+            if not identity_broken and kind is not None and kinds and kind not in kinds and not chaos_ok:
                 kf = kind_fields(kind, idx)
                 if kf and kf["mask"] & 0xFFF == 0 and flag_residual(kf["mask"]) in self.residuals:
                     # a clean ItemKind (bind / +N / expiry) we just have not seen for this item yet
@@ -290,8 +297,20 @@ class Checker:
                     f("BIND_BIT", "itemmove", yn(move), yn(not kf["bound"]),
                       "ItemKind %s flag ผูกตัว (+4096 หรือ +524288) แต่ Trade = %s"
                       % ("มี" if kf["bound"] else "ไม่มี", yn(move)))
+                # Chaos Upgrade (N/15): the level must be in ItemKind (confirmed by Dalif -> error)
+                chaos = chaos_upgrade_in_name(name) or chaos_upgrade_in_name(dname)
+                if chaos:
+                    lvl, top = chaos
+                    if not 1 <= lvl <= 15 or top != 15:
+                        f("CHAOS_UPGRADE", "name", name, "Chaos Upgrade (1–15/15)",
+                          "Chaos Upgrade ต้องเป็น 1–15 จาก 15 แต่ชื่อเขียน (%d/%d)" % (lvl, top))
+                    elif kf["upgrade"] != lvl:
+                        want = kind_with_upgrade(kind, idx, lvl)
+                        f("CHAOS_UPGRADE", "kind", kind, want,
+                          "ชื่อบอก Chaos Upgrade (%d/15) → ItemKind ควรเป็น %d (ItemIndex %d + ตีบวก %d) "
+                          "แต่เอกสารใส่ %d ซึ่งเป็นตีบวก %d" % (lvl, want, idx, lvl, kind, kf["upgrade"]))
                 # +N enhancement level lives in ItemKind bits 13-17
-                n_name = upgrade_in_name(name) if kf["upgrade"] else None
+                n_name = upgrade_in_name(name) if (kf["upgrade"] and not chaos) else None
                 if kf["upgrade"] and n_name is not None and n_name != kf["upgrade"]:
                     f("UPGRADE", "kind", kind, "",
                       "ItemKind บอกตีบวก +%d แต่ชื่อไอเทมเขียน +%d ให้ recheck ItemKind หรือชื่อ"

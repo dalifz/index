@@ -222,3 +222,20 @@ def has_value(name):
 
 def without_value(name):
     return VALUE_IN_NAME.sub(" ", unicodedata.normalize("NFKC", text(name)))
+
+
+# "Necklace of Agent Yul Chaos Upgrade (13/15)" — accessory upgrade level 1..15 (Dalif 2026-11-12):
+# same ItemIndex for every level, ItemKind carries the level in bits 13-17.
+CHAOS_UPGRADE = re.compile(r"chaos\s*upgrade\s*\(?\s*(\d{1,2})\s*/\s*(\d{1,2})", re.I)
+UPGRADE_BITS = UPGRADE_MASK << UPGRADE_SHIFT
+
+
+def chaos_upgrade_in_name(name):
+    """(level, max) from 'Chaos Upgrade (N/15)', else None."""
+    m = CHAOS_UPGRADE.search(unicodedata.normalize("NFKC", text(name)))
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
+def kind_with_upgrade(kind, index, level):
+    """The ItemKind this item should have at upgrade `level` (other flags kept)."""
+    return index + (((kind - index) & ~UPGRADE_BITS) | ((level & UPGRADE_MASK) << UPGRADE_SHIFT))
