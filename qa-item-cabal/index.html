@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112073451">
+  <link rel="stylesheet" href="css/app.css?v=20261112073736">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -59,11 +59,12 @@
       <form id="unlock-form" novalidate>
         <label class="field-label" for="team-password">รหัสผ่านทีม</label>
         <div class="input-with-action">
-          <input id="team-password" name="password" type="password" autocomplete="current-password" required autofocus>
+          <input id="team-password" name="password" type="password" autocomplete="current-password" required autofocus lang="en" autocapitalize="off" autocorrect="off" spellcheck="false">
           <button class="icon-button input-action" type="button" data-toggle-password="team-password" aria-label="แสดงรหัสผ่าน">
             <span aria-hidden="true">ดู</span>
           </button>
         </div>
+        <div id="unlock-hint" class="field-message" role="status" aria-live="polite" hidden></div>
         <div id="unlock-error" class="field-message field-message--error" role="alert" hidden></div>
         <button id="unlock-button" class="button button--primary button--wide" type="submit">
           <span>เปิดฐานข้อมูล</span>
@@ -377,7 +378,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112073451"></script>
-  <script src="js/app.js?v=20261112073451"></script>
+  <script src="js/engine.js?v=20261112073736"></script>
+  <script src="js/app.js?v=20261112073736"></script>
 </body>
 </html>

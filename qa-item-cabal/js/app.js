@@ -106,12 +106,38 @@
     byId('theme-toggle').setAttribute('aria-label', theme === 'dark' ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด');
   }
 
+  // Thai Kedmanee keyboard -> the English key in the same place. The team password is
+  // English only, so typing it while the keyboard is still in Thai mode just works.
+  var THAI_TO_EN = { 'ๅ': '1', 'ภ': '4', 'ถ': '5', 'ุ': '6', 'ึ': '7', 'ค': '8', 'ต': '9', 'จ': '0', 'ข': '-', 'ช': '=', 'ๆ': 'q', 'ไ': 'w', 'ำ': 'e', 'พ': 'r', 'ะ': 't', 'ั': 'y', 'ี': 'u', 'ร': 'i', 'น': 'o', 'ย': 'p', 'บ': '[', 'ล': ']', 'ฃ': '\\', 'ฟ': 'a', 'ห': 's', 'ก': 'd', 'ด': 'f', 'เ': 'g', '้': 'h', '่': 'j', 'า': 'k', 'ส': 'l', 'ว': ';', 'ง': '\'', 'ผ': 'z', 'ป': 'x', 'แ': 'c', 'อ': 'v', 'ิ': 'b', 'ื': 'n', 'ท': 'm', 'ม': ',', 'ใ': '.', 'ฝ': '/', '๑': '@', '๒': '#', '๓': '$', '๔': '%', 'ู': '^', '฿': '&', '๕': '*', '๖': '(', '๗': ')', '๘': '_', '๙': '+', '๐': 'Q', 'ฎ': 'E', 'ฑ': 'R', 'ธ': 'T', 'ํ': 'Y', '๊': 'U', 'ณ': 'I', 'ฯ': 'O', 'ญ': 'P', 'ฐ': '{', 'ฅ': '|', 'ฤ': 'A', 'ฆ': 'S', 'ฏ': 'D', 'โ': 'F', 'ฌ': 'G', '็': 'H', '๋': 'J', 'ษ': 'K', 'ศ': 'L', 'ซ': ':', 'ฉ': 'C', 'ฮ': 'V', 'ฺ': 'B', '์': 'N', 'ฒ': '<', 'ฬ': '>', 'ฦ': '?' };
+  function thaiToEnglish(text) {
+    return String(text || '').split('').map(function (ch) {
+      return Object.prototype.hasOwnProperty.call(THAI_TO_EN, ch) ? THAI_TO_EN[ch] : ch;
+    }).join('');
+  }
+
   function setupStaticEvents() {
     var savedTheme = safeStorageGet(STORAGE.theme, '');
     if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
 
     byId('retry-init').addEventListener('click', initEngine);
     byId('unlock-form').addEventListener('submit', unlock);
+    var pw = byId('team-password');
+    pw.addEventListener('input', function () {
+      var fixed = thaiToEnglish(pw.value);
+      if (fixed !== pw.value) {
+        var caret = pw.selectionStart;
+        pw.value = fixed;
+        try { pw.setSelectionRange(caret, caret); } catch (e) { /* ignore */ }
+        showInline('unlock-hint', 'คีย์บอร์ดยังเป็นภาษาไทย — แปลงเป็นตัวอังกฤษให้อัตโนมัติแล้ว');
+      }
+    });
+    pw.addEventListener('keyup', function (event) {
+      if (event.getModifierState && event.getModifierState('CapsLock')) {
+        showInline('unlock-hint', 'Caps Lock เปิดอยู่ — รหัสผ่านแยกตัวพิมพ์เล็ก/ใหญ่');
+      } else if (byId('unlock-hint').textContent.indexOf('Caps Lock') === 0) {
+        showInline('unlock-hint', '');
+      }
+    });
     byId('lock-button').addEventListener('click', lockApp);
     byId('theme-toggle').addEventListener('click', function () {
       var current = document.documentElement.dataset.theme;
@@ -197,7 +223,7 @@
   async function unlock(event) {
     event.preventDefault();
     var button = byId('unlock-button');
-    var password = byId('team-password').value;
+    var password = thaiToEnglish(byId('team-password').value);
     showInline('unlock-error', '');
     if (!password) {
       showInline('unlock-error', 'กรุณาใส่รหัสผ่านทีม');
