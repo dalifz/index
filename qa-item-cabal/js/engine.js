@@ -24,6 +24,10 @@
  *   await QAEngine.validateItem(game, item, original)  validate an EDIT of library row `original`
  *   await QAEngine.updateItem(game, original, item, token) -> {commit_url, item}; edit a library row
  *   QAEngine.rules()                           -> {CODE: Thai title}
+ *   await QAEngine.teamHistory({limit, actions})  -> [{time, email, name, action, game, detail, before, after}] newest first
+ *        actions: 'login' | 'login-denied' | 'check' | 'add-item' | 'edit-item' (signed-in only; reads the Log sheet)
+ *   await QAEngine.addNewItems(game, items, token, onEach) -> {added:[item], failed:[{item, error}]}
+ *        items = finding.new_item of UNKNOWN_ITEM findings ("ตรวจเจอไอเทมใหม่"); saved one by one
  *
  * Google sign-in (Apps Script backend, see apps-script/Code.gs):
  *   QAEngine.authConfig()                      -> {client_id, api_url, allow_team_password} (public, no secrets)
@@ -245,7 +249,8 @@
     res.url = workbook.url || null;
     audit('check', game, { source: workbook.source, url: workbook.url || null,
                            sheets: (workbook.sheets || []).map(function (s) { return s.name; }),
-                           rows: res.summary.rows, errors: res.summary.errors, warnings: res.summary.warnings });
+                           rows: res.summary.rows, errors: res.summary.errors, warnings: res.summary.warnings,
+                           new_items: res.findings.filter(function (f) { return f.code === 'UNKNOWN_ITEM'; }).length });
     return res;
   }
 
@@ -365,6 +370,33 @@
     });
   }
 
+  // Team-wide history (who checked what, who added / edited which item) from the backend Log sheet.
+  async function teamHistory(opts) {
+    if (!state.session) throw new Error('ต้อง Sign in with Google ก่อนถึงจะดูประวัติของทีมได้');
+    var j = await backend('history', { limit: (opts && opts.limit) || 200, actions: (opts && opts.actions) || null });
+    return j.rows || [];
+  }
+
+  // "Add to data" from the check results: save each new item (validated by Python first).
+  async function addNewItems(game, items, token, onEach) {
+    var added = [], failed = [], seen = {};
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i], key = identity(it);
+      if (seen[key]) continue;                 // the same new item can appear on many rows
+      seen[key] = true;
+      try {
+        var r = await addItem(game, it, token);
+        added.push(r.item);
+        if (onEach) onEach(it, null, r);
+      } catch (e) {
+        failed.push({ item: it, error: e.message, validation: e.validation || null });
+        if (onEach) onEach(it, e, null);
+        if (e.message === 'session-expired') break;
+      }
+    }
+    return { added: added, failed: failed };
+  }
+
   // Signed-in admin: the backend commits as the shared token and writes the audit log (before -> after).
   async function saveViaBackend(game, res, original) {
     if (!state.user || state.user.role !== 'admin') throw new Error('ต้องเป็น admin ถึงจะเพิ่ม/แก้ไอเทมได้');
@@ -423,6 +455,7 @@
     searchItems: searchItems, validateItem: validateItem, addItem: addItem, updateItem: updateItem,
     authConfig: authConfig, loginWithGoogle: loginWithGoogle, logout: logout, user: currentUser,
     canEditItems: canEditItems, canSaveViaBackend: function () { return !!state.canSave; },
+    addNewItems: addNewItems, teamHistory: teamHistory,
     identity: identity, rules: rules,
     manifest: function () { return state.manifest; }
   };

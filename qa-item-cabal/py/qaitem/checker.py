@@ -23,7 +23,7 @@ RULES = {
     "NUMBER":          "ช่องตัวเลขอ่านไม่ได้",
     "YES_NO":          "ต้องเป็น Yes หรือ No",
     "MISSING":         "ช่องสำคัญว่าง",
-    "UNKNOWN_ITEM":    "ไม่พบไอเทมในฐานข้อมูล",
+    "UNKNOWN_ITEM":    "ตรวจเจอไอเทมใหม่ (ยังไม่มีในคลัง)",
     "INDEX_NAME":      "ItemIndex กับชื่อไอเทมไม่ตรงกัน",
     "NAME":            "ชื่อไม่ตรงกับฐานข้อมูล",
     "KIND":            "ItemKind ไม่ตรงกับฐานข้อมูล",
@@ -92,7 +92,13 @@ class Checker:
                                         "เพิ่มคอลัมน์ " + ", ".join(FIELD_LABELS[f] for f in missing),
                                         "ตารางนี้ไม่มีคอลัมน์ " + ", ".join(FIELD_LABELS[f] for f in missing)
                                         + " จึงตรวจช่องนั้นไม่ได้"))
-            findings.extend(self.check_row(r))
+            row_findings = self.check_row(r)
+            if any(x["code"] == "UNKNOWN_ITEM" for x in row_findings):
+                new_item = new_item_from_row(r)
+                for x in row_findings:
+                    if x["code"] == "UNKNOWN_ITEM":
+                        x["new_item"] = new_item      # lets an admin add it to the library in one click
+            findings.extend(row_findings)
             ident = (r["sheet"], r.get("table", r["pack"]), to_int(r["values"].get("kind")), to_int(r["values"].get("index")),
                      to_int(r["values"].get("option")), to_int(r["values"].get("duration")))
             if ident[3] is not None:
@@ -381,6 +387,25 @@ class Checker:
         if idx is not None:
             return " / ".join(map(str, self.db.values(idx, fld)))
         return ""
+
+
+def new_item_from_row(r):
+    """Library record built from a document row (Trade read from the ItemKind bind flag if missing)."""
+    v = r["values"]
+    item = {
+        "kind": to_int(v.get("kind")), "index": to_int(v.get("index")), "option": to_int(v.get("option")),
+        "duration": to_int(v.get("duration")),
+        "itemmove": None if yes_no(v.get("itemmove")) is None else yn(yes_no(v.get("itemmove"))),
+        "name": text(v.get("name")) or text(v.get("display_name")),
+        "display_name": text(v.get("display_name")) or text(v.get("name")),
+        "period": text(v.get("period")),
+        "source": "ตรวจเจอใน %s / แถว %s" % (r["sheet"], r["row"]),
+    }
+    if item["itemmove"] is None:
+        kf = kind_fields(item["kind"], item["index"])
+        if kf and kf["mask"] & 0xFFF == 0:
+            item["itemmove"] = "No" if kf["bound"] else "Yes"
+    return item
 
 
 def summarize(rows, findings):

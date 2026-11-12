@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261112084845">
+  <link rel="stylesheet" href="css/app.css?v=20261112092816">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -243,11 +243,14 @@
 
           <section id="results-screen" class="results-screen" aria-labelledby="results-title" hidden>
             <div class="results-topline">
-              <button id="back-to-check" class="button button--ghost" type="button">← ตรวจเอกสารอื่น</button>
+              <div class="results-navigation">
+                <button id="new-document" class="button button--primary" type="button">ตรวจเอกสารอื่น</button>
+                <button id="back-to-check" class="button button--ghost" type="button">ตรวจชีทอื่นในไฟล์นี้</button>
+              </div>
               <div class="results-actions">
                 <button id="copy-report" class="button button--secondary" type="button">คัดลอกรายงาน</button>
                 <button id="download-csv" class="button button--secondary" type="button">ดาวน์โหลด CSV</button>
-                <button id="rerun-check" class="button button--primary" type="button">ตรวจใหม่</button>
+                <button id="rerun-check" class="button button--secondary" type="button">ตรวจซ้ำ</button>
               </div>
             </div>
 
@@ -269,6 +272,16 @@
             </article>
 
             <div id="result-notes" class="notice-stack" hidden></div>
+
+            <section id="new-items-summary" class="new-items-summary" aria-labelledby="new-items-summary-title" hidden>
+              <div class="new-items-summary__mark" aria-hidden="true">＋</div>
+              <div class="new-items-summary__copy">
+                <strong id="new-items-summary-title">ตรวจเจอไอเทมใหม่ 0 รายการ</strong>
+                <span id="new-items-summary-hint">รายการเหล่านี้ยังไม่มีในคลัง</span>
+                <small id="new-items-summary-status" aria-live="polite"></small>
+              </div>
+              <button id="add-all-new-items" class="button button--primary" type="button">เพิ่มทั้งหมดลง data</button>
+            </section>
 
             <div id="finding-tools" class="finding-tools">
               <div class="severity-filters" role="group" aria-label="กรองระดับผลตรวจ">
@@ -299,6 +312,17 @@
               <p>เอกสารนี้พร้อมส่งต่อ ทีมถัดไปทำงานได้อย่างมั่นใจ</p>
             </div>
             <button id="load-more-findings" class="button button--secondary load-more" type="button" hidden>แสดงรายการเพิ่ม</button>
+            <div class="results-bottom-actions" aria-label="ทำรายการต่อจากผลตรวจ">
+              <div>
+                <strong>ตรวจเสร็จแล้ว ทำอะไรต่อ?</strong>
+                <span>เลือกเอกสารใหม่ หรือกลับไปเลือกชีทอื่นโดยไม่ต้องเลื่อนขึ้นด้านบน</span>
+              </div>
+              <div class="results-bottom-buttons">
+                <button id="new-document-bottom" class="button button--primary" type="button">ตรวจเอกสารอื่น</button>
+                <button id="another-sheet-bottom" class="button button--secondary" type="button">ตรวจชีทอื่นในไฟล์นี้</button>
+                <button id="rerun-check-bottom" class="button button--ghost" type="button">ตรวจซ้ำ</button>
+              </div>
+            </div>
           </section>
         </section>
 
@@ -403,12 +427,36 @@
 
         <section id="view-history" class="view" data-view-panel="history" aria-labelledby="history-title" hidden>
           <div class="page-heading page-heading--split">
-            <div><p class="section-kicker"><span class="accent-pip"></span>ย้อนหลัง 30 รายการต่อเกม</p><h1 id="history-title">ประวัติการตรวจ</h1><p>บันทึกไว้ในเบราว์เซอร์เครื่องนี้ ลิงก์ Google Sheet เปิดกลับไปยังต้นฉบับได้</p></div>
-            <button id="clear-history" class="button button--ghost button--danger" type="button">ล้างประวัติเกมนี้</button>
+            <div><p class="section-kicker"><span class="accent-pip"></span>การทำงานล่าสุดของทีม QA</p><h1 id="history-title">ประวัติของทีม</h1><p>ดูว่าใครตรวจเอกสาร เพิ่ม หรือแก้ไขไอเทม พร้อมรายละเอียดที่เปลี่ยนแปลง</p></div>
+            <button id="refresh-history" class="button button--secondary" type="button"><span aria-hidden="true">↻</span> รีเฟรช</button>
           </div>
-          <article class="panel history-panel">
+
+          <section class="panel history-toolbar" aria-label="ตัวกรองประวัติ">
+            <div id="history-action-tabs" class="history-tabs" role="tablist" aria-label="ประเภทประวัติ">
+              <button class="is-active" type="button" role="tab" aria-selected="true" data-history-action="all">ทั้งหมด</button>
+              <button type="button" role="tab" aria-selected="false" data-history-action="check">การตรวจเอกสาร</button>
+              <button type="button" role="tab" aria-selected="false" data-history-action="items">เพิ่ม/แก้ไอเทม</button>
+              <button type="button" role="tab" aria-selected="false" data-history-action="access">การเข้าใช้</button>
+            </div>
+            <div class="history-filters">
+              <label><span class="sr-only">กรองตามเกม</span><select id="history-game-filter"><option value="pc">Cabal PC</option><option value="mobile">Cabal Mobile</option><option value="all">ทุกเกม</option></select></label>
+              <label class="history-search"><span aria-hidden="true">⌕</span><input id="history-search" type="search" autocomplete="off" placeholder="ค้นหาอีเมล ไฟล์ หรือไอเทม"></label>
+            </div>
+          </section>
+
+          <div id="history-local-note" class="inline-alert inline-alert--warn history-local-note" hidden>
+            <div><strong>Sign in with Google เพื่อดูประวัติของทั้งทีม</strong><p>ตอนนี้แสดงเฉพาะประวัติการตรวจที่บันทึกไว้ในเบราว์เซอร์นี้</p></div>
+            <button id="clear-history" class="button button--ghost button--danger button--small" type="button">ล้างประวัติในเครื่อง</button>
+          </div>
+
+          <article id="history-panel" class="panel history-panel" aria-live="polite">
+            <div id="history-loading" class="history-skeleton" hidden aria-label="กำลังโหลดประวัติ">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
             <div id="history-list" class="history-list"></div>
-            <div id="history-empty" class="empty-state" hidden><span aria-hidden="true">↺</span><h3>ยังไม่มีประวัติการตรวจ</h3><p>เมื่อเริ่มตรวจเอกสาร รายการล่าสุดจะแสดงที่นี่</p></div>
+            <div id="history-empty" class="empty-state" hidden><span aria-hidden="true">↺</span><h3>ไม่พบประวัติที่ตรงกับตัวกรอง</h3><p>ลองเปลี่ยนประเภท เกม หรือคำค้นหา</p></div>
+            <div id="history-error" class="empty-state history-error-state" hidden><span aria-hidden="true">!</span><h3>โหลดประวัติไม่สำเร็จ</h3><p id="history-error-message">กรุณาลองอีกครั้ง</p><button id="retry-history" class="button button--secondary" type="button">ลองอีกครั้ง</button></div>
+            <div class="history-more-wrap"><button id="load-more-history" class="button button--secondary" type="button" hidden>แสดงเพิ่ม</button></div>
           </article>
         </section>
       </main>
@@ -418,7 +466,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261112084845"></script>
-  <script src="js/app.js?v=20261112084845"></script>
+  <script src="js/engine.js?v=20261112092816"></script>
+  <script src="js/app.js?v=20261112092816"></script>
 </body>
 </html>

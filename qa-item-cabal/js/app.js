@@ -7,6 +7,7 @@
     theme: 'qaitem_theme'
   };
   var FINDING_BATCH = 100;
+  var HISTORY_BATCH = 50;
   var SEVERITY_TH = { error: 'ผิด', warn: 'น่าสงสัย', info: 'ข้อมูล' };
   var GAME_LABEL = { pc: 'Cabal PC', mobile: 'Cabal Mobile' };
   var state = {
@@ -19,6 +20,9 @@
     lastWorkbook: null,
     filteredFindings: [],
     findingLimit: FINDING_BATCH,
+    newItemSaves: new Map(),
+    newItemBulk: null,
+    newItemDraftKey: '',
     validation: null,
     validationNonce: 0,
     editOriginal: null,
@@ -26,7 +30,17 @@
     auth: { client_id: '', api_url: '', allow_team_password: true },
     googleBusy: false,
     googleInitializedClient: '',
-    sessionExpiryHandled: false
+    sessionExpiryHandled: false,
+    workspaces: { pc: null, mobile: null },
+    historyEntries: null,
+    historyLoading: false,
+    historyError: '',
+    historyAction: 'all',
+    historyGame: 'pc',
+    historyQuery: '',
+    historyLimit: HISTORY_BATCH,
+    historyRequest: 0,
+    resultsHistoryMarker: false
   };
   var googleIdentityPromise = null;
 
@@ -312,7 +326,10 @@
     setupHistoryEvents();
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      if (event.key === 'Escape' && state.view === 'check' && !byId('results-screen').hidden) {
+        event.preventDefault();
+        chooseOtherSheets();
+      } else if (event.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) {
         if (state.view === 'items') {
           event.preventDefault();
           byId('item-search').focus();
@@ -323,6 +340,12 @@
           event.preventDefault();
           byId('filter-text').focus();
         }
+      }
+    });
+    window.addEventListener('popstate', function () {
+      if (state.view === 'check' && !byId('results-screen').hidden) {
+        state.resultsHistoryMarker = false;
+        chooseOtherSheets({ fromHistory: true });
       }
     });
   }
@@ -435,10 +458,20 @@
     state.lastWorkbook = null;
     state.filteredFindings = [];
     state.editOriginal = null;
+    state.newItemSaves = new Map();
+    state.newItemBulk = null;
+    state.newItemDraftKey = '';
+    state.workspaces = { pc: null, mobile: null };
+    state.historyEntries = null;
+    state.historyError = '';
+    state.historyLoading = false;
+    state.historyRequest += 1;
+    state.historyLimit = HISTORY_BATCH;
     state.view = 'check';
     clearSource();
     byId('results-screen').hidden = true;
     byId('check-workspace').hidden = false;
+    clearResultsHistoryMarker();
     byId('findings-root').replaceChildren();
     byId('item-table-body').replaceChildren();
     clearItemForm();
@@ -553,27 +586,135 @@
     byId('backend-save-note').hidden = canSave;
   }
 
-  function changeGame(game) {
+  function defaultResultFilters() {
+    return { severities: ['error', 'warn'], sheet: '', pack: '', rule: '', query: '' };
+  }
+
+  function readResultFilters() {
+    return {
+      severities: all('[data-severity]:checked').map(function (input) { return input.dataset.severity; }),
+      sheet: byId('filter-sheet').value,
+      pack: byId('filter-pack').value,
+      rule: byId('filter-rule').value,
+      query: byId('filter-text').value
+    };
+  }
+
+  function restoreResultFilters(filters, limit) {
+    filters = filters || defaultResultFilters();
+    var severities = new Set(filters.severities || []);
+    all('[data-severity]').forEach(function (input) { input.checked = severities.has(input.dataset.severity); });
+    byId('filter-sheet').value = filters.sheet || '';
+    byId('filter-pack').value = filters.pack || '';
+    byId('filter-rule').value = filters.rule || '';
+    byId('filter-text').value = filters.query || '';
+    applyFindingFilters();
+    state.findingLimit = Math.max(FINDING_BATCH, Number(limit || FINDING_BATCH));
+    renderFindings();
+  }
+
+  function emptyWorkspace() {
+    return {
+      source: null,
+      detectedGame: null,
+      result: null,
+      resultContext: null,
+      lastWorkbook: null,
+      selectedSheets: [],
+      showHidden: false,
+      sourceUrl: '',
+      sourceNames: '',
+      screen: 'check',
+      filters: defaultResultFilters(),
+      findingLimit: FINDING_BATCH,
+      newItemSaves: new Map(),
+      newItemBulk: null,
+      newItemDraftKey: ''
+    };
+  }
+
+  function saveGameWorkspace(game) {
+    if (!game || !byId('source-inputs')) return;
+    var workspace = emptyWorkspace();
+    workspace.source = state.source;
+    workspace.detectedGame = state.detectedGame;
+    workspace.result = state.result;
+    workspace.resultContext = state.resultContext;
+    workspace.lastWorkbook = state.lastWorkbook;
+    workspace.selectedSheets = state.source ? selectedSheetIndexes() : [];
+    workspace.showHidden = byId('show-hidden-sheets').checked;
+    workspace.sourceUrl = byId('sheet-url').value;
+    workspace.sourceNames = byId('sheet-names').value;
+    workspace.screen = !byId('results-screen').hidden ? 'results' : 'check';
+    workspace.filters = state.result ? readResultFilters() : defaultResultFilters();
+    workspace.findingLimit = state.findingLimit;
+    workspace.newItemSaves = state.newItemSaves;
+    workspace.newItemBulk = state.newItemBulk;
+    workspace.newItemDraftKey = state.newItemDraftKey;
+    if (workspace.source) workspace.source.selection = new Set(workspace.selectedSheets);
+    state.workspaces[game] = workspace;
+  }
+
+  function restoreGameWorkspace(game) {
+    var workspace = state.workspaces[game] || emptyWorkspace();
+    state.source = workspace.source;
+    state.detectedGame = workspace.detectedGame;
+    state.result = workspace.result;
+    state.resultContext = workspace.resultContext;
+    state.lastWorkbook = workspace.lastWorkbook;
+    state.filteredFindings = [];
+    state.findingLimit = workspace.findingLimit || FINDING_BATCH;
+    state.newItemSaves = workspace.newItemSaves || new Map();
+    state.newItemBulk = workspace.newItemBulk || null;
+    state.newItemDraftKey = workspace.newItemDraftKey || '';
+    byId('sheet-url').value = workspace.sourceUrl || '';
+    byId('sheet-names').value = workspace.sourceNames || '';
+    if (state.source) {
+      state.source.selection = new Set(workspace.selectedSheets || []);
+      presentSource({ scroll: false });
+      byId('show-hidden-sheets').checked = !!workspace.showHidden;
+      renderSheetPicker();
+    } else {
+      clearSource({ keepInputs: true });
+      byId('sheet-url').value = workspace.sourceUrl || '';
+      byId('sheet-names').value = workspace.sourceNames || '';
+    }
+    if (workspace.screen === 'results' && state.result) {
+      paintResults({ filters: workspace.filters, findingLimit: workspace.findingLimit, scroll: false });
+      if (state.view === 'check') markResultsHistory();
+    } else {
+      byId('results-screen').hidden = true;
+      byId('check-workspace').hidden = false;
+      clearResultsHistoryMarker();
+    }
+    updateMismatch();
+  }
+
+  function changeGame(game, options) {
+    options = options || {};
     if (game !== 'pc' && game !== 'mobile') return;
     if (state.game === game) return;
     var cancelledEdit = !!state.editOriginal;
     if (cancelledEdit) cancelItemEdit({ silent: true });
+    if (!options.skipSave) saveGameWorkspace(state.game);
     state.game = game;
     document.body.dataset.game = game;
     state.validationNonce += 1;
+    restoreGameWorkspace(game);
     updateGameUI();
-    updateMismatch();
     if (state.view === 'items') renderItems();
-    if (state.view === 'history') renderHistory();
+    if (state.view === 'history') {
+      state.historyGame = game;
+      byId('history-game-filter').value = game;
+      state.historyLimit = HISTORY_BATCH;
+      renderHistory();
+    }
     if (state.view === 'add') {
       clearEditSearch();
       scheduleValidation();
     }
-    if (state.result && !byId('results-screen').hidden) {
-      closeResults();
-      toast('เปลี่ยนฐานข้อมูลแล้ว กรุณาตรวจเอกสารอีกครั้ง');
-    }
     if (cancelledEdit) toast('ยกเลิกการแก้ไขแล้ว เพราะเปลี่ยนฐานข้อมูลเกม');
+    if (options.movedSource) toast('ย้ายเอกสารนี้มาไว้ใน workspace ' + GAME_LABEL[game] + ' แล้ว');
     announce('เปลี่ยนเป็นฐานข้อมูล ' + GAME_LABEL[game]);
   }
 
@@ -635,7 +776,15 @@
       else button.removeAttribute('aria-current');
     });
     if (view === 'items') renderItems();
-    if (view === 'history') renderHistory();
+    if (view === 'check' && state.result && !byId('results-screen').hidden) markResultsHistory();
+    if (view !== 'check') clearResultsHistoryMarker();
+    if (view === 'history') {
+      state.historyGame = state.game;
+      state.historyLimit = HISTORY_BATCH;
+      byId('history-game-filter').value = state.game;
+      renderHistory();
+      if (signedInUser()) loadTeamHistory(false);
+    }
     if (view === 'add') scheduleValidation();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -660,8 +809,11 @@
     drop.addEventListener('keydown', function (event) {
       if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); byId('excel-file').click(); }
     });
-    byId('clear-source').addEventListener('click', clearSource);
-    byId('show-hidden-sheets').addEventListener('change', renderSheetPicker);
+    byId('clear-source').addEventListener('click', startOtherDocument);
+    byId('show-hidden-sheets').addEventListener('change', function () {
+      if (state.source) state.source.selection = new Set(selectedSheetIndexes());
+      renderSheetPicker();
+    });
     byId('select-all-sheets').addEventListener('change', function () {
       var visibleOnly = !byId('show-hidden-sheets').checked;
       all('.sheet-option input', byId('sheet-list')).forEach(function (input) {
@@ -672,7 +824,18 @@
     });
     byId('sheet-list').addEventListener('change', updateSheetSelection);
     byId('switch-detected-game').addEventListener('click', function () {
-      if (state.detectedGame) changeGame(state.detectedGame);
+      if (!state.detectedGame) return;
+      var target = state.detectedGame;
+      saveGameWorkspace(state.game);
+      var destination = state.workspaces[target];
+      var destinationEmpty = !destination || (!destination.source && !destination.result && !destination.sourceUrl && !destination.sourceNames);
+      if (destinationEmpty) {
+        state.workspaces[target] = state.workspaces[state.game];
+        state.workspaces[state.game] = emptyWorkspace();
+        changeGame(target, { skipSave: true, movedSource: true });
+      } else {
+        changeGame(target, { skipSave: true });
+      }
     });
     byId('run-check').addEventListener('click', runCheck);
   }
@@ -767,29 +930,33 @@
     }
   }
 
-  function presentSource() {
+  function presentSource(options) {
+    options = options || {};
     if (!state.source) return;
     byId('source-title').textContent = state.source.title;
     var count = state.source.sheets.length;
     byId('source-meta').textContent = (state.source.type === 'google' ? 'Google Sheet' : 'Excel') + ' · ' + formatNumber(count) + ' ชีท';
     byId('source-inputs').hidden = true;
     byId('sheet-picker-panel').hidden = false;
-    byId('show-hidden-sheets').checked = false;
+    if (!options.preserveHidden) byId('show-hidden-sheets').checked = false;
     byId('select-all-sheets').checked = true;
     state.detectedGame = detectGame([state.source.title].concat(state.source.sheets.map(function (sheet) { return sheet.name; })));
     renderSheetPicker();
     updateMismatch();
     showInline('check-error', '');
-    byId('sheet-picker-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (options.scroll !== false) byId('sheet-picker-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function clearSource() {
+  function clearSource(options) {
+    options = options || {};
     state.source = null;
     state.detectedGame = null;
     byId('source-inputs').hidden = false;
     byId('sheet-picker-panel').hidden = true;
-    byId('sheet-url').value = '';
-    byId('sheet-names').value = '';
+    if (!options.keepInputs) {
+      byId('sheet-url').value = '';
+      byId('sheet-names').value = '';
+    }
     showInline('google-error', '');
     showInline('excel-error', '');
     showInline('check-error', '');
@@ -800,7 +967,7 @@
     root.replaceChildren();
     if (!state.source) return;
     var showHidden = byId('show-hidden-sheets').checked;
-    var pre = state.source.preselect;
+    var pre = state.source.selection || state.source.preselect;
     state.source.sheets.forEach(function (sheet, index) {
       if (sheet.hidden && !showHidden && !(pre && pre.has(index))) return;
       var label = node('label', 'sheet-option');
@@ -825,6 +992,7 @@
   function updateSheetSelection() {
     if (!state.source) return;
     var indexes = selectedSheetIndexes();
+    state.source.selection = new Set(indexes);
     var rows = indexes.reduce(function (sum, index) { return sum + Number(state.source.sheets[index].rows || 0); }, 0);
     byId('selected-sheet-count').textContent = formatNumber(indexes.length) + ' ชีทที่เลือก';
     byId('selected-row-count').textContent = formatNumber(rows) + ' แถวโดยประมาณ';
@@ -898,10 +1066,15 @@
 
   /* ---------------------------------------------------------------- results */
   function setupResultEvents() {
-    byId('back-to-check').addEventListener('click', closeResults);
+    byId('back-to-check').addEventListener('click', chooseOtherSheets);
+    byId('another-sheet-bottom').addEventListener('click', chooseOtherSheets);
+    byId('new-document').addEventListener('click', startOtherDocument);
+    byId('new-document-bottom').addEventListener('click', startOtherDocument);
     byId('rerun-check').addEventListener('click', rerunCheck);
+    byId('rerun-check-bottom').addEventListener('click', rerunCheck);
     byId('copy-report').addEventListener('click', copyReport);
     byId('download-csv').addEventListener('click', downloadCSV);
+    byId('add-all-new-items').addEventListener('click', addAllNewItems);
     all('[data-severity]').forEach(function (input) { input.addEventListener('change', applyFindingFilters); });
     ['filter-sheet', 'filter-pack', 'filter-rule'].forEach(function (id) { byId(id).addEventListener('change', applyFindingFilters); });
     byId('filter-text').addEventListener('input', debounce(applyFindingFilters, 140));
@@ -914,15 +1087,41 @@
   function showResults(result) {
     state.result = result;
     state.findingLimit = FINDING_BATCH;
+    state.newItemSaves = new Map();
+    state.newItemBulk = null;
+    state.newItemDraftKey = '';
+    paintResults({ scroll: true });
+    markResultsHistory();
+    saveHistory(result);
+    announce(result.summary.errors ? 'ตรวจเสร็จ พบ ' + result.summary.errors + ' จุดผิด' : 'ตรวจเสร็จ ไม่พบจุดผิด');
+  }
+
+  function paintResults(options) {
+    options = options || {};
+    if (!state.result) return;
     byId('check-workspace').hidden = true;
     byId('results-screen').hidden = false;
     renderResultSummary();
     renderResultNotes();
+    renderNewItemsSummary();
     populateFindingFilters();
-    applyFindingFilters();
-    saveHistory(result);
-    byId('results-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    announce(result.summary.errors ? 'ตรวจเสร็จ พบ ' + result.summary.errors + ' จุดผิด' : 'ตรวจเสร็จ ไม่พบจุดผิด');
+    restoreResultFilters(options.filters || defaultResultFilters(), options.findingLimit || FINDING_BATCH);
+    if (options.scroll !== false) byId('results-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function markResultsHistory() {
+    if (state.resultsHistoryMarker) return;
+    try {
+      window.history.pushState({ qaitemResults: true }, '', window.location.href);
+      state.resultsHistoryMarker = true;
+    } catch (e) { /* browser history is optional */ }
+  }
+
+  function clearResultsHistoryMarker() {
+    if (!state.resultsHistoryMarker) return;
+    state.resultsHistoryMarker = false;
+    try { window.history.replaceState({ qaitemResults: false }, '', window.location.href); }
+    catch (e) { /* browser history is optional */ }
   }
 
   function renderResultSummary() {
@@ -968,6 +1167,81 @@
     });
   }
 
+  function newItemKey(item) {
+    if (!item) return '';
+    try {
+      if (window.QAEngine && window.QAEngine.identity) return window.QAEngine.identity(item);
+    } catch (e) { /* fall back to the public finding fields */ }
+    return [item.kind, item.index, item.option, item.duration, item.name].map(function (value) {
+      return value === undefined || value === null ? '' : String(value).trim().toLocaleLowerCase('th');
+    }).join('|');
+  }
+
+  function distinctNewItems() {
+    var found = new Map();
+    if (!state.result) return found;
+    (state.result.findings || []).forEach(function (finding) {
+      if (finding.code !== 'UNKNOWN_ITEM' || !finding.new_item) return;
+      var key = newItemKey(finding.new_item);
+      if (key && !found.has(key)) found.set(key, finding.new_item);
+    });
+    return found;
+  }
+
+  function newItemSaveState(key) {
+    return state.newItemSaves.get(key) || { status: 'idle', error: '', validation: null, result: null };
+  }
+
+  function newItemSaveBlockMessage() {
+    if (!canEditItems()) return 'บัญชี QA ไม่มีสิทธิ์เพิ่มไอเทม กรุณาแจ้ง admin เพื่อเพิ่มเข้าคลัง';
+    var user = signedInUser();
+    if (user) {
+      var canSave = false;
+      try { canSave = !!window.QAEngine.canSaveViaBackend(); } catch (e) { canSave = false; }
+      return canSave ? '' : 'ระบบหลังบ้านยังไม่มี GitHub token สำหรับบันทึก กรุณาติดต่อ admin (Dalif)';
+    }
+    var token = byId('github-token').value.trim() || safeStorageGet(STORAGE.token, '').trim();
+    return token ? '' : 'ยังไม่มี GitHub token ของ admin — กรุณาใส่ token ที่หน้า เพิ่ม/แก้ไข ไอเทม ก่อนบันทึก';
+  }
+
+  function renderNewItemsSummary() {
+    var root = byId('new-items-summary');
+    var items = distinctNewItems();
+    root.hidden = items.size < 2;
+    if (root.hidden) return;
+    var saved = 0;
+    var busyCount = 0;
+    items.forEach(function (item, key) {
+      var status = newItemSaveState(key).status;
+      if (status === 'success') saved += 1;
+      if (status === 'busy') busyCount += 1;
+    });
+    byId('new-items-summary-title').textContent = 'ตรวจเจอไอเทมใหม่ ' + formatNumber(items.size) + ' รายการ';
+    var editable = canEditItems();
+    byId('new-items-summary-hint').textContent = editable
+      ? (saved ? 'เพิ่มแล้ว ' + formatNumber(saved) + ' รายการ · เลือกเพิ่มรายการที่เหลือได้ทันที' : 'ตรวจและเพิ่มรายการที่ยังไม่มีในคลังได้จากผลตรวจนี้')
+      : 'รายการเหล่านี้ยังไม่มีในคลัง · แจ้ง admin เพื่อเพิ่มเข้าคลัง';
+    var button = byId('add-all-new-items');
+    button.hidden = !editable;
+    var remaining = items.size - saved;
+    var bulk = state.newItemBulk;
+    if (bulk && bulk.busy) {
+      button.disabled = true;
+      button.textContent = formatNumber(bulk.completed) + ' / ' + formatNumber(bulk.total);
+    } else if (busyCount) {
+      button.disabled = true;
+      button.textContent = 'กำลังบันทึก…';
+    } else if (!remaining) {
+      button.disabled = true;
+      button.textContent = 'เพิ่มทั้งหมดแล้ว ✓';
+    } else {
+      button.disabled = false;
+      button.textContent = 'เพิ่มทั้งหมดลง data';
+    }
+    var status = byId('new-items-summary-status');
+    status.textContent = bulk && bulk.message ? bulk.message : (saved ? 'ข้อมูลออนไลน์อัปเดตใน 1–2 นาที (ในแท็บนี้ใช้ได้ทันที)' : '');
+  }
+
   function fillSelect(select, placeholder, entries) {
     var previous = select.value;
     select.replaceChildren();
@@ -1007,7 +1281,9 @@
       if (rule && finding.code !== rule) return false;
       if (query) {
         var haystack = [finding.sheet, finding.pack, finding.row, finding.cell, finding.field, finding.item,
-          finding.value, finding.expected, finding.message, finding.rule, finding.code].join(' ').toLocaleLowerCase('th');
+          finding.value, finding.expected, finding.message, finding.rule, finding.code,
+          finding.new_item && Object.keys(finding.new_item).map(function (key) { return finding.new_item[key]; }).join(' ')]
+          .join(' ').toLocaleLowerCase('th');
         if (haystack.indexOf(query) < 0) return false;
       }
       return true;
@@ -1076,6 +1352,7 @@
   }
 
   function renderFinding(finding) {
+    if (finding.code === 'UNKNOWN_ITEM' && finding.new_item) return renderNewItemFinding(finding);
     var el = node('div', 'finding');
     var field = node('div', 'finding-field');
     field.appendChild(node('span', 'severity-badge severity-badge--' + finding.severity, SEVERITY_TH[finding.severity] || finding.severity));
@@ -1111,6 +1388,235 @@
     return el;
   }
 
+  function appendFindingCell(field, finding, badgeClass, badgeText) {
+    field.appendChild(node('span', 'severity-badge ' + badgeClass, badgeText));
+    var link = exactCellLink(finding);
+    if (link) {
+      var a = node('a', 'cell-link', (finding.cell || 'เซลล์') + ' ↗');
+      a.href = link;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.title = 'เปิดเซลล์ ' + finding.cell + ' ใน Google Sheet';
+      field.appendChild(a);
+    } else {
+      field.appendChild(node('span', 'cell-static', finding.cell || '—'));
+    }
+  }
+
+  function renderNewItemFinding(finding) {
+    var newItem = finding.new_item;
+    var key = newItemKey(newItem);
+    var save = newItemSaveState(key);
+    var el = node('div', 'finding finding--new-item');
+    el.dataset.newItemKey = key;
+
+    var field = node('div', 'finding-field');
+    appendFindingCell(field, finding, 'severity-badge--new-item', 'ไอเทมใหม่');
+    el.appendChild(field);
+
+    var content = node('div', 'new-item-content');
+    var head = node('div', 'new-item-head');
+    var copy = node('div', 'new-item-copy');
+    copy.appendChild(node('strong', 'new-item-name', textValue(newItem.name, newItem.display_name || finding.item || 'ไม่ระบุชื่อไอเทม')));
+    copy.appendChild(node('span', 'new-item-rule', finding.rule || 'ตรวจเจอไอเทมใหม่ (ยังไม่มีในคลัง)'));
+    head.appendChild(copy);
+
+    if (canEditItems()) {
+      var button = node('button', 'button button--small new-item-add');
+      button.type = 'button';
+      if (save.status === 'busy') {
+        button.classList.add('button--secondary');
+        button.textContent = 'กำลังตรวจและบันทึก…';
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+      } else if (save.status === 'success') {
+        button.classList.add('button--saved');
+        button.textContent = 'เพิ่มแล้ว ✓';
+        button.disabled = true;
+      } else {
+        button.classList.add('button--primary');
+        button.textContent = save.status === 'error' ? 'ลองเพิ่มอีกครั้ง' : 'เพิ่มลงใน data';
+        button.addEventListener('click', function () { addNewItemsFromResults([newItem], false); });
+      }
+      head.appendChild(button);
+    }
+    content.appendChild(head);
+
+    var meta = node('p', 'new-item-meta');
+    [
+      ['ItemKind', newItem.kind], ['ItemIndex', newItem.index], ['ItemOption', newItem.option],
+      ['DurationIndex', newItem.duration], ['Trade', newItem.itemmove]
+    ].forEach(function (entry, index) {
+      if (index) meta.appendChild(node('span', 'new-item-separator', '·'));
+      var part = node('span', 'new-item-meta__part');
+      part.appendChild(node('small', '', entry[0]));
+      part.appendChild(node('b', '', textValue(entry[1])));
+      meta.appendChild(part);
+    });
+    content.appendChild(meta);
+    content.appendChild(node('p', 'finding-message new-item-message', finding.message || 'ไอเทมนี้ยังไม่มีในคลังข้อมูล'));
+
+    var feedback = node('div', 'new-item-feedback');
+    if (!canEditItems()) {
+      feedback.appendChild(node('p', 'new-item-admin-hint', 'แจ้ง admin เพื่อเพิ่มเข้าคลัง'));
+    } else if (save.status === 'success') {
+      if (save.result && save.result.commit_url) {
+        var commit = node('a', 'new-item-commit', 'เปิด commit ↗');
+        commit.href = save.result.commit_url;
+        commit.target = '_blank';
+        commit.rel = 'noopener noreferrer';
+        feedback.appendChild(commit);
+      }
+      feedback.appendChild(node('small', 'new-item-online-note', 'ข้อมูลออนไลน์อัปเดตใน 1–2 นาที (ในแท็บนี้ใช้ได้ทันที)'));
+    } else if (save.status === 'error') {
+      feedback.appendChild(node('p', 'new-item-error', save.error || 'เพิ่มไอเทมไม่สำเร็จ กรุณาลองอีกครั้ง'));
+      var errors = save.validation && Array.isArray(save.validation.errors) ? save.validation.errors : [];
+      if (errors.length) {
+        var list = node('ul', 'new-item-validation');
+        errors.forEach(function (message) { list.appendChild(node('li', '', message)); });
+        feedback.appendChild(list);
+      }
+      if (save.validation) {
+        var edit = node('button', 'button button--secondary button--small new-item-edit');
+        edit.type = 'button';
+        edit.textContent = 'แก้ก่อนเพิ่ม';
+        edit.addEventListener('click', function () { openNewItemDraft(newItem); });
+        feedback.appendChild(edit);
+      }
+    }
+    feedback.hidden = !feedback.childNodes.length;
+    content.appendChild(feedback);
+    el.appendChild(content);
+    return el;
+  }
+
+  function refreshNewItemViews() {
+    renderNewItemsSummary();
+    renderFindings();
+  }
+
+  function setNewItemError(items, message) {
+    items.forEach(function (item) {
+      state.newItemSaves.set(newItemKey(item), { status: 'error', error: message, validation: null, result: null });
+    });
+  }
+
+  async function addNewItemsFromResults(items, bulk) {
+    var pending = items.filter(function (item) {
+      var status = newItemSaveState(newItemKey(item)).status;
+      return status !== 'success' && status !== 'busy';
+    });
+    if (!pending.length) return;
+    if (!bulk) state.newItemBulk = null;
+    var blocked = newItemSaveBlockMessage();
+    if (blocked) {
+      setNewItemError(pending, blocked);
+      if (bulk) state.newItemBulk = { busy: false, total: pending.length, completed: 0, message: blocked };
+      refreshNewItemViews();
+      announce(blocked);
+      return;
+    }
+
+    pending.forEach(function (item) {
+      state.newItemSaves.set(newItemKey(item), { status: 'busy', error: '', validation: null, result: null });
+    });
+    if (bulk) state.newItemBulk = { busy: true, total: pending.length, completed: 0, message: '' };
+    refreshNewItemViews();
+
+    var user = signedInUser();
+    var token = user ? undefined : (byId('github-token').value.trim() || safeStorageGet(STORAGE.token, '').trim());
+    var outcome;
+    try {
+      outcome = await window.QAEngine.addNewItems(state.result.game || state.game, pending, token, function (item, error, result) {
+        var key = newItemKey(item);
+        if (error) {
+          state.newItemSaves.set(key, {
+            status: 'error',
+            error: error.message || 'เพิ่มไอเทมไม่สำเร็จ กรุณาลองอีกครั้ง',
+            validation: error.validation || null,
+            result: null
+          });
+        } else {
+          state.newItemSaves.set(key, { status: 'success', error: '', validation: null, result: result || null });
+        }
+        if (bulk && state.newItemBulk) state.newItemBulk.completed += 1;
+        refreshNewItemViews();
+      });
+    } catch (error) {
+      if (handleSessionExpired(error)) return;
+      var failureMessage = errorMessage(error, 'เพิ่มไอเทมไม่สำเร็จ กรุณาลองอีกครั้ง');
+      pending.forEach(function (item) {
+        var key = newItemKey(item);
+        if (newItemSaveState(key).status === 'busy') {
+          state.newItemSaves.set(key, {
+            status: 'error', error: failureMessage,
+            validation: error.validation || null, result: null
+          });
+        }
+      });
+      if (bulk && state.newItemBulk) {
+        state.newItemBulk.busy = false;
+        state.newItemBulk.message = 'เพิ่มไอเทมไม่สำเร็จ กรุณาตรวจข้อความแต่ละรายการ';
+      }
+      refreshNewItemViews();
+      return;
+    }
+
+    if ((outcome.failed || []).some(function (failure) { return failure.error === 'session-expired'; })) {
+      handleSessionExpired({ message: 'session-expired' });
+      return;
+    }
+    var added = (outcome.added || []).length;
+    var failed = (outcome.failed || []).length;
+    if (added) state.historyEntries = null;
+    if (bulk && state.newItemBulk) {
+      state.newItemBulk.busy = false;
+      state.newItemBulk.message = 'เพิ่มแล้ว ' + formatNumber(added) + ' รายการ · ไม่ผ่าน ' + formatNumber(failed) + ' รายการ';
+      toast(state.newItemBulk.message, failed ? 'error' : undefined);
+    } else if (added) {
+      toast('เพิ่มไอเทมใหม่ลง data แล้ว');
+    }
+    refreshNewItemViews();
+    announce('เพิ่มไอเทมใหม่แล้ว ' + added + ' รายการ' + (failed ? ' ไม่ผ่าน ' + failed + ' รายการ' : ''));
+  }
+
+  function addAllNewItems() {
+    var items = [];
+    distinctNewItems().forEach(function (item, key) {
+      var status = newItemSaveState(key).status;
+      if (status !== 'success' && status !== 'busy') items.push(item);
+    });
+    if (!items.length) return;
+    if (!window.confirm('ไอเทมใหม่ทั้งหมด ' + formatNumber(items.length) + ' รายการ\nยืนยันเพิ่มลง data หรือไม่? ระบบจะตรวจและบันทึกทีละรายการ')) return;
+    addNewItemsFromResults(items, true);
+  }
+
+  function openNewItemDraft(item) {
+    if (!item || !canEditItems()) return;
+    state.editOriginal = null;
+    state.newItemDraftKey = newItemKey(item);
+    state.validation = null;
+    state.validationNonce += 1;
+    fillItemForm(item);
+    if (item.itemmove === null || item.itemmove === undefined || item.itemmove === '') {
+      all('[name="itemmove"]', byId('add-item-form')).forEach(function (radio) { radio.checked = false; });
+    }
+    clearEditSearch();
+    updateItemModeUI();
+    renderItemDiffs();
+    resetItemValidation();
+    showInline('add-error', '');
+    byId('add-success').hidden = true;
+    showView('add');
+    validateAddForm();
+    window.requestAnimationFrame(function () {
+      var title = byId('add-title');
+      title.setAttribute('tabindex', '-1');
+      title.focus({ preventScroll: true });
+    });
+    announce('เปิดหน้าเพิ่มไอเทม พร้อมข้อมูลจากผลตรวจแล้ว');
+  }
+
   function extractSheetId(url) {
     var match = String(url || '').match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
     return match ? match[1] : '';
@@ -1124,24 +1630,52 @@
     return 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(context.id) + '/edit#gid=' + encodeURIComponent(gid) + '&range=' + encodeURIComponent(finding.cell);
   }
 
-  function closeResults() {
-    byId('results-screen').hidden = true;
-    byId('check-workspace').hidden = false;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function clearResultState() {
+    state.result = null;
+    state.resultContext = null;
+    state.lastWorkbook = null;
+    state.filteredFindings = [];
+    state.findingLimit = FINDING_BATCH;
+    state.newItemSaves = new Map();
+    state.newItemBulk = null;
+    state.newItemDraftKey = '';
+    byId('findings-root').replaceChildren();
   }
 
-  async function rerunCheck() {
-    if (!state.lastWorkbook) { closeResults(); return; }
-    var button = byId('rerun-check');
+  function chooseOtherSheets(options) {
+    options = options || {};
+    clearResultState();
+    byId('results-screen').hidden = true;
+    byId('check-workspace').hidden = false;
+    if (!options.fromHistory) clearResultsHistoryMarker();
+    var target = state.source ? byId('sheet-picker-panel') : byId('source-inputs');
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    announce(state.source ? 'เลือกชีทอื่นในเอกสารเดิมได้แล้ว' : 'พร้อมเลือกเอกสาร');
+  }
+
+  function startOtherDocument() {
+    clearResultState();
+    clearSource();
+    byId('results-screen').hidden = true;
+    byId('check-workspace').hidden = false;
+    clearResultsHistoryMarker();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.setTimeout(function () { byId('sheet-url').focus(); }, 0);
+    announce('พร้อมตรวจเอกสารอื่น วางลิงก์ Google Sheet ได้เลย');
+  }
+
+  async function rerunCheck(event) {
+    if (!state.lastWorkbook) { chooseOtherSheets(); return; }
+    var button = event && event.currentTarget ? event.currentTarget : byId('rerun-check');
     var checkGame = state.result.game || state.game;
-    withBusy(button, true, 'กำลังตรวจใหม่…');
+    withBusy(button, true, 'กำลังตรวจซ้ำ…');
     all('.game-option').forEach(function (option) { option.disabled = true; });
     try {
       var result = await window.QAEngine.check(checkGame, state.lastWorkbook);
       showResults(result);
-      toast('ตรวจเอกสารใหม่เรียบร้อย');
+      toast('ตรวจซ้ำเรียบร้อย');
     } catch (error) {
-      toast(errorMessage(error, 'ตรวจใหม่ไม่สำเร็จ'), 'error');
+      toast(errorMessage(error, 'ตรวจซ้ำไม่สำเร็จ'), 'error');
     } finally {
       withBusy(button, false);
       all('.game-option').forEach(function (option) { option.disabled = false; });
@@ -1320,6 +1854,7 @@
   function beginItemEdit(item) {
     if (!item || !canEditItems()) return;
     state.editOriginal = item;
+    state.newItemDraftKey = '';
     state.validation = null;
     state.validationNonce += 1;
     fillItemForm(item);
@@ -1341,6 +1876,7 @@
   function cancelItemEdit(options) {
     options = options || {};
     state.editOriginal = null;
+    state.newItemDraftKey = '';
     state.validationNonce += 1;
     clearItemForm();
     clearEditSearch();
@@ -1577,6 +2113,7 @@
 
   function finishItemSave() {
     state.editOriginal = null;
+    state.newItemDraftKey = '';
     state.validationNonce += 1;
     clearItemForm();
     clearEditSearch();
@@ -1592,6 +2129,7 @@
     var token = byId('github-token').value.trim();
     var original = state.editOriginal;
     var wasEdit = !!original;
+    var resultNewItemKey = wasEdit ? '' : state.newItemDraftKey;
     var draft = addItemData();
     if (!user) safeStorageSet(STORAGE.token, token);
     showInline('add-error', '');
@@ -1616,8 +2154,13 @@
         ? await window.QAEngine.updateItem(state.game, original, validation.item, user ? undefined : token)
         : await window.QAEngine.addItem(state.game, validation.item, user ? undefined : token);
       var changes = wasEdit ? itemChanges(result.item || validation.item, original) : [];
+      if (resultNewItemKey) {
+        state.newItemSaves.set(resultNewItemKey, { status: 'success', error: '', validation: null, result: result });
+      }
+      state.historyEntries = null;
       finishItemSave();
       renderItems();
+      if (resultNewItemKey) refreshNewItemViews();
       renderItemSaveSuccess(wasEdit, result, changes);
       toast(wasEdit ? 'แก้ไขไอเทมเรียบร้อย' : 'บันทึกไอเทมใหม่เรียบร้อย');
       announce(wasEdit ? 'แก้ไขไอเทมสำเร็จ และกลับสู่โหมดเพิ่มใหม่แล้ว' : 'บันทึกไอเทมใหม่สำเร็จ');
@@ -1635,14 +2178,43 @@
 
   /* ---------------------------------------------------------------- history */
   function setupHistoryEvents() {
+    all('[data-history-action]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        state.historyAction = button.dataset.historyAction;
+        state.historyLimit = HISTORY_BATCH;
+        all('[data-history-action]').forEach(function (tab) {
+          var active = tab === button;
+          tab.classList.toggle('is-active', active);
+          tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        renderHistory();
+      });
+    });
+    byId('history-game-filter').addEventListener('change', function () {
+      state.historyGame = this.value;
+      state.historyLimit = HISTORY_BATCH;
+      renderHistory();
+    });
+    byId('history-search').addEventListener('input', debounce(function () {
+      state.historyQuery = byId('history-search').value.trim();
+      state.historyLimit = HISTORY_BATCH;
+      renderHistory();
+    }, 140));
+    byId('load-more-history').addEventListener('click', function () {
+      state.historyLimit += HISTORY_BATCH;
+      renderHistory();
+    });
+    byId('refresh-history').addEventListener('click', function () { loadTeamHistory(true); });
+    byId('retry-history').addEventListener('click', function () { loadTeamHistory(true); });
     byId('clear-history').addEventListener('click', function () {
       var history = readHistory();
-      if (!(history[state.game] || []).length) return;
-      if (!window.confirm('ล้างประวัติการตรวจของ ' + GAME_LABEL[state.game] + ' ในเบราว์เซอร์นี้หรือไม่?')) return;
-      history[state.game] = [];
+      var games = state.historyGame === 'all' ? ['pc', 'mobile'] : [state.historyGame];
+      if (!games.some(function (game) { return (history[game] || []).length; })) return;
+      if (!window.confirm('ล้างประวัติการตรวจที่เก็บในเบราว์เซอร์นี้หรือไม่?')) return;
+      games.forEach(function (game) { history[game] = []; });
       writeHistory(history);
       renderHistory();
-      toast('ล้างประวัติของ ' + GAME_LABEL[state.game] + ' แล้ว');
+      toast('ล้างประวัติในเบราว์เซอร์นี้แล้ว');
     });
   }
 
@@ -1668,40 +2240,222 @@
     });
     history[game] = history[game].slice(0, 30);
     writeHistory(history);
+    state.historyEntries = null;
+  }
+
+  async function loadTeamHistory(force) {
+    if (!signedInUser()) {
+      state.historyLoading = false;
+      state.historyError = '';
+      renderHistory();
+      return;
+    }
+    if (!force && Array.isArray(state.historyEntries)) {
+      renderHistory();
+      return;
+    }
+    var request = ++state.historyRequest;
+    state.historyLoading = true;
+    state.historyError = '';
+    renderHistory();
+    try {
+      var entries = await window.QAEngine.teamHistory({ limit: 200, actions: null });
+      if (request !== state.historyRequest) return;
+      state.historyEntries = Array.isArray(entries) ? entries : [];
+      state.historyLoading = false;
+      state.historyLimit = HISTORY_BATCH;
+      renderHistory();
+      announce('โหลดประวัติของทีมแล้ว ' + formatNumber(state.historyEntries.length) + ' รายการ');
+    } catch (error) {
+      if (request !== state.historyRequest) return;
+      state.historyLoading = false;
+      if (handleSessionExpired(error)) return;
+      state.historyError = errorMessage(error, 'เชื่อมต่อประวัติของทีมไม่สำเร็จ');
+      renderHistory();
+    }
+  }
+
+  function historyActionMatches(entry) {
+    var action = String(entry.action || '');
+    if (state.historyAction === 'all') return true;
+    if (state.historyAction === 'check') return action === 'check';
+    if (state.historyAction === 'items') return action === 'add-item' || action === 'edit-item' || action === 'edit';
+    if (state.historyAction === 'access') return action === 'login' || action === 'login-denied';
+    return true;
+  }
+
+  function normalizeHistoryGame(value) {
+    var game = String(value || '').toLowerCase();
+    if (/mobile|mth|msea/.test(game)) return 'mobile';
+    if (/pc|pcth|pcsea/.test(game)) return 'pc';
+    return '';
+  }
+
+  function historyEntryMatches(entry) {
+    if (!historyActionMatches(entry)) return false;
+    var game = normalizeHistoryGame(entry.game);
+    if (state.historyGame !== 'all' && game && game !== state.historyGame) return false;
+    var query = state.historyQuery.toLocaleLowerCase('th');
+    if (!query) return true;
+    var detail = typeof entry.detail === 'string' ? entry.detail : JSON.stringify(entry.detail || {});
+    var haystack = [entry.email, entry.name, entry.action, entry.game, detail,
+      JSON.stringify(entry.before || {}), JSON.stringify(entry.after || {})].join(' ').toLocaleLowerCase('th');
+    return haystack.indexOf(query) >= 0;
+  }
+
+  function localHistoryEntries() {
+    var history = readHistory();
+    var entries = [];
+    ['pc', 'mobile'].forEach(function (game) {
+      (history[game] || []).forEach(function (entry) {
+        entries.push({
+          time: entry.time,
+          email: 'เบราว์เซอร์นี้',
+          name: 'ประวัติในเครื่อง',
+          action: 'check',
+          game: game,
+          local: true,
+          detail: {
+            source: entry.source,
+            url: entry.url,
+            sheets: [],
+            rows: entry.rows,
+            errors: entry.errors,
+            warnings: entry.warnings,
+            new_items: 0
+          }
+        });
+      });
+    });
+    return entries.sort(function (a, b) { return new Date(b.time) - new Date(a.time); });
   }
 
   function renderHistory() {
-    var entries = readHistory()[state.game] || [];
+    var teamMode = !!signedInUser();
     var root = byId('history-list');
     root.replaceChildren();
-    entries.forEach(function (entry) {
-      var sourceUrl = safeGoogleUrl(entry.url);
-      var item = node(sourceUrl ? 'a' : 'div', 'history-item');
-      if (sourceUrl) {
-        item.href = sourceUrl;
-        item.target = '_blank';
-        item.rel = 'noopener noreferrer';
-        item.title = 'เปิดเอกสารต้นฉบับ';
-      }
-      var main = node('div', 'history-main');
-      var status = node('span', 'history-status' + (entry.errors ? ' has-error' : ''), entry.errors ? '!' : '✓');
-      main.appendChild(status);
-      var title = node('div', 'history-title');
-      title.appendChild(node('strong', '', entry.source));
-      title.appendChild(node('span', '', formatNumber(entry.rows) + ' แถว' + (sourceUrl ? ' · เปิดต้นฉบับ ↗' : ' · ไฟล์จากเครื่อง')));
-      main.appendChild(title);
-      item.appendChild(main);
-      var counts = node('div', 'history-counts');
-      counts.appendChild(node('span', 'history-error', formatNumber(entry.errors) + ' ผิด'));
-      counts.appendChild(node('span', 'history-warn', formatNumber(entry.warnings) + ' สงสัย'));
-      var time = node('time', '', formatHistoryTime(entry.time));
-      time.dateTime = entry.time;
-      counts.appendChild(time);
-      item.appendChild(counts);
-      root.appendChild(item);
+    byId('history-local-note').hidden = teamMode;
+    byId('clear-history').hidden = teamMode;
+    byId('history-loading').hidden = !state.historyLoading || !teamMode;
+    byId('history-error').hidden = !state.historyError || !teamMode;
+    byId('history-error-message').textContent = state.historyError || '';
+    byId('refresh-history').disabled = state.historyLoading;
+    if (state.historyLoading || (teamMode && state.historyError)) {
+      byId('history-empty').hidden = true;
+      byId('load-more-history').hidden = true;
+      return;
+    }
+    var entries = teamMode ? (state.historyEntries || []) : localHistoryEntries();
+    entries = entries.filter(historyEntryMatches);
+    var shown = entries.slice(0, state.historyLimit);
+    shown.forEach(function (entry) { root.appendChild(renderHistoryEntry(entry)); });
+    byId('history-empty').hidden = shown.length !== 0;
+    byId('load-more-history').hidden = shown.length >= entries.length;
+    var local = readHistory();
+    var localGames = state.historyGame === 'all' ? ['pc', 'mobile'] : [state.historyGame];
+    byId('clear-history').disabled = !localGames.some(function (game) { return (local[game] || []).length; });
+  }
+
+  function renderHistoryEntry(entry) {
+    var action = String(entry.action || '');
+    var denied = action === 'login-denied';
+    var row = node('article', 'team-history-item' + (denied ? ' is-denied' : '') + (/^login/.test(action) ? ' is-access' : ''));
+    var who = node('div', 'history-who');
+    who.appendChild(node('strong', '', textValue(entry.email, 'ไม่ระบุอีเมล')));
+    who.appendChild(node('span', '', textValue(entry.name, entry.local ? 'ประวัติในเครื่อง' : 'ไม่ระบุชื่อ')));
+    row.appendChild(who);
+
+    var event = node('div', 'history-event');
+    var iconText = action === 'check' ? '✓' : action === 'add-item' ? '+' : (action === 'edit-item' || action === 'edit') ? '✎' : denied ? '!' : '↪';
+    var iconClass = 'history-action-icon' + (/^login/.test(action) ? ' is-login' : '') + (denied ? ' is-denied' : '');
+    event.appendChild(node('span', iconClass, iconText));
+    var copy = node('div', 'history-event-copy');
+    if (action === 'check') renderCheckHistory(copy, entry);
+    else if (action === 'add-item' || action === 'edit-item' || action === 'edit') renderItemHistory(copy, entry, action !== 'add-item');
+    else renderAccessHistory(copy, entry, denied);
+    event.appendChild(copy);
+    row.appendChild(event);
+
+    var timeWrap = node('div', 'history-time');
+    var time = node('time', '', formatRelativeHistoryTime(entry.time));
+    time.dateTime = entry.time || '';
+    time.title = formatHistoryTime(entry.time);
+    timeWrap.appendChild(time);
+    var game = normalizeHistoryGame(entry.game);
+    timeWrap.appendChild(node('small', '', game ? GAME_LABEL[game] : actionLabel(action)));
+    row.appendChild(timeWrap);
+    return row;
+  }
+
+  function renderCheckHistory(root, entry) {
+    var detail = entry.detail && typeof entry.detail === 'object' ? entry.detail : {};
+    var title = node('p', 'history-event-title');
+    title.appendChild(document.createTextNode('ตรวจเอกสาร '));
+    var url = safeHistoryUrl(detail.url || entry.url);
+    var source = textValue(detail.source, 'ไม่ระบุชื่อเอกสาร');
+    if (url) {
+      var link = node('a', '', source + ' ↗');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      title.appendChild(link);
+    } else title.appendChild(document.createTextNode(source));
+    root.appendChild(title);
+    var sheets = Array.isArray(detail.sheets) ? detail.sheets.filter(Boolean) : [];
+    var meta = node('div', 'history-event-meta');
+    if (sheets.length) meta.appendChild(node('span', '', 'ชีท: ' + sheets.join(', ')));
+    meta.appendChild(node('span', 'mono', formatNumber(detail.rows) + ' แถว'));
+    root.appendChild(meta);
+    var chips = node('div', 'history-chips');
+    chips.appendChild(node('span', 'history-chip is-error', 'ผิด ' + formatNumber(detail.errors)));
+    chips.appendChild(node('span', 'history-chip is-warn', 'น่าสงสัย ' + formatNumber(detail.warnings)));
+    var newItems = Array.isArray(detail.new_items) ? detail.new_items.length : Number(detail.new_items || 0);
+    chips.appendChild(node('span', 'history-chip is-new', 'ไอเทมใหม่ ' + formatNumber(newItems)));
+    root.appendChild(chips);
+  }
+
+  function renderItemHistory(root, entry, editing) {
+    var item = entry.after && typeof entry.after === 'object' ? entry.after : {};
+    var fallback = typeof entry.detail === 'string' ? entry.detail : '';
+    var name = textValue(item.name || item.display_name, fallback.replace(/\s*\[[^\]]+\]\s*$/, '') || 'ไม่ระบุชื่อไอเทม');
+    var title = editing ? 'แก้ไอเทม ' : 'เพิ่มไอเทม ';
+    var index = item.index === undefined || item.index === null || item.index === '' ? '' : ' [' + item.index + ']';
+    root.appendChild(node('p', 'history-event-title', title + name + index));
+    var meta = node('div', 'history-event-meta');
+    ['kind', 'index', 'option', 'duration'].forEach(function (field) {
+      if (item[field] === undefined || item[field] === null || item[field] === '') return;
+      meta.appendChild(node('span', 'mono', ITEM_FIELD_LABELS[field] + ' ' + item[field]));
     });
-    byId('history-empty').hidden = entries.length !== 0;
-    byId('clear-history').disabled = entries.length === 0;
+    if (meta.childNodes.length) root.appendChild(meta);
+    if (!editing) return;
+    var changes = itemChanges(item, entry.before && typeof entry.before === 'object' ? entry.before : {});
+    if (!changes.length) return;
+    var diffs = node('div', 'history-diffs');
+    changes.forEach(function (change) {
+      var line = node('div', 'history-diff');
+      line.appendChild(node('span', '', change.label));
+      var values = node('div', 'history-diff-values');
+      values.appendChild(node('del', '', diffValue(change.before)));
+      values.appendChild(node('b', '', '→'));
+      values.appendChild(node('ins', '', diffValue(change.after)));
+      line.appendChild(values);
+      diffs.appendChild(line);
+    });
+    root.appendChild(diffs);
+  }
+
+  function renderAccessHistory(root, entry, denied) {
+    root.appendChild(node('p', 'history-event-title', denied ? 'พยายามเข้าใช้ แต่ไม่มีสิทธิ์ในรายชื่อทีม' : 'เข้าสู่ระบบด้วย Google'));
+    var detail = typeof entry.detail === 'string' ? entry.detail : '';
+    if (detail) root.appendChild(node('div', 'history-event-meta', detail));
+  }
+
+  function actionLabel(action) {
+    if (action === 'check') return 'ตรวจเอกสาร';
+    if (action === 'add-item') return 'เพิ่มไอเทม';
+    if (action === 'edit-item' || action === 'edit') return 'แก้ไอเทม';
+    if (action === 'login-denied') return 'ไม่มีสิทธิ์';
+    return 'เข้าใช้';
   }
 
   function formatHistoryTime(value) {
@@ -1710,6 +2464,27 @@
     return new Intl.DateTimeFormat('th-TH', {
       day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
     }).format(date);
+  }
+
+  function formatRelativeHistoryTime(value) {
+    var date = new Date(value);
+    if (isNaN(date.getTime())) return 'ไม่ระบุเวลา';
+    var seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (seconds < 60) return 'เมื่อสักครู่';
+    var minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return formatNumber(minutes) + ' นาทีที่แล้ว';
+    var hours = Math.floor(minutes / 60);
+    if (hours < 24) return formatNumber(hours) + ' ชม.ที่แล้ว';
+    var days = Math.floor(hours / 24);
+    if (days < 7) return formatNumber(days) + ' วันที่แล้ว';
+    return new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }).format(date);
+  }
+
+  function safeHistoryUrl(value) {
+    try {
+      var url = new URL(String(value || ''));
+      return url.protocol === 'https:' ? url.href : '';
+    } catch (error) { return ''; }
   }
 
   function safeGoogleUrl(value) {
