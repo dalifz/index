@@ -1757,8 +1757,25 @@
         td.title = textValue(item[field]);
         tr.appendChild(td);
       });
+      // double-click anywhere on the row = copy it (Excel-ready); copy icon does the same
+      tr.title = 'ดับเบิลคลิกเพื่อคัดลอกแถวนี้ไปวางใน Excel';
+      tr.addEventListener('dblclick', function (event) {
+        if (event.target.closest('button')) return;
+        if (window.getSelection) window.getSelection().removeAllRanges();
+        copyItemRow(item, tr);
+      });
+      var actionCell = node('td', 'row-action');
+      var copyButton = node('button', 'copy-row-button');
+      copyButton.type = 'button';
+      copyButton.title = 'คัดลอกแถวนี้ (วางใน Excel ได้เลย)';
+      copyButton.setAttribute('aria-label', 'คัดลอก ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
+      copyButton.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect>' +
+        '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+      copyButton.addEventListener('click', function () { copyItemRow(item, tr); });
+      actionCell.appendChild(copyButton);
+      tr.appendChild(actionCell);
       if (editable) {
-        var actionCell = node('td', 'row-action');
         var editButton = node('button', 'edit-row-button');
         editButton.type = 'button';
         editButton.title = 'แก้ไข ' + textValue(item.name, 'ไอเทมนี้');
@@ -1767,7 +1784,6 @@
         editButton.appendChild(node('span', '', 'แก้ไข'));
         editButton.addEventListener('click', function () { beginItemEdit(item); });
         actionCell.appendChild(editButton);
-        tr.appendChild(actionCell);
       }
       fragment.appendChild(tr);
     });
@@ -1777,6 +1793,25 @@
       ? 'พบ ' + formatNumber(items.length) + (items.length === 100 ? '+ รายการ · แสดง 100 รายการแรก' : ' รายการ')
       : 'แสดง 100 รายการแรก';
     updateGameUI();
+  }
+
+  // Tab-separated = Excel / Google Sheets put each value in its own column on paste.
+  async function copyItemRow(item, tr) {
+    var cells = [item.kind, item.index, item.option, item.duration, booleanText(item.itemmove),
+                 item.name, item.display_name, item.period].map(function (v) {
+      return v === null || v === undefined ? '' : String(v).replace(/[\t\r\n]+/g, ' ');
+    });
+    try {
+      await navigator.clipboard.writeText(cells.join('\t'));
+      if (tr) {
+        tr.classList.remove('is-copied');
+        void tr.offsetWidth;
+        tr.classList.add('is-copied');
+      }
+      toast('คัดลอก ' + textValue(item.name, 'ไอเทม') + ' แล้ว — วางใน Excel ได้เลย (Ctrl+V)');
+    } catch (error) {
+      toast('คัดลอกไม่สำเร็จ กรุณาอนุญาต clipboard แล้วลองอีกครั้ง', 'error');
+    }
   }
 
   function booleanText(value) {

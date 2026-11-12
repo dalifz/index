@@ -623,7 +623,15 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
 .item-table .action-column, .item-table .row-action { position: sticky; right: 0; border-left: 1px solid var(--line); background: var(--surface); box-shadow: -8px 0 16px -16px rgba(22, 33, 43, .48); }
 .item-table .action-column { z-index: 3; background: var(--surface-muted); }
 .item-table tbody tr:hover .row-action { background: var(--accent-soft); }
-.row-action { width: 86px; padding-block: 7px !important; text-align: center; }
+.row-action { width: 128px; padding-block: 7px !important; text-align: center; white-space: nowrap; }
+.row-action > * + * { margin-left: 6px; }
+.copy-row-button { display: inline-flex; width: 30px; min-height: 30px; align-items: center; justify-content: center; vertical-align: middle; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--text-soft); }
+.copy-row-button:hover { border-color: var(--accent); color: var(--accent); }
+.copy-row-button:focus-visible, .edit-row-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.item-table tbody tr { cursor: copy; }
+.item-table tbody tr.is-copied td { animation: row-copied 1.1s ease-out; }
+@keyframes row-copied { from { background: rgba(var(--accent-rgb), .22); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .item-table tbody tr.is-copied td { animation: none; background: rgba(var(--accent-rgb), .12); } }
 .edit-row-button { display: inline-flex; min-height: 30px; align-items: center; gap: 5px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--text-soft); font-size: 10px; font-weight: 600; }
 .edit-row-button:hover { border-color: var(--accent); color: var(--accent); }
 .edit-row-icon { font-size: 13px; line-height: 1; }
