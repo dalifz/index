@@ -124,3 +124,32 @@ def full_name_key(v):
     s = unicodedata.normalize("NFKC", text(v)).lower()
     s = re.sub(r"\s*[x×]\s*([\d,]+)\s*$", lambda m: "x" + m.group(1).replace(",", ""), s)
     return re.sub(r"[^0-9a-z฀-๿]", "", s)
+
+
+# ---- ItemKind layout, decoded from 1,500+ real items (docs/item-number-decoding.md) ----
+BIND_CHAR = 0x1000        # bound (Itemmove = No), type 1
+BIND_OTHER = 0x80000      # bound (Itemmove = No), type 2 — never together with 0x1000
+BIND_BITS = BIND_CHAR | BIND_OTHER
+EXPIRY_BIT = 0x1000000    # set only on items that have a time limit (not every timed item has it)
+UPGRADE_SHIFT, UPGRADE_MASK = 13, 0x1F   # +N enhancement level, bits 13-17
+UPGRADE_IN_NAME = re.compile(r"\+\s*(\d{1,2})|upgrade\s*\(\s*(\d{1,2})\s*/", re.I)
+
+
+def kind_fields(kind, index):
+    """Split ItemKind - ItemIndex into the parts we understand. None if not decodable."""
+    if kind is None or index is None or kind < index:
+        return None
+    m = kind - index
+    return {
+        "mask": m,
+        "bound": bool(m & BIND_BITS),
+        "bind": "0x1000" if m & BIND_CHAR else ("0x80000" if m & BIND_OTHER else ""),
+        "upgrade": (m >> UPGRADE_SHIFT) & UPGRADE_MASK,
+        "expiry": bool(m & EXPIRY_BIT),
+        "high": m >> 32,
+    }
+
+
+def upgrade_in_name(name):
+    m = UPGRADE_IN_NAME.search(unicodedata.normalize("NFKC", text(name)))
+    return int(m.group(1) or m.group(2)) if m else None

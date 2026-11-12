@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (full_name_key, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (full_name_key, kind_fields, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -30,6 +30,7 @@ RULES = {
     "KIND_STRUCT":     "ItemKind ไม่ได้สร้างจาก ItemIndex",
     "KIND_FLAG":       "ItemKind มี flag ที่ไม่เคยพบ",
     "BIND_BIT":        "ItemKind กับ Itemmove ขัดกัน",
+    "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
     "ITEMMOVE":        "Itemmove ไม่ตรงกับฐานข้อมูล",
     "QTY_OPTION":      "จำนวนในชื่อไม่ตรงกับ ItemOption",
@@ -59,7 +60,6 @@ class Checker:
     def __init__(self, db):
         self.db = db
         self.confirmed = set((db.rules or {}).get("confirmed", []))
-        self.bind_bit = int(str((db.rules or {}).get("bind_bit", "0x1000")), 0)
         self.masks = db.known_masks()
 
     def severity(self, code):
@@ -234,12 +234,17 @@ class Checker:
                     f("KIND_FLAG", "kind", kind, "",
                       "ItemKind - ItemIndex = %s (0x%X) ไม่เคยพบใน %s ตรวจว่าก๊อปเลขมาถูกตัวไหม"
                       % (mask, mask, db.game.upper()))
-                if move is not None:
-                    bound = bool(mask & self.bind_bit)
-                    if bound == move:  # bound item but movable, or free item but No
-                        f("BIND_BIT", "itemmove", yn(move), yn(not bound),
-                          "ItemKind %s flag ผูกตัว (0x%X) แต่ Itemmove = %s"
-                          % ("มี" if bound else "ไม่มี", self.bind_bit, yn(move)))
+                kf = kind_fields(kind, idx)
+                if move is not None and kf["bound"] == move:  # bound but movable, or free but No
+                    f("BIND_BIT", "itemmove", yn(move), yn(not kf["bound"]),
+                      "ItemKind %s flag ผูกตัว (0x1000 หรือ 0x80000) แต่ Itemmove = %s"
+                      % ("มี" if kf["bound"] else "ไม่มี", yn(move)))
+                # +N enhancement level lives in ItemKind bits 13-17
+                n_name = upgrade_in_name(name) if kf["upgrade"] else None
+                if kf["upgrade"] and n_name is not None and n_name != kf["upgrade"]:
+                    f("UPGRADE", "kind", kind, "",
+                      "ItemKind บอกตีบวก +%d แต่ชื่อไอเทมเขียน +%d ให้ recheck ItemKind หรือชื่อ"
+                      % (kf["upgrade"], n_name))
 
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
