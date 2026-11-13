@@ -97,7 +97,7 @@
   .box{width:22px;height:22px;border:1.5px solid #D9C9CC;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;background:#fff}
   .box svg{width:12px;height:12px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
   .task.on .box{background:var(--done);border-color:var(--done)}.task.on .box svg{opacity:1}
-  .task .label{font-size:15px}.task.on .label{color:var(--muted);text-decoration:line-through;opacity:.8}
+  .task .label{font-size:15px}.task .label .sub{display:block;margin-top:4px;font-size:14px;line-height:1.65}.task.on .label{color:var(--muted);text-decoration:line-through;opacity:.8}
   .cta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:13px;padding:8px 14px;border-radius:99px;text-decoration:none;cursor:pointer;border:none;font-family:inherit}
   .done-banner{display:none;background:var(--tint);border:1px solid #F6D9DF;border-radius:18px;padding:18px;text-align:center;margin-bottom:12px}
   .done-banner.show{display:block}.done-banner .big{font-size:28px}.done-banner h2{color:var(--accent);margin:4px 0 2px}
@@ -598,8 +598,9 @@
       <div class="muted" style="font-size:.8rem;margin-top:4px">ชั้นสอง · 2 คน · จองล่วงหน้า Trip.com · 🎫 ตั๋วออกจริง 22 พ.ย. 2026 · เลข booking ดูในไฟล์ส่วนตัว (ไม่ลงเว็บ)</div></div>
     <div class="card"><h3 style="margin-bottom:8px"><span class="em">📱</span>eSIM</h3>
       <div class="irow"><b>ก่อนออกจากไทย:</b> ติดตั้ง China eSIM · <b>เก็บ AIS ไว้ ห้ามลบ</b> (AIS=เบอร์/OTP, China eSIM=เน็ต)</div>
-      <div class="irow"><b>China eSIM:</b> Cellular Data → China eSIM · Allow Data Switching → OFF</div>
-      <div class="irow"><b>AIS:</b> Turn On This Line → ON · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div></div>
+      <div class="irow"><b>① China eSIM:</b> Turn On This Line → ON · Data Roaming → <b>ON</b></div>
+      <div class="irow"><b>② AIS:</b> Turn On This Line → ON (เปิดค้างไว้ ห้ามปิด) · Data Roaming → <b>OFF</b> · Wi-Fi Calling → ON</div>
+      <div class="irow"><b>③ หน้า Cellular:</b> Cellular Data → เลือก China eSIM · Allow Cellular Data Switching → <b>OFF</b> (หาไม่เจอก็ search)</div></div>
     <div class="card"><h3 style="margin-bottom:8px"><span class="em">🛂</span>China Arrival Card</h3>
       <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
       <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
@@ -673,7 +674,7 @@ const CARDS=[
   {id:'c1',n:'01',emoji:'✈️',title:'เช็กอิน + เช็กที่นั่ง',tasks:['เช็กอินเที่ยวบิน','เช็กว่าเรากับแม่นั่งติดกัน','Screenshot Boarding Pass']},
   {id:'c2',n:'02',emoji:'🛡️',title:'ซื้อประกันเดินทาง',tasks:['ซื้อประกัน','เช็กความคุ้มครอง','Save กรมธรรม์']},
   {id:'c3',n:'03',emoji:'🇨🇳',title:'China Arrival Card',tasks:['กรอก Arrival Card'],action:{label:'ดูวิธีกรอก →',href:'https://www.facebook.com/bestconsortium/videos/851860230574810/',external:true}},
-  {id:'c4',n:'04',emoji:'📱',title:'ซื้อ + ติดตั้ง eSIM',tasks:['ซื้อ China eSIM','ติดตั้ง eSIM','เช็กว่า AIS SIM ยังอยู่','เปิด AIS Wi-Fi Calling'],action:{label:'วิธีตั้งค่า eSIM →',view:'info'}},
+  {id:'c4',n:'04',emoji:'📱',title:'ซื้อ + ติดตั้ง eSIM',tasks:['ซื้อ China eSIM','ติดตั้ง eSIM','<b>① China eSIM</b><span class="sub">• Turn On This Line → <b>ON</b><br>• Data Roaming → <b>ON</b></span>','<b>② AIS</b><span class="sub">• Turn On This Line → <b>ON</b> (เปิดค้างไว้ ห้ามปิด)<br>• Data Roaming → <b>OFF</b><br>• Wi-Fi Calling → <b>ON</b></span>','<b>③ หน้า Cellular</b><span class="sub">• Cellular Data → เลือก <b>China eSIM</b><br>• Allow Cellular Data Switching → <b>OFF</b> (หาไม่เจอก็ search)</span>'],action:{label:'วิธีตั้งค่า eSIM →',view:'info'}},
   {id:'c5',n:'05',emoji:'📝',title:'To-do ก่อนเดินทาง',tasks:['🚄 22 พ.ย. — เช็คใน Trip.com ว่าตั๋วรถไฟ Suzhou ออกแล้ว/อนุมัติแล้ว (G7372 + D951 · 2 คน)','🎄 ซื้อตั๋วเข้างานคริสต์มาส Rockbund (Day 1 · 3 ธ.ค.)','🍂 เช็คใบแปะก๊วย 局门路 银杏 ใน Xiaohongshu ใกล้วันเดินทาง','📍 ปักหมุด AMap: ร้าน 酸菜鱼 (人民广场 ทางออก 11) · 龙华会 + ร้านเบเกอรี่ · เวลาเปิดสวน 世博文化公园']},
 ];
 
@@ -835,6 +836,8 @@ const FOOD={
 };
 
 let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
+/* 2026-11-13: eSIM card tasks 2-4 became the setup steps ①②③ — drop older ticks there once */
+if(!state['c4-v2']){['c4-2','c4-3','c4-4'].forEach(k=>delete state[k]);state['c4-v2']=true;try{localStorage.setItem('shhChecklist',JSON.stringify(state));}catch(e){}}
 let activeDay='1';
 let activeFoodDay='1';
 
