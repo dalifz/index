@@ -35,7 +35,11 @@
  *        throws Error('not-allowed') (err.email set) when the email is not in the Users sheet
  *   QAEngine.user()                            -> signed-in user or null (null when unlocked by team password)
  *   QAEngine.canEditItems()                    -> true for admin (via backend) or when a GitHub token is used
- *   await QAEngine.logout()
+ *   await QAEngine.logout()                    ends every session of this user (all devices)
+ *   Google sign-in is remembered for 15 days in this browser (localStorage); the data key is
+ *   fetched again from the backend (whoami) when the page opens.
+ *   await QAEngine.fixCell({url, sheet, cell, current, expected, game, item, code}) -> {value, already}
+ *        "แก้ในชีท": writes one cell of a Google Sheet (signed-in users; backend checks the old value)
  *   Signed-in users: check / add / edit are written to the audit log automatically;
  *   addItem / updateItem go through the backend (token argument ignored).
  *
@@ -95,14 +99,24 @@
       state.auth = await fetch(base + 'data/auth.json?v=' + ver, { cache: 'no-cache' })
         .then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
       try {
-        var a = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+        var a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
         if (a && a.session && a.exp > Date.now()) { state.session = a.session; state.user = a.user; state.canSave = !!a.can_save; }
+        else if (a) localStorage.removeItem(AUTH_KEY);
       } catch (e) { /* ignore */ }
       progress(onProgress, 'พร้อมใช้งาน', 100);
       if (!isUnlocked()) {
         var saved = null;
         try { saved = sessionStorage.getItem(SESSION_KEY); } catch (e) { /* ignore */ }
         if (saved) { try { await unlock(saved); } catch (e) { /* ask again */ } }
+      }
+      if (!isUnlocked() && state.session) {
+        // remembered Google sign-in: ask the backend for the data key again (also re-checks the Users sheet)
+        progress(onProgress, 'กำลังเข้าสู่ระบบด้วยบัญชี Google เดิม', 100);
+        try {
+          var who = await backend('whoami');
+          if (who.user) { state.user = who.user; saveAuth(state.session, who.user, state.canSave, null); }
+          if (who.data_password) await unlock(who.data_password);
+        } catch (e) { /* session over -> sign in again */ }
       }
       return true;
     })();
@@ -148,7 +162,7 @@
   function lock() {
     state.bundles = {}; state.config = null;
     state.session = null; state.user = null; state.canSave = false;
-    try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
+    try { sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
   }
 
   // ------------------------------------------------------- Google sign-in
@@ -169,7 +183,7 @@
     if (!j.ok) {
       if (j.error === 'session-expired') {
         state.session = null; state.user = null;
-        try { sessionStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
+        try { localStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
         throw new Error('session-expired');
       }
       var err = new Error(j.error || 'Apps Script ตอบกลับผิดพลาด');
@@ -182,13 +196,29 @@
   async function loginWithGoogle(idToken) {
     var j = await backend('login', { id_token: idToken });
     state.session = j.session; state.user = j.user; state.canSave = !!j.can_save;
-    try {
-      sessionStorage.setItem(AUTH_KEY, JSON.stringify({ session: j.session, user: j.user, can_save: j.can_save,
-                                                       exp: Date.now() + (j.expires_in || 21600) * 1000 }));
-    } catch (e) { /* ignore */ }
+    saveAuth(j.session, j.user, j.can_save, Date.now() + (j.expires_in || 21600) * 1000);
     if (!j.data_password) throw new Error('Apps Script ยังไม่ได้ตั้ง DATA_PASSWORD');
     await unlock(j.data_password);
     return j.user;
+  }
+
+  function saveAuth(session, user, canSave, exp) {
+    try {
+      if (exp === null) {
+        var old = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+        exp = old && old.exp ? old.exp : Date.now() + 3600 * 1000;
+      }
+      localStorage.setItem(AUTH_KEY, JSON.stringify({ session: session, user: user, can_save: !!canSave, exp: exp }));
+    } catch (e) { /* private window: sign in each time */ }
+  }
+
+  // "แก้ในชีท": write the expected value into the one cell of a finding (Google Sheet only)
+  async function fixCell(fix) {
+    if (!state.session) throw new Error('ต้อง Sign in with Google ก่อนถึงจะแก้ในชีทได้');
+    var j = await backend('fix_cell', { id: fix.url, sheet: fix.sheet, cell: fix.cell, current: fix.current,
+                                        expected: fix.expected, game: fix.game || '', item: fix.item || '',
+                                        code: fix.code || '' });
+    return { value: j.value, already: !!j.already };
   }
 
   async function logout() {
@@ -455,7 +485,7 @@
     searchItems: searchItems, validateItem: validateItem, addItem: addItem, updateItem: updateItem,
     authConfig: authConfig, loginWithGoogle: loginWithGoogle, logout: logout, user: currentUser,
     canEditItems: canEditItems, canSaveViaBackend: function () { return !!state.canSave; },
-    addNewItems: addNewItems, teamHistory: teamHistory,
+    addNewItems: addNewItems, teamHistory: teamHistory, fixCell: fixCell,
     identity: identity, rules: rules,
     manifest: function () { return state.manifest; }
   };

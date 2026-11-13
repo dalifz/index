@@ -1086,6 +1086,7 @@
 
   function showResults(result) {
     state.result = result;
+    state.fixedCells = new Map();
     state.findingLimit = FINDING_BATCH;
     state.newItemSaves = new Map();
     state.newItemBulk = null;
@@ -1384,8 +1385,70 @@
     }
     detail.appendChild(diff);
     detail.appendChild(node('p', 'finding-message', finding.message || finding.rule || ''));
+    appendFixControl(detail, finding, el);
     el.appendChild(detail);
     return el;
+  }
+
+  /* "แก้ในชีท": write the expected value straight into the Google Sheet cell (Dalif 2026-11-13) */
+  var FIXABLE = { NAME: 1, INDEX_NAME: 1, KIND: 1, ITEMMOVE: 1, TRADE_KIND: 1, BIND_BIT: 1, LIBRARY_DIFF: 1,
+                  NUMBER_E: 1, CHAOS_UPGRADE: 1, PERIOD: 1, NAME_VALUE: 1, STACKABLE: 1 };
+
+  function fixableExpected(finding) {
+    var want = String(finding.expected == null ? '' : finding.expected).trim();
+    if (!want || !FIXABLE[finding.code]) return '';
+    if (!/^[A-Z]{1,3}[0-9]{1,6}$/.test(String(finding.cell || ''))) return '';
+    if (want.indexOf(' / ') >= 0 || /^ใส่/.test(want) || want === 'เลขจำนวนเต็ม' || /[–…]/.test(want)) return '';
+    return want;
+  }
+
+  function canFixInSheet() {
+    var ctx = state.resultContext || {};
+    return ctx.type === 'google' && !!ctx.url && !!signedInUser();
+  }
+
+  function fixKey(finding) { return finding.sheet + '|' + finding.cell; }
+
+  function appendFixControl(detail, finding, el) {
+    var want = fixableExpected(finding);
+    if (!want || !canFixInSheet()) return;
+    var box = node('div', 'fix-block');
+    var done = state.fixedCells && state.fixedCells.get(fixKey(finding));
+    if (done !== undefined) {
+      el.classList.add('is-fixed');
+      box.appendChild(node('p', 'fix-done', '✓ แก้ในชีทแล้วเป็น "' + done + '" — กด "ตรวจใหม่" เพื่อยืนยันผล'));
+      detail.appendChild(box);
+      return;
+    }
+    var button = node('button', 'button button--small fix-button');
+    button.type = 'button';
+    button.textContent = '✎ แก้ในชีทเป็น "' + want + '"';
+    button.title = 'เขียน "' + want + '" ลงเซลล์ ' + finding.cell + ' ในชีท ' + finding.sheet;
+    button.addEventListener('click', function () { fixInSheet(finding, want, button); });
+    box.appendChild(button);
+    box.appendChild(node('p', 'fix-warning', '⚠ ลองรีเช็คอีกครั้งว่าผิดจริง ค่อยกดแก้'));
+    detail.appendChild(box);
+  }
+
+  async function fixInSheet(finding, want, button) {
+    var ok = window.confirm('แก้เซลล์ ' + finding.cell + ' ในชีท "' + finding.sheet + '"\n' +
+      (finding.item ? 'ไอเทม: ' + finding.item + '\n' : '') +
+      'จาก: ' + textValue(finding.value, '(ว่าง)') + '\nเป็น: ' + want + '\n\nรีเช็คแล้วว่าผิดจริงใช่ไหม?');
+    if (!ok) return;
+    withBusy(button, true, 'กำลังแก้ในชีท…');
+    try {
+      var ctx = state.resultContext || {};
+      var res = await window.QAEngine.fixCell({ url: ctx.url, sheet: finding.sheet, cell: finding.cell,
+        current: finding.value, expected: want, game: (state.result && state.result.game) || state.game,
+        item: finding.item, code: finding.code });
+      if (!state.fixedCells) state.fixedCells = new Map();
+      state.fixedCells.set(fixKey(finding), res.value || want);
+      toast(res.already ? 'เซลล์ ' + finding.cell + ' ถูกแก้ไว้แล้ว' : 'แก้เซลล์ ' + finding.cell + ' ในชีทแล้ว — กด "ตรวจใหม่" เพื่อยืนยัน');
+      renderFindings();
+    } catch (error) {
+      withBusy(button, false);
+      if (!handleSessionExpired(error)) toast(errorMessage(error, 'แก้ในชีทไม่สำเร็จ'), 'error');
+    }
   }
 
   function appendFindingCell(field, finding, badgeClass, badgeText) {
