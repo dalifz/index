@@ -34,6 +34,7 @@ RULES = {
     "NEW_ID":          "ไอเทมใหม่ยังไม่มีเลข",
     "NO_PERIOD":       "Period ว่าง",
     "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
+    "TRADE_KIND":      "ItemKind = ItemIndex แต่ Trade ไม่ใช่ Yes",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "CHAOS_UPGRADE":   "ItemKind ไม่ตรงกับ Chaos Upgrade ในชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
@@ -52,7 +53,7 @@ RULES = {
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"TRADE_KIND", "CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
@@ -260,9 +261,19 @@ class Checker:
                 kf = kind_fields(kind, idx)
                 if kf and kf["mask"] & 0xFFF == 0 and flag_residual(kf["mask"]) in self.residuals:
                     # a clean ItemKind (bind / +N / expiry) we just have not seen for this item yet
-                    f("KIND_VARIANT", "kind", kind, " / ".join(map(str, kinds)),
-                      "ไอเทมนี้ในคลังเคยใช้ ItemKind %s แต่เอกสารนี้เป็นแบบ %s ให้ recheck ว่าตั้งใจ"
-                      % (" / ".join(map(str, kinds)), describe_kind(kf)))
+                    up_name = upgrade_in_name(name) or upgrade_in_name(dname) or 0
+                    if not kf["bound"] and kf["upgrade"] == up_name:
+                        # Dalif 2026-11-13: ItemKind = ItemIndex is the tradable version; a +N in front
+                        # (named "+N") is tradable too -> another product of the same item, add it to the library
+                        f("UNKNOWN_ITEM", "kind", kind, "",
+                          "ไอเทมนี้ในคลังมีแค่ ItemKind %s แต่เอกสารนี้เป็นแบบ%s (ItemKind %s) = ไอเทมชิ้นใหม่ "
+                          "ยังไม่มีในคลัง ถ้าถูกต้อง ให้ admin เพิ่มเข้าคลัง"
+                          % (" / ".join(map(str, kinds)),
+                             " เทรดได้" if not kf["upgrade"] else " ตีบวก +%d เทรดได้" % kf["upgrade"], kind))
+                    else:
+                        f("KIND_VARIANT", "kind", kind, " / ".join(map(str, kinds)),
+                          "ไอเทมนี้ในคลังเคยใช้ ItemKind %s แต่เอกสารนี้เป็นแบบ %s ให้ recheck ว่าตั้งใจ"
+                          % (" / ".join(map(str, kinds)), describe_kind(kf)))
                 else:
                     f("KIND", "kind", kind, " / ".join(map(str, kinds)),
                       "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
@@ -275,7 +286,8 @@ class Checker:
                 f("ITEMMOVE", "itemmove", yn(move), yn(ref),
                   "ItemKind %s / ItemIndex %s / ItemOption %s ในคลังเป็น Trade (Itemmove) = %s แต่เอกสารนี้ใส่ %s"
                   % (kind, idx, opt, yn(ref), yn(move)))
-            elif not same:
+            elif not same and kind is None:
+                # without ItemKind fall back to the ItemIndex history; with it, BIND_BIT / TRADE_KIND decide
                 ref = db.constant(idx, "itemmove")
                 if move is not None and ref is not None and move != ref:
                     f("ITEMMOVE", "itemmove", yn(move), yn(ref),
@@ -303,7 +315,14 @@ class Checker:
                       "ItemKind - ItemIndex = %s (0x%X) ไม่เคยพบใน %s ตรวจว่าก๊อปเลขมาถูกตัวไหม"
                       % (mask, mask, db.game.upper()))
                 kf = kind_fields(kind, idx)
-                if move is not None and kf["bound"] == move:  # bound but movable, or free but No
+                if move is False and mask == 0 and any(x["code"] == "ITEMMOVE" for x in out):
+                    pass                                   # already reported against the library row
+                elif move is False and mask == 0:
+                    # Dalif 2026-11-13: ItemKind = ItemIndex means the item is tradable
+                    f("TRADE_KIND", "itemmove", yn(move), "Yes",
+                      "ItemKind = ItemIndex (%s) แปลว่าไอเทมเทรดได้ Trade (Itemmove) ต้องเป็น Yes ถ้าตั้งใจให้ผูก "
+                      "ItemKind ต้องบวก flag ผูกตัว (+4096)" % idx)
+                elif move is not None and kf["bound"] == move:  # bound but movable, or free but No
                     f("BIND_BIT", "itemmove", yn(move), yn(not kf["bound"]),
                       "ItemKind %s flag ผูกตัว (+4096 หรือ +524288) แต่ Trade = %s"
                       % ("มี" if kf["bound"] else "ไม่มี", yn(move)))
