@@ -944,7 +944,7 @@ const SHORT_MONTHS={Jan:'ม.ค.',Feb:'ก.พ.',Mar:'มี.ค.',Apr:'เม.
 const SHORT_MONTH_INDEX={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
 const SHORT_TRANSIT=new Set(['🚇','🚕','🚉']);
 const SHORT_GENERIC=new Set(['breakfast','lunch','dinner','brunch','cafe','matcha','tea','photo','explore','shopping','walk','city','night','view','hotel','check','out','airport','depart','station','didi']);
-function shortIsTransit(s){return SHORT_TRANSIT.has(s.icon)||(s.icon==='🚶'&&/^walk/i.test(String(s.label||'')));}
+function shortIsTransit(s){return SHORT_TRANSIT.has(s.icon)||(s.icon==='🚶'&&/^walk\b/i.test(String(s.label||'')));}
 /* generic labels ("Brunch", "Hotel", "Didi") get the place name so the short list still says where */
 function shortWhere(s){
   if(!s.places||!s.places.length)return '';
