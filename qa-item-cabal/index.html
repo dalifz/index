@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261113051901">
+  <link rel="stylesheet" href="css/app.css?v=20261113054113">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -250,7 +250,7 @@
               <div class="results-actions">
                 <button id="copy-report" class="button button--secondary" type="button">คัดลอกรายงาน</button>
                 <button id="download-csv" class="button button--secondary" type="button">ดาวน์โหลด CSV</button>
-                <button id="rerun-check" class="button button--secondary" type="button">ตรวจซ้ำ</button>
+                <button id="rerun-check" class="button button--primary" type="button" title="ดึงข้อมูลล่าสุดจากเอกสารเดิมแล้วตรวจอีกครั้ง (หลังแก้ในชีทแล้ว)">↻ ตรวจใหม่ (เอกสารเดิม)</button>
               </div>
             </div>
 
@@ -315,12 +315,12 @@
             <div class="results-bottom-actions" aria-label="ทำรายการต่อจากผลตรวจ">
               <div>
                 <strong>ตรวจเสร็จแล้ว ทำอะไรต่อ?</strong>
-                <span>เลือกเอกสารใหม่ หรือกลับไปเลือกชีทอื่นโดยไม่ต้องเลื่อนขึ้นด้านบน</span>
+                <span>แก้ในชีทแล้วกด "ตรวจใหม่" ได้เลย ระบบดึงข้อมูลล่าสุดจากเอกสารเดิมให้</span>
               </div>
               <div class="results-bottom-buttons">
-                <button id="new-document-bottom" class="button button--primary" type="button">ตรวจเอกสารอื่น</button>
+                <button id="new-document-bottom" class="button button--secondary" type="button">ตรวจเอกสารอื่น</button>
                 <button id="another-sheet-bottom" class="button button--secondary" type="button">ตรวจชีทอื่นในไฟล์นี้</button>
-                <button id="rerun-check-bottom" class="button button--ghost" type="button">ตรวจซ้ำ</button>
+                <button id="rerun-check-bottom" class="button button--primary" type="button" title="ดึงข้อมูลล่าสุดจากเอกสารเดิมแล้วตรวจอีกครั้ง">↻ ตรวจใหม่ (เอกสารเดิม)</button>
               </div>
             </div>
           </section>
@@ -466,7 +466,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261113051901"></script>
-  <script src="js/app.js?v=20261113051901"></script>
+  <script src="js/engine.js?v=20261113054113"></script>
+  <script src="js/app.js?v=20261113054113"></script>
 </body>
 </html>

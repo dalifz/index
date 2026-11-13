@@ -1664,22 +1664,64 @@
     announce('พร้อมตรวจเอกสารอื่น วางลิงก์ Google Sheet ได้เลย');
   }
 
+  // Re-check = read the document again (Google Sheet: fetch the latest values; Excel: re-read the file,
+  // or ask for it again when it was saved after loading), then run the same sheets through the engine.
   async function rerunCheck(event) {
     if (!state.lastWorkbook) { chooseOtherSheets(); return; }
     var button = event && event.currentTarget ? event.currentTarget : byId('rerun-check');
     var checkGame = state.result.game || state.game;
-    withBusy(button, true, 'กำลังตรวจซ้ำ…');
+    var names = (state.lastWorkbook.sheets || []).map(function (sheet) { return sheet.name; });
+    var context = state.resultContext || {};
+    withBusy(button, true, 'กำลังดึงข้อมูลล่าสุด…');
     all('.game-option').forEach(function (option) { option.disabled = true; });
     try {
-      var result = await window.QAEngine.check(checkGame, state.lastWorkbook);
+      var workbook;
+      if (context.type === 'google' && context.url) {
+        workbook = await window.QAEngine.readGoogleSheet(context.url, names);
+      } else {
+        var file = state.source && state.source.file;
+        var fresh = null;
+        if (file) {
+          try { fresh = await window.QAEngine.readExcel(file); } catch (readError) { fresh = null; }
+        }
+        if (!fresh) {
+          // the browser cannot read a file that was saved again after it was picked -> pick it once more
+          toast('ไฟล์ถูกแก้หลังเปิด กรุณาเลือกไฟล์ Excel ที่แก้แล้วอีกครั้ง');
+          file = await pickExcelFile();
+          if (!file) return;
+          fresh = await window.QAEngine.readExcel(file);
+        }
+        if (state.source && state.source.type === 'excel') {
+          state.source.file = file;
+          state.source.workbook = fresh;
+        }
+        var wanted = new Set(names);
+        workbook = { source: fresh.source || (file && file.name) || state.lastWorkbook.source,
+                     sheets: (fresh.sheets || []).filter(function (sheet) { return wanted.has(sheet.name); }) };
+        if (!workbook.sheets.length) throw new Error('ไม่พบชีทเดิมในไฟล์นี้ (' + names.join(', ') + ')');
+      }
+      state.lastWorkbook = workbook;
+      var result = await window.QAEngine.check(checkGame, workbook);
       showResults(result);
-      toast('ตรวจซ้ำเรียบร้อย');
+      toast(result.summary.errors ? 'ตรวจใหม่จากข้อมูลล่าสุดแล้ว ยังเหลือ ' + result.summary.errors + ' จุดผิด'
+                                  : 'ตรวจใหม่จากข้อมูลล่าสุดแล้ว ไม่พบจุดผิด');
     } catch (error) {
-      toast(errorMessage(error, 'ตรวจซ้ำไม่สำเร็จ'), 'error');
+      if (!handleSessionExpired(error)) toast(errorMessage(error, 'ตรวจใหม่ไม่สำเร็จ'), 'error');
     } finally {
       withBusy(button, false);
       all('.game-option').forEach(function (option) { option.disabled = false; });
     }
+  }
+
+  function pickExcelFile() {
+    return new Promise(function (resolve) {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.xlsx,.xls,.xlsm';
+      input.addEventListener('change', function () { resolve(input.files && input.files[0] || null); });
+      input.addEventListener('cancel', function () { resolve(null); });
+      input.click();
+    });
   }
 
   async function copyReport() {
