@@ -55,6 +55,8 @@
   .today .dot{position:absolute;top:18px;right:18px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(231,91,135,.18);animation:pulse 1.8s infinite}
   @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(231,91,135,.18)}50%{box-shadow:0 0 0 8px rgba(231,91,135,.04)}}
   .today .lbl{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.04em}
+  .day-theme{display:inline-flex;max-width:100%;border-radius:99px;font-size:13px;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+  .today .day-theme{margin-top:7px;padding:4px 10px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);color:#fff}
   .today h2{margin:3px 0 3px;display:flex;align-items:flex-start;gap:8px;font-size:17px;line-height:1.35}
   .today h2 .i{margin-top:2px}
   .today .t2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -109,7 +111,7 @@
   .plan-hint{font-size:12px;color:var(--muted);margin:2px 0 12px;display:flex;flex-direction:column;gap:4px}
   .plan-hint span{display:flex;gap:6px;align-items:flex-start}
   .plan-hint .i{width:16px;height:16px;color:var(--accent);margin-top:2px}
-  .dayhead{margin:0 0 12px}.dayhead h2{margin-top:2px}.dayhead .rt{color:var(--muted);font-size:12px;margin-top:2px}
+  .dayhead{margin:0 0 12px}.dayhead h2{margin-top:2px}.dayhead .day-theme{margin-top:7px;padding:4px 10px;background:var(--accent-soft);border:1px solid #F6D9DF;color:var(--accent)}.dayhead .rt{color:var(--muted);font-size:12px;margin-top:5px}.dayhead .day-tagline{color:var(--muted);font-size:13px;line-height:1.5;margin-top:2px;overflow-wrap:anywhere}
   .dayhero{display:block;width:100%;border-radius:18px;margin:0 0 14px;cursor:zoom-in;background:#fff;box-shadow:var(--shadow)}
   .dayhero-wrap{position:relative;margin-bottom:14px}
   .dayhero-wrap .dayhero{margin-bottom:0}
@@ -421,6 +423,7 @@
   .short-day-head{padding:11px 13px 10px;background:var(--tint);border-bottom:1px solid var(--line)}
   .short-day-meta{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.035em}
   .short-today{display:inline-flex;align-items:center;min-height:22px;padding:1px 8px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;letter-spacing:0}
+  .short-day-head .day-theme{margin-top:5px;padding:3px 9px;background:var(--accent-soft);border:1px solid #F6D9DF;color:var(--accent)}
   .short-day-title{display:flex;align-items:flex-start;gap:8px;margin-top:3px;font-size:16px;font-weight:800;line-height:1.35}
   .short-day-title .em{flex:0 0 auto;font-size:18px}
   .short-row{width:100%;min-height:44px;padding:7px 11px;border:0;border-top:1px solid #F4ECEA;background:rgba(255,255,255,.92);color:var(--ink);font-family:inherit;text-align:left;display:grid;grid-template-columns:86px 22px minmax(0,1fr) 14px;gap:6px;align-items:center;cursor:pointer}
@@ -601,7 +604,7 @@
       <p class="muted" style="font-size:.86rem;margin-bottom:8px">กรอกก่อนเข้าเมืองจีน</p>
       <a class="cta" href="https://www.facebook.com/bestconsortium/videos/851860230574810/" target="_blank" rel="noopener">ดูวิธีกรอก →</a></div>
     <div class="card"><h3 style="margin-bottom:8px"><span class="em">🛫</span>ขากลับ (8 Dec)</h3>
-      <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 Dashijie → 人民广场 People's Square เปลี่ยน L2 → 浦东国际机场 Pudong Airport · Didi = สำรองฉุกเฉินเท่านั้น)</div>
+      <div class="irow">Hotel → <b>Metro</b> → PVG Terminal 2 (大世界 Dashijie → 人民广场 People's Square เปลี่ยน L2 → 浦东1号2号航站楼 Pudong Airport Terminal 1&2 · Didi = สำรองฉุกเฉินเท่านั้น)</div>
       <div class="irow"><b>กระเป๋า</b> โหลดขาไป 20kg ทั้งคู่ · ขากลับ ฉัน 30kg / แม่ 20kg · ถือขึ้น 7kg (40×30×20)</div></div>
   </section>
 
@@ -675,11 +678,11 @@ const CARDS=[
 ];
 
 const DAYS=[
- {id:'1',tab:'DAY 1',date:'Dec 3',emoji:'✈️',cardTitle:'Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',summary:'PVG 08:45 → ฝากกระเป๋า → 裕兴记 บะหมี่ปู → 第一百货 + First Food Hall → Nanjing East → The Bund อาทิตย์ตก + ไฟเปิด → Rockbund คริสต์มาส',title:'Day 1 — Dec 3 · Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',route:'PVG → 大世界 → 人民广场 People\'s Square → 第一百货 → 南京东路 → 外滩 The Bund → 外滩源 Rockbund',
+ {id:'1',tab:'DAY 1',date:'Dec 3',emoji:'✈️',theme:'✨ Hello Shanghai! วันแรกพบ',tagline:'เดินถนนนานจิงจนไฟ Bund เปิด',cardTitle:'Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',summary:'PVG 08:45 → ฝากกระเป๋า → 裕兴记 บะหมี่ปู → 第一百货 + First Food Hall → Nanjing East → The Bund อาทิตย์ตก + ไฟเปิด → Rockbund คริสต์มาส',title:'Day 1 — Dec 3 · Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',route:'PVG → 大世界 → 人民广场 People\'s Square → 第一百货 → 南京东路 → 外滩 The Bund → 外滩源 Rockbund',
   slots:[
    {t:'03:20–08:45',icon:'✈️',label:'Flight 9C7294',note:'BKK → PVG T2 · ออกจากบ้าน 22:00 คืนวันพุธที่ 2 ธ.ค. · เคาน์เตอร์ Spring เปิด 00:20 (3 ชม.ก่อนบิน) ไปรอหน้าเคาน์เตอร์ · เช็ค passport · นอนบนเครื่อง',places:[P('PVG T2 — Shanghai Pudong International Airport','浦东国际机场T2')]},
    {t:'08:45–09:45',icon:'🛂',label:'ตม. + รับกระเป๋า',note:'✅ ลงทะเบียน ตม. ออนไลน์แล้ว (12 Nov) · ยื่นพาสปอร์ต + โชว์ QR ในใบ ตม. ด้านล่าง · ถ้าระบบไม่รับ กรอกบัตรกระดาษที่ด่านได้ · ซื้อซิม / เติมบัตรเมโทรที่สนามบินถ้ายังไม่มี',foldtitle:'🛂 ใบ ตม.',foldnote:'<div class="tmqr"><figure><img src="assets/tm_qr_dalif.png" alt="QR ใบ ตม. ดาลิฟ" onclick="zoomImg(\'assets/tm_qr_dalif.png\')"><figcaption>ดาลิฟ<br>DARINDA</figcaption></figure><figure><img src="assets/tm_qr_mom.png" alt="QR ใบ ตม. แม่" onclick="zoomImg(\'assets/tm_qr_mom.png\')"><figcaption>แม่<br>CHOLLAMARK</figcaption></figure></div><div class="muted" style="font-size:12px;margin-top:6px">แตะ QR เพื่อขยาย · ยื่นคู่กับพาสปอร์ตของแต่ละคน</div>'},
-   {t:'09:45–11:10',icon:'🚇',label:'Metro · Line 2 → 徐泾东 · Line 8 → 沈杜公路',note:'浦东国际机场 Pudong Airport ขึ้น Line 2 ทิศ 徐泾东 Xujing East → ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · ~1 ชม. 25 นาที · ⚠️ Line 2 จากสนามบินอาจสุดสายที่ 广兰路 Guanglan Road → ลงแล้วข้ามไปขึ้นขบวนฝั่งตรงข้าม (ทิศ 徐泾东 เหมือนเดิม) · มีกระเป๋า + เหนื่อย → DiDi ~1 ชม. แทนได้',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
+   {t:'09:45–11:10',icon:'🚇',label:'Metro · Line 2 → 蟠祥路·国家会计学院 · Line 8 → 沈杜公路',note:'浦东1号2号航站楼 Pudong Airport Terminal 1&2 ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · ~1 ชม. 25 นาที · ⚠️ ถ้าขบวนสุดสายที่ 广兰路 Guanglan Road ให้เดินตามป้ายผ่านโถงสถานี (站厅) ไปขึ้นขบวนเข้าเมือง (ทิศ 蟠祥路·国家会计学院) · มีกระเป๋า + เหนื่อย → DiDi ~1 ชม. แทนได้',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
    {t:'11:15–11:30',icon:'🧳',label:'ฝากกระเป๋า',note:'Check-in ได้ 14:00 · ฝากกระเป๋าที่ล็อบบี้ก่อน · ลองขอ early check-in',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'11:30–12:30',icon:'🦀',label:'Lunch ⭐ บะหมี่มันปู',note:'裕兴记·蟹黄面馆 (大世界店) · 金陵东路500号 ชั้น 1 Yalong International Plaza · สถานี 大世界 ทางออก 5 เดิน ~4 นาที (ทางเดียวกับโรงแรม) · เปิด 09:00–21:00 · ~¥92/คน · 蟹黄面 บะหมี่มันปู (คลุกตอนร้อนๆ) · 蟹粉小笼包 เสี่ยวหลงเปาปู · 三虾面 บะหมี่กุ้ง · มีเซ็ต 2–3 คน',places:[P('裕兴记·蟹黄面馆 Yuxingji','裕兴记 蟹黄面馆 大世界店')]},
    {t:'12:30–13:00',icon:'🧋',label:'Walk + Tea',note:'เดินขึ้นเหนือไป People\'s Square / 南京东路 ~15 นาที · แวะซื้อ HEYTEA ระหว่างทาง',places:[P('HEYTEA','喜茶')]},
@@ -690,9 +693,9 @@ const DAYS=[
    {t:'17:15–18:20',icon:'🎥',label:'The Bund ⭐ อาทิตย์ตก + ไฟเปิด',note:'อัดคอนเทนต์ช่วงไฟค่อยๆ เปิด · เวลาเปิดไฟฤดูหนาว ~18:00 (ไม่มีเวลาทางการ มาก่อน 17:15 ชัวร์สุด) · ลมริมแม่น้ำแรง ~5°C ใส่อุ่นๆ',places:[P('The Bund','外滩')]},
    {t:'18:30–19:30',icon:'🎄',label:'Rockbund คริสต์มาส',note:'ตรอกตึกอิฐสีน้ำตาล 圆明园路 Yuanmingyuan Road · เดินจาก Bund ~10 นาที · ปกติมีงานคริสต์มาส คนเยอะ · 🎟️ งานคริสต์มาสต้องซื้อตั๋วเข้างานล่วงหน้า (ดู To-do ในหน้าเช็คลิสต์) · ⚠️ ใกล้วันไปค้น 外滩源 圣诞 ใน Xiaohongshu ดูว่าเริ่มจัดหรือยัง',places:[P('Rockbund','外滩源'),P('Yuanmingyuan Road','圆明园路')]},
    {t:'19:30–20:30',icon:'🍢',label:'Dinner ย่านเดียว ⭐',note:'เลือกย่านเดียว ไม่ต้องเดินครบทุกถนน · ① 天津路 Tianjin Road (ทางผ่านจาก Rockbund) — ⭐ Lailai 小笼包 Xiaolongbao + Yang\'s 生煎 Fried Dumpling · ② 云南南路 Yunnan South Road หน้าโรงแรม — ถ้าเหนื่อยแล้ว กินใกล้ที่พักเลย',places:[P('Tianjin Road','天津路'),P('Yunnan South Road Food Street','云南南路美食街')]},
-   {t:'~20:45',icon:'🏨',label:'กลับโรงแรม + Check-in',note:'วันนี้ไม่แวะโรงแรมระหว่างวัน · จาก ① 天津路: DiDi ~10 นาที หรือ Metro: 南京东路 East Nanjing Road ขึ้น Line 2 ทิศ 徐泾东 Xujing East → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · จาก ② 云南南路: เดินกลับได้เลย',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'~20:45',icon:'🏨',label:'กลับโรงแรม + Check-in',note:'วันนี้ไม่แวะโรงแรมระหว่างวัน · จาก ① 天津路: DiDi ~10 นาที หรือ Metro: 南京东路 East Nanjing Road ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · จาก ② 云南南路: เดินกลับได้เลย',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',cardTitle:'Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',summary:'Wukang/Tai\'an (photos + Grayfleece) → Anfu → HAUS NOWHERE → Huaihai → Sinan Mansions → พักโรงแรม → Xintiandi',title:'Day 2 — Dec 4 · Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → 淮海中路 Huaihai → 思南公馆 Sinan → 新天地 Xintiandi',
+ {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',theme:'🛍️ วันช้อปให้สุด หยุดไม่อยู่',tagline:'ย่านฝรั่งเศสเก่า Wukang → Anfu → Xintiandi',cardTitle:'Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',summary:'Wukang/Tai\'an (photos + Grayfleece) → Anfu → HAUS NOWHERE → Huaihai → Sinan Mansions → พักโรงแรม → Xintiandi',title:'Day 2 — Dec 4 · Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → 淮海中路 Huaihai → 思南公馆 Sinan → 新天地 Xintiandi',
   slots:[
    {t:'07:30–08:00',icon:'🍞',label:'Breakfast แถวโรงแรม',note:'巴比馒头 Babi Mantou / ร้านอาหารเช้าแถว 云南南路 Yunnan South Road · กินให้อิ่มก่อนออก · 🧥 ~5°C ใส่อุ่นๆ ถุงมือ + ผ้าพันคอ',places:[P('巴比馒头 Babi Mantou','巴比馒头')]},
    {t:'08:00–08:40',icon:'🚇',label:'Metro · Line 8 → 沈杜公路 · Line 10 → 虹桥火车站',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 老西门 Laoximen → เปลี่ยน Line 10 ทิศ 虹桥火车站 Hongqiao Railway Station / 航中路 Hangzhong Road (ขบวนไหนก็ได้) → 4 สถานี ลง 交通大学 Jiaotong University · ออก Exit 7 → เดิน ~500 ม. (5–8 นาที) ไป 武康大楼',places:[P('Dashijie','大世界'),P('Laoximen','老西门'),P('Jiaotong University','交通大学')]},
@@ -715,9 +718,9 @@ const DAYS=[
    {t:'20:45',icon:'🚇',label:'Metro · Line 10 → 基隆路 · Line 8 → 市光路',note:'新天地 Xintiandi ขึ้น Line 10 ทิศ 基隆路 Jilong Road → 1 สถานี ลง 老西门 Laoximen → เปลี่ยน Line 8 ทิศ 市光路 Shiguang Road → 1 สถานี ลง 大世界 Dashijie Exit 5',places:[P('Laoximen','老西门'),P('Dashijie','大世界')]},
    {t:'~21:15',icon:'🏨',label:'Hotel',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'3',tab:'DAY 3',date:'Dec 5',emoji:'🚄',cardTitle:'Suzhou Day Trip',summary:'ไป G7372 09:26 · กลับ D951 19:53',title:'Day 3 — Dec 5 · Suzhou Day Trip · ไป G7372 09:26 · กลับ D951 19:53',route:'虹桥 Hongqiao → 苏州 Suzhou → Pingjiang → Shantang → 上海站 Shanghai Rwy',
+ {id:'3',tab:'DAY 3',date:'Dec 5',emoji:'🚄',theme:'🏮 วันเมืองน้ำย้อนยุค',tagline:'หนีไปซูโจว เมืองสวรรค์บนดิน',cardTitle:'Suzhou Day Trip',summary:'ไป G7372 09:26 · กลับ D951 19:53',title:'Day 3 — Dec 5 · Suzhou Day Trip · ไป G7372 09:26 · กลับ D951 19:53',route:'虹桥 Hongqiao → 苏州 Suzhou → Pingjiang → Shantang → 上海站 Shanghai Rwy',
   slots:[
-   {t:'07:40',icon:'🚇',label:'Metro · Line 8 → 市光路 · Line 2 → 徐泾东',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 市光路 Shiguang Road → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 2 ทิศ 徐泾东 Xujing East → 10 สถานี ลง 虹桥火车站 Hongqiao Railway Station · ~45 นาที · เดินตามป้ายไป 上海虹桥站 · ยืนยันใน AMap',places:[P('Dashijie','大世界'),P('Hongqiao Railway Station','虹桥火车站')]},
+   {t:'07:40',icon:'🚇',label:'Metro · Line 8 → 市光路 · Line 2 → 蟠祥路·国家会计学院',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 市光路 Shiguang Road → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 10 สถานี ลง 虹桥火车站 Hongqiao Railway Station · ~45 นาที · เดินตามป้ายไป 上海虹桥站 · ยืนยันใน AMap',places:[P('Dashijie','大世界'),P('Hongqiao Railway Station','虹桥火车站')]},
    {t:'08:35–09:00',icon:'🚉',label:'Station + 🍞 Breakfast',note:'ถึง 上海虹桥站 Shanghai Hongqiao · ตรวจพาสปอร์ต + สแกนกระเป๋า · ⛔ ประตูขึ้นรถปิดก่อนรถออก 5 นาที (09:21) · 🍞 กินอาหารเช้าในสถานี (มีร้านเยอะ) · มื้อถัดไป 11:00 ที่ซูโจว',places:[P('Shanghai Hongqiao','上海虹桥站')]},
    {t:'09:26–10:03',icon:'🚄',label:'HSR ✅ G7372',note:'ชั้นสอง · 2 คน · ตั๋วออกจริง 22 พ.ย.',places:[P('Shanghai Hongqiao','上海虹桥站'),P('Suzhou','苏州站')]},
    {t:'10:20–10:45',icon:'🚇',label:'Metro · Suzhou Line 4 → 同里 · Line 1 → 钟南街',note:'ลงรถไฟแล้วเดินไปสถานี Metro 苏州火车站 Suzhou Railway Station · ขึ้น Suzhou Line 4 ทิศ 同里 Tongli → ลง 乐桥 Leqiao → เปลี่ยน Line 1 ทิศ 钟南街 Zhongnan Jie → 2 สถานี ลง 相门 Xiangmen · ออก Exit 3 · (ทางเดิม: Line 2 → 广济南路 Guangji South Road → Line 1 ก็ได้)',places:[P('Suzhou Railway Station','苏州火车站'),P('Leqiao','乐桥'),P('Xiangmen','相门')]},
@@ -735,7 +738,7 @@ const DAYS=[
    {t:'20:35–21:05',icon:'🚇',label:'Metro · Line 1 → 莘庄 · Line 8 → 沈杜公路',note:'ลงจากชานชาลา + เดินไปสถานี Metro ~15 นาที · 上海火车站 Shanghai Railway Station ขึ้น Line 1 ทิศ 莘庄 Xinzhuang → 3 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5',places:[P('Shanghai Railway Station','上海火车站'),P('Dashijie','大世界')]},
    {t:'~21:15',icon:'🏨',label:'Hotel',note:'พรุ่งนี้ออก 08:00 ถ่าย The Bund ช่วงเช้า (ไม่ต้องตื่นดูพระอาทิตย์ขึ้น)',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'4',tab:'DAY 4',date:'Dec 6',emoji:'🎭',cardTitle:'Bund Morning → Longtime Ago → West Nanjing → 龙华会 → Opera House → Yuyuan',summary:'Bund ช่วงเช้า 7 มุม → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → พักโรงแรม → Yuyuan',title:'Day 4 — Dec 6 · Bund Morning → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → Yuyuan',route:'外滩 Bund ช่วงเช้า → 第一百货 Longtime Ago → 南京西路 West Nanjing → 龙华会 Longhua Hui → 上海大歌剧院 Opera House → 豫园 Yuyuan',
+ {id:'4',tab:'DAY 4',date:'Dec 6',emoji:'🎭',theme:'📸 วันเซี่ยงไฮ้เก่าชนใหม่',tagline:'Bund เช้า → Opera House → ไฟ Yuyuan',cardTitle:'Bund Morning → Longtime Ago → West Nanjing → 龙华会 → Opera House → Yuyuan',summary:'Bund ช่วงเช้า 7 มุม → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → พักโรงแรม → Yuyuan',title:'Day 4 — Dec 6 · Bund Morning → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → Yuyuan',route:'外滩 Bund ช่วงเช้า → 第一百货 Longtime Ago → 南京西路 West Nanjing → 龙华会 Longhua Hui → 上海大歌剧院 Opera House → 豫园 Yuyuan',
   slots:[
    {t:'08:00',icon:'🚶',label:'ออกจากโรงแรม',note:'แต่งตัวอุ่นๆ: เสื้อคลุม + ผ้าพันคอ + ถุงมือ · เดิน Jinjiang Inn → 外滩 The Bund ~20 นาที · วันนี้เก็บ 7 มุมถ่ายรูปยอดฮิต Bund (ตามโพสต์เพจเซี่ยงไฮ้ก็แค่ปากซอย)',places:[P('The Bund','外滩')]},
    {t:'08:20–08:50',icon:'📸',label:'③ จุดชมวิว Bund ⭐',note:'外滩观景平台 · วิว Lujiazui เต็มๆ · แดดเช้าส่องตึกเก่าฝั่ง Bund สวยสุด · 和平饭店 Peace Hotel · 海关大楼 Customs House · 汇丰银行 HSBC',img:'assets/day4-shoothing Location.png',places:[P('外滩观景平台 The Bund Viewing Platform','外滩观景平台'),P('和平饭店 Peace Hotel','')]},
@@ -748,7 +751,7 @@ const DAYS=[
    {t:'10:35–10:50',icon:'🚕',label:'Didi → 第一百货',note:'沙美大楼 Shamei Building → 第一百货 (西藏中路 Xizang Middle Road) · ❌ ไม่เดิน 北京东路 2 กม. จะไม่ทันมื้อเที่ยง',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
    {t:'10:50',icon:'⏳',label:'รอเข้าร้าน',note:'ขึ้น 第一百货 ตึก B ชั้น 6 เตรียมเข้าร้าน Longtime Ago (เปิด 11:00)'},
    {t:'11:00–12:00',icon:'🍢',label:'Lunch ⭐ Longtime Ago',note:'很久以前羊肉串 (南京路第一百货店) · 第一百货 ตึก B ชั้น 6 · เปิด 11:00 ไปตอนเปิดคิวสั้น (ตอนเย็นคิวเกิน 200) · ~¥99/คน · เนื้อแกะเสียบไม้ ผักย่าง ข้าวโพดหวาน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('很久以前羊肉串 Longtime Ago','很久以前羊肉串 南京路第一百货店')]},
-   {t:'12:15–12:30',icon:'🚇',label:'Metro · Line 2 → 徐泾东 · 1 สถานี',note:'人民广场 People\'s Square ขึ้น Line 2 ทิศ 徐泾东 Xujing East → 1 สถานี ลง 南京西路 West Nanjing Road',places:[P('People’s Square','人民广场'),P('West Nanjing Road','南京西路')]},
+   {t:'12:15–12:30',icon:'🚇',label:'Metro · Line 2 → 蟠祥路·国家会计学院 · 1 สถานี',note:'人民广场 People\'s Square ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 1 สถานี ลง 南京西路 West Nanjing Road',places:[P('People’s Square','人民广场'),P('West Nanjing Road','南京西路')]},
    {t:'12:30–14:10',icon:'🛍️',label:'West Nanjing ⭐',note:'Louis Vuitton → Starbucks → London Bakery → Zhangyuan 张园 → adidas Originals W6 · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Originals Concept Store ตึก W6 ใน 张园 (茂名北路258号 North Maoming Road · ใกล้สถานี 南京西路) · ⏳ เวลาน้อย ตัด London Bakery / Starbucks ก่อน · LV วันอาทิตย์อาจต่อคิว',places:[P('Louis Vuitton',''),P('Starbucks',''),P('London Bakery',''),P('Zhangyuan','张园'),P('Adidas ร้านที่มี Shanghai Collection · Originals Concept Store W6','张园 W6 茂名北路258号')]},
    {t:'14:15–14:35',icon:'🚇',label:'Metro · Line 12 → 七莘路 Qixin Road',note:'南京西路 West Nanjing Road ขึ้น Line 12 ทิศ 七莘路 Qixin Road → 5 สถานี ลง 龙华 Longhua · สายเดียว ไม่ต้องเปลี่ยน · สถานีอยู่ใต้ห้าง 龙华会 ออกทางไหนก็ถึงห้าง',places:[P('West Nanjing Road','南京西路'),P('Longhua','龙华')]},
    {t:'14:35–15:35',icon:'🥐',label:'龙华会 Longhua Hui ⭐',note:'ห้างตรงข้ามวัด Longhua (อยู่บนสถานี 龙华) · ร้านเบเกอรี่ชั้นล่าง · นั่งพัก · 📸 ข้ามถนนไปถ่ายกำแพงวัด 龙华寺 แป๊บเดียว (ไม่เข้าวัด)',places:[P('龙华会 Longhua Hui','龙华会')]},
@@ -762,7 +765,7 @@ const DAYS=[
    {t:'21:00',icon:'🚇',label:'Metro · Line 14 → 封浜 Fengbang · 1 สถานี',note:'豫园 Yuyuan ขึ้น Line 14 ทิศ 封浜 Fengbang → 1 สถานี ลง 大世界 Dashijie Exit 5',places:[P('Yuyuan Garden','豫园'),P('Dashijie','大世界')]},
    {t:'~21:20',icon:'🏨',label:'Hotel',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',cardTitle:'Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',summary:'局门路 แปะก๊วย → New Sukiyaki → 1000 Trees → 巨富长 Julu·Fumin·Changle → พักโรงแรม → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',route:'局门路 Jumen Rd → 第一百货 New Sukiyaki → 天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 陆家嘴 Lujiazui',
+ {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',theme:'🍂 วันใบไม้เหลืองกับไฟเมือง',tagline:'แปะก๊วย · สุกี้ · ตึกระฟ้ายามค่ำ',cardTitle:'Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',summary:'局门路 แปะก๊วย → New Sukiyaki → 1000 Trees → 巨富长 Julu·Fumin·Changle → พักโรงแรม → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',route:'局门路 Jumen Rd → 第一百货 New Sukiyaki → 天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 陆家嘴 Lujiazui',
   slots:[
    {t:'08:30',icon:'🍞',label:'ออกจากโรงแรม (ชิลๆ)',note:'กินเบาๆ ก่อนออก (巴比馒头 Babi Mantou / ร้านแถว 云南南路) · DiDi → จุดลงรถ 局门路 × 五里桥路 ~10–15 นาที',places:[P('Jumen Rd × Wuliqiao Rd','局门路与五里桥路交叉口')]},
    {t:'08:45–09:35',icon:'🍂',label:'Ginkgo Street ⭐',note:'ถนนแปะก๊วย 局门路 Jumen Road · จุดลงรถ 局门路 × 五里桥路 แล้วเดินตามถนน · แสงเช้าสวย ถนนยังโล่ง · ⚠️ ก่อนไปค้น 局门路 银杏 ใน Xiaohongshu ดูว่าใบยังเหลืองไหม · 🔴 (ตัดได้) ใบร่วงหมด/แม่เหนื่อย → เดินเล่น 人民公园 People\'s Park แทน',places:[P('Jumen Road','局门路'),P('จุดลงรถ 局门路 × 五里桥路','局门路与五里桥路交叉口')]},
@@ -778,16 +781,16 @@ const DAYS=[
    {t:'16:20–17:50',icon:'🏨',label:'Rest',note:'กลับโรงแรม วางถุงช้อป · พักยาวก่อนเที่ยวกลางคืน · (ตัด Hengshan 衡山路 ออกจากแผนหลัก)'},
    {t:'18:00',icon:'🚇',label:'Metro · Line 14 → 桂桥路 · 2 สถานี',note:'大世界 Dashijie ขึ้น Line 14 ทิศ 桂桥路 Guiqiao Road → 2 สถานี ลง 陆家嘴 Lujiazui · ไม่ต้องเปลี่ยนสาย',places:[P('Dashijie','大世界'),P('Lujiazui','陆家嘴')]},
    {t:'18:15–19:30',icon:'🌃',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('陆家嘴 Lujiazui','')]},
-   {t:'19:30',icon:'🚇',label:'Metro · Line 2',note:'陆家嘴 Lujiazui ขึ้น Line 2 ทิศ 徐泾东 Xujing East → 2 สถานี (南京东路 → 人民广场) ลง 人民广场 People\'s Square · ทางกลับโรงแรมอยู่แล้ว เปลี่ยน Line 8 ที่นี่',places:[P('Lujiazui','陆家嘴'),P('People’s Square','人民广场')]},
+   {t:'19:30',icon:'🚇',label:'Metro · Line 2',note:'陆家嘴 Lujiazui ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 2 สถานี (南京东路 → 人民广场) ลง 人民广场 People\'s Square · ทางกลับโรงแรมอยู่แล้ว เปลี่ยน Line 8 ที่นี่',places:[P('Lujiazui','陆家嘴'),P('People’s Square','人民广场')]},
    {t:'19:45–20:40',icon:'🐟',label:'Dinner ⭐ 酸菜鱼',note:'ร้านอาหารจีนหัวมุม ในทางเดินใต้ดินสถานี 人民广场 ใกล้ทางออก 11 (ทางออกไปร้านขนมปังผีเสื้อคิวยาว) · 🐟 酸菜鱼 ต้มปลาผักกาดดอง ~¥30 · 青椒肉丝 หมูผัดพริกหยวก · เมนู ¥12–28 · ร้านไม่มีชื่อในโพสต์ ใช้รูปหา · ร้านในสถานีอาจปิด ~21:00 ไปก่อน 20:00 · (สำรอง: ฟู้ดคอร์ท 正大广场 Super Brand Mall / เดินกินถนนนานจิง) · ⚠️ ปักหมุด AMap / จดชื่อจีนร้านก่อนออก',places:[P('People’s Square Exit 11','人民广场 11号口')]},
    {t:'20:45',icon:'🚇',label:'Metro · Line 8',note:'人民广场 People\'s Square ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 (หรือเดิน ~15 นาที)',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
    {t:'~21:00',icon:'🏨',label:'Hotel',note:'เก็บกระเป๋าให้เสร็จคืนนี้ พรุ่งนี้ออก 07:00',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'6',tab:'DAY 6',date:'Dec 8',emoji:'🛫',cardTitle:'Check-out → PVG T2 → BKK',summary:'Check-out → PVG T2 · 9C7283',title:'Day 6 — Dec 8 · Check-out → PVG T2 → BKK',route:'大世界 → PVG T2 → BKK',
+ {id:'6',tab:'DAY 6',date:'Dec 8',emoji:'🛫',theme:'✈️ วันกลับบ้าน See you again',tagline:'เก็บของ · บินกลับพร้อมความทรงจำ',cardTitle:'Check-out → PVG T2 → BKK',summary:'Check-out → PVG T2 · 9C7283',title:'Day 6 — Dec 8 · Check-out → PVG T2 → BKK',route:'大世界 → PVG T2 → BKK',
   slots:[
    {t:'06:30',icon:'⏰',label:'ตื่น / เก็บของ',note:'เช็ค passport'},
    {t:'07:00',icon:'🧳',label:'Check-out',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
-   {t:'07:15',icon:'🚇',label:'Metro · Line 8 → 市光路 Shiguang Road · 1 สถานี',note:'大世界 Dashijie → 人民广场 People\'s Square · เปลี่ยน Line 2 → 浦东国际机场 Pudong Airport → PVG · ⚠️ ถ้ารถประกาศสุดสายที่ 广兰路 Guanglan Road → ลงแล้วเปลี่ยนขบวนฝั่งตรงข้าม ไปต่อ 浦东国际机场 Pudong Airport',places:[P('People’s Square','人民广场'),P('Pudong International Airport','浦东国际机场')]},
+   {t:'07:15',icon:'🚇',label:'Metro · Line 8 → 市光路 Shiguang Road · 1 สถานี',note:'大世界 Dashijie → 人民广场 People\'s Square · เปลี่ยน Line 2 → 浦东1号2号航站楼 Pudong Airport Terminal 1&2 → PVG · ⚠️ ขึ้นขบวนที่ป้ายปลายทาง 浦东1号2号航站楼 · ถ้าขึ้นขบวนสุดสาย 广兰路 Guanglan Road ให้ลงเปลี่ยนที่ 金科路 Jinke Road รอชานชาลาเดิม ขึ้นขบวนไปสนามบิน',places:[P('People’s Square','人民广场'),P('Pudong Airport Terminal 1&2','浦东1号2号航站楼')]},
    {t:'~08:40',icon:'🛂',label:'Airport',note:'เช็คอิน + ตม.',places:[P('PVG T2','浦东国际机场T2')]},
    {t:'12:00',icon:'✈️',label:'Depart',note:'9C7283 · PVG → BKK',places:[P('BKK','素万那普机场')]},
   ]},
@@ -893,7 +896,8 @@ function renderToday(){
     `<div class="today" onclick="go('plan');setDay('${d.id}')">
        <span class="dot"></span>
        <div class="lbl">${lbl}</div>
-       <h2><span class="em">${d.emoji}</span><span class="t2">${(d.cardTitle||d.tab).replace(/ → ([^→]+)$/,' →<br>$1')}</span></h2>
+       ${d.theme?`<div class="day-theme">${d.theme}</div>`:''}
+       <h2><span class="t2">${(d.cardTitle||d.tab).replace(/ → ([^→]+)$/,' →<br>$1')}</span></h2>
        <div class="sum">${d.summary||''}</div>
        <span class="view-btn">ดู ${d.tab}${ic('arrow')}</span>
      </div>`;
@@ -924,8 +928,8 @@ function cpChip(p){const copy=p.zh||p.en;const disp=(p.en&&p.zh&&p.en!==p.zh)?`<
 function renderDays(){
   document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
   const day=DAYS.find(d=>d.id===activeDay);
-  const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}.png" loading="eager" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">${ic('zoom')}แตะดูเต็มจอ</span></div>`;
-  document.getElementById('dayhead').innerHTML=heroHTML+`<h2>${day.tab.replace('DAY','Day')} · ${day.date}</h2><div class="rt">${day.cardTitle||day.route||''}</div>`;
+  const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}-thumb.webp" loading="eager" decoding="async" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">${ic('zoom')}แตะดูเต็มจอ</span></div>`;
+  document.getElementById('dayhead').innerHTML=heroHTML+`<h2>${day.tab.replace('DAY','Day')} · ${day.date}</h2>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="rt">${day.cardTitle||day.route||''}</div>${day.tagline?`<div class="day-tagline">${day.tagline}</div>`:''}`;
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
@@ -972,7 +976,7 @@ function renderShort(){
       const highlight=String(s.label||'').includes('⭐'),transit=shortIsTransit(s);
       return `<button type="button" class="short-row ${highlight?'highlight':''} ${transit?'transit':''}" onclick="openShortSlot('${day.id}',${i})"><span class="short-time">${s.t}</span><span class="short-icon">${s.icon}</span><span class="short-label">${lineChips(s.label)}${shortWhere(s)}</span><span class="short-open">${ic('chev')}</span></button>`;
     }).join('');
-    return `<article class="card short-day" id="short-day-${day.id}"><header class="short-day-head"><div class="short-day-meta"><span>${day.tab} · ${d.weekday} ${d.date}</span>${isToday?'<span class="short-today">วันนี้</span>':''}</div><div class="short-day-title"><span class="em">${day.emoji}</span><span>${day.cardTitle}</span></div></header>${rows}</article>`;
+    return `<article class="card short-day" id="short-day-${day.id}"><header class="short-day-head"><div class="short-day-meta"><span>${day.tab} · ${d.weekday} ${d.date}</span>${isToday?'<span class="short-today">วันนี้</span>':''}</div>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="short-day-title"><span>${day.cardTitle}</span></div></header>${rows}</article>`;
   }).join('');
 }
 function shortTopGap(){
@@ -1031,7 +1035,7 @@ function trainCard(s){
 /* row extras from the mockup: place names inline + quick copy */
 function plInline(s){if(s.metro||s.train||s.sz||!s.places||!s.places.length||!['food','cup'].includes(EMO[s.icon]))return '';const n=s.places.map(p=>p.en||p.zh).filter(x=>x&&!s.label.includes(x));return n.length?`<span class="pl">(${n.slice(0,3).join(' / ')})</span>`:'';}
 function copyBtn(s){if(!['metro','train','camera','city','moon','bag','pagoda','art','leaf'].includes(EMO[s.icon]))return '';const p=(s.places||[]).find(p=>p.zh);return p?`<span class="scopy" onclick="qcopy(event,this,'${p.zh.replace(/'/g,"\\'")}')">${ic('copy')}</span>`:'';}
-function qcopy(e,el,zh){e.stopPropagation();const ok=()=>{el.classList.add('ok');setTimeout(()=>el.classList.remove('ok'),1500);showToast(zh);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(ok).catch(()=>fb(zh,ok));else fb(zh,ok);}
+function qcopy(e,el,zh){e.stopPropagation();const ok=()=>{clearTimeout(el._okT);el.classList.add('ok');el._okT=setTimeout(()=>el.classList.remove('ok'),1500);showToast(zh);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(ok).catch(()=>fb(zh,ok));else fb(zh,ok);}
 function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
 function bodyFor(s){
   let h=s.note?`<div class="p-note">${s.note}</div>`:'';
@@ -1046,9 +1050,19 @@ function tgCheck(k,el){el.classList.toggle('on');state[k]=el.classList.contains(
 let _modalDay=0;
 function zoomImg(src){
   const m=/day([1-6])\.png/.exec(src);_modalDay=m?+m[1]:0;
-  document.getElementById('imgmodal-src').src=src;
+  modalSrc(src);
   document.getElementById('imgmodal-hint').innerHTML=_modalDay?`DAY ${_modalDay} · 👈 ปัดเปลี่ยนวัน 👉 · แตะปิด`:'แตะปิด';
   document.getElementById('imgmodal').classList.add('on');
+}
+/* day plans: show the WebP thumbnail at once (already cached from the day header), swap in the full PNG once it has loaded */
+function modalSrc(full){
+  const img=document.getElementById('imgmodal-src'),m=/day([1-6])\.png$/.exec(full);
+  img.dataset.full=full;
+  if(!m){img.src=full;return;}
+  img.src=`assets/day${m[1]}-thumb.webp`;
+  const pre=new Image();
+  pre.onload=()=>{if(img.dataset.full===full)img.src=full;};
+  pre.src=full;
 }
 function modalNav(delta){
   if(!_modalDay)return;
@@ -1056,7 +1070,7 @@ function modalNav(delta){
   _modalDay=n;
   const img=document.getElementById('imgmodal-src');
   img.classList.remove('anim-l','anim-r');void img.offsetWidth;img.classList.add(delta>0?'anim-l':'anim-r');
-  img.src=`assets/day${n}.png`;
+  modalSrc(`assets/day${n}.png`);
   document.getElementById('imgmodal-hint').innerHTML=`DAY ${n} · 👈 ปัดเปลี่ยนวัน 👉 · แตะปิด`;
   setDay(String(n));
 }
@@ -1130,10 +1144,11 @@ let toastT;
 function cpy(e,el){
   e.stopPropagation();
   const zh=el.dataset.zh;
+  if(el._cpyOrig==null)el._cpyOrig=el.innerHTML;/* keep the real label once: a 2nd tap within 1.5 s must not save "✓ Copied" as the label */
   const done=()=>{
-    const orig=el.innerHTML;
+    clearTimeout(el._cpyT);
     el.classList.add('copied');el.innerHTML='✓ Copied · '+zh;
-    setTimeout(()=>{el.classList.remove('copied');el.innerHTML=orig;},1500);
+    el._cpyT=setTimeout(()=>{el.classList.remove('copied');el.innerHTML=el._cpyOrig;},1500);
     showToast(zh);
   };
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(done).catch(()=>fb(zh,done));
