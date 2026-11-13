@@ -262,14 +262,16 @@ class Checker:
                 if kf and kf["mask"] & 0xFFF == 0 and flag_residual(kf["mask"]) in self.residuals:
                     # a clean ItemKind (bind / +N / expiry) we just have not seen for this item yet
                     up_name = upgrade_in_name(name) or upgrade_in_name(dname) or 0
-                    if not kf["bound"] and kf["upgrade"] == up_name:
-                        # Dalif 2026-11-13: ItemKind = ItemIndex is the tradable version; a +N in front
-                        # (named "+N") is tradable too -> another product of the same item, add it to the library
+                    lib_bound = {kind_fields(k, idx)["bound"] for k in kinds if kind_fields(k, idx)}
+                    if kf["upgrade"] == up_name and (not kf["bound"] or kf["bound"] not in lib_bound):
+                        # Dalif 2026-11-13: Trade Yes and Trade No are two different items (same ItemIndex,
+                        # different ItemKind); ItemKind = ItemIndex is the tradable one, a named +N is tradable
+                        # too -> a version the library does not have yet = a new item to add
                         f("UNKNOWN_ITEM", "kind", kind, "",
-                          "ไอเทมนี้ในคลังมีแค่ ItemKind %s แต่เอกสารนี้เป็นแบบ%s (ItemKind %s) = ไอเทมชิ้นใหม่ "
+                          "ในคลังมี ItemKind %s แต่เอกสารนี้เป็นแบบ%s Trade %s (ItemKind %s) = ไอเทมคนละชิ้น "
                           "ยังไม่มีในคลัง ถ้าถูกต้อง ให้ admin เพิ่มเข้าคลัง"
-                          % (" / ".join(map(str, kinds)),
-                             " เทรดได้" if not kf["upgrade"] else " ตีบวก +%d เทรดได้" % kf["upgrade"], kind))
+                          % (" / ".join(map(str, kinds)), " ตีบวก +%d" % kf["upgrade"] if kf["upgrade"] else "",
+                             "No (ผูก)" if kf["bound"] else "Yes (เทรดได้)", kind))
                     else:
                         f("KIND_VARIANT", "kind", kind, " / ".join(map(str, kinds)),
                           "ไอเทมนี้ในคลังเคยใช้ ItemKind %s แต่เอกสารนี้เป็นแบบ %s ให้ recheck ว่าตั้งใจ"
@@ -284,8 +286,9 @@ class Checker:
             if move is not None and len(same) == 1 and move not in same:
                 ref = next(iter(same))
                 f("ITEMMOVE", "itemmove", yn(move), yn(ref),
-                  "ItemKind %s / ItemIndex %s / ItemOption %s ในคลังเป็น Trade (Itemmove) = %s แต่เอกสารนี้ใส่ %s"
-                  % (kind, idx, opt, yn(ref), yn(move)))
+                  "ItemKind %s / ItemIndex %s / ItemOption %s ในคลังเป็น Trade (Itemmove) = %s แต่เอกสารนี้ใส่ %s "
+                  "(Trade Yes กับ No เป็นไอเทมคนละชิ้น ItemKind ต้องคนละเลข ถ้าตั้งใจเป็นแบบ Trade %s ต้องแก้ ItemKind)"
+                  % (kind, idx, opt, yn(ref), yn(move), yn(move)))
             elif not same and kind is None:
                 # without ItemKind fall back to the ItemIndex history; with it, BIND_BIT / TRADE_KIND decide
                 ref = db.constant(idx, "itemmove")
