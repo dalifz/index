@@ -220,6 +220,17 @@ class Checker:
                     db_names.add(key(x))
             db_names.discard("")
             name_ok = (key(name) in db_names) or bool(dname and key(dname) in db_names)
+            dur_key = (db.durations.get(dur) or {}).get("key") if dur is not None else None
+            doc_times = {period_key(t) for t in TIME_IN_NAME.findall(name + " " + dname)}
+            if not name_ok and name and dur_key and dur_key in doc_times:
+                # the time in the name is the DurationIndex time ("(1 hr)" with DurationIndex 1) -> a new
+                # duration of a known item, not a wrong name (Dalif 2026-11-13: Blessing Bead - WEXP
+                # UP(1000%)(1 hr) is right; the library only had 2 ชม. / 1 วัน). Only when the time agrees
+                # with DurationIndex: Holy Water "(15 นาที)" vs "(30 นาที)" is an effect time, not this.
+                tkey = lambda x: key(TIME_IN_NAME.sub(" ", text(x)))
+                t_names = {tkey(x) for c in named for x in [c["name"], c["display_name"]] + c.get("aliases", [])}
+                t_names.discard("")
+                name_ok = (tkey(name) in t_names) or bool(dname and tkey(dname) in t_names)
             container = len({name_key(c["name"]) for c in cands}) > 1 and not same_opt and opt is not None
             kinds = db.values(idx, "kind")
             identity_broken = False
