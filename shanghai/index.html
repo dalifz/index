@@ -409,9 +409,43 @@
   .food-empty{text-align:center;padding:32px 18px}
   .food-empty .em{display:block;font-size:28px;margin-bottom:6px}
   .food-empty p{font-size:15px;font-weight:600;color:#745E64}
+
+  /* condensed trip plan */
+  #v-short{position:relative}
+  .short-intro{margin:3px 0 10px;color:var(--muted);font-size:14px}
+  .short-days{position:sticky;top:env(safe-area-inset-top);z-index:20;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin:0 -12px 12px;padding:7px 12px 8px;background:rgba(255,248,244,.94);border-top:1px solid rgba(239,221,218,.7);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+  .short-jump{min-width:0;min-height:44px;padding:4px 2px;border:1px solid #EADCDA;border-radius:11px;background:var(--surface);color:#806A70;font-family:inherit;font-size:11px;font-weight:800;line-height:1.1;cursor:pointer}
+  .short-jump small{display:block;margin-top:3px;font-size:9.5px;font-weight:600;white-space:nowrap}
+  .short-jump.today{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(232,87,138,.2)}
+  .short-day{scroll-margin-top:72px;padding:0;overflow:hidden;margin-bottom:12px}
+  .short-day-head{padding:11px 13px 10px;background:var(--tint);border-bottom:1px solid var(--line)}
+  .short-day-meta{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.035em}
+  .short-today{display:inline-flex;align-items:center;min-height:22px;padding:1px 8px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;letter-spacing:0}
+  .short-day-title{display:flex;align-items:flex-start;gap:8px;margin-top:3px;font-size:16px;font-weight:800;line-height:1.35}
+  .short-day-title .em{flex:0 0 auto;font-size:18px}
+  .short-row{width:100%;min-height:44px;padding:7px 11px;border:0;border-top:1px solid #F4ECEA;background:rgba(255,255,255,.92);color:var(--ink);font-family:inherit;text-align:left;display:grid;grid-template-columns:86px 22px minmax(0,1fr) 14px;gap:6px;align-items:center;cursor:pointer}
+  .short-day-head+.short-row{border-top:0}
+  .short-row:active{background:var(--accent-soft)}
+  .short-time{color:var(--accent);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .short-icon{font-size:17px;line-height:1;text-align:center}
+  .short-label{min-width:0;font-size:14px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+  .short-open{display:flex;color:#C4AEB4}.short-open .i{width:14px;height:14px}
+  .short-row.highlight{background:#FFF7F8;box-shadow:inset 3px 0 0 var(--accent)}
+  .short-row.highlight .short-label{color:#B92F65;font-weight:800}
+  .short-row.transit{min-height:38px;padding-top:5px;padding-bottom:5px;background:#FCF9F7;color:#7E6A6F}
+  .short-row.transit .short-time{color:#A88991;font-size:13px;font-weight:600}
+  .short-row.transit .short-icon{font-size:15px;opacity:.72}
+  .short-row.transit .short-label{font-weight:500}
+  .short-row .lchip{height:20px;font-size:11px;padding:0 6px}
+  .short-where{margin-left:5px;font-size:13px;font-weight:500;color:#8F7A80}
+  .short-row.highlight .short-where{color:#B9788F;font-weight:600}
+  .nav button{min-width:0;white-space:nowrap}
   @media (max-width:370px){
     .nav button{font-size:9.5px}.nav .i{width:20px;height:20px}
     .food-tab{padding-inline:11px}
+    .short-days{gap:3px;padding-inline:8px}
+    .short-jump{font-size:10.5px}.short-jump small{font-size:9px}
+    .short-row{grid-template-columns:80px 20px minmax(0,1fr) 13px;padding-inline:9px;gap:5px}.short-time{font-size:13px}
   }
 </style>
 </head>
@@ -491,6 +525,15 @@
     <div class="tl" id="timeline"></div>
   </section>
 
+  <!-- CONDENSED PLAN -->
+  <section class="view pad" id="v-short">
+    <div class="kicker">Trip at a glance</div>
+    <h1 style="margin:2px 0 2px">แผนย่อ</h1>
+    <p class="short-intro">ทุกวันในหน้าเดียว · แตะรายการเพื่อเปิดรายละเอียด</p>
+    <div class="short-days" id="short-days" aria-label="ข้ามไปวันต่างๆ"></div>
+    <div id="short-list"></div>
+  </section>
+
   <!-- BACKUP FOOD -->
   <section class="view pad" id="v-food">
     <div class="kicker">Backup food guide</div>
@@ -566,6 +609,7 @@
     <button class="on" data-v="home" onclick="go('home')"><span class="ni"><i data-i="home"></i></span>หน้าหลัก</button>
     <button data-v="chk" onclick="go('chk')"><span class="ni"><i data-i="check"></i></span>เช็คลิสต์</button>
     <button data-v="plan" onclick="go('plan')"><span class="ni"><i data-i="map"></i></span>แผนเที่ยว</button>
+    <button data-v="short" onclick="go('short')"><span class="ni"><i data-i="list"></i></span>แผนย่อ</button>
     <button data-v="food" onclick="go('food')"><span class="ni"><i data-i="food"></i></span>กิน</button>
     <button data-v="info" onclick="go('info')"><span class="ni"><i data-i="info"></i></span>ข้อมูล</button>
   </nav>
@@ -581,6 +625,7 @@ const I={
  home:'<path d="M3 11l9-7 9 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>',
  check:'<rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
  map:'<path d="M9 4.5L3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2-6-2z"/><path d="M9 4.5v13M15 6.5v13"/>',
+ list:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 8.5h.01M11 8.5h5M8 12h.01M11 12h5M8 15.5h.01M11 15.5h5"/>',
  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.2"/>',
  plane:'<path d="M3.5 11.5l17-7.5-7.5 17-2-7.5z"/><path d="M11 13.5l9.5-9.5"/>',
  train:'<rect x="5.5" y="3" width="13" height="14" rx="4"/><path d="M5.5 10.5h13M9 21l1.5-4M15 21l-1.5-4"/><path d="M9 14h.01M15 14h.01"/>',
@@ -792,7 +837,8 @@ let activeFoodDay='1';
 
 function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);}
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);
+  if(v==='short'){renderShort();requestAnimationFrame(focusShortToday);}}
 
 /* TODAY */
 function tripDay(){
@@ -890,6 +936,58 @@ function renderDays(){
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
   if(_swipeDir){const cls=_swipeDir>0?'anim-l':'anim-r';[document.getElementById('dayhead'),tl].forEach(x=>{x.classList.remove('anim-l','anim-r');void x.offsetWidth;x.classList.add(cls);});_swipeDir=0;}
+}
+
+/* CONDENSED PLAN */
+const SHORT_WEEKDAYS=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const SHORT_MONTHS={Jan:'ม.ค.',Feb:'ก.พ.',Mar:'มี.ค.',Apr:'เม.ย.',May:'พ.ค.',Jun:'มิ.ย.',Jul:'ก.ค.',Aug:'ส.ค.',Sep:'ก.ย.',Oct:'ต.ค.',Nov:'พ.ย.',Dec:'ธ.ค.'};
+const SHORT_MONTH_INDEX={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+const SHORT_TRANSIT=new Set(['🚇','🚕','🚉']);
+const SHORT_GENERIC=new Set(['breakfast','lunch','dinner','brunch','cafe','matcha','tea','photo','explore','shopping','walk','city','night','view','hotel','check','out','airport','depart','station','didi']);
+function shortIsTransit(s){return SHORT_TRANSIT.has(s.icon)||(s.icon==='🚶'&&/^walk/i.test(String(s.label||'')));}
+/* generic labels ("Brunch", "Hotel", "Didi") get the place name so the short list still says where */
+function shortWhere(s){
+  if(!s.places||!s.places.length)return '';
+  const words=String(s.label||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim().split(' ').filter(Boolean);
+  if(!words.length||!words.every(w=>SHORT_GENERIC.has(w)))return '';
+  const names=s.places.slice(0,String(s.label).includes('+')?2:1).map(p=>p.en||p.zh).filter(Boolean);
+  return names.length?`<span class="short-where">· ${names.join(' + ')}</span>`:'';
+}
+function shortThaiDate(day){
+  const m=String(day.date||'').match(/^([A-Za-z]{3})\s+(\d{1,2})$/);
+  if(!m)return{weekday:'',date:day.date||''};
+  const n=Number(m[2]),month=SHORT_MONTH_INDEX[m[1]];
+  const weekday=month==null?'':SHORT_WEEKDAYS[new Date(Date.UTC(2026,month,n)).getUTCDay()];
+  return{weekday,date:`${n} ${SHORT_MONTHS[m[1]]||m[1]}`};
+}
+function renderShort(){
+  const today=tripDay();
+  document.getElementById('short-days').innerHTML=DAYS.map((day,i)=>{
+    const d=shortThaiDate(day),isToday=today.state==='today'&&today.id===day.id;
+    return `<button type="button" class="short-jump ${isToday?'today':''}" onclick="jumpShortDay('${day.id}')" ${isToday?'aria-current="date"':''}><span>D${i+1}</span><small>${d.date}</small></button>`;
+  }).join('');
+  document.getElementById('short-list').innerHTML=DAYS.map(day=>{
+    const d=shortThaiDate(day),isToday=today.state==='today'&&today.id===day.id;
+    const rows=day.slots.map((s,i)=>{
+      const highlight=String(s.label||'').includes('⭐'),transit=shortIsTransit(s);
+      return `<button type="button" class="short-row ${highlight?'highlight':''} ${transit?'transit':''}" onclick="openShortSlot('${day.id}',${i})"><span class="short-time">${s.t}</span><span class="short-icon">${s.icon}</span><span class="short-label">${lineChips(s.label)}${shortWhere(s)}</span><span class="short-open">${ic('chev')}</span></button>`;
+    }).join('');
+    return `<article class="card short-day" id="short-day-${day.id}"><header class="short-day-head"><div class="short-day-meta"><span>${day.tab} · ${d.weekday} ${d.date}</span>${isToday?'<span class="short-today">วันนี้</span>':''}</div><div class="short-day-title"><span class="em">${day.emoji}</span><span>${day.cardTitle}</span></div></header>${rows}</article>`;
+  }).join('');
+}
+function shortTopGap(){
+  const strip=document.getElementById('short-days'),status=document.querySelector('.status');
+  return(strip?strip.offsetHeight:0)+(status?status.offsetHeight:0)+8;
+}
+function jumpShortDay(id,behavior='smooth'){
+  const el=document.getElementById('short-day-'+id);if(!el)return;
+  const top=window.scrollY+el.getBoundingClientRect().top-shortTopGap();
+  window.scrollTo({top:Math.max(0,top),behavior});
+}
+function focusShortToday(){const today=tripDay();if(today.state==='today')jumpShortDay(today.id,'auto');}
+function openShortSlot(dayId,index){
+  go('plan');setDay(dayId);tgSlot(index);
+  requestAnimationFrame(()=>{const el=document.getElementById('slot-'+index);if(!el)return;const status=document.querySelector('.status');const gap=(status?status.offsetHeight:0)+12;window.scrollTo({top:Math.max(0,window.scrollY+el.getBoundingClientRect().top-gap),behavior:'smooth'});});
 }
 /* Suzhou metro (different system — verify in AMap) */
 function szBody(z){
@@ -1045,7 +1143,7 @@ function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.styl
 function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
 
 /* INIT */
-hydrateIcons();activeFoodDay=initialFoodDay();renderToday();renderChk();renderDays();renderFood();initSwipe();initModalSwipe();
+hydrateIcons();activeFoodDay=initialFoodDay();renderToday();renderChk();renderDays();renderShort();renderFood();initSwipe();initModalSwipe();
 document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
 document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
 </script>
