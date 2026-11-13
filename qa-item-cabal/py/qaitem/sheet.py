@@ -8,7 +8,7 @@ text above the header.
 import re
 import unicodedata
 
-from .normalize import col_letter, text, to_int, yes_no
+from .normalize import col_letter, is_no_id, text, to_int, yes_no
 
 ALIASES = {
     "itemkind": "kind",
@@ -148,6 +148,19 @@ def parse_sheet(name, values, display=None):
             vals = {f: (row[ci] if ci < len(row) else None) for f, ci in m.items()}
             if not any(text(x) for x in vals.values()):
                 continue                       # this table ended
+            # a section banner merged across the row ("ทุกครั้งที่ซื้อจะได้ Item ด้านบน แถมสุ่ม…"): its text lands
+            # in whatever column the merge starts (often ItemKind) -> it ends this table, it is not an item
+            filled = [x for x in vals.values() if text(x)]
+            if (len(filled) == 1 and to_int(filled[0]) is None and not text(vals.get("name"))
+                    and not text(vals.get("display_name")) and not is_no_id(filled[0])
+                    and text(filled[0]) not in PLACEHOLDER):
+                head = t["pack"].split(" · ")[0]
+                label = (head + " · " if t["pack"] and not t["pack"].startswith("ตาราง ") else "") \
+                    + text(filled[0])[:60]
+                last_pack = label             # a header right after it starts a new table with this name
+                t["pack"] = label             # rows that follow without a new header keep going under it
+                keep.append(t)
+                continue
             if any(text(row[ci]).lower() == "total" for ci in range(t["lo"], min(t["hi"] + 1, len(row)))):
                 continue
             keep.append(t)
