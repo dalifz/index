@@ -34,7 +34,6 @@ RULES = {
     "NEW_ID":          "ไอเทมใหม่ยังไม่มีเลข",
     "NO_PERIOD":       "Period ว่าง",
     "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
-    "BOUND_NAME":      "ชื่อมี (ผูกมัด) แต่ Trade ไม่ใช่ No",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "CHAOS_UPGRADE":   "ItemKind ไม่ตรงกับ Chaos Upgrade ในชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
@@ -53,14 +52,12 @@ RULES = {
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"BOUND_NAME", "CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
     r"(?:\(\s*|\s)(\d+\s*(?:days?|d|วัน|hours?|hrs?|h|ชั่วโมง|ชม|minutes?|mins?|นาที))\.?\s*(?:\)|$)", re.I)
 ALWAYS_INFO = {"NEW_VARIANT"}
-# "(ผูกมัด)" in an item name = character-bound -> Trade (Itemmove) must be No (Dalif 2026-11-13)
-BOUND_IN_NAME = re.compile(r"[(（]\s*ผูกมัด\s*[)）]")
 
 NUMERIC = ("kind", "index", "option", "duration")
 REQUIRED_COLUMNS = ("kind", "index", "option", "duration", "itemmove", "name", "period")
@@ -191,9 +188,6 @@ class Checker:
         kind, idx, opt, dur = n["kind"], n["index"], n["option"], n["duration"]
         name = text(v.get("name"))
         dname = text(v.get("display_name"))
-        if (BOUND_IN_NAME.search(name) or BOUND_IN_NAME.search(dname)) and "itemmove" in cols                 and text(v.get("itemmove")) != "" and move is not False:
-            f("BOUND_NAME", "itemmove", v.get("itemmove"), "No",
-              "ชื่อไอเทมมีคำว่า (ผูกมัด) = ผูกตัว Trade (Itemmove) ต้องเป็น No เสมอ")
         nk = name_key(name)
 
         # 2. identity: ItemIndex <-> name
@@ -272,11 +266,20 @@ class Checker:
                 else:
                     f("KIND", "kind", kind, " / ".join(map(str, kinds)),
                       "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
-            for fld, val in (("itemmove", move),):
-                ref = db.constant(idx, fld)
-                if val is not None and ref is not None and val != ref:
-                    f(fld.upper(), fld, yn(val), yn(ref),
-                      "ไอเทมนี้ในฐานข้อมูลเป็น %s = %s ทุกครั้ง" % (FIELD_LABELS[fld], yn(ref)))
+            # Trade must match the library row with the same ItemKind + ItemIndex + ItemOption
+            # (Dalif 2026-11-13; "(ผูกมัด)" in the name does not matter)
+            same = {c["itemmove"] for c in cands if c["kind"] == kind and c["option"] == opt
+                    and c["itemmove"] is not None} if kind is not None and opt is not None else set()
+            if move is not None and len(same) == 1 and move not in same:
+                ref = next(iter(same))
+                f("ITEMMOVE", "itemmove", yn(move), yn(ref),
+                  "ItemKind %s / ItemIndex %s / ItemOption %s ในคลังเป็น Trade (Itemmove) = %s แต่เอกสารนี้ใส่ %s"
+                  % (kind, idx, opt, yn(ref), yn(move)))
+            elif not same:
+                ref = db.constant(idx, "itemmove")
+                if move is not None and ref is not None and move != ref:
+                    f("ITEMMOVE", "itemmove", yn(move), yn(ref),
+                      "ไอเทมนี้ในฐานข้อมูลเป็น %s = %s ทุกครั้ง" % (FIELD_LABELS["itemmove"], yn(ref)))
             # new option/duration combination
             if opt is not None and dur is not None and not any(
                     c["option"] == opt and c["duration"] == dur for c in cands):

@@ -11,6 +11,8 @@ GAMES = ("pc", "mobile")
 E_NOTATION = re.compile(r"^\s*[+-]?\d+(\.\d+)?[eE][+-]?\d+\s*$")
 INT_TEXT = re.compile(r"^\s*[+-]?\d+(\.0+)?\s*$")
 QTY_SUFFIX = re.compile(r"\s*[xX×]\s*([\d,]+)\s*$")
+# "(ผูกมัด)" = bound; optional in names (Dalif 2026-11-13) -> ignored when comparing names
+BOUND_TAG = re.compile(r"\(\s*ผูกมัด\s*\)")
 
 
 def text(v):
@@ -75,7 +77,7 @@ def name_key(v):
     Ignores case, spacing, punctuation and a trailing quantity "x300", so
     "MP Potion (Lv. 3) x300" and "mp potion (lv.3)" give the same key.
     """
-    s = unicodedata.normalize("NFKC", text(v)).lower()
+    s = BOUND_TAG.sub(" ", unicodedata.normalize("NFKC", text(v)).lower())
     s = QTY_SUFFIX.sub("", s)
     for rx, rep in _NAME_UNITS:      # "(15 นาที)" == "(15 min)"
         s = rx.sub(rep, s)
@@ -141,7 +143,7 @@ def option_matches_qty(option, qty):
 
 def full_name_key(v):
     """Like name_key but keeps the quantity: 'Protection of Veradrix x5' != '... x10'."""
-    s = unicodedata.normalize("NFKC", text(v)).lower()
+    s = BOUND_TAG.sub(" ", unicodedata.normalize("NFKC", text(v)).lower())
     s = re.sub(r"\s*[x×]\s*([\d,]+)\s*$", lambda m: "x" + m.group(1).replace(",", ""), s)
     return re.sub(r"[^0-9a-z฀-๿]", "", s)
 
