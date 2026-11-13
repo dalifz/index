@@ -34,6 +34,7 @@ RULES = {
     "NEW_ID":          "ไอเทมใหม่ยังไม่มีเลข",
     "NO_PERIOD":       "Period ว่าง",
     "BIND_BIT":        "ItemKind กับ Trade ขัดกัน",
+    "BOUND_NAME":      "ชื่อมี (ผูกมัด) แต่ Trade ไม่ใช่ No",
     "UPGRADE":         "ระดับตีบวกใน ItemKind ไม่ตรงกับชื่อ",
     "CHAOS_UPGRADE":   "ItemKind ไม่ตรงกับ Chaos Upgrade ในชื่อ",
     "STACKABLE":       "Stackable ไม่ตรงกับฐานข้อมูล",
@@ -52,12 +53,14 @@ RULES = {
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"BOUND_NAME", "CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
     r"(?:\(\s*|\s)(\d+\s*(?:days?|d|วัน|hours?|hrs?|h|ชั่วโมง|ชม|minutes?|mins?|นาที))\.?\s*(?:\)|$)", re.I)
 ALWAYS_INFO = {"NEW_VARIANT"}
+# "(ผูกมัด)" in an item name = character-bound -> Trade (Itemmove) must be No (Dalif 2026-11-13)
+BOUND_IN_NAME = re.compile(r"[(（]\s*ผูกมัด\s*[)）]")
 
 NUMERIC = ("kind", "index", "option", "duration")
 REQUIRED_COLUMNS = ("kind", "index", "option", "duration", "itemmove", "name", "period")
@@ -135,7 +138,8 @@ class Checker:
 
         # 0. items that have no numbers in this game at all (e.g. PC "Platinum Wing")
         nk0 = name_key(v.get("name") or v.get("display_name"))
-        if nk0 and any(nk0.startswith(k) for k in self.no_id_keys) and                 not any(text(v.get(fld)) for fld in ("kind", "index", "option")):
+        if nk0 and any(nk0.startswith(k) for k in self.no_id_keys) \
+                and not any(text(v.get(fld)) for fld in ("kind", "index", "option")):
             return out
 
         # 1. numbers must be exact whole numbers
@@ -187,6 +191,9 @@ class Checker:
         kind, idx, opt, dur = n["kind"], n["index"], n["option"], n["duration"]
         name = text(v.get("name"))
         dname = text(v.get("display_name"))
+        if (BOUND_IN_NAME.search(name) or BOUND_IN_NAME.search(dname)) and "itemmove" in cols                 and text(v.get("itemmove")) != "" and move is not False:
+            f("BOUND_NAME", "itemmove", v.get("itemmove"), "No",
+              "ชื่อไอเทมมีคำว่า (ผูกมัด) = ผูกตัว Trade (Itemmove) ต้องเป็น No เสมอ")
         nk = name_key(name)
 
         # 2. identity: ItemIndex <-> name
