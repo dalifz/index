@@ -111,6 +111,17 @@
   .plan-hint{font-size:12px;color:var(--muted);margin:2px 0 12px;display:flex;flex-direction:column;gap:4px}
   .plan-hint span{display:flex;gap:6px;align-items:flex-start}
   .plan-hint .i{width:16px;height:16px;color:var(--accent);margin-top:2px}
+  .view-tools{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0 0 12px;position:relative;z-index:1}
+  .setting-toggle{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:5px 10px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:#806A70;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:var(--shadow-sm)}
+  .setting-toggle.on{border-color:#F3BED0;background:var(--accent-soft);color:var(--accent)}
+  .switch-track{width:32px;height:20px;padding:2px;border-radius:99px;background:#D9CCCF;display:inline-flex;align-items:center;transition:background .2s;flex-shrink:0}
+  .switch-track>span{width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(69,39,44,.2);transform:translateX(0);transition:transform .2s}
+  .setting-toggle.on .switch-track{background:var(--accent)}
+  .setting-toggle.on .switch-track>span{transform:translateX(12px)}
+  .lang-switch{display:inline-flex;align-items:center;gap:2px;min-height:38px;padding:3px 4px 3px 9px;border:1px solid var(--line);border-radius:99px;background:var(--surface);box-shadow:var(--shadow-sm);white-space:nowrap}
+  .lang-switch>span{margin-right:3px;color:#806A70;font-size:13px;font-weight:700}
+  .lang-switch button{min-width:38px;height:30px;padding:0 8px;border:0;border-radius:99px;background:transparent;color:#8E777D;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .lang-switch button.on{background:var(--accent);color:#fff}
   .dayhead{margin:0 0 12px}.dayhead h2{margin-top:2px}.dayhead .day-theme{margin-top:7px;padding:4px 10px;background:var(--accent-soft);border:1px solid #F6D9DF;color:var(--accent)}.dayhead .rt{color:var(--muted);font-size:12px;margin-top:5px}.dayhead .day-tagline{color:var(--muted);font-size:13px;line-height:1.5;margin-top:2px;overflow-wrap:anywhere}
   .dayhero{display:block;width:100%;border-radius:18px;margin:0 0 14px;cursor:zoom-in;background:#fff;box-shadow:var(--shadow)}
   .dayhero-wrap{position:relative;margin-bottom:14px}
@@ -135,6 +146,11 @@
   .slabel{flex:1;font-weight:600;font-size:14px;line-height:1.35}
   .sbody{display:none;padding:10px 2px 4px}
   .slot.open .sbody{display:block;animation:fade .2s}
+  .slot.move-thin{margin-bottom:4px}
+  .slot.move-thin::before{top:12px;width:7px;height:7px;background:#C9B9BD}
+  .move-thin-btn{width:100%;min-height:30px;padding:3px 10px;border:1px solid #F0E7E5;border-radius:11px;background:rgba(255,255,255,.58);color:#8D7A7F;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer}
+  .move-thin-btn .move-icon{font-size:14px;opacity:.72}
+  .move-thin-btn .move-open{margin-left:auto;color:#B9A7AC;font-size:15px}
   @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1}}
   .lchip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:700;margin:0 2px;vertical-align:1px;background:color-mix(in srgb,var(--c) 14%,#fff);color:color-mix(in srgb,var(--c) 80%,#000)}
   .p-note{color:#7E6A6F;font-size:14px;margin-bottom:6px;line-height:1.6}
@@ -151,12 +167,18 @@
   .tmqr figcaption{font-size:13px;font-weight:600;line-height:1.35;margin-top:4px}
 
   /* copy chip */
-  .cp{display:inline-flex;align-items:center;gap:6px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 12px;margin:4px 6px 0 0;cursor:pointer;font-size:13px;font-weight:500}
+  .cp{display:inline-flex;align-items:center;gap:6px;max-width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:6px 12px;margin:4px 6px 0 0;cursor:pointer;font-size:13px;font-weight:500;overflow-wrap:anywhere}
   .cp:active{border-color:var(--accent)}
   .cp .zh{color:var(--ink);font-weight:700}
   .cp .ic{display:flex;color:var(--accent)}.cp .ic .i{width:14px;height:14px}
   .cp.copied{background:var(--done-soft);color:var(--done);border-color:var(--done)}
   .cp.copied .zh{color:var(--done)}
+  .cp.cp-en{border-radius:16px;padding:6px 7px 6px 11px;vertical-align:middle}
+  .cp-names{display:flex;min-width:0;flex-direction:column;line-height:1.25}
+  .cp-main{font-size:14px;font-weight:700;color:var(--ink)}
+  .cp-sub{margin-top:2px;font-size:13px;font-weight:600;color:var(--muted)}
+  .cp-zh{display:inline-flex;align-items:center;justify-content:center;align-self:stretch;min-width:30px;min-height:30px;padding:0 7px;border:1px solid #F3CAD7;border-radius:11px;background:var(--accent-soft);color:var(--accent);font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
+  .cp-zh.ok{background:var(--done-soft);border-color:var(--done);color:var(--done)}
 
   /* METRO card */
   .metro{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--mc,var(--muted));border-radius:16px;padding:14px}
@@ -439,6 +461,8 @@
   .short-row.transit .short-time{color:#A88991;font-size:13px;font-weight:600}
   .short-row.transit .short-icon{font-size:15px;opacity:.72}
   .short-row.transit .short-label{font-weight:500}
+  .short-row.transit.compact{min-height:32px;padding:4px 11px;grid-template-columns:22px minmax(0,1fr) 14px;background:#FCF9F7}
+  .short-row.transit.compact .short-label{font-size:13px;color:#8D7A7F}
   .short-row .lchip{height:20px;font-size:11px;padding:0 6px}
   .short-where{margin-left:5px;font-size:13px;font-weight:500;color:#8F7A80}
   .short-row.highlight .short-where{color:#B9788F;font-weight:600}
@@ -449,6 +473,7 @@
     .short-days{gap:3px;padding-inline:8px}
     .short-jump{font-size:10.5px}.short-jump small{font-size:9px}
     .short-row{grid-template-columns:80px 20px minmax(0,1fr) 13px;padding-inline:9px;gap:5px}.short-time{font-size:13px}
+    .short-row.transit.compact{grid-template-columns:20px minmax(0,1fr) 13px;padding-inline:9px}
   }
 </style>
 </head>
@@ -522,7 +547,11 @@
   <section class="view pad" id="v-plan">
     <div class="kicker">Day by day</div>
     <h1 style="margin:2px 0 2px">แผนเที่ยว</h1>
-    <div class="plan-hint"><span>💡 แตะชื่อสถานที่เพื่อ copy ภาษาจีนไป AMap · ปัดซ้าย-ขวาเปลี่ยนวัน</span></div>
+    <div class="plan-hint"><span>💡 แตะชื่อสถานที่เพื่อ copy ไป AMap · ปัดซ้าย-ขวาเปลี่ยนวัน</span></div>
+    <div class="view-tools">
+      <button type="button" class="setting-toggle" data-transit-toggle role="switch" aria-checked="false" onclick="setShowMoves(!showMoves)"><span class="switch-track" aria-hidden="true"><span></span></span><span>🚇 แสดงการเดินทาง</span></button>
+      <div class="lang-switch" role="group" aria-label="ภาษาชื่อสถานที่"><span>ชื่อ:</span><button type="button" data-place-lang="zh" onclick="setPlaceLang('zh')">中文</button><button type="button" data-place-lang="en" onclick="setPlaceLang('en')">EN</button></div>
+    </div>
     <div class="days" id="days"></div>
     <div class="dayhead" id="dayhead"></div>
     <div class="tl" id="timeline"></div>
@@ -533,6 +562,7 @@
     <div class="kicker">Trip at a glance</div>
     <h1 style="margin:2px 0 2px">แผนย่อ</h1>
     <p class="short-intro">ทุกวันในหน้าเดียว · แตะรายการเพื่อเปิดรายละเอียด</p>
+    <div class="view-tools"><button type="button" class="setting-toggle" data-transit-toggle role="switch" aria-checked="false" onclick="setShowMoves(!showMoves)"><span class="switch-track" aria-hidden="true"><span></span></span><span>🚇 แสดงการเดินทาง</span></button></div>
     <div class="short-days" id="short-days" aria-label="ข้ามไปวันต่างๆ"></div>
     <div id="short-list"></div>
   </section>
@@ -541,7 +571,8 @@
   <section class="view pad" id="v-food">
     <div class="kicker">Backup food guide</div>
     <h1 style="margin:2px 0 2px">🍜 ร้านน่าสนใจ (สำรอง) แยกตามวัน</h1>
-    <p class="food-intro">แตะชื่อจีนเพื่อคัดลอก · เปิด AMap เพื่อดูสาขาและเส้นทาง</p>
+    <p class="food-intro">แตะชื่อร้านเพื่อคัดลอก · เปิด AMap เพื่อดูสาขาและเส้นทาง</p>
+    <div class="view-tools"><div class="lang-switch" role="group" aria-label="ภาษาชื่อสถานที่"><span>ชื่อ:</span><button type="button" data-place-lang="zh" onclick="setPlaceLang('zh')">中文</button><button type="button" data-place-lang="en" onclick="setPlaceLang('en')">EN</button></div></div>
     <div class="food-days" id="food-days" aria-label="เลือกรายการร้านตามวัน"></div>
     <div id="food-list"></div>
   </section>
@@ -679,39 +710,42 @@ const CARDS=[
 ];
 
 const DAYS=[
- {id:'1',tab:'DAY 1',date:'Dec 3',emoji:'✈️',theme:'✨ Hello Shanghai! วันแรกพบ',tagline:'เดินถนนนานจิงจนไฟ Bund เปิด',cardTitle:'Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',summary:'PVG 08:45 → ฝากกระเป๋า → 裕兴记 บะหมี่ปู → 第一百货 + First Food Hall → Nanjing East → The Bund อาทิตย์ตก + ไฟเปิด → Rockbund คริสต์มาส',title:'Day 1 — Dec 3 · Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',route:'PVG → 大世界 → 人民广场 People\'s Square → 第一百货 → 南京东路 → 外滩 The Bund → 外滩源 Rockbund',
+ {id:'1',tab:'DAY 1',date:'Dec 3',emoji:'✈️',theme:'✨ Hello Shanghai! วันแรกพบ',tagline:'เดินถนนนานจิงจนไฟ Bund เปิด',cardTitle:'Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',summary:'PVG 08:45 → ฝากกระเป๋า → 裕兴记 บะหมี่ปู → 第一百货 + ของฝาก → Check-in → Lai Lai 小笼包 → Nanjing East → The Bund ไฟเปิด → Rockbund คริสต์มาส → 老字号',title:'Day 1 — Dec 3 · Arrival → People\'s Square → Nanjing East → The Bund → Rockbund Christmas',route:'PVG → 大世界 → 人民广场 People\'s Square → 第一百货 → 南京东路 → 外滩 The Bund → 外滩源 Rockbund',
   slots:[
    {t:'03:20–08:45',icon:'✈️',label:'Flight 9C7294',note:'BKK → PVG T2 · ออกจากบ้าน 22:00 คืนวันพุธที่ 2 ธ.ค. · เคาน์เตอร์ Spring เปิด 00:20 (3 ชม.ก่อนบิน) ไปรอหน้าเคาน์เตอร์ · เช็ค passport · นอนบนเครื่อง',places:[P('PVG T2 — Shanghai Pudong International Airport','浦东国际机场T2')]},
    {t:'08:45–09:45',icon:'🛂',label:'ตม. + รับกระเป๋า',note:'✅ ลงทะเบียน ตม. ออนไลน์แล้ว (12 Nov) · ยื่นพาสปอร์ต + โชว์ QR ในใบ ตม. ด้านล่าง · ถ้าระบบไม่รับ กรอกบัตรกระดาษที่ด่านได้ · ซื้อซิม / เติมบัตรเมโทรที่สนามบินถ้ายังไม่มี',foldtitle:'🛂 ใบ ตม.',foldnote:'<div class="tmqr"><figure><img src="assets/tm_qr_dalif.png" alt="QR ใบ ตม. ดาลิฟ" onclick="zoomImg(\'assets/tm_qr_dalif.png\')"><figcaption>ดาลิฟ<br>DARINDA</figcaption></figure><figure><img src="assets/tm_qr_mom.png" alt="QR ใบ ตม. แม่" onclick="zoomImg(\'assets/tm_qr_mom.png\')"><figcaption>แม่<br>CHOLLAMARK</figcaption></figure></div><div class="muted" style="font-size:12px;margin-top:6px">แตะ QR เพื่อขยาย · ยื่นคู่กับพาสปอร์ตของแต่ละคน</div>'},
    {t:'09:45–11:10',icon:'🚇',label:'Metro · Line 2 → 蟠祥路·国家会计学院 · Line 8 → 沈杜公路',note:'浦东1号2号航站楼 Pudong Airport Terminal 1&2 ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · ~1 ชม. 25 นาที · ⚠️ ถ้าขบวนสุดสายที่ 广兰路 Guanglan Road ให้เดินตามป้ายผ่านโถงสถานี (站厅) ไปขึ้นขบวนเข้าเมือง (ทิศ 蟠祥路·国家会计学院) · มีกระเป๋า + เหนื่อย → DiDi ~1 ชม. แทนได้',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
    {t:'11:15–11:30',icon:'🧳',label:'ฝากกระเป๋า',note:'Check-in ได้ 14:00 · ฝากกระเป๋าที่ล็อบบี้ก่อน · ลองขอ early check-in',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
-   {t:'11:30–12:30',icon:'🦀',label:'Lunch ⭐ บะหมี่มันปู',note:'裕兴记·蟹黄面馆 (大世界店) · 金陵东路500号 ชั้น 1 Yalong International Plaza · สถานี 大世界 ทางออก 5 เดิน ~4 นาที (ทางเดียวกับโรงแรม) · เปิด 09:00–21:00 · ~¥92/คน · 蟹黄面 บะหมี่มันปู (คลุกตอนร้อนๆ) · 蟹粉小笼包 เสี่ยวหลงเปาปู · 三虾面 บะหมี่กุ้ง · มีเซ็ต 2–3 คน',places:[P('裕兴记·蟹黄面馆 Yuxingji','裕兴记 蟹黄面馆 大世界店')]},
+   {t:'11:30–12:30',icon:'🦀',label:'Lunch ⭐ บะหมี่มันปู',note:'裕兴记·蟹黄面馆 (大世界店) · 金陵东路500号 ชั้น 1 Yalong International Plaza · สถานี 大世界 ทางออก 5 เดิน ~4 นาที (ทางเดียวกับโรงแรม) · เปิด 09:00–21:00 · ~¥92/คน · 蟹黄面 บะหมี่มันปู (คลุกตอนร้อนๆ) · 蟹粉小笼包 เสี่ยวหลงเปาปู · 三虾面 บะหมี่กุ้ง · มีเซ็ต 2–3 คน',places:[P('Yuxingji Crab Noodles (Dashijie)','裕兴记 蟹黄面馆 大世界店')]},
    {t:'12:30–13:00',icon:'🧋',label:'Walk + Tea',note:'เดินขึ้นเหนือไป People\'s Square / 南京东路 ~15 นาที · แวะซื้อ HEYTEA ระหว่างทาง',places:[P('HEYTEA','喜茶')]},
-   {t:'13:00–15:00',icon:'🛍️',label:'Shopping ⭐ 第一百货 + First Food Hall',note:'ห้างเก่าแก่ของเซี่ยงไฮ้ เหมาะกับแม่ · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Brand Center 3 ชั้น (ใหญ่สุดในเอเชียแปซิฟิก) อยู่ในห้างนี้ · ของลิมิเต็ดหมดไว เจอไซส์ที่ชอบซื้อเลย · + 第一食品 First Food Hall อยู่ติดกัน ซื้อขนมของฝาก',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号'),P('Adidas ร้านที่มี Shanghai Collection · adidas Brand Center','阿迪达斯 南京东路800号 第一百货'),P('First Food Hall','第一食品商店')]},
-   {t:'15:00–16:00',icon:'🚶',label:'Walk 南京东路 → ไปทาง Bund',note:'ถนนคนเดิน · Nanjing Road Century Square 世纪广场 · H&M flagship 4 ชั้น · Miniso Land · Top Toy',places:[P('Nanjing Road Century Square','世纪广场'),P('H&M Yuehui Plaza','悦荟广场')]},
-   {t:'16:00–16:40',icon:'👟',label:'adidas ⭐',note:'หน้าห้าง 新世界大丸 New World Daimaru · ร้านติดถนนคนเดิน (AMap ระบุ F4 ถ้าไม่เจอขึ้นไปดูชั้น 4) · เปิด 10:00–22:00 · ใกล้ Bund ที่สุด ซื้อตรงนี้ไม่ต้องถือถุงนาน',places:[P('adidas · New World Daimaru','新世界大丸百货 南京东路228号')]},
-   {t:'16:40–17:15',icon:'🚶',label:'Walk → The Bund',note:'เดิน ~10 นาที · หาจุดตั้งกล้องก่อน · 🌇 พระอาทิตย์ตก ~16:50 ฟ้าสีน้ำเงินหลังจากนั้นถ่ายสวย',places:[P('The Bund','外滩')]},
-   {t:'17:15–18:20',icon:'🎥',label:'The Bund ⭐ อาทิตย์ตก + ไฟเปิด',note:'อัดคอนเทนต์ช่วงไฟค่อยๆ เปิด · เวลาเปิดไฟฤดูหนาว ~18:00 (ไม่มีเวลาทางการ มาก่อน 17:15 ชัวร์สุด) · ลมริมแม่น้ำแรง ~5°C ใส่อุ่นๆ',places:[P('The Bund','外滩')]},
+   {t:'13:00–14:30',icon:'🛍️',label:'Shopping ⭐ 第一百货 + adidas + First Food Hall',note:'ห้างเก่าแก่ของเซี่ยงไฮ้ เหมาะกับแม่ · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Brand Center 3 ชั้น (ใหญ่สุดในเอเชียแปซิฟิก) อยู่ในห้างนี้ · ของลิมิเต็ดหมดไว เจอไซส์ที่ชอบซื้อเลย · + 第一食品 First Food Hall อยู่ติดกัน ซื้อของฝาก/ขนม',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号'),P('adidas Brand Center · No.1 Department Store','阿迪达斯 南京东路800号 第一百货'),P('First Food Hall','第一食品商店')]},
+   {t:'14:30–15:15',icon:'🏨',label:'Check-in + วางของฝาก',note:'เดินกลับ Jinjiang Inn ~15 นาที (เช็คอินได้ 14:00) · เอากระเป๋าที่ฝากไว้ + วางของฝาก · พักแป๊บ',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'15:15–15:35',icon:'🚶',label:'Walk / DiDi → 天津路',note:'Jinjiang Inn → 天津路 Tianjin Road (ใกล้ 浙江中路) ~20 นาที เดินผ่าน People\'s Square / หลัง 南京东路 · เหนื่อย → DiDi',places:[P('Tianjin Rd × Zhejiang Middle Rd','天津路与浙江中路交叉口')]},
+   {t:'15:35–16:20',icon:'🥟',label:'Lai Lai ⭐ เสี่ยวหลงเปา',note:'① ไปร้าน NEW ก่อน: 莱莱小笼 天津路 (ใกล้ 浙江中路 ข้าง Homeinn) · คนเยอะ/คิวยาว → ② ร้านเดิม 莱莱小笼 天津路504号 (ใกล้ 广西北路) · เมนู: เสี่ยวหลงเปา · หมูชุบเกล็ดขนมปัง · บะหมี่มันปู · ⚠️ ร้านเดิมรับเงินสด + ปิดพักกลางวัน 1 ชม. เช็ค AMap · ร้านอื่นแถวนี้ดูแท็บกิน → People Square',places:[P('Lailai Xiaolongbao Tianjin Road','莱莱小笼 天津路'),P('Lailai Xiaolongbao 504 Tianjin Road','莱莱小笼 天津路504号')]},
+   {t:'16:20–16:45',icon:'🚶',label:'Walk 南京东路 → ไปทาง Bund',note:'เดินถนนคนเดิน 南京东路 → ไปทาง Bund',places:[P('East Nanjing Road Pedestrian Street','南京东路步行街')]},
+   {t:'16:45–17:15',icon:'👟',label:'adidas ⭐',note:'หน้าห้าง 新世界大丸 New World Daimaru · ร้านติดถนนคนเดิน (AMap ระบุ F4 ถ้าไม่เจอขึ้นไปดูชั้น 4) · เปิด 10:00–22:00 · ใกล้ Bund ที่สุด ซื้อตรงนี้ไม่ต้องถือถุงนาน · เสร็จแล้วเดินไป Bund ~10 นาที',places:[P('adidas · New World Daimaru','新世界大丸百货 南京东路228号')]},
+   {t:'17:15–18:20',icon:'🎥',label:'The Bund ⭐ ไฟเปิด',note:'อัดคอนเทนต์ช่วงไฟค่อยๆ เปิด · เวลาเปิดไฟฤดูหนาว ~18:00 (ไม่มีเวลาทางการ มาก่อน 17:15 ชัวร์สุด) · ลมริมแม่น้ำแรง ~5°C ใส่อุ่นๆ',places:[P('The Bund','外滩')]},
    {t:'18:30–19:30',icon:'🎄',label:'Rockbund คริสต์มาส',note:'ตรอกตึกอิฐสีน้ำตาล 圆明园路 Yuanmingyuan Road · เดินจาก Bund ~10 นาที · ปกติมีงานคริสต์มาส คนเยอะ · 🎟️ งานคริสต์มาสต้องซื้อตั๋วเข้างานล่วงหน้า (ดู To-do ในหน้าเช็คลิสต์) · ⚠️ ใกล้วันไปค้น 外滩源 圣诞 ใน Xiaohongshu ดูว่าเริ่มจัดหรือยัง',places:[P('Rockbund','外滩源'),P('Yuanmingyuan Road','圆明园路')]},
-   {t:'19:30–20:30',icon:'🍢',label:'Dinner ย่านเดียว ⭐',note:'เลือกย่านเดียว ไม่ต้องเดินครบทุกถนน · ① 天津路 Tianjin Road (ทางผ่านจาก Rockbund) — ⭐ Lailai 小笼包 Xiaolongbao + Yang\'s 生煎 Fried Dumpling · ② 云南南路 Yunnan South Road หน้าโรงแรม — ถ้าเหนื่อยแล้ว กินใกล้ที่พักเลย',places:[P('Tianjin Road','天津路'),P('Yunnan South Road Food Street','云南南路美食街')]},
-   {t:'~20:45',icon:'🏨',label:'กลับโรงแรม + Check-in',note:'วันนี้ไม่แวะโรงแรมระหว่างวัน · จาก ① 天津路: DiDi ~10 นาที หรือ Metro: 南京东路 East Nanjing Road ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 1 สถานี ลง 人民广场 People\'s Square → เปลี่ยน Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 · จาก ② 云南南路: เดินกลับได้เลย',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'19:30–20:30',icon:'🍢',label:'Dinner ⭐ ร้านเก่าแก่ 老字号',note:'ทางกลับโรงแรม · ร้านจาก 云南南路美食街 ย้ายมาอยู่ 山西南路 / 福建中路 (ช่วง 云南南路 ปิดปรับปรุง) · 小绍兴 ข้าวต้มไก่ + ไก่ต้ม (ถึง ~22:00) · 大壶春 生煎 · 鲜得来 排骨年糕 (ถึง ~01:00) · ⚠️ ข้อมูล ก.พ. 2026 เช็ค AMap · รายชื่อร้านทั้งหมดดูแท็บกิน → ใกล้โรงแรม',places:[P('Xiao Shao Xing · Shanxi South Road','小绍兴 山西南路'),P('Da Hu Chun · Shanxi South Road','大壶春 山西南路'),P('Xian De Lai · Fujian Middle Road','鲜得来 福建中路')]},
+   {t:'~20:45',icon:'🏨',label:'กลับโรงแรม',note:'Jinjiang Inn 锦江之星 云南南路293号 · เดิน ~15 นาที หรือ DiDi',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',theme:'🛍️ วันช้อปให้สุด หยุดไม่อยู่',tagline:'ย่านฝรั่งเศสเก่า Wukang → Anfu → Xintiandi',cardTitle:'Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',summary:'Wukang/Tai\'an (photos + Grayfleece) → Anfu → HAUS NOWHERE → Huaihai → Sinan Mansions → พักโรงแรม → Xintiandi',title:'Day 2 — Dec 4 · Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → 淮海中路 Huaihai → 思南公馆 Sinan → 新天地 Xintiandi',
+ {id:'2',tab:'DAY 2',date:'Dec 4',emoji:'🛍️',theme:'🛍️ วันช้อปให้สุด หยุดไม่อยู่',tagline:'ย่านฝรั่งเศสเก่า Wukang → Anfu → Xintiandi',cardTitle:'Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',summary:'Wukang/Tai\'an (photos + Grayfleece) → Anfu → 沪西老弄堂 บะหมี่ → HAUS NOWHERE → Huaihai → Sinan Mansions → พักโรงแรม → Xintiandi',title:'Day 2 — Dec 4 · Wukang → Tai\'an → Anfu → Huaihai → Sinan → Xintiandi',route:'武康路 Wukang Rd → 泰安路 Tai\'an Rd → 安福路 Anfu Rd → 淮海中路 Huaihai → 思南公馆 Sinan → 新天地 Xintiandi',
   slots:[
-   {t:'07:30–08:00',icon:'🍞',label:'Breakfast แถวโรงแรม',note:'巴比馒头 Babi Mantou / ร้านอาหารเช้าแถว 云南南路 Yunnan South Road · กินให้อิ่มก่อนออก · 🧥 ~5°C ใส่อุ่นๆ ถุงมือ + ผ้าพันคอ',places:[P('巴比馒头 Babi Mantou','巴比馒头')]},
+   {t:'07:30–08:00',icon:'🍞',label:'Breakfast แถวโรงแรม',note:'巴比馒头 Babi Mantou / ร้านอาหารเช้าแถว 云南南路 Yunnan South Road · กินให้อิ่มก่อนออก · 🧥 ~5°C ใส่อุ่นๆ ถุงมือ + ผ้าพันคอ',places:[P('Babi Mantou','巴比馒头')]},
    {t:'08:00–08:40',icon:'🚇',label:'Metro · Line 8 → 沈杜公路 · Line 10 → 虹桥火车站',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 老西门 Laoximen → เปลี่ยน Line 10 ทิศ 虹桥火车站 Hongqiao Railway Station / 航中路 Hangzhong Road (ขบวนไหนก็ได้) → 4 สถานี ลง 交通大学 Jiaotong University · ออก Exit 7 → เดิน ~500 ม. (5–8 นาที) ไป 武康大楼',places:[P('Dashijie','大世界'),P('Laoximen','老西门'),P('Jiaotong University','交通大学')]},
    {t:'08:40–09:50',icon:'📸',label:'Photo ⭐',note:'ถ่ายตึก 武康大楼 (ตึกที่อยู่อาศัย ถ่ายจากข้างนอกได้ตลอด) + เดิน 武康路 / 泰安路 ถนนต้นไม้ใหญ่ บ้านเก่า · ไปถึงก่อน 9 โมงคนยังน้อย (สาย 9–10 โมงเริ่มเยอะ) · ร้านแถวนี้เปิด ~10:00',places:[P('Wukang Mansion','武康大楼'),P('Wukang Road','武康路'),P('Tai\'an Road','泰安路')]},
-   {t:'10:00–10:40',icon:'🍵',label:'Cafe ⭐',note:'泰安路29号 No. 29 Tai\'an Road (徐汇区 Xuhui District) · เปิด 10:00–19:00 · ~¥45/คน · 抹茶草莓特饮 Matcha Strawberry Drink ~¥42 · ร้านเล็กโทนขาวมินิมอล ถ่ายรูปง่าย · ⚠️ เช็คเวลาเปิดใน AMap ก่อนไป ร้านเล็กเปลี่ยนเวลาบ่อย',places:[P('Grayfleece 泰安路店 Tai\'an Road Branch','泰安路29号')]},
+   {t:'10:00–10:40',icon:'🍵',label:'Cafe ⭐',note:'泰安路29号 No. 29 Tai\'an Road (徐汇区 Xuhui District) · เปิด 10:00–19:00 · ~¥45/คน · 抹茶草莓特饮 Matcha Strawberry Drink ~¥42 · ร้านเล็กโทนขาวมินิมอล ถ่ายรูปง่าย · ⚠️ เช็คเวลาเปิดใน AMap ก่อนไป ร้านเล็กเปลี่ยนเวลาบ่อย',places:[P('Grayfleece · Tai\'an Road','泰安路29号')]},
    {t:'10:40–11:00',icon:'🚶',label:'Walk',note:'泰安路 Tai\'an Road → 武康路 Wukang Road → เข้า 安福路 Anfu Road'},
-   {t:'11:00–12:15',icon:'🛍️',label:'Anfu Road',img:'assets/anfuday2.jpg',note:'เดินเก็บร้านตามทาง 安福路 Anfu Road → เดินต่อไป HARMAY zone · ⏳ เลือกเฉพาะร้านที่อยากเข้าจริง ไม่ต้องครบทุกร้าน',places:[P('13DE MARZO',''),P('NU SHOP',''),P('Wiggle Wiggle',''),P('Brandy Melville',''),P('Deja Vu',''),P('Not Just Pajama',''),P('Lost in echo',''),P('Looknow',''),P('Uodycoco',''),P('MORETHINGS+',''),P('APOLI ITABAKERY · No. 380 Xingguo Road','兴国路380号'),P('HARMAY zone','')],foldnote:'เริ่มต้นที่ <b>WUKANG ROAD</b> แล้วเดินไป <b>ANFU ROAD</b> สุดทางจากแยก <b>HARMAY</b> แล้วกดหา <b>adidas Originals Flagship</b> ชอปปิ้ง<br><br>เสร็จหน้า Adidas เรียก <b>DIDI</b> ไป <b>MID HUAIHAI</b> ได้เลย ไปลง <b>HAUS NOWHERE</b> · หันหน้าเข้า HAUS NOWHERE เดินไปทางขวา ข้ามแยกไปเรื่อยๆ จะถึง <b>YOUTH ENERGY CENTER</b> แล้วค่อยไปจบวันที่ <b>XINTIANDI</b> ตามแผนที่ที่แนบให้<br><br>ตรงข้าม YOUTH ENERGY CENTER เป็นร้าน <b>MAISON PRINCE</b> — อย่าลืมแวะไปติดไม้ติดมือเสื้อผ้ากลับมาด้วย<br><br>ตรงข้าม HAUS NOWHERE คือร้านกระเป๋า <b>SONGMONT</b> ตรงข้ามกันเลย · จะเดินฝั่ง SONGMONT ไป YOUTH ENERGY CENTER ก็ได้ จะผ่านร้าน <b>FARMER BOB</b> กับ <b>HEY TEA</b><br><br>ตอนเย็นค่ำเดิน <b>Xintiandi</b> กลับโรงแรม · ยามชอปปิ้ง เก็บหมดใน 1 วัน'},
-   {t:'12:15–12:45',icon:'👟',label:'adidas Originals Flagship',note:'→ Shopping · 👟 Adidas ร้านที่มี Shanghai Collection (สาขาย่าน 安福路 Anfu Road / French Concession) · ⚠️ ลิมิเต็ด เช็คสต็อกก่อน',places:[P('adidas Originals Flagship',''),P('Adidas ร้านที่มี Shanghai Collection · Anfu Road','阿迪达斯 安福路')]},
-   {t:'12:45–13:30',icon:'🍜',label:'Lunch ⭐',note:'มื้อเที่ยงแถว 安福路 Anfu Road · ค้น AMap: 安福路 餐厅 · ให้แม่ได้นั่งพัก',places:[P('ร้านอาหารแถว Anfu Road','安福路 餐厅')]},
-   {t:'13:30–13:45',icon:'🚕',label:'Didi',note:'Anfu Road → HAUS NOWHERE'},
-   {t:'13:45–14:45',icon:'🖤',label:'Explore + Shopping',note:'HAUS NOWHERE + Songmont ร้านกระเป๋า (ฝั่งตรงข้าม HAUS NOWHERE)',places:[P('HAUS NOWHERE',''),P('Songmont','')]},
-   {t:'14:45–15:30',icon:'🚶',label:'Walk',note:'เดินตาม 淮海中路 Huaihai Road → Youth Energy Center · ⚠️ เช็คระยะใน AMap ถ้าใกล้ ใช้เวลาเหลือช้อปต่อ',places:[P('Middle Huaihai Road','淮海中路')]},
+   {t:'11:00–12:15',icon:'🛍️',label:'Anfu Road',img:'assets/anfuday2.jpg',note:'เดินเก็บร้านตามทาง 安福路 Anfu Road → เดินต่อไป HARMAY zone · ⏳ เลือกเฉพาะร้านที่อยากเข้าจริง ไม่ต้องครบทุกร้าน',places:[P('13DE MARZO',''),P('NU SHOP',''),P('Wiggle Wiggle',''),P('Brandy Melville',''),P('Deja Vu',''),P('Not Just Pajama',''),P('Lost in echo',''),P('Looknow',''),P('Uodycoco',''),P('MORETHINGS+',''),P('APOLI ITABAKERY · No. 380 Xingguo Road','兴国路380号'),P('HARMAY zone','')],foldnote:'เริ่มต้นที่ <b>WUKANG ROAD</b> แล้วเดินไป <b>ANFU ROAD</b> สุดทางจากแยก <b>HARMAY</b> แล้วกดหา <b>adidas Originals Flagship</b> ชอปปิ้ง<br><br>เสร็จหน้า Adidas เรียก <b>DIDI</b> ไป <b>MID HUAIHAI</b> ได้เลย ไปลง <b>HAUS NOWHERE</b> · หันหน้าเข้า HAUS NOWHERE เดินไปทางขวา ข้ามแยกไปเรื่อยๆ จะถึง <b>YOUTH ENERGY CENTER</b> แล้วค่อยไปจบวันที่ <b>XINTIANDI</b> ตามแผนที่ที่แนบให้<br><br>ตรงข้าม YOUTH ENERGY CENTER เป็นร้าน <b>MAISON PRINCE</b> — อย่าลืมแวะไปติดไม้ติดมือเสื้อผ้ากลับมาด้วย<br><br>ตรงข้าม HAUS NOWHERE คือร้านกระเป๋า <b>SONGMONT</b> ตรงข้ามกันเลย · จะเดินฝั่ง SONGMONT ไป YOUTH ENERGY CENTER ก็ได้ จะผ่านร้าน <b>FARMER BOB</b> กับ <b>HEY TEA</b><br><br>ตอนเย็นค่ำเดิน <b>Xintiandi</b> กลับโรงแรม · ยามชอปปิ้ง เก็บหมดใน 1 วัน<br><br>📌 <b>แพลนล่าสุด</b>: หลัง adidas เดินไปกินบะหมี่ 沪西老弄堂面馆 ก่อน แล้วนั่ง Metro ไป HAUS NOWHERE (ดูช่อง 12:35–14:15) ไม่ต้องเรียก DiDi'},
+   {t:'12:15–12:35',icon:'👟',label:'adidas Originals Flagship',note:'→ Shopping · 👟 Adidas ร้านที่มี Shanghai Collection (สาขาย่าน 安福路 Anfu Road / French Concession) · ⚠️ ลิมิเต็ด เช็คสต็อกก่อน',places:[P('adidas Originals Flagship',''),P('adidas · Anfu Road','阿迪达斯 安福路')]},
+   {t:'12:35–13:00',icon:'🚶',label:'Walk → 沪西老弄堂面馆',note:'安福路 Anfu Road → 沪西老弄堂面馆 (北京西路1738号) เดินขึ้นเหนือ ~25 นาที (ไม่ต้อง DiDi) · เหนื่อย → เดินไป 常熟路 Changshu Road ขึ้น Line 7 ทิศ 美兰湖 Meilan Lake → 1 สถานี ลง 静安寺 Jing\'an Temple ทางออก 1 → เดิน ~7 นาที',places:[P('Changshu Road','常熟路'),P('Jing\'an Temple','静安寺')]},
+   {t:'13:00–13:50',icon:'🍜',label:'Lunch ⭐ บะหมี่ที่แม่อยากกิน',note:'沪西老弄堂面馆 (静安寺店) Huxi Lao Longtang Noodle House · 北京西路1738号 · สถานี 静安寺 ทางออก 1 เดิน ~7 นาที · เปิด 10:00–15:00 / 16:00–20:30 · ~¥42/คน · 辣肉面 · 葱油拌面 · 大排 · 虎皮蛋 · เที่ยงคิวยาว ต้องนั่งโต๊ะรวม · ⚠️ เช็ค AMap',places:[P('Huxi Lao Longtang Noodle House','沪西老弄堂面馆 静安寺店')]},
+   {t:'13:50–14:15',icon:'🚇',label:'Metro · Line 7 → 花木路 · Line 1 → 富锦路',note:'静安寺 Jing\'an Temple ขึ้น Line 7 ทิศ 花木路 Huamu Road → 1 สถานี ลง 常熟路 Changshu Road → เปลี่ยน Line 1 ทิศ 富锦路 Fujin Road → 1 สถานี ลง 陕西南路 South Shaanxi Road → เดินไป HAUS NOWHERE (淮海中路798号 ใกล้ 茂名南路) · ⚠️ เช็คใน AMap ว่าใกล้ทางออกไหน',places:[P('Jing\'an Temple','静安寺'),P('Changshu Road','常熟路'),P('South Shaanxi Road','陕西南路')]},
+   {t:'14:15–15:00',icon:'🖤',label:'Explore + Shopping',note:'HAUS NOWHERE + Songmont ร้านกระเป๋า (ฝั่งตรงข้าม HAUS NOWHERE)',places:[P('HAUS NOWHERE',''),P('Songmont','')]},
+   {t:'15:00–15:30',icon:'🚶',label:'Walk',note:'เดินตาม 淮海中路 Huaihai Road → Youth Energy Center · ⚠️ เช็คระยะใน AMap ถ้าใกล้ ใช้เวลาเหลือช้อปต่อ',places:[P('Middle Huaihai Road','淮海中路')]},
    {t:'15:30–16:15',icon:'🏙️',label:'Explore + Shopping',note:'Youth Energy Center + Maison Prince (ฝั่งตรงข้าม Youth Energy Center)',places:[P('Youth Energy Center',''),P('Maison Prince','')]},
-   {t:'16:15–16:30',icon:'🚕',label:'Didi',note:'→ 思南公馆 Sinan Mansions',places:[P('思南公馆 Sinan Mansions','思南公馆')]},
-   {t:'16:30–17:20',icon:'📸',label:'Sinan Mansions ⭐',note:'思南公馆 · 复兴中路 Middle Fuxing Road / 思南路 Sinan Road · บ้านวิลล่าอิฐแดงยุค 1920s · 🌇 อาทิตย์ตก ~16:50 · (ย้ายมาจาก Day 5 · อยู่ติด Xintiandi)',places:[P('思南公馆 Sinan Mansions','思南公馆')]},
+   {t:'16:15–16:30',icon:'🚕',label:'Didi',note:'→ 思南公馆 Sinan Mansions',places:[P('Sinan Mansions','思南公馆')]},
+   {t:'16:30–17:20',icon:'📸',label:'Sinan Mansions ⭐',note:'思南公馆 · 复兴中路 Middle Fuxing Road / 思南路 Sinan Road · บ้านวิลล่าอิฐแดงยุค 1920s · 🌇 อาทิตย์ตก ~16:50 · (ย้ายมาจาก Day 5 · อยู่ติด Xintiandi)',places:[P('Sinan Mansions','思南公馆')]},
    {t:'17:20–17:35',icon:'🚕',label:'Didi',note:'思南公馆 Sinan Mansions → Jinjiang Inn · ~10 นาที',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'17:35–18:05',icon:'🏨',label:'Rest',note:'กลับโรงแรม วางถุงช้อป · พักขา'},
    {t:'18:05–18:20',icon:'🚇',label:'Metro · Line 8 → 沈杜公路 · Line 10 → 虹桥火车站',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 老西门 Laoximen → เปลี่ยน Line 10 ทิศ 虹桥火车站 Hongqiao Railway Station / 航中路 Hangzhong Road → 1 สถานี ลง 新天地 Xintiandi · รวม 2 สถานี (หรือ DiDi ~10 นาที)',places:[P('Dashijie','大世界'),P('Xintiandi','新天地')]},
@@ -726,8 +760,8 @@ const DAYS=[
    {t:'09:26–10:03',icon:'🚄',label:'HSR ✅ G7372',note:'ชั้นสอง · 2 คน · ตั๋วออกจริง 22 พ.ย.',places:[P('Shanghai Hongqiao','上海虹桥站'),P('Suzhou','苏州站')]},
    {t:'10:20–10:45',icon:'🚇',label:'Metro · Suzhou Line 4 → 同里 · Line 1 → 钟南街',note:'ลงรถไฟแล้วเดินไปสถานี Metro 苏州火车站 Suzhou Railway Station · ขึ้น Suzhou Line 4 ทิศ 同里 Tongli → ลง 乐桥 Leqiao → เปลี่ยน Line 1 ทิศ 钟南街 Zhongnan Jie → 2 สถานี ลง 相门 Xiangmen · ออก Exit 3 · (ทางเดิม: Line 2 → 广济南路 Guangji South Road → Line 1 ก็ได้)',places:[P('Suzhou Railway Station','苏州火车站'),P('Leqiao','乐桥'),P('Xiangmen','相门')]},
    {t:'11:00–11:40',icon:'🦀',label:'Brunch',note:'เช็คชื่อร้านใน AMap อีกครั้ง',places:[P('Crab Noodles','')]},
-   {t:'11:45–12:40',icon:'🚶',label:'City Walk',places:[P('Pingjiang Road','平江路')]},
-   {t:'12:40–13:20',icon:'🚶',label:'Explore',places:[P('Renheng Cang Street','')]},
+   {t:'11:45–12:40',icon:'🚶',move:false,label:'City Walk',places:[P('Pingjiang Road','平江路')]},
+   {t:'12:40–13:20',icon:'🚶',move:false,label:'Explore',places:[P('Renheng Cang Street','')]},
    {t:'13:20–14:00',icon:'🍵',label:'Matcha',places:[P('THE MATCHA TOKYO','')]},
    {t:'14:10',icon:'🚇',label:'Metro · Suzhou Line 1 → 木渎 · Line 2 → 骑河',note:'相门 Xiangmen ขึ้น Suzhou Line 1 ทิศ 木渎 Mudu → 4 สถานี ลง 广济南路 Guangji South Road → เปลี่ยน Line 2 ทิศ 骑河 Qihe → 1 สถานี ลง 石路 Shilu · ออก Exit 1 · (乐桥 Leqiao เป็นสาย 1+4 ไม่มีสาย 2 — จุดเปลี่ยน 1↔2 คือ 广济南路 Guangji South Road)',places:[P('Xiangmen','相门'),P('Guangji South Road','广济南路'),P('Shilu','石路')]},
    {t:'14:40–16:30',icon:'🛍️',label:'Suzhou MixC World ⭐',note:'ค้น AMap ด้วยชื่อจีน · 石路 Shilu Exit 1 เดินถึงเลย · เปิด 10:00–22:00 · เดินตามลำดับ HONG ART GALLERY → TAGI → ROAD RHINO · ⏳ เวลาไม่พอตัด TAGI / ROAD RHINO',places:[P('Suzhou MixC World','苏州万象天地'),P('HONG ART GALLERY',''),P('TAGI',''),P('ROAD RHINO','')]},
@@ -742,26 +776,26 @@ const DAYS=[
  {id:'4',tab:'DAY 4',date:'Dec 6',emoji:'🎭',theme:'📸 วันเซี่ยงไฮ้เก่าชนใหม่',tagline:'Bund เช้า → Opera House → ไฟ Yuyuan',cardTitle:'Bund Morning → Longtime Ago → West Nanjing → 龙华会 → Opera House → Yuyuan',summary:'Bund ช่วงเช้า 7 มุม → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → พักโรงแรม → Yuyuan',title:'Day 4 — Dec 6 · Bund Morning → Longtime Ago → West Nanjing → 龙华会 Longhua Hui → Opera House → Yuyuan',route:'外滩 Bund ช่วงเช้า → 第一百货 Longtime Ago → 南京西路 West Nanjing → 龙华会 Longhua Hui → 上海大歌剧院 Opera House → 豫园 Yuyuan',
   slots:[
    {t:'08:00',icon:'🚶',label:'ออกจากโรงแรม',note:'แต่งตัวอุ่นๆ: เสื้อคลุม + ผ้าพันคอ + ถุงมือ · เดิน Jinjiang Inn → 外滩 The Bund ~20 นาที · วันนี้เก็บ 7 มุมถ่ายรูปยอดฮิต Bund (ตามโพสต์เพจเซี่ยงไฮ้ก็แค่ปากซอย)',places:[P('The Bund','外滩')]},
-   {t:'08:20–08:50',icon:'📸',label:'③ จุดชมวิว Bund ⭐',note:'外滩观景平台 · วิว Lujiazui เต็มๆ · แดดเช้าส่องตึกเก่าฝั่ง Bund สวยสุด · 和平饭店 Peace Hotel · 海关大楼 Customs House · 汇丰银行 HSBC',img:'assets/day4-shoothing Location.png',places:[P('外滩观景平台 The Bund Viewing Platform','外滩观景平台'),P('和平饭店 Peace Hotel','')]},
-   {t:'08:50–09:05',icon:'📸',label:'④ อนุสาวรีย์วีรชน',note:'人民英雄纪念塔 · ปลายเหนือ Bund · ถ่ายกับ "สามตึกดัง" 上海三件套 พื้นที่โล่ง จัดเฟรมง่าย',places:[P('人民英雄纪念塔 People’s Heroes Monument','人民英雄纪念塔')]},
-   {t:'09:05–09:25',icon:'📸',label:'Waibaidu → Rockbund',note:'外白渡桥 Waibaidu Bridge สะพานเหล็ก → 外滩源 Rockbund โบสถ์อิฐแดง / ตรอก 圆明园路',places:[P('外白渡桥 Waibaidu Bridge',''),P('外滩源 Rockbund','圆明园路')]},
-   {t:'09:25–09:50',icon:'📸',label:'⑤ พิพิธภัณฑ์ไปรษณีย์ ⭐',note:'上海邮政博物馆 · ข้าม Suzhou Creek · มุมดัง: ถ่ายผ่านซุ้มประตูใหญ่ให้หอไข่มุก 东方明珠 อยู่กลางกรอบ · เข้าฟรี · เปิด 09:00–17:00 เฉพาะ พ./พฤ./ส./อา. (วันนี้วันอาทิตย์ ✅)',places:[P('上海邮政博物馆 Shanghai Postal Museum','上海邮政博物馆')]},
-   {t:'09:50–10:10',icon:'📸',label:'⑥ มุมสามตึก (ตัดได้)',note:'长治路与九龙路交叉口 · เดินไปทางตะวันออก ~15 นาที · วิว "สามตึกดัง" 上海三件套 แบบใกล้ๆ · 🔴 (ตัดได้) แม่ล้า → ข้ามไปพักคาเฟ่แถว Rockbund แทน · จุดแรกที่ตัดถ้าเดินช้า',places:[P('长治路与九龙路交叉口','长治路与九龙路交叉口')]},
-   {t:'10:10–10:20',icon:'🚕',label:'Didi',note:'长治路九龙路 → 沙美大楼 Shamei Building · ~10 นาที',places:[P('沙美大楼 Shamei Building','沙美大楼')]},
-   {t:'10:20–10:35',icon:'📸',label:'① Shamei Building',note:'沙美大楼 · อาคารเซี่ยงไฮ้คลาสสิก ต้นถนน 北京东路 · ถ่ายจากข้างนอก (Afternoon tea บนดาดฟ้าเปิดสาย)',places:[P('沙美大楼 Shamei Building','沙美大楼')]},
+   {t:'08:20–08:50',icon:'📸',label:'③ จุดชมวิว Bund ⭐',note:'外滩观景平台 · วิว Lujiazui เต็มๆ · แดดเช้าส่องตึกเก่าฝั่ง Bund สวยสุด · 和平饭店 Peace Hotel · 海关大楼 Customs House · 汇丰银行 HSBC',img:'assets/day4-shoothing Location.png',places:[P('The Bund Viewing Platform','外滩观景平台'),P('Peace Hotel','和平饭店')]},
+   {t:'08:50–09:05',icon:'📸',label:'④ อนุสาวรีย์วีรชน',note:'人民英雄纪念塔 · ปลายเหนือ Bund · ถ่ายกับ "สามตึกดัง" 上海三件套 พื้นที่โล่ง จัดเฟรมง่าย',places:[P('Monument to the People’s Heroes','人民英雄纪念塔')]},
+   {t:'09:05–09:25',icon:'📸',label:'Waibaidu → Rockbund',note:'外白渡桥 Waibaidu Bridge สะพานเหล็ก → 外滩源 Rockbund โบสถ์อิฐแดง / ตรอก 圆明园路',places:[P('Waibaidu Bridge','外白渡桥'),P('Rockbund · Yuanmingyuan Road','圆明园路')]},
+   {t:'09:25–09:50',icon:'📸',label:'⑤ พิพิธภัณฑ์ไปรษณีย์ ⭐',note:'上海邮政博物馆 · ข้าม Suzhou Creek · มุมดัง: ถ่ายผ่านซุ้มประตูใหญ่ให้หอไข่มุก 东方明珠 อยู่กลางกรอบ · เข้าฟรี · เปิด 09:00–17:00 เฉพาะ พ./พฤ./ส./อา. (วันนี้วันอาทิตย์ ✅)',places:[P('Shanghai Postal Museum','上海邮政博物馆')]},
+   {t:'09:50–10:10',icon:'📸',label:'⑥ มุมสามตึก (ตัดได้)',note:'长治路与九龙路交叉口 · เดินไปทางตะวันออก ~15 นาที · วิว "สามตึกดัง" 上海三件套 แบบใกล้ๆ · 🔴 (ตัดได้) แม่ล้า → ข้ามไปพักคาเฟ่แถว Rockbund แทน · จุดแรกที่ตัดถ้าเดินช้า',places:[P('Changzhi Rd × Jiulong Rd','长治路与九龙路交叉口')]},
+   {t:'10:10–10:20',icon:'🚕',label:'Didi',note:'长治路九龙路 → 沙美大楼 Shamei Building · ~10 นาที',places:[P('Shamei Building','沙美大楼')]},
+   {t:'10:20–10:35',icon:'📸',label:'① Shamei Building',note:'沙美大楼 · อาคารเซี่ยงไฮ้คลาสสิก ต้นถนน 北京东路 · ถ่ายจากข้างนอก (Afternoon tea บนดาดฟ้าเปิดสาย)',places:[P('Shamei Building','沙美大楼')]},
    {t:'10:35–10:50',icon:'🚕',label:'Didi → 第一百货',note:'沙美大楼 Shamei Building → 第一百货 (西藏中路 Xizang Middle Road) · ❌ ไม่เดิน 北京东路 2 กม. จะไม่ทันมื้อเที่ยง',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
    {t:'10:50',icon:'⏳',label:'รอเข้าร้าน',note:'ขึ้น 第一百货 ตึก B ชั้น 6 เตรียมเข้าร้าน Longtime Ago (เปิด 11:00)'},
-   {t:'11:00–12:00',icon:'🍢',label:'Lunch ⭐ Longtime Ago',note:'很久以前羊肉串 (南京路第一百货店) · 第一百货 ตึก B ชั้น 6 · เปิด 11:00 ไปตอนเปิดคิวสั้น (ตอนเย็นคิวเกิน 200) · ~¥99/คน · เนื้อแกะเสียบไม้ ผักย่าง ข้าวโพดหวาน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('很久以前羊肉串 Longtime Ago','很久以前羊肉串 南京路第一百货店')]},
+   {t:'11:00–12:00',icon:'🍢',label:'Lunch ⭐ Longtime Ago',note:'很久以前羊肉串 (南京路第一百货店) · 第一百货 ตึก B ชั้น 6 · เปิด 11:00 ไปตอนเปิดคิวสั้น (ตอนเย็นคิวเกิน 200) · ~¥99/คน · เนื้อแกะเสียบไม้ ผักย่าง ข้าวโพดหวาน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('Longtime Ago (No.1 Department Store)','很久以前羊肉串 南京路第一百货店')]},
    {t:'12:15–12:30',icon:'🚇',label:'Metro · Line 2 → 蟠祥路·国家会计学院 · 1 สถานี',note:'人民广场 People\'s Square ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 1 สถานี ลง 南京西路 West Nanjing Road',places:[P('People’s Square','人民广场'),P('West Nanjing Road','南京西路')]},
-   {t:'12:30–14:10',icon:'🛍️',label:'West Nanjing ⭐',note:'Louis Vuitton → Starbucks → London Bakery → Zhangyuan 张园 → adidas Originals W6 · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Originals Concept Store ตึก W6 ใน 张园 (茂名北路258号 North Maoming Road · ใกล้สถานี 南京西路) · ⏳ เวลาน้อย ตัด London Bakery / Starbucks ก่อน · LV วันอาทิตย์อาจต่อคิว',places:[P('Louis Vuitton',''),P('Starbucks',''),P('London Bakery',''),P('Zhangyuan','张园'),P('Adidas ร้านที่มี Shanghai Collection · Originals Concept Store W6','张园 W6 茂名北路258号')]},
+   {t:'12:30–14:10',icon:'🛍️',label:'West Nanjing ⭐',note:'Louis Vuitton → Starbucks → London Bakery → Zhangyuan 张园 → adidas Originals W6 · 👟 Adidas ร้านที่มี Shanghai Collection — adidas Originals Concept Store ตึก W6 ใน 张园 (茂名北路258号 North Maoming Road · ใกล้สถานี 南京西路) · ⏳ เวลาน้อย ตัด London Bakery / Starbucks ก่อน · LV วันอาทิตย์อาจต่อคิว',places:[P('Louis Vuitton',''),P('Starbucks',''),P('London Bakery',''),P('Zhangyuan','张园'),P('adidas Originals Concept Store · Zhangyuan W6','张园 W6 茂名北路258号')]},
    {t:'14:15–14:35',icon:'🚇',label:'Metro · Line 12 → 七莘路 Qixin Road',note:'南京西路 West Nanjing Road ขึ้น Line 12 ทิศ 七莘路 Qixin Road → 5 สถานี ลง 龙华 Longhua · สายเดียว ไม่ต้องเปลี่ยน · สถานีอยู่ใต้ห้าง 龙华会 ออกทางไหนก็ถึงห้าง',places:[P('West Nanjing Road','南京西路'),P('Longhua','龙华')]},
-   {t:'14:35–15:35',icon:'🥐',label:'龙华会 Longhua Hui ⭐',note:'ห้างตรงข้ามวัด Longhua (อยู่บนสถานี 龙华) · ร้านเบเกอรี่ชั้นล่าง · นั่งพัก · 📸 ข้ามถนนไปถ่ายกำแพงวัด 龙华寺 แป๊บเดียว (ไม่เข้าวัด)',places:[P('龙华会 Longhua Hui','龙华会')]},
+   {t:'14:35–15:35',icon:'🥐',label:'龙华会 Longhua Hui ⭐',note:'ห้างตรงข้ามวัด Longhua (อยู่บนสถานี 龙华) · ร้านเบเกอรี่ชั้นล่าง · นั่งพัก · 📸 ข้ามถนนไปถ่ายกำแพงวัด 龙华寺 แป๊บเดียว (ไม่เข้าวัด)',places:[P('Longhua Hui','龙华会')]},
    {t:'15:35–16:05',icon:'🚇',label:'Metro → Opera House',note:'龙华 Longhua ขึ้น Line 12 ทิศ 金海路 Jinhai Road → 1 สถานี ลง 龙华中路 Longhua Middle Road → เปลี่ยน Line 7 ทิศ 花木路 Huamu Road → 1 สถานี ลง 后滩 Houtan · ออก Exit 4 → เดิน ~15 นาที (~860 ม.) · ยืนยันทิศใน AMap',places:[P('Longhua','龙华'),P('Houtan','后滩')]},
    {t:'16:05–16:40',icon:'🎭',label:'Shanghai Grand Opera House ⭐',note:'上海大歌剧院 · ตึกรูปพัดจีนสีขาว ใน 世博文化公园 Expo Culture Park ริมแม่น้ำ · ถ่ายจากข้างนอก ฟรี · 🌇 อาทิตย์ตก ~16:52 · ขึ้นบันไดรูปพัด/เข้าด้านใน ต้องเช็กรอบจอง · วันอาทิตย์คนอาจเยอะ · ⚠️ เช็คเวลาเปิดสวนใน AMap',places:[P('Shanghai Grand Opera House','上海大歌剧院'),P('Expo Culture Park','世博文化公园')]},
    {t:'16:40–17:15',icon:'🚇',label:'Metro · Line 7 → 花木路 · Line 8 → 市光路',note:'เดินกลับสถานี 后滩 Houtan ~15 นาที → ขึ้น Line 7 ทิศ 花木路 Huamu Road → 2 สถานี ลง 耀华路 Yaohua Road → เปลี่ยน Line 8 ทิศ 市光路 Shiguang Road → 5 สถานี ลง 大世界 Dashijie Exit 5 · ยืนยันใน AMap',places:[P('Houtan','后滩'),P('Yaohua Road','耀华路'),P('Dashijie','大世界')]},
    {t:'17:15–17:45',icon:'🏨',label:'Rest',note:'กลับโรงแรม วางถุงช้อป · พักขา'},
    {t:'17:45–18:00',icon:'🚶',label:'Walk → Yuyuan',note:'Jinjiang Inn → 豫园 Yuyuan ~15 นาที · หรือ 大世界 Dashijie ขึ้น Line 14 ทิศ 桂桥路 Guiqiao Road → 1 สถานี ลง 豫园 Yuyuan',places:[P('Yuyuan Garden','豫园')]},
-   {t:'18:00–19:15',icon:'🥟',label:'Dinner ⭐',note:'南翔馒头店 Nanxiang Mantou (豫园店 Yuyuan branch) · 豫园路85–87号 No. 85–87 Yuyuan Road (ติดสะพาน 九曲桥 Nine-Zigzag Bridge) · ☎ 021-6355-4206 · 🥤 蟹黄汤包 Crab Roe Soup Dumpling ซุปเปาลูกใหญ่เสียบหลอดดูด ~¥42–49/ลูก — ต้องนั่งกินชั้น 2–3 (ชั้น 1 ซื้อกลับไม่มีหลอด) · ⚠️ ร้านปิด 19:00–20:00 (แหล่งข้อมูลไม่ตรงกัน) + คิวยาว → ห้ามมาสาย เช็ค AMap ก่อนไป',places:[P('南翔馒头店 Nanxiang Mantou (豫园店)','豫园路85–87号')]},
+   {t:'18:00–19:15',icon:'🥟',label:'Dinner ⭐',note:'南翔馒头店 Nanxiang Mantou (豫园店 Yuyuan branch) · 豫园路85–87号 No. 85–87 Yuyuan Road (ติดสะพาน 九曲桥 Nine-Zigzag Bridge) · ☎ 021-6355-4206 · 🥤 蟹黄汤包 Crab Roe Soup Dumpling ซุปเปาลูกใหญ่เสียบหลอดดูด ~¥42–49/ลูก — ต้องนั่งกินชั้น 2–3 (ชั้น 1 ซื้อกลับไม่มีหลอด) · ⚠️ ร้านปิด 19:00–20:00 (แหล่งข้อมูลไม่ตรงกัน) + คิวยาว → ห้ามมาสาย เช็ค AMap ก่อนไป',places:[P('Nanxiang Mantou Dian (Yuyuan)','豫园路85–87号')]},
    {t:'19:15–20:50',icon:'🏮',label:'Walk + Shopping',note:'ไฟกลางคืนสวยสุด · 🍢 ทางเลือกตลาดสตรีทฟู้ด: BFC 外滩风景线周末市集 ตลาดเสาร์-อาทิตย์ริมแม่น้ำ (~17:00–23:00 · วิว Lujiazui · เดินจาก Yuyuan ~10 นาที · ~¥50–80/คน) ⚠️ ข้อมูลเวลาจากเว็บเดียว ใกล้วันเช็ค Dianping/Xiaohongshu ว่า ธ.ค. ยังเปิดไหม',places:[P('Yuyuan Garden / Old Street','豫园老街')]},
    {t:'21:00',icon:'🚇',label:'Metro · Line 14 → 封浜 Fengbang · 1 สถานี',note:'豫园 Yuyuan ขึ้น Line 14 ทิศ 封浜 Fengbang → 1 สถานี ลง 大世界 Dashijie Exit 5',places:[P('Yuyuan Garden','豫园'),P('Dashijie','大世界')]},
    {t:'~21:20',icon:'🏨',label:'Hotel',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
@@ -769,19 +803,19 @@ const DAYS=[
  {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',theme:'🍂 วันใบไม้เหลืองกับไฟเมือง',tagline:'แปะก๊วย · สุกี้ · ตึกระฟ้ายามค่ำ',cardTitle:'Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',summary:'局门路 แปะก๊วย → New Sukiyaki → 1000 Trees → 巨富长 Julu·Fumin·Changle → พักโรงแรม → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',route:'局门路 Jumen Rd → 第一百货 New Sukiyaki → 天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 陆家嘴 Lujiazui',
   slots:[
    {t:'08:30',icon:'🍞',label:'ออกจากโรงแรม (ชิลๆ)',note:'กินเบาๆ ก่อนออก (巴比馒头 Babi Mantou / ร้านแถว 云南南路) · DiDi → จุดลงรถ 局门路 × 五里桥路 ~10–15 นาที',places:[P('Jumen Rd × Wuliqiao Rd','局门路与五里桥路交叉口')]},
-   {t:'08:45–09:35',icon:'🍂',label:'Ginkgo Street ⭐',note:'ถนนแปะก๊วย 局门路 Jumen Road · จุดลงรถ 局门路 × 五里桥路 แล้วเดินตามถนน · แสงเช้าสวย ถนนยังโล่ง · ⚠️ ก่อนไปค้น 局门路 银杏 ใน Xiaohongshu ดูว่าใบยังเหลืองไหม · 🔴 (ตัดได้) ใบร่วงหมด/แม่เหนื่อย → เดินเล่น 人民公园 People\'s Park แทน',places:[P('Jumen Road','局门路'),P('จุดลงรถ 局门路 × 五里桥路','局门路与五里桥路交叉口')]},
+   {t:'08:45–09:35',icon:'🍂',label:'Ginkgo Street ⭐',note:'ถนนแปะก๊วย 局门路 Jumen Road · จุดลงรถ 局门路 × 五里桥路 แล้วเดินตามถนน · แสงเช้าสวย ถนนยังโล่ง · ⚠️ ก่อนไปค้น 局门路 银杏 ใน Xiaohongshu ดูว่าใบยังเหลืองไหม · 🔴 (ตัดได้) ใบร่วงหมด/แม่เหนื่อย → เดินเล่น 人民公园 People\'s Park แทน',places:[P('Jumen Road','局门路'),P('Jumen Rd × Wuliqiao Rd','局门路与五里桥路交叉口')]},
    {t:'09:35–10:20',icon:'🚇',label:'Metro หรือ Didi',note:'局门路 Jumen Road → 上海市第一百货 (人民广场) · ① 🚇 Metro: เดินไปสถานี 西藏南路 Xizang South Road → Line 8 ทิศ 市光路 Shiguang Road → 4 สถานี ลง 人民广场 People\'s Square ทางออก 19 · ~¥3–4 · (สถานีที่ใกล้สุดขึ้นกับจุดถ่ายรูป — กด AMap แท็บ 公交/地铁 เช็ค) ② 🚕 DiDi ~15–20 นาที ~¥20–30 (เช้าวันจันทร์รถอาจติด) · แม่ยังไหว → Metro / เดินมาเยอะแล้ว → DiDi',places:[P('Xizang South Road','西藏南路'),P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
    {t:'10:20–11:00',icon:'🛍️',label:'เดินห้างรอร้านเปิด',note:'ถึง 人民广场 ทางออก 19 → เดินเล่นห้าง 第一百货 (ร้านอยู่ตึก B ชั้น 6 ตรงข้าม M&M\'s) · ไม่ต้องเร่ง รอร้านเปิด 11:00 เป็นคิวแรก',places:[P('Shanghai No.1 Department Store','上海市第一百货商店 南京东路800号')]},
-   {t:'11:00–12:15',icon:'🍲',label:'New Sukiyaki ⭐',note:'牛New寿喜烧 (人民广场店) · 第一百货 ตึก B ชั้น 6 B02-F06 (ตรงข้าม M&M\'s) · เปิด 11:00–14:30 (เย็น จ.–พฤ. 17:00 / ศ. 16:30 / ส.–อา. 16:00) · เซ็ตเริ่ม ¥149 / ¥179 · เซ็ตกุ้งพนักงานแกะให้ · บาร์ผัก ขนม เครื่องดื่ม · มื้อหลักของวัน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('牛New寿喜烧 New Sukiyaki','牛New寿喜烧 人民广场店')]},
-   {t:'12:15–12:40',icon:'🚕',label:'Didi',note:'第一百货 → 天安千树 1000 Trees · ~15–20 นาที',places:[P('天安千树 1000 Trees','莫干山路600号')]},
-   {t:'12:40–13:10',icon:'📸',label:'Photo',note:'ริม 苏州河 Suzhou Creek — มุมคลาสสิกของ 天安千树 1000 Trees · ยืนถ่ายจากริมน้ำเห็นเสาเรียงเป็นภูเขา · ตอนบ่ายเปิดแล้ว',places:[P('苏州河 Suzhou Creek','')]},
-   {t:'13:10–13:50',icon:'📸',label:'1000 Trees ⭐',note:'莫干山路600号 No. 600 Moganshan Road (普陀区 Putuo District) · เปิด 10:00–22:00 · ติด M50 ย่านศิลปะ · ⚠️ ธันวาคมต้นไม้ผลัดใบ เหลือแต่กิ่ง — จุดขายคือโครงสร้างเสา ไม่ใช่ใบเขียวแบบในเน็ต',places:[P('天安千树 1000 Trees','莫干山路600号')]},
+   {t:'11:00–12:15',icon:'🍲',label:'New Sukiyaki ⭐',note:'牛New寿喜烧 (人民广场店) · 第一百货 ตึก B ชั้น 6 B02-F06 (ตรงข้าม M&M\'s) · เปิด 11:00–14:30 (เย็น จ.–พฤ. 17:00 / ศ. 16:30 / ส.–อา. 16:00) · เซ็ตเริ่ม ¥149 / ¥179 · เซ็ตกุ้งพนักงานแกะให้ · บาร์ผัก ขนม เครื่องดื่ม · มื้อหลักของวัน · ⚠️ เช็คเวลาเปิดใน AMap/Dianping ก่อนไป',places:[P('New Sukiyaki (People’s Square)','牛New寿喜烧 人民广场店')]},
+   {t:'12:15–12:40',icon:'🚕',label:'Didi',note:'第一百货 → 天安千树 1000 Trees · ~15–20 นาที',places:[P('1000 Trees','莫干山路600号')]},
+   {t:'12:40–13:10',icon:'📸',label:'Photo',note:'ริม 苏州河 Suzhou Creek — มุมคลาสสิกของ 天安千树 1000 Trees · ยืนถ่ายจากริมน้ำเห็นเสาเรียงเป็นภูเขา · ตอนบ่ายเปิดแล้ว',places:[P('Suzhou Creek','苏州河')]},
+   {t:'13:10–13:50',icon:'📸',label:'1000 Trees ⭐',note:'莫干山路600号 No. 600 Moganshan Road (普陀区 Putuo District) · เปิด 10:00–22:00 · ติด M50 ย่านศิลปะ · ⚠️ ธันวาคมต้นไม้ผลัดใบ เหลือแต่กิ่ง — จุดขายคือโครงสร้างเสา ไม่ใช่ใบเขียวแบบในเน็ต',places:[P('1000 Trees','莫干山路600号')]},
    {t:'13:50–14:15',icon:'🚕',label:'Didi',note:'天安千树 1000 Trees → 富民路38号 Suzie\'s Garden · DiDi แทน Metro ประหยัดการเดิน/เปลี่ยนสาย · ค้น 「富民路38号」 หัวถนน 富民路 Fumin Road ฝั่ง 延安中路 Yan\'an Middle Road',places:[P('Suzie\'s Garden','富民路38号')]},
    {t:'14:15–16:00',icon:'🛍️',label:'City Walk ⭐ 巨富长 Julu · Fumin · Changle',note:'เส้นทางหลัก: Suzie\'s Garden 富民路38号 → แยก 巨鹿路 Julu Road → LABELHOOD 富民路184号 → SLAB TOWN 富民路210弄 → จบที่ 长乐路 Changle Road · ไม่ต้องเข้าครบทุกร้าน · (กิน New Sukiyaki แล้ว ไม่ต้องแวะ Junfu Canteen) · แตะ note ดูหมุดครบ 8 จุด',places:[P('Suzie\'s Garden','富民路38号'),P('Julu Road','巨鹿路'),P('LABELHOOD','富民路184号'),P('SLAB TOWN','富民路210弄'),P('Changle Road','长乐路')],foldnote:'<b>巨富长 Julu × Fumin × Changle</b> — เดินลงใต้ตาม 富民路 Fumin Road เลขที่เพิ่มขึ้นเรื่อยๆ<br><br>① <b>富民路38号 Suzie\'s Garden</b> — ไวน์บาร์ + เบเกอรี่ · เปิด 11:30<br>② <b>富民路83-3号 MEL BOURNE 猫尔本</b> — บรันช์คาเฟ่ ถ่ายรูปหน้าร้าน · เปิด 10:00–22:00 · ~¥154/คน<br>③ <b>แยก 巨鹿路 Julu Road</b> — เลี้ยวเดินเล่นถ่ายรูปสั้นๆ แล้วกลับมา 富民路 Fumin Road<br>④ <b>富民路160号 旬福食堂 Junfu Canteen</b> — 🍜 ข้าวเที่ยง แกงกะหรี่ซุปฮอกไกโด · ⚠️ คิวยาว รอเกิน 20 นาทีเปลี่ยนร้าน<br>⑤ <b>富民路184号 LABELHOOD 蕾虎</b> — ร้านรวมแบรนด์ดีไซเนอร์จีน 4 ชั้น<br>⑥ <b>富民路 保罗花园 Paul Garden</b> — ANNAKIKI ร้านแฟล็กชิป<br>⑦ <b>富民路210弄 SLAB TOWN 石板城咖啡</b> — คาเฟ่ในวิลล่าเก่า หัวมุม 长乐路 Changle Road · แวะพักขาก่อนเดินต่อ<br>⑧ <b>เลี้ยวเดิน 长乐路 Changle Road</b>'},
    {t:'16:00–16:20',icon:'🚕',label:'Didi',note:'长乐路 Changle Road → Jinjiang Inn',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'16:20–17:50',icon:'🏨',label:'Rest',note:'กลับโรงแรม วางถุงช้อป · พักยาวก่อนเที่ยวกลางคืน · (ตัด Hengshan 衡山路 ออกจากแผนหลัก)'},
    {t:'18:00',icon:'🚇',label:'Metro · Line 14 → 桂桥路 · 2 สถานี',note:'大世界 Dashijie ขึ้น Line 14 ทิศ 桂桥路 Guiqiao Road → 2 สถานี ลง 陆家嘴 Lujiazui · ไม่ต้องเปลี่ยนสาย',places:[P('Dashijie','大世界'),P('Lujiazui','陆家嘴')]},
-   {t:'18:15–19:30',icon:'🌃',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('陆家嘴 Lujiazui','')]},
+   {t:'18:15–19:30',icon:'🌃',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('Lujiazui','陆家嘴')]},
    {t:'19:30',icon:'🚇',label:'Metro · Line 2',note:'陆家嘴 Lujiazui ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 2 สถานี (南京东路 → 人民广场) ลง 人民广场 People\'s Square · ทางกลับโรงแรมอยู่แล้ว เปลี่ยน Line 8 ที่นี่',places:[P('Lujiazui','陆家嘴'),P('People’s Square','人民广场')]},
    {t:'19:45–20:40',icon:'🐟',label:'Dinner ⭐ 酸菜鱼',note:'ร้านอาหารจีนหัวมุม ในทางเดินใต้ดินสถานี 人民广场 ใกล้ทางออก 11 (ทางออกไปร้านขนมปังผีเสื้อคิวยาว) · 🐟 酸菜鱼 ต้มปลาผักกาดดอง ~¥30 · 青椒肉丝 หมูผัดพริกหยวก · เมนู ¥12–28 · ร้านไม่มีชื่อในโพสต์ ใช้รูปหา · ร้านในสถานีอาจปิด ~21:00 ไปก่อน 20:00 · (สำรอง: ฟู้ดคอร์ท 正大广场 Super Brand Mall / เดินกินถนนนานจิง) · ⚠️ ปักหมุด AMap / จดชื่อจีนร้านก่อนออก',places:[P('People’s Square Exit 11','人民广场 11号口')]},
    {t:'20:45',icon:'🚇',label:'Metro · Line 8',note:'人民广场 People\'s Square ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 (หรือเดิน ~15 นาที)',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
@@ -799,39 +833,74 @@ const DAYS=[
 
 const FOOD={
   '1':{tab:'D1 · 3 ธ.ค.',area:"People's Square / 南京东路 / The Bund",items:[
-    {name:'裕兴记·蟹黄面馆 Yuxingji (大世界店)',zh:'裕兴记 蟹黄面馆 大世界店',where:'金陵东路500号 ชั้น 1 · สถานี 大世界 ทางออก 5 เดิน 4 นาที (ใกล้โรงแรม)',hours:'09:00–21:00',link:'https://surl.amap.com/1nPvl2S1o6N3',note:'✅ อยู่ในแพลนหลักแล้ว: Day 1 มื้อเที่ยง · บะหมี่มันปู ~¥92/คน · มีเซ็ต 2–3 คน',tag:'มื้อเที่ยง ⭐'},
-    {name:'蘿春閣 Luo Chun Ge (1920)',zh:'萝春阁',where:"ย่าน People's Square · เดินจาก People's Square ~10 นาที",link:'https://surl.amap.com/g1r5p741a7lP',note:'ร้านเก่าแก่ตั้งแต่ 1920 เพิ่งกลับมาเปิดใหม่ 2026 · บะหมี่มันปู ¥158 (แบ่งกิน 2–3 คน) · เซิงเจียน/เสี่ยวหลงเปา 4 ชิ้น ¥29 · แนะนำมื้อเย็นขากลับจาก Bund: Line 2 南京东路 → 人民广场 1 สถานี กินแล้วกลับโรงแรมใกล้ · เช็คเวลาปิดใน AMap',tag:'มื้อเย็น ⭐'},
-    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',where:'ในห้าง 上海市第一百货 (南京东路800号)',note:'ทานระหว่างช้อปที่ 第一百货 ได้ · เปิด 11:00–14:30 / เย็น 17:00 (จ.–พฤ.) 16:30 (ศ.) 16:00 (ส.–อา.) · คิวยาวช่วงเสาร์อาทิตย์ เช็ค Dianping',tag:'มื้อเที่ยง/เย็น'},
-    {name:'很久以前羊肉串 Longtime Ago (南京路第一百货店)',zh:'很久以前羊肉串 南京路第一百货店',where:'ห้างเดียวกับ 第一百货',note:'✅ สาขานี้อยู่ในแพลนหลักแล้ว: Day 4 11:00 (ไปตอนเปิด คิวสั้น) · เนื้อแกะเสียบไม้ · ตอนเย็นคิวเกิน 200 → กดคิวใน WeChat ค้น "很久以前羊肉串" → 排队订座',tag:'มื้อเย็น'},
-    {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',note:'อาหารเซี่ยงไฮ้ดั้งเดิม · AMap 4.5 ~¥75/คน · สำรองมื้อเย็น · ร้านอยู่ย่าน 豫园 Yuyuan (ไม่ใช่ 南京东路) — DiDi ~10 นาทีจาก Bund',verify:'ชื่อ/สาขาใน AMap',tag:'สำรองมื้อเย็น'},
-    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',note:'ข้าวราดแกงจีน · สำรองมื้อเย็นถ้าอยากกินง่ายๆ (ดูรายละเอียดในกลุ่ม "ทุกวัน")',tag:'สำรอง'}
+    {name:'裕兴记·蟹黄面馆 Yuxingji (大世界店)',en:'Yuxingji Crab Noodles (Dashijie)',zh:'裕兴记 蟹黄面馆 大世界店',where:'金陵东路500号 ชั้น 1 · สถานี 大世界 ทางออก 5 เดิน 4 นาที (ใกล้โรงแรม)',hours:'09:00–21:00',link:'https://surl.amap.com/1nPvl2S1o6N3',note:'✅ อยู่ในแพลนหลักแล้ว: Day 1 มื้อเที่ยง · บะหมี่มันปู ~¥92/คน · มีเซ็ต 2–3 คน',tag:'มื้อเที่ยง ⭐'},
+    {name:'蘿春閣 Luo Chun Ge (1920)',en:'Luo Chun Ge',zh:'萝春阁',where:"ย่าน People's Square · เดินจาก People's Square ~10 นาที",link:'https://surl.amap.com/g1r5p741a7lP',note:'ร้านเก่าแก่ตั้งแต่ 1920 เพิ่งกลับมาเปิดใหม่ 2026 · บะหมี่มันปู ¥158 (แบ่งกิน 2–3 คน) · เซิงเจียน/เสี่ยวหลงเปา 4 ชิ้น ¥29 · แนะนำมื้อเย็นขากลับจาก Bund: Line 2 南京东路 → 人民广场 1 สถานี กินแล้วกลับโรงแรมใกล้ · เช็คเวลาปิดใน AMap',tag:'มื้อเย็น ⭐'},
+    {name:'牛New寿喜烧 New Sukiyaki',en:'New Sukiyaki (No.1 Department Store)',zh:'牛New寿喜烧 上海市第一百货',where:'ในห้าง 上海市第一百货 (南京东路800号)',note:'ทานระหว่างช้อปที่ 第一百货 ได้ · เปิด 11:00–14:30 / เย็น 17:00 (จ.–พฤ.) 16:30 (ศ.) 16:00 (ส.–อา.) · คิวยาวช่วงเสาร์อาทิตย์ เช็ค Dianping',tag:'มื้อเที่ยง/เย็น'},
+    {name:'很久以前羊肉串 Longtime Ago (南京路第一百货店)',en:'Longtime Ago (No.1 Department Store)',zh:'很久以前羊肉串 南京路第一百货店',where:'ห้างเดียวกับ 第一百货',note:'✅ สาขานี้อยู่ในแพลนหลักแล้ว: Day 4 11:00 (ไปตอนเปิด คิวสั้น) · เนื้อแกะเสียบไม้ · ตอนเย็นคิวเกิน 200 → กดคิวใน WeChat ค้น "很久以前羊肉串" → 排队订座',tag:'มื้อเย็น'},
+    {name:'上海老饭店 Old Shanghai Restaurant',en:'Old Shanghai Restaurant',zh:'上海老饭店',note:'อาหารเซี่ยงไฮ้ดั้งเดิม · AMap 4.5 ~¥75/คน · สำรองมื้อเย็น · ร้านอยู่ย่าน 豫园 Yuyuan (ไม่ใช่ 南京东路) — DiDi ~10 นาทีจาก Bund',verify:'ชื่อ/สาขาใน AMap',tag:'สำรองมื้อเย็น'},
+    {name:'大米先生 Da Mi Xian Sheng',en:'Da Mi Xian Sheng',zh:'大米先生',note:'ข้าวราดแกงจีน · สำรองมื้อเย็นถ้าอยากกินง่ายๆ (ดูรายละเอียดในกลุ่ม "ทุกวัน")',tag:'สำรอง'}
   ]},
   '2':{tab:'D2 · 4 ธ.ค.',area:'Wukang / Anfu / Huaihai / Xintiandi',items:[
-    {name:'陶陶居 Tao Tao Ju',zh:'陶陶居 新天地',where:'สาขา 新天地 Xintiandi (สาขาแรกในเซี่ยงไฮ้) · มีอีกสาขาที่ห้าง 新世界 ถนนนานจิง',note:'ติ่มซำกวางตุ้งแบรนด์เก่าแก่จากกว่างโจว · เหมาะมื้อเย็นตอนเดิน Xintiandi · ⚠️ ข้อมูลสาขาจากข่าวเก่า เช็คใน AMap ว่ายังเปิดอยู่',verify:'สาขาใน AMap',tag:'มื้อเย็น ⭐'},
-    {name:'很久以前羊肉串 Longtime Ago (陕西南路店)',zh:'很久以前羊肉串 陕西南路店',where:'ใกล้ Huaihai / Xintiandi',note:'มื้อเย็นก่อนหรือหลังเดิน Xintiandi · กดคิว WeChat ล่วงหน้า',tag:'มื้อเย็น'}
+    {name:'沪西老弄堂面馆 Huxi Lao Longtang Noodle House',en:'Huxi Lao Longtang Noodle House',zh:'沪西老弄堂面馆 静安寺店',where:'北京西路1738号 · สถานี 静安寺 ทางออก 1 เดิน ~7 นาที',hours:'10:00–15:00 / 16:00–20:30',note:'✅ อยู่ในแพลนหลัก Day 2 13:00 (ร้านที่แม่อยากกิน) · เดินจาก Anfu ~25 นาที · ~¥42/คน · 辣肉面 / 葱油拌面 / 大排 · เที่ยงคิวยาว',tag:'มื้อเที่ยง ⭐'},
+    {name:'陶陶居 Tao Tao Ju',en:'Tao Tao Ju (Xintiandi)',zh:'陶陶居 新天地',where:'สาขา 新天地 Xintiandi (สาขาแรกในเซี่ยงไฮ้) · มีอีกสาขาที่ห้าง 新世界 ถนนนานจิง',note:'ติ่มซำกวางตุ้งแบรนด์เก่าแก่จากกว่างโจว · เหมาะมื้อเย็นตอนเดิน Xintiandi · ⚠️ ข้อมูลสาขาจากข่าวเก่า เช็คใน AMap ว่ายังเปิดอยู่',verify:'สาขาใน AMap',tag:'มื้อเย็น ⭐'},
+    {name:'很久以前羊肉串 Longtime Ago (陕西南路店)',en:'Longtime Ago (South Shaanxi Road)',zh:'很久以前羊肉串 陕西南路店',where:'ใกล้ Huaihai / Xintiandi',note:'มื้อเย็นก่อนหรือหลังเดิน Xintiandi · กดคิว WeChat ล่วงหน้า',tag:'มื้อเย็น'}
   ]},
   '3':{tab:'D3 · 5 ธ.ค.',area:'Suzhou',empty:'ยังไม่มีร้านเพิ่ม — กินตามแพลนเดิม',items:[]},
   '4':{tab:'D4 · 6 ธ.ค.',area:"Jing'an / West Nanjing / Yuyuan",items:[
-    {name:'卞姐蛋饼 Bian Jie Dan Bing (丰盛里店)',zh:'卞姐蛋饼 丰盛里店',where:'威海路680号-2 · ใกล้ทางออก 12 สถานี 南京西路 West Nanjing Road (Line 2/12/13)',link:'https://surl.amap.com/7hnXhQG13ghv',note:'แพนเค้กไข่ 蛋饼 สไตล์เซี่ยงไฮ้ (ไส้หมูสันใน/เบคอน/ปาท่องโก๋) · เกี๊ยวน้ำ 馄饨 · ซุปเห็ดหูหนูขาว/น้ำถั่วเขียว · ~¥15/คน · แวะของว่างตอนไป 张园 Zhangyuan ช่วงบ่าย (ถนนเดียวกัน) · ร้าน 蛋饼 มักปิดเร็ว เช็คเวลาก่อน · เช็คเวลาเปิด',tag:'มื้อเช้า ⭐'},
-    {name:'牛New寿喜烧 New Sukiyaki',zh:'牛New寿喜烧 上海市第一百货',note:'✅ อยู่ในแพลนหลักแล้ว: Day 5 11:00 (เดินห้างรอร้านเปิด) · เปิด 11:00–14:30 ทุกวัน',tag:'มื้อเที่ยง'},
-    {name:'很久以前羊肉串 Longtime Ago (南京西路818广场店)',zh:'很久以前羊肉串 南京西路818广场店',where:'ใกล้ West Nanjing Road',note:'ร้านใหญ่ คิวเดินเร็วกว่าสาขาถนนนานจิง',tag:'มื้อเย็น'},
-    {name:'Latina 拉蒂娜',zh:'拉蒂娜 铜仁路88号',where:'铜仁路88号 2F (Jing\'an)',phone:'021-6320 3566',note:'บราซิลปิ้งย่างไม่อั้นเนื้อ · ราคาสูง อิ่มหนัก',tag:'มื้อพิเศษ'},
-    {name:'上海老饭店 Old Shanghai Restaurant',zh:'上海老饭店',where:'ย่าน Yuyuan',note:'สำรองถ้าคิว Nanxiang ยาวเกิน',verify:true,tag:'สำรองมื้อเย็น'}
+    {name:'卞姐蛋饼 Bian Jie Dan Bing (丰盛里店)',en:'Bian Jie Dan Bing (Fengshengli)',zh:'卞姐蛋饼 丰盛里店',where:'威海路680号-2 · ใกล้ทางออก 12 สถานี 南京西路 West Nanjing Road (Line 2/12/13)',link:'https://surl.amap.com/7hnXhQG13ghv',note:'แพนเค้กไข่ 蛋饼 สไตล์เซี่ยงไฮ้ (ไส้หมูสันใน/เบคอน/ปาท่องโก๋) · เกี๊ยวน้ำ 馄饨 · ซุปเห็ดหูหนูขาว/น้ำถั่วเขียว · ~¥15/คน · แวะของว่างตอนไป 张园 Zhangyuan ช่วงบ่าย (ถนนเดียวกัน) · ร้าน 蛋饼 มักปิดเร็ว เช็คเวลาก่อน · เช็คเวลาเปิด',tag:'มื้อเช้า ⭐'},
+    {name:'牛New寿喜烧 New Sukiyaki',en:'New Sukiyaki (No.1 Department Store)',zh:'牛New寿喜烧 上海市第一百货',note:'✅ อยู่ในแพลนหลักแล้ว: Day 5 11:00 (เดินห้างรอร้านเปิด) · เปิด 11:00–14:30 ทุกวัน',tag:'มื้อเที่ยง'},
+    {name:'很久以前羊肉串 Longtime Ago (南京西路818广场店)',en:'Longtime Ago (818 Plaza West Nanjing Road)',zh:'很久以前羊肉串 南京西路818广场店',where:'ใกล้ West Nanjing Road',note:'ร้านใหญ่ คิวเดินเร็วกว่าสาขาถนนนานจิง',tag:'มื้อเย็น'},
+    {name:'Latina 拉蒂娜',en:'Latina (Tongren Road)',zh:'拉蒂娜 铜仁路88号',where:'铜仁路88号 2F (Jing\'an)',phone:'021-6320 3566',note:'บราซิลปิ้งย่างไม่อั้นเนื้อ · ราคาสูง อิ่มหนัก',tag:'มื้อพิเศษ'},
+    {name:'上海老饭店 Old Shanghai Restaurant',en:'Old Shanghai Restaurant',zh:'上海老饭店',where:'ย่าน Yuyuan',note:'สำรองถ้าคิว Nanxiang ยาวเกิน',verify:true,tag:'สำรองมื้อเย็น'}
   ]},
   '5':{tab:'D5 · 7 ธ.ค.',area:'1000 Trees / 巨富长 / 人民广场 / Lujiazui',items:[
     {name:'ร้านอาหารจีนใต้ดิน 人民广场 ทางออก 11',zh:'人民广场 11号口',where:'ทางเดินใต้ดินสถานี 人民广场 People\'s Square ใกล้ทางออก 11 · ร้านหัวมุม',note:'✅ อยู่ในแพลนหลักแล้ว: Day 5 มื้อเย็น · 🐟 酸菜鱼 ต้มปลาผักกาดดอง ~¥30 · 青椒肉丝 หมูผัดพริกหยวก · ราคา ¥12–28 · บริการดี เปิดเพลงไทย (ตามโพสต์) · ไม่มีชื่อร้าน ใช้รูปหา',tag:'มื้อเย็น ⭐'},
     {name:'🛍️ adidas Outlet 阿迪达斯(一频道折扣店)',zh:'阿迪达斯 一频道折扣店 巴黎春天陕西路店',where:'长寿路155号 巴黎春天(陕西路店) 4F',note:'ร้านลดราคา · เข้าประตู 东北1门 เดินตรง 20m ขึ้นบันไดเลื่อน · หลัง 1000 Trees ช่วง 11:15–12:30 · ต่อ Line 7 长寿路 → 常熟路 ไม่ต้องเปลี่ยนสาย',tag:'ช้อป'},
-    {name:'新发现 New Found',zh:'新发现',note:'อาหารหางโจว รสไม่จัด เหมาะกับแม่ · ส่วนใหญ่อยู่ในห้าง · สำรองมื้อเย็นแทนฟู้ดคอร์ท Super Brand Mall',tag:'สำรองมื้อเย็น'},
-    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',note:'สำรองมื้อเย็นเหมือนกัน (ถ้าราคา Super Brand Mall สูงไป)',tag:'สำรอง'}
+    {name:'新发现 New Found',en:'New Found',zh:'新发现',note:'อาหารหางโจว รสไม่จัด เหมาะกับแม่ · ส่วนใหญ่อยู่ในห้าง · สำรองมื้อเย็นแทนฟู้ดคอร์ท Super Brand Mall',tag:'สำรองมื้อเย็น'},
+    {name:'大米先生 Da Mi Xian Sheng',en:'Da Mi Xian Sheng',zh:'大米先生',note:'สำรองมื้อเย็นเหมือนกัน (ถ้าราคา Super Brand Mall สูงไป)',tag:'สำรอง'}
   ]},
   '6':{tab:'D6 · 8 ธ.ค.',area:'Airport',empty:'ไม่มี — เช้าไปสนามบิน',items:[]},
+  'ppl':{tab:'People Square 🗺️',area:"หลังถนน 南京东路 · 天津路 / 宁波路 (ระหว่าง People's Square ↔ The Bund)",hint:'⚠️ "ร.ร. Jinjiang Inn" ในแผนที่ = สาขา 南京东路 ไม่ใช่โรงแรมเรา · ร้านที่ไม่มีชื่อจีน ใช้รูปป้ายในแผนที่หา · ที่มา: แผนที่เพจเที่ยวเองเซี่ยงไฮ้',img:'assets/food-map-people-square.webp',items:[
+    {name:'#1 Lailai Xiaolong Bao NEW',en:'Lailai Xiaolongbao Tianjin Road',zh:'莱莱小笼 天津路',where:'天津路 ใกล้ 浙江中路 (ข้าง Homeinn)',note:'✅ อยู่ในแพลน Day 1 15:35 — ไปร้านนี้ก่อน · เสี่ยวหลงเปา · หมูชุบเกล็ดขนมปัง · บะหมี่มันปู',tag:'Day 1 ⭐'},
+    {name:'#2 Xie Sanbao 蟹叁宝',en:'Xie Sanbao',zh:'蟹叁宝',where:'天津路',note:'ร้านปู / บะหมี่มันปู'},
+    {name:'#3 Fat Girl Noodle',en:'Fat Girl Noodle',zh:'',where:'天津路 ใกล้ 浙江中路',note:'ร้านบะหมี่ · ไม่มีชื่อจีน ค้นจากรูปป้ายในแผนที่'},
+    {name:'#4 Chabaidao 茶百道',en:'Chabaidao',zh:'茶百道',where:'天津路',note:'ชานม'},
+    {name:'#5 Autumn Flavor 小秋家常菜',en:'Autumn Flavor',zh:'小秋家常菜',where:'天津路',note:'อาหารจีนบ้านๆ'},
+    {name:'#6 Lailai Xiaolong Bao (ร้านเดิม)',en:'Lailai Xiaolongbao 504 Tianjin Road',zh:'莱莱小笼 天津路504号',where:'天津路504号 ใกล้ 广西北路',hours:'08:00–20:00 (ข้อมูลเก่า)',note:'✅ อยู่ในแพลน Day 1 15:35 — สำรองถ้าร้าน NEW คนเยอะ · รับเงินสด · ปิดพักกลางวัน 1 ชม.',tag:'Day 1 ⭐'},
+    {name:'#7 Sandong Jianbing',en:'Sandong Jianbing',zh:'',where:'天津路 × 广西北路',note:'煎饼 แป้งทอดไส้ไข่ · ไม่มีชื่อจีน ค้นจากรูปป้ายในแผนที่'},
+    {name:'#8 ร้านข้าวแกงเว่ยถง',zh:'',where:'广西北路',note:'ข้าวราดแกง · ไม่มีชื่อจีน ค้นจากรูปป้ายในแผนที่'},
+    {name:'#9 ร้านเกี๊ยวเซียนหลี่ชุน',zh:'千里香馄饨',where:'宁波路',note:'เกี๊ยวน้ำ'},
+    {name:'#10 เสี่ยวหลงเปาจวงซื่อหลงซิ่ง',zh:'庄氏隆兴 蟹粉面道',where:'浙江中路',note:'เสี่ยวหลงเปา / บะหมี่มันปู'},
+    {name:'#12 Dingfuji Xiaolong (ร้านเกี๊ยว)',en:'Dingfuji Xiaolong',zh:'',where:'宁波路 ฝั่งเหนือ',note:'ไม่มีชื่อจีน ค้นจากรูปป้ายในแผนที่'},
+    {name:'#13 แม่หมูเล็ก อาหารเกาหลี',zh:'돼지엄마',where:'天津路 × 广西北路',note:'อาหารเกาหลี'},
+    {name:'#14 แม่หมูใหญ่ อาหารเกาหลี',zh:'돼지엄마 한국국밥',where:'广西北路',note:'ซุปข้าวเกาหลี'},
+    {name:'#15 ร้านผลไม้ Yujiali',en:'Yujiali',zh:'誉家利果业',where:'宁波路 × 广西北路',note:'ผลไม้'},
+    {name:'#16 Xiaosuiyuan',en:'Xiaosuiyuan',zh:'小绥元 烧麦·小锅羊排',where:'贵州路',note:'ขนมจีบ 烧麦 · ซี่โครงแกะหม้อเล็ก'},
+    {name:'#17 โจ๊ก Healthy',zh:'',where:'贵州路',note:'โจ๊ก / ของว่าง · ไม่มีชื่อจีน ค้นจากรูปป้ายในแผนที่'},
+    {name:'#18 โจ๊กตื่นสาย',zh:'香江粥苑',where:'贵州路',note:'โจ๊ก · มื้อเช้า'},
+    {name:'#19 First Food Hall',en:'Shanghai First Food Hall',zh:'上海市第一食品商店',where:'南京东路720号',note:'✅ Day 1 · ของฝาก/ขนม · ห้องน้ำชาย ชั้น 3 / หญิง ชั้น 2',tag:'Day 1'},
+    {name:'#20 บะหมี่ปู จู่เล่อทังเปา',zh:'佳家汤包',where:'南京东路 ฝั่ง 天津路',note:'汤包 + บะหมี่มันปู'},
+    {name:'#21 XiangDeLai',en:'XiangDeLai',zh:'香得来',where:'天津路 × 贵州路',note:'ร้านอาหารจีน · ค้นจากรูปป้ายในแผนที่'}
+  ]},
+  'near':{tab:'ใกล้โรงแรม 🏨',area:'รอบ Jinjiang Inn 云南南路293号 · เดิน 10–15 นาที',hint:'⚠️ 云南南路美食街 ปิดปรับปรุง ร้านย้ายไป 山西南路 / 福建中路 (ข้อมูลจากข่าว ก.พ. 2026) · เช็คเวลาเปิดใน AMap ก่อนไป',items:[
+    {name:'裕兴记·蟹黄面馆 Yuxingji',en:'Yuxingji Crab Noodles (Dashijie)',zh:'裕兴记 蟹黄面馆 大世界店',where:'金陵东路500号 · 大世界 ทางออก 5',hours:'09:00–21:00',link:'https://surl.amap.com/1nPvl2S1o6N3',note:'✅ Day 1 มื้อเที่ยง · บะหมี่มันปู',tag:'Day 1 ⭐'},
+    {name:'巴比馒头 Babi Mantou',en:'Babi Mantou',zh:'巴比馒头',where:'แถว 云南南路 / หลายสาขา',hours:'เปิดเช้า',note:'มื้อเช้า Day 2 · Day 4 · Day 5',tag:'มื้อเช้า'},
+    {name:'大壶春 Da Hu Chun',en:'Da Hu Chun',zh:'大壶春 山西南路',where:'山西南路 × 南京东路',note:'生煎 เกี๊ยวทอดก้นกรอบ · Day 1 มื้อเย็น / มื้อเช้า · เมนู 2 ภาษา',tag:'Day 1 ⭐'},
+    {name:'小绍兴 Xiao Shao Xing',en:'Xiao Shao Xing',zh:'小绍兴 山西南路',where:'山西南路',hours:'ถึง ~22:00',note:'白斩鸡 ไก่ต้ม + 鸡粥 ข้าวต้มไก่ · รสอ่อน เหมาะแม่ · Day 1 มื้อเย็น',tag:'Day 1 ⭐'},
+    {name:'鲜得来 Xian De Lai',en:'Xian De Lai',zh:'鲜得来 福建中路',where:'福建中路',hours:'ถึง ~01:00',note:'排骨年糕 หมูทอด + เค้กข้าว · 小馄饨 · Day 3 ของว่างดึกหลังกลับซูโจว (~21:15)',tag:'⭐'},
+    {name:'洪长兴 Hong Chang Xing',en:'Hong Chang Xing',zh:'洪长兴 山西南路',where:'山西南路',note:'หม้อไฟเนื้อแกะ 羊肉火锅 · มื้อเย็นอากาศหนาว'},
+    {name:'小金陵 Xiao Jin Ling',en:'Xiao Jin Ling',zh:'小金陵 山西南路',where:'山西南路',note:'盐水鸭 เป็ดต้มเกลือ'},
+    {name:'五芳斋 Wu Fang Zhai',en:'Wu Fang Zhai',zh:'五芳斋 山西南路',where:'山西南路',note:'粽子 ข้าวต้มมัด · ของว่าง'},
+    {name:'德兴馆 De Xing Guan',en:'De Xing Guan',zh:'德兴馆',where:'山西南路 / 福建中路',note:'อาหารเซี่ยงไฮ้ · มื้อเย็นทางเลือก'},
+    {name:'德大西菜社 Deda',en:'Deda Western Restaurant',zh:'德大西菜社',where:'山西南路',note:'ร้านตะวันตกเก่าแก่ (1897) · กาแฟ/ของหวาน'}
+  ]},
   'all':{tab:'ทุกวัน',area:'ร้านเครือ หลายสาขา',hint:'ค้น AMap แล้วเลือก "附近" ใกล้ที่สุด',items:[
     {name:'酸菜鱼 ต้มปลาผักกาดดอง',zh:'酸菜鱼',note:'ปลาต้มผักกาดดองสไตล์เสฉวน (ซุปเปรี้ยวๆ เผ็ดเลือกระดับได้ — สั่ง 不辣 ไม่เผ็ด) · ร้านเครือดัง: 太二酸菜鱼 / 鱼你在一起 · ค้น AMap "酸菜鱼" แล้วเลือก 附近 ใกล้ที่สุด · เหมาะมื้อเย็นที่ยังว่าง'},
-    {name:'巴比馒头 Babi Mantou',zh:'巴比馒头',hours:'ส่วนใหญ่เปิดเช้า',note:'ซาลาเปาเครือราคาถูก มีเกือบทุกหัวมุม · มื้อเช้าเร็วๆ ใกล้โรงแรม (เช่น Day 2 ก่อนออก 07:00 / Day 5 มื้อเช้า) · ซื้อถือไปกินได้'},
-    {name:'大米先生 Da Mi Xian Sheng',zh:'大米先生',hours:'ส่วนใหญ่ 10:00–21:00 (กินเช้าไม่ได้)',note:'ข้าวราดแกงจีน หยิบกับข้าวใส่ถาด สแกนจ่ายด้วย AI · ข้าวเติมได้ไม่อั้น น้ำชาฟรี · แนะนำ 青椒肉丝 หมูผัดพริกหยวก'},
-    {name:'周骏牛肉串 Zhou Jun',zh:'周骏牛肉串',hours:'17:00–03:00',note:'เนื้อวัวเสียบไม้ปิ้ง · มื้อเย็น/มื้อดึก'},
-    {name:'新发现 New Found',zh:'新发现',hours:'เปิดทั้งวัน',note:'อาหารหางโจว 90+ สาขา ส่วนใหญ่ในห้าง'},
-    {name:'咬强羊肉面 Yaoqiang Mutton Noodles',zh:'咬强羊肉面',note:'บะหมี่เนื้อแกะ · มื้อเช้า/เที่ยงเร็วๆ · กลิ่นแกะแรง ถามแม่ก่อน'}
+    {name:'巴比馒头 Babi Mantou',en:'Babi Mantou',zh:'巴比馒头',hours:'ส่วนใหญ่เปิดเช้า',note:'ซาลาเปาเครือราคาถูก มีเกือบทุกหัวมุม · มื้อเช้าเร็วๆ ใกล้โรงแรม (เช่น Day 2 ก่อนออก 07:00 / Day 5 มื้อเช้า) · ซื้อถือไปกินได้'},
+    {name:'大米先生 Da Mi Xian Sheng',en:'Da Mi Xian Sheng',zh:'大米先生',hours:'ส่วนใหญ่ 10:00–21:00 (กินเช้าไม่ได้)',note:'ข้าวราดแกงจีน หยิบกับข้าวใส่ถาด สแกนจ่ายด้วย AI · ข้าวเติมได้ไม่อั้น น้ำชาฟรี · แนะนำ 青椒肉丝 หมูผัดพริกหยวก'},
+    {name:'周骏牛肉串 Zhou Jun',en:'Zhou Jun Beef Skewers',zh:'周骏牛肉串',hours:'17:00–03:00',note:'เนื้อวัวเสียบไม้ปิ้ง · มื้อเย็น/มื้อดึก'},
+    {name:'新发现 New Found',en:'New Found',zh:'新发现',hours:'เปิดทั้งวัน',note:'อาหารหางโจว 90+ สาขา ส่วนใหญ่ในห้าง'},
+    {name:'咬强羊肉面 Yaoqiang Mutton Noodles',en:'Yaoqiang Mutton Noodles',zh:'咬强羊肉面',note:'บะหมี่เนื้อแกะ · มื้อเช้า/เที่ยงเร็วๆ · กลิ่นแกะแรง ถามแม่ก่อน'}
   ]}
 };
 
@@ -840,6 +909,32 @@ let state=JSON.parse(localStorage.getItem('shhChecklist')||'{}');
 if(!state['c4-v2']){['c4-2','c4-3','c4-4'].forEach(k=>delete state[k]);state['c4-v2']=true;try{localStorage.setItem('shhChecklist',JSON.stringify(state));}catch(e){}}
 let activeDay='1';
 let activeFoodDay='1';
+function prefGet(key,fallback){try{const v=localStorage.getItem(key);return v==null?fallback:v;}catch(e){return fallback;}}
+function prefSet(key,value){try{localStorage.setItem(key,value);}catch(e){}}
+let showMoves=prefGet('shhShowMoves','0')==='1';
+let placeLang=prefGet('shhPlaceLang','zh')==='en'?'en':'zh';
+const openSlots=new Set();
+function slotKey(dayId,index){return dayId+':'+index;}
+function selectedName(item){
+  const en=String(item&&item.en||'').trim(),zh=String(item&&item.zh||'').trim();
+  if(placeLang==='en')return en?{text:en,lang:'en'}:zh?{text:zh,lang:'zh'}:{text:'',lang:'en'};
+  return zh?{text:zh,lang:'zh'}:en?{text:en,lang:'en'}:{text:'',lang:'zh'};
+}
+function syncPrefs(){
+  document.querySelectorAll('[data-transit-toggle]').forEach(el=>{el.classList.toggle('on',showMoves);el.setAttribute('aria-checked',String(showMoves));});
+  document.querySelectorAll('[data-place-lang]').forEach(el=>{const on=el.dataset.placeLang===placeLang;el.classList.toggle('on',on);el.setAttribute('aria-pressed',String(on));});
+}
+function rerenderPreferenceViews(){
+  const y=window.scrollY;
+  syncPrefs();renderDays();renderShort();renderFood();
+  requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'auto'}));
+}
+function setShowMoves(value){
+  showMoves=!!value;
+  if(!showMoves)DAYS.forEach(day=>day.slots.forEach((s,i)=>{if(isMove(s))openSlots.delete(slotKey(day.id,i));}));
+  prefSet('shhShowMoves',showMoves?'1':'0');rerenderPreferenceViews();
+}
+function setPlaceLang(value){placeLang=value==='en'?'en':'zh';prefSet('shhPlaceLang',placeLang);rerenderPreferenceViews();}
 
 function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
@@ -866,19 +961,23 @@ function foodCard(r){
   if(r.hours)meta.push(`<div class="food-meta-row">${ic('clock')}<span>${foodEsc(r.hours)}</span></div>`);
   if(r.phone){const tel=r.phone.replace(/[^\d+]/g,'');meta.push(`<div class="food-meta-row">${ic('phone')}<a class="food-phone" href="tel:${tel}">${foodEsc(r.phone)}</a></div>`);}
   const tags=(r.tag?`<span class="food-role">${foodEsc(r.tag)}</span>`:'')+(r.verify?`<span class="food-verify" title="${foodEsc(r.verify===true?'เช็คชื่อ/สาขาใน AMap':r.verify)}">⚠ เช็ค AMap</span>`:'');
+  const picked=selectedName(r),langLabel=picked.lang==='en'?'EN':'中文';
+  const copy=picked.text?`<button type="button" class="cp food-copy" data-copy="${foodEsc(picked.text)}" data-lang="${picked.lang}" onclick="qcopy(event,this,this.dataset.copy,this.dataset.lang)" aria-label="คัดลอกชื่อ ${langLabel} ${foodEsc(picked.text)}"><span class="${picked.lang==='zh'?'zh':''}">${foodEsc(picked.text)}</span><span class="ic">${ic('copy')}</span></button>`:'';
+  const amapHref=picked.text?(r.link?foodEsc(r.link):'https://uri.amap.com/search?keyword='+encodeURIComponent(picked.text)):'';
+  const amap=amapHref?`<div class="food-actions"><a class="food-amap" href="${amapHref}" target="_blank" rel="noopener" aria-label="ค้น ${foodEsc(picked.text)} ใน AMap">${ic('map')} AMap</a></div>`:'';
   return `<article class="card food-card">
     <h2 class="food-name">${foodEsc(r.name)}</h2>
     ${tags?`<div class="food-tags">${tags}</div>`:''}
-    <button type="button" class="cp food-copy" data-zh="${foodEsc(r.zh)}" onclick="qcopy(event,this,this.dataset.zh)" aria-label="คัดลอกชื่อจีน ${foodEsc(r.zh)}"><span class="zh">${foodEsc(r.zh)}</span><span class="ic">${ic('copy')}</span></button>
+    ${copy}
     ${meta.length?`<div class="food-meta">${meta.join('')}</div>`:''}
     <div class="food-note">${foodEsc(r.note)}</div>
-    <div class="food-actions"><a class="food-amap" href="${r.link?foodEsc(r.link):'https://uri.amap.com/search?keyword='+encodeURIComponent(r.zh)}" target="_blank" rel="noopener" aria-label="ค้น ${foodEsc(r.zh)} ใน AMap">${ic('map')} AMap</a></div>
+    ${amap}
   </article>`;
 }
 function renderFood(){
   document.getElementById('food-days').innerHTML=Object.keys(FOOD).map(id=>`<button type="button" class="food-tab ${id===activeFoodDay?'on':''}" onclick="setFoodDay('${id}')" aria-pressed="${id===activeFoodDay}">${FOOD[id].tab}</button>`).join('');
   const day=FOOD[activeFoodDay];
-  const head=`<div class="food-dayhead"><div class="food-area">${ic('pin')}<span>${foodEsc(day.area)}</span></div>${day.hint?`<div class="food-hint">${foodEsc(day.hint)}</div>`:''}</div>`;
+  const head=`<div class="food-dayhead"><div class="food-area">${ic('pin')}<span>${foodEsc(day.area)}</span></div>${day.hint?`<div class="food-hint">${foodEsc(day.hint)}</div>`:''}${day.img?`<img class="slotimg" src="${day.img}" loading="lazy" alt="แผนที่ร้าน" onclick="zoomImg('${day.img}')"><div class="maphint">🗺️ แตะรูปเพื่อดูเต็มจอ</div>`:''}</div>`;
   const body=day.items.length?day.items.map(foodCard).join(''):`<div class="card food-empty"><span class="em">🍽️</span><p>${foodEsc(day.empty)}</p></div>`;
   document.getElementById('food-list').innerHTML=head+body;
 }
@@ -926,8 +1025,29 @@ function tgTask(e,cid,i){e.stopPropagation();const k=cid+'-'+i;state[k]=!state[k
   document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
   document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';}
 
+/* "getting there" rows for the transit switch: metro, DiDi, walking legs.
+   Flights ✈️ and the Suzhou trains 🚄 always stay visible; a slot can force either way with move:true / move:false */
+const MOVE_ICONS=new Set(['🚇','🚕','🚶']);
+function isMove(s){return s.move!=null?!!s.move:MOVE_ICONS.has(s.icon);}
+
 /* PLAN */
-function cpChip(p){const copy=p.zh||p.en;const disp=(p.en&&p.zh&&p.en!==p.zh)?`<span>${p.en}</span> · <span class="zh">${p.zh}</span>`:`<span class="zh">${copy}</span>`;return `<span class="cp" onclick="cpy(event,this)" data-zh="${copy}">${disp}<span class="ic">${ic('copy')}</span></span>`;}
+function cpChip(p){
+  const picked=selectedName(p),en=String(p.en||'').trim(),zh=String(p.zh||'').trim();
+  if(!picked.text)return '';
+  if(placeLang==='zh'){
+    const disp=(en&&zh&&en!==zh)?`<span>${foodEsc(en)}</span> · <span class="zh">${foodEsc(zh)}</span>`:`<span class="zh">${foodEsc(picked.text)}</span>`;
+    return `<span class="cp" onclick="cpy(event,this)" data-copy="${foodEsc(picked.text)}" data-lang="${picked.lang}">${disp}<span class="ic">${ic('copy')}</span></span>`;
+  }
+  const sub=en&&zh&&en!==zh?`<span class="cp-sub">${foodEsc(zh)}</span>`:'';
+  const zhButton=en&&zh&&en!==zh?`<button type="button" class="cp-zh" data-copy="${foodEsc(zh)}" data-lang="zh" onclick="qcopy(event,this,this.dataset.copy,this.dataset.lang)" aria-label="คัดลอกชื่อจีน ${foodEsc(zh)}">中</button>`:'';
+  return `<span class="cp cp-en" onclick="cpy(event,this)" data-copy="${foodEsc(picked.text)}" data-lang="${picked.lang}"><span class="cp-names"><span class="cp-main ${picked.lang==='zh'?'zh':''}">${foodEsc(picked.text)}</span>${sub}</span><span class="ic">${ic('copy')}</span>${zhButton}</span>`;
+}
+function moveTimeLabel(value){
+  const t=String(value||''),m=t.match(/(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})/);
+  if(!m)return t;
+  let mins=(+m[3]*60 + +m[4])-(+m[1]*60 + +m[2]);if(mins<0)mins+=1440;
+  return mins+' นาที';
+}
 function renderDays(){
   document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
   const day=DAYS.find(d=>d.id===activeDay);
@@ -936,10 +1056,12 @@ function renderDays(){
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
   tl.innerHTML=day.slots.map((s,i)=>{
+    const open=openSlots.has(slotKey(day.id,i));
+    if(isMove(s)&&!showMoves&&!open)return `<div class="slot move-thin" id="slot-${i}"><button type="button" class="move-thin-btn" onclick="tgSlot(${i})" aria-expanded="false"><span class="move-icon">${s.icon}</span><span>${moveTimeLabel(s.t)}</span><span class="move-open">▸</span></button></div>`;
     const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
     const badge=s.hl?'<span class="hl-badge">ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">ตัดได้ · Plan B</span><br>':'';
-    return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''}" id="slot-${i}">
-      <div class="shead" onclick="tgSlot(${i})"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${lineChips(s.label)}${plInline(s)}</span>${copyBtn(s)}<span class="chev">${ic('chev')}</span></div>
+    return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''} ${open?'open':''}" id="slot-${i}">
+      <div class="shead" onclick="tgSlot(${i})" aria-expanded="${open}"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${lineChips(s.label)}${plInline(s)}</span>${copyBtn(s)}<span class="chev">${ic('chev')}</span></div>
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
   if(_swipeDir){const cls=_swipeDir>0?'anim-l':'anim-r';[document.getElementById('dayhead'),tl].forEach(x=>{x.classList.remove('anim-l','anim-r');void x.offsetWidth;x.classList.add(cls);});_swipeDir=0;}
@@ -949,9 +1071,7 @@ function renderDays(){
 const SHORT_WEEKDAYS=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
 const SHORT_MONTHS={Jan:'ม.ค.',Feb:'ก.พ.',Mar:'มี.ค.',Apr:'เม.ย.',May:'พ.ค.',Jun:'มิ.ย.',Jul:'ก.ค.',Aug:'ส.ค.',Sep:'ก.ย.',Oct:'ต.ค.',Nov:'พ.ย.',Dec:'ธ.ค.'};
 const SHORT_MONTH_INDEX={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-const SHORT_TRANSIT=new Set(['🚇','🚕','🚉']);
 const SHORT_GENERIC=new Set(['breakfast','lunch','dinner','brunch','cafe','matcha','tea','photo','explore','shopping','walk','city','night','view','hotel','check','out','airport','depart','station','didi']);
-function shortIsTransit(s){return SHORT_TRANSIT.has(s.icon)||(s.icon==='🚶'&&/^walk\b/i.test(String(s.label||'')));}
 /* generic labels ("Brunch", "Hotel", "Didi") get the place name so the short list still says where */
 function shortWhere(s){
   if(!s.places||!s.places.length)return '';
@@ -976,7 +1096,8 @@ function renderShort(){
   document.getElementById('short-list').innerHTML=DAYS.map(day=>{
     const d=shortThaiDate(day),isToday=today.state==='today'&&today.id===day.id;
     const rows=day.slots.map((s,i)=>{
-      const highlight=String(s.label||'').includes('⭐'),transit=shortIsTransit(s);
+      const highlight=String(s.label||'').includes('⭐'),transit=isMove(s);
+      if(transit&&!showMoves)return `<button type="button" class="short-row transit compact" onclick="openShortSlot('${day.id}',${i})"><span class="short-icon">${s.icon}</span><span class="short-label">${moveTimeLabel(s.t)}</span><span class="short-open">${ic('chev')}</span></button>`;
       return `<button type="button" class="short-row ${highlight?'highlight':''} ${transit?'transit':''}" onclick="openShortSlot('${day.id}',${i})"><span class="short-time">${s.t}</span><span class="short-icon">${s.icon}</span><span class="short-label">${lineChips(s.label)}${shortWhere(s)}</span><span class="short-open">${ic('chev')}</span></button>`;
     }).join('');
     return `<article class="card short-day" id="short-day-${day.id}"><header class="short-day-head"><div class="short-day-meta"><span>${day.tab} · ${d.weekday} ${d.date}</span>${isToday?'<span class="short-today">วันนี้</span>':''}</div>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="short-day-title"><span>${day.cardTitle}</span></div></header>${rows}</article>`;
@@ -993,7 +1114,7 @@ function jumpShortDay(id,behavior='smooth'){
 }
 function focusShortToday(){const today=tripDay();if(today.state==='today')jumpShortDay(today.id,'auto');}
 function openShortSlot(dayId,index){
-  go('plan');setDay(dayId);tgSlot(index);
+  openSlots.add(slotKey(dayId,index));go('plan');setDay(dayId);
   requestAnimationFrame(()=>{const el=document.getElementById('slot-'+index);if(!el)return;const status=document.querySelector('.status');const gap=(status?status.offsetHeight:0)+12;window.scrollTo({top:Math.max(0,window.scrollY+el.getBoundingClientRect().top-gap),behavior:'smooth'});});
 }
 /* Suzhou metro (different system — verify in AMap) */
@@ -1037,9 +1158,26 @@ function trainCard(s){
 }
 /* row extras from the mockup: place names inline + quick copy */
 function plInline(s){if(s.metro||s.train||s.sz||!s.places||!s.places.length||!['food','cup'].includes(EMO[s.icon]))return '';const n=s.places.map(p=>p.en||p.zh).filter(x=>x&&!s.label.includes(x));return n.length?`<span class="pl">(${n.slice(0,3).join(' / ')})</span>`:'';}
-function copyBtn(s){if(!['metro','train','camera','city','moon','bag','pagoda','art','leaf'].includes(EMO[s.icon]))return '';const p=(s.places||[]).find(p=>p.zh);return p?`<span class="scopy" onclick="qcopy(event,this,'${p.zh.replace(/'/g,"\\'")}')">${ic('copy')}</span>`:'';}
-function qcopy(e,el,zh){e.stopPropagation();const ok=()=>{clearTimeout(el._okT);el.classList.add('ok');el._okT=setTimeout(()=>el.classList.remove('ok'),1500);showToast(zh);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(ok).catch(()=>fb(zh,ok));else fb(zh,ok);}
-function tgSlot(i){document.getElementById('slot-'+i).classList.toggle('open');}
+function copyBtn(s){
+  if(!['metro','train','camera','city','moon','bag','pagoda','art','leaf'].includes(EMO[s.icon]))return '';
+  const p=(s.places||[]).find(p=>p.en||p.zh);if(!p)return '';
+  const picked=selectedName(p);return picked.text?`<span class="scopy" data-copy="${foodEsc(picked.text)}" data-lang="${picked.lang}" onclick="qcopy(event,this,this.dataset.copy,this.dataset.lang)" aria-label="คัดลอก ${foodEsc(picked.text)}">${ic('copy')}</span>`:'';
+}
+function qcopy(e,el,text,lang){
+  e.stopPropagation();text=text||el.dataset.copy||el.dataset.zh||'';lang=lang||el.dataset.lang||'zh';if(!text)return;
+  const ok=()=>{clearTimeout(el._okT);el.classList.add('ok');el._okT=setTimeout(()=>el.classList.remove('ok'),1500);showToast(text,lang);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(ok).catch(()=>fb(text,ok));else fb(text,ok);
+}
+function tgSlot(i){
+  const day=DAYS.find(d=>d.id===activeDay),s=day&&day.slots[i],key=slotKey(activeDay,i),el=document.getElementById('slot-'+i);if(!s||!el)return;
+  const open=!openSlots.has(key);if(open)openSlots.add(key);else openSlots.delete(key);
+  if(isMove(s)&&!showMoves){
+    const top=el.getBoundingClientRect().top;renderDays();
+    requestAnimationFrame(()=>{const next=document.getElementById('slot-'+i);if(next)window.scrollBy(0,next.getBoundingClientRect().top-top);});
+    return;
+  }
+  el.classList.toggle('open',open);const head=el.querySelector('.shead');if(head)head.setAttribute('aria-expanded',String(open));
+}
 function bodyFor(s){
   let h=s.note?`<div class="p-note">${s.note}</div>`:'';
   if(s.img)h+=`<img class="slotimg" src="${s.img}" loading="lazy" alt="แผนที่ร้านอาหาร" onclick="zoomImg('${s.img}')" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='none'"><div class="maphint">🗺️ แตะรูปเพื่อดูเต็ม</div>`;
@@ -1146,22 +1284,22 @@ function initSwipe(){
 let toastT;
 function cpy(e,el){
   e.stopPropagation();
-  const zh=el.dataset.zh;
+  const copy=el.dataset.copy||el.dataset.zh||'',lang=el.dataset.lang||'zh';if(!copy)return;
   if(el._cpyOrig==null)el._cpyOrig=el.innerHTML;/* keep the real label once: a 2nd tap within 1.5 s must not save "✓ Copied" as the label */
   const done=()=>{
     clearTimeout(el._cpyT);
-    el.classList.add('copied');el.innerHTML='✓ Copied · '+zh;
+    el.classList.add('copied');el.innerHTML='✓ Copied · '+foodEsc(copy);
     el._cpyT=setTimeout(()=>{el.classList.remove('copied');el.innerHTML=el._cpyOrig;},1500);
-    showToast(zh);
+    showToast(copy,lang);
   };
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(zh).then(done).catch(()=>fb(zh,done));
-  else fb(zh,done);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(copy).then(done).catch(()=>fb(copy,done));
+  else fb(copy,done);
 }
 function fb(t,cb){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);cb();}
-function showToast(zh){const t=document.getElementById('toast');t.innerHTML=`✓ Copied: <span class="zh">${zh}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
+function showToast(copy,lang){const t=document.getElementById('toast'),label=lang==='en'?'EN':'中文';t.innerHTML=`✓ Copied (${label}) · <span class="${lang==='zh'?'zh':''}">${foodEsc(copy)}</span><br>ไปวางใน AMap 高德`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);}
 
 /* INIT */
-hydrateIcons();activeFoodDay=initialFoodDay();renderToday();renderChk();renderDays();renderShort();renderFood();initSwipe();initModalSwipe();
+hydrateIcons();activeFoodDay=initialFoodDay();syncPrefs();renderToday();renderChk();renderDays();renderShort();renderFood();initSwipe();initModalSwipe();
 document.getElementById('home-ck').textContent=CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length+'/'+CARDS.length;
 document.getElementById('home-bar').style.width=(CARDS.filter(c=>c.tasks.every((_,i)=>state[c.id+'-'+i])).length/CARDS.length*100)+'%';
 </script>
