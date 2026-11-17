@@ -41,6 +41,8 @@ RULES = {
     "ITEMMOVE":        "Trade ไม่ตรงกับฐานข้อมูล",
     "QTY_OPTION":      "จำนวนในชื่อไม่ตรงกับ ItemOption",
     "PERIOD":          "Period ไม่ตรงกับ DurationIndex",
+    "OPTION_PERIOD":   "Blessing Bead: ItemOption (ระยะเวลาถือครอง) ไม่ตรงกับ Period",
+    "BEAD_TIME":       "Blessing Bead: เวลาในชื่อไม่ตรงกับ DurationIndex",
     "DURATION_UNKNOWN": "DurationIndex ไม่มีในตาราง",
     "DISPLAY_NAME":    "Item Name กับ Display Name ไม่ตรงกัน",
     "NAME_VALUE":      "ชื่อไอเทมไม่ได้บอกค่าในวงเล็บ",
@@ -53,7 +55,7 @@ RULES = {
 
 # Rules that are errors only after Dalif confirms them (rules.json "confirmed").
 NEEDS_CONFIRM = {"KIND_STRUCT", "BIND_BIT", "QTY_OPTION", "DISPLAY_NAME", "PERIOD"}
-ALWAYS_ERROR = {"TRADE_KIND", "CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
+ALWAYS_ERROR = {"OPTION_PERIOD", "BEAD_TIME", "TRADE_KIND", "CHAOS_UPGRADE", "LIBRARY_DIFF", "NUMBER_E", "NUMBER", "YES_NO", "INDEX_NAME", "KIND", "STACKABLE",
                 "ITEMMOVE", "AMOUNT", "MISSING"}
 # "(1 Day)", "(30 Days)", "(15 min)", "(2 hr)", "(7 วัน)" written inside an item name
 TIME_IN_NAME = re.compile(
@@ -70,6 +72,9 @@ class Checker:
         self.confirmed = set((db.rules or {}).get("confirmed", []))
         # items that legitimately have no item numbers in this game (rules.json "no_id_items")
         self.no_id_keys = [name_key(n) for n in ((db.rules or {}).get("no_id_items") or {})]
+        # items whose ItemOption is the ownership period (DurationIndex code) and whose DurationIndex is
+        # the effect time in the name, e.g. Blessing Bead (rules.json "option_is_period", Dalif 2026-11-17)
+        self.option_period_keys = [name_key(n) for n in ((db.rules or {}).get("option_is_period") or {})]
         self.masks = db.known_masks()
         self.residuals = {flag_residual(m) for m in self.masks if m >= 0} | {0}
 
@@ -209,7 +214,8 @@ class Checker:
         elif cands:
             # container items (e.g. costume GiftBox 33558006) share one ItemIndex and pick
             # the content with ItemOption -> compare names with the same option first
-            same_opt = [c for c in cands if opt is not None and c["option"] == opt]
+            bead = self.option_is_period(name, dname)
+            same_opt = [c for c in cands if opt is not None and c["option"] == opt and not bead]
             named = same_opt or cands
             # the +N in a name lives in ItemKind, so "Belt +14" and "Belt +15" are one item
             kf_doc = kind_fields(kind, idx)
@@ -222,7 +228,7 @@ class Checker:
             name_ok = (key(name) in db_names) or bool(dname and key(dname) in db_names)
             dur_key = (db.durations.get(dur) or {}).get("key") if dur is not None else None
             doc_times = {period_key(t) for t in TIME_IN_NAME.findall(name + " " + dname)}
-            if not name_ok and name and dur_key and dur_key in doc_times:
+            if not name_ok and name and (bead or (dur_key and dur_key in doc_times)):
                 # the time in the name is the DurationIndex time ("(1 hr)" with DurationIndex 1) -> a new
                 # duration of a known item, not a wrong name (Dalif 2026-11-13: Blessing Bead - WEXP
                 # UP(1000%)(1 hr) is right; the library only had 2 ชม. / 1 วัน). Only when the time agrees
@@ -231,7 +237,8 @@ class Checker:
                 t_names = {tkey(x) for c in named for x in [c["name"], c["display_name"]] + c.get("aliases", [])}
                 t_names.discard("")
                 name_ok = (tkey(name) in t_names) or bool(dname and tkey(dname) in t_names)
-            container = len({name_key(c["name"]) for c in cands}) > 1 and not same_opt and opt is not None
+            container = len({name_key(c["name"]) for c in cands}) > 1 and not same_opt and opt is not None \
+                and not bead
             kinds = db.values(idx, "kind")
             identity_broken = False
             if name and not name_ok and container and not other_idx:
@@ -292,7 +299,7 @@ class Checker:
                       "ItemKind ของ ItemIndex %s ในฐานข้อมูลคือ %s" % (idx, " / ".join(map(str, kinds))))
             # Trade must match the library row with the same ItemKind + ItemIndex + ItemOption
             # (Dalif 2026-11-13; "(ผูกมัด)" in the name does not matter)
-            same = {c["itemmove"] for c in cands if c["kind"] == kind and c["option"] == opt
+            same = {c["itemmove"] for c in cands if c["kind"] == kind and (c["option"] == opt or bead)
                     and c["itemmove"] is not None} if kind is not None and opt is not None else set()
             if move is not None and len(same) == 1 and move not in same:
                 ref = next(iter(same))
@@ -362,12 +369,38 @@ class Checker:
         # 4. quantity written in the name must match ItemOption for stackable items
         q = qty_in_name(name) or qty_in_name(dname)
         # ItemOption = (value << 16) | count for some items, e.g. Raid Energy Capsule 50/100 x1 = 3276801
-        if q is not None and opt is not None and not option_matches_qty(opt, q)                 and not any(x["code"] == "LIBRARY_DIFF" and x["field"] == "ItemOption" for x in out):
+        if q is not None and opt is not None and not option_matches_qty(opt, q) and not self.option_is_period(name, dname)                 and not any(x["code"] == "LIBRARY_DIFF" and x["field"] == "ItemOption" for x in out):
             f("QTY_OPTION", "option", opt, q,
               "ชื่อไอเทมบอก x%s แต่ ItemOption = %s — ItemOption ส่วนใหญ่คือจำนวน ให้ recheck" % (q, opt))
 
         # 5. DurationIndex <-> Period
-        if dur is not None and "period" in cols:
+        if self.option_is_period(name, dname):
+            # Blessing Bead (Dalif 2026-11-17): DurationIndex = effect time in the name,
+            # ItemOption = ownership period (same code table) -> must match the Period column
+            ref = db.durations.get(dur) if dur is not None else None
+            tags = TIME_IN_NAME.findall(name + " " + dname)
+            times = {period_key(t) for t in tags}
+            if ref and times and ref.get("key") not in times:
+                f("BEAD_TIME", "duration", dur, "",
+                  "ชื่อไอเทมบอกเวลา %s แต่ DurationIndex %s หมายถึง %s (Blessing Bead: DurationIndex = เวลาในชื่อ)"
+                  % (", ".join(tags), dur, ref.get("th") or ref.get("period")))
+            pref = db.durations.get(opt) if opt is not None else None
+            per = text(v.get("period")) if "period" in cols else ""
+            if opt is not None and db.durations and pref is None:
+                f("OPTION_PERIOD", "option", opt, "",
+                  "ItemOption %s ไม่มีในตารางระยะเวลา (Blessing Bead: ItemOption = ระยะเวลาถือครอง)" % opt)
+            elif pref and "period" in cols and not per:
+                f("NO_PERIOD", "period", "", pref.get("th") or pref.get("period"),
+                  "Period ว่าง — Blessing Bead ItemOption %s หมายถึง %s" % (opt, pref.get("th") or pref.get("period")))
+            elif pref and per and period_key(per) is not None and period_key(per) != pref.get("key"):
+                # (a Period cell holding a bare code such as "10" cannot be compared -> skipped)
+                thai = any("฀" <= ch <= "๿" for ch in per)
+                want = pref.get("th") if thai and pref.get("th") else pref.get("period")
+                match = sorted(k for k, d in db.durations.items() if d.get("key") == period_key(per))
+                f("OPTION_PERIOD", "period", per, want,
+                  "Blessing Bead ใช้ ItemOption เป็นระยะเวลาถือครอง: ItemOption %s = %s แต่ Period เขียน %s%s"
+                  % (opt, want, per, (" (ถ้า %s ถูก ItemOption ต้องเป็น %s)" % (per, match[0])) if match else ""))
+        elif dur is not None and "period" in cols:
             per = text(v.get("period"))
             ref = db.durations.get(dur)
             if ref is None:
@@ -410,6 +443,10 @@ class Checker:
                 f("AMOUNT", "amount", v.get("amount"), "เลขจำนวนเต็ม ≥ 1", "Amount ต้องเป็นเลขจำนวนเต็มตั้งแต่ 1")
         return out
 
+    def option_is_period(self, name, dname=""):
+        keys = [name_key(name), name_key(dname)]
+        return any(k and k.startswith(p) for k in keys for p in self.option_period_keys)
+
     def _library_diff(self, r, n, stack, move, name, dname, already):
         keys = {full_name_key(name), full_name_key(dname)} - {""}
         lib = [it for k in keys for it in self.db.by_full_name.get(k, [])]
@@ -425,12 +462,17 @@ class Checker:
         if not lib:
             return []
         doc = dict(n, itemmove=move)
-        if any(all(doc[f] is None or doc[f] == it[f] for f in ("kind", "index", "option", "duration"))
+        bead = self.option_is_period(name, dname)
+        # Blessing Bead: ItemOption is the ownership period, so Trade must decide the match instead
+        fields = ("kind", "index", "duration", "itemmove") if bead else ("kind", "index", "option", "duration")
+        if any(all(doc[f] is None or (f == "itemmove" and it[f] is None) or doc[f] == it[f] for f in fields)
                for it in lib):
             return []                      # matches one known version exactly
         done = {x["field"] for x in already if x["severity"] != "info"}
         found = []
         for f in ("index", "kind", "option", "itemmove"):   # duration varies per event (Dalif 2026-11-12)
+            if f == "option" and bead:
+                continue                   # ownership period, varies per event like DurationIndex
             vals = {it[f] for it in lib if it[f] is not None}
             if doc[f] is None or not vals or doc[f] in vals or FIELD_LABELS[f] in done:
                 continue
