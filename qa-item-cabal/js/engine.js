@@ -154,15 +154,51 @@
     var bundles = {};
     for (var i = 0; i < GAMES.length; i++) bundles[GAMES[i]] = await decryptEnvelope(envs[i + 1], password);
     state.config = config; state.bundles = bundles;
+    restoreUnsynced();
     try { sessionStorage.setItem(SESSION_KEY, password); } catch (e) { /* ignore */ }
     return true;
   }
 
   function isUnlocked() { return !!state.bundles.pc; }
+
+  // Items saved from this browser are kept in localStorage until the published data has them:
+  // the site rebuild + GitHub Pages cache take a few minutes, and a reload in between used to show
+  // the old numbers again (Dalif 2026-11-17: edited Epaulet of the Dead, search still showed the old row).
+  var UNSYNCED_KEY = 'qaitem_unsynced';
+  var UNSYNCED_MAX_AGE = 2 * 86400 * 1000;
+
+  function persistUnsynced() {
+    try {
+      localStorage.setItem(UNSYNCED_KEY, JSON.stringify({ at: Date.now(), pending: state.pending, edits: state.edits }));
+    } catch (e) { /* private window: shown until reload only */ }
+  }
+
+  function rememberAdd(game, item) { state.pending[game].push(item); persistUnsynced(); }
+  function rememberEdit(game, from, item) { state.edits[game].push({ from: from, item: item }); persistUnsynced(); }
+
+  function restoreUnsynced() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(UNSYNCED_KEY) || 'null'); } catch (e) { saved = null; }
+    if (!saved || !(Date.now() - saved.at < UNSYNCED_MAX_AGE)) {
+      try { localStorage.removeItem(UNSYNCED_KEY); } catch (e) { /* ignore */ }
+      return;
+    }
+    GAMES.forEach(function (game) {
+      var have = {};
+      ((state.bundles[game] || {}).items || []).forEach(function (it) { have[identity(it)] = 1; });
+      // done once the published data has the saved version
+      state.pending[game] = ((saved.pending || {})[game] || []).filter(function (it) { return !have[identity(it)]; });
+      state.edits[game] = ((saved.edits || {})[game] || []).filter(function (e) { return !have[identity(e.item)]; });
+    });
+    persistUnsynced();
+  }
   function lock() {
     state.bundles = {}; state.config = null;
     state.session = null; state.user = null; state.canSave = false;
-    try { sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ }
+    state.pending = { pc: [], mobile: [] }; state.edits = { pc: [], mobile: [] };
+    try {
+      sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(AUTH_KEY); localStorage.removeItem(UNSYNCED_KEY);
+    } catch (e) { /* ignore */ }
   }
 
   // ------------------------------------------------------- Google sign-in
@@ -240,9 +276,9 @@
     if (!b) throw new Error('ยังไม่ได้ปลดล็อกข้อมูล');
     if (!state.pending[game].length && !state.edits[game].length) return b;
     var items = b.items.map(function (it) {
-      var hit = null;
-      state.edits[game].forEach(function (e) { if (identity(it) === e.from) hit = e.item; });
-      return hit || it;
+      // edits apply in order, so editing the same item twice shows the latest version
+      state.edits[game].forEach(function (e) { if (identity(it) === e.from) it = e.item; });
+      return it;
     });
     return Object.assign({}, b, { items: items.concat(state.pending[game]) });
   }
@@ -369,7 +405,7 @@
       data.items.push(it);
       return { item: it, message: 'data(' + game + '): add ' + it.name + ' [' + it.index + ']' };
     }).then(function (done) {
-      state.pending[game].push(done.item);
+      rememberAdd(game, done.item);
       return { commit_url: done.commit_url, item: done.item, warnings: res.warnings };
     });
   }
@@ -395,7 +431,7 @@
       data.items[i] = it;
       return { item: it, message: 'data(' + game + '): edit ' + it.name + ' [' + it.index + ']' };
     }).then(function (done) {
-      state.edits[game].push({ from: from, item: done.item });
+      rememberEdit(game, from, done.item);
       return { commit_url: done.commit_url, item: done.item, warnings: res.warnings };
     });
   }
@@ -431,8 +467,8 @@
   async function saveViaBackend(game, res, original) {
     if (!state.user || state.user.role !== 'admin') throw new Error('ต้องเป็น admin ถึงจะเพิ่ม/แก้ไอเทมได้');
     var j = await backend('save_item', { game: game, item: res.item, original: original || null });
-    if (original) state.edits[game].push({ from: identity(original), item: j.item });
-    else state.pending[game].push(j.item);
+    if (original) rememberEdit(game, identity(original), j.item);
+    else rememberAdd(game, j.item);
     return { commit_url: j.commit_url, item: j.item, warnings: res.warnings };
   }
 
