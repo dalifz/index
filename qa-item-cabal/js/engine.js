@@ -110,13 +110,14 @@
         try { saved = sessionStorage.getItem(SESSION_KEY); } catch (e) { /* ignore */ }
         if (saved) { try { await unlock(saved); } catch (e) { /* ask again */ } }
       }
-      if (!isUnlocked() && state.session) {
-        // remembered Google sign-in: ask the backend for the data key again (also re-checks the Users sheet)
-        progress(onProgress, 'กำลังเข้าสู่ระบบด้วยบัญชี Google เดิม', 100);
+      if (state.session) {
+        // remembered Google sign-in: refresh the account (role / can_delete may have changed) and,
+        // when still locked, get the data key again (also re-checks the Users sheet)
+        if (!isUnlocked()) progress(onProgress, 'กำลังเข้าสู่ระบบด้วยบัญชี Google เดิม', 100);
         try {
           var who = await backend('whoami');
           if (who.user) { state.user = who.user; saveAuth(state.session, who.user, state.canSave, null); }
-          if (who.data_password) await unlock(who.data_password);
+          if (!isUnlocked() && who.data_password) await unlock(who.data_password);
         } catch (e) { /* session over -> sign in again */ }
       }
       return true;
