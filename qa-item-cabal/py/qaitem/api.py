@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 from .checker import RULES, Checker, summarize
 from .db import ItemDB, clean_item
-from .normalize import name_key, period_key, text, yn
+from .normalize import name_key, period_key, text, to_int, yn
 from .sheet import parse_workbook
 
 ENGINE_VERSION = "2.0.0"
@@ -95,7 +95,18 @@ def validate_item(bundle, raw, original=None):
         original = json.loads(original) if original else None
     if original:
         key = item_identity(original)
-        bundle = dict(bundle, items=[i for i in bundle.get("items", []) if item_identity(i) != key])
+        new_index = to_int((raw or {}).get("index"))
+        old_index, old_name = to_int(original.get("index")), name_key(original.get("name"))
+        renumber = new_index is not None and old_index is not None and new_index != old_index
+
+        def same_item(i):
+            if item_identity(i) == key:
+                return True
+            # the game gave this item a new ItemIndex (Dalif 2026-11-18: Nearly Hatched Egg 33555143 ->
+            # 67108980): its other rows under the old number (e.g. another DurationIndex) are the same
+            # item, not proof that the new number is wrong
+            return renumber and i.get("index") == old_index and name_key(i.get("name")) == old_name
+        bundle = dict(bundle, items=[i for i in bundle.get("items", []) if not same_item(i)])
     db = ItemDB.from_bundle(bundle)
     it = clean_item(raw)
     errors, warnings = [], []
