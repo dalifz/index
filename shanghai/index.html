@@ -111,6 +111,20 @@
   .plan-hint{font-size:12px;color:var(--muted);margin:2px 0 12px;display:flex;flex-direction:column;gap:4px}
   .plan-hint span{display:flex;gap:6px;align-items:flex-start}
   .plan-hint .i{width:16px;height:16px;color:var(--accent);margin-top:2px}
+  .choice-card{margin:4px 0 12px;padding:12px;border:1.5px solid #F3BED0;border-radius:18px;background:linear-gradient(180deg,#FFF6F9,#FFFFFF);box-shadow:var(--shadow-sm);position:relative;z-index:1}
+  .choice-title{font-size:15px;font-weight:800;color:var(--accent);margin:0 0 9px}
+  .choice-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .choice-opt{display:flex;align-items:center;gap:8px;min-height:54px;padding:8px 10px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;font-weight:700;text-align:left;line-height:1.3;cursor:pointer}
+  .choice-opt b{flex:0 0 26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#F1E7E9;color:#8D7A7F;font-size:13px}
+  .choice-opt.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .choice-opt.on b{background:var(--accent);color:#fff}
+  .choice-sub{margin-top:9px;font-size:13px;line-height:1.6;color:var(--muted)}
+  .choice-amap{display:inline-flex;align-items:center;gap:4px;margin-left:2px;padding:2px 10px;border-radius:99px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;text-decoration:none;vertical-align:middle}
+  .choice-amap .i{width:13px;height:13px}
+  .choice-pill{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border:1px solid #F3BED0;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
+  .short-choice{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:9px 12px;border-top:1px solid #F4ECEA;background:#FFF6F9;color:var(--accent);font-size:13px;font-weight:800}
+  .short-choice button{padding:5px 11px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:#8D7A7F;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .short-choice button.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .view-tools{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0 0 12px;position:relative;z-index:1}
   .setting-toggle{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:5px 10px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:#806A70;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:var(--shadow-sm)}
   .setting-toggle.on{border-color:#F3BED0;background:var(--accent-soft);color:var(--accent)}
@@ -800,7 +814,7 @@ const DAYS=[
    {t:'21:00',icon:'🚇',label:'Metro · Line 14 → 封浜 Fengbang · 1 สถานี',note:'豫园 Yuyuan ขึ้น Line 14 ทิศ 封浜 Fengbang → 1 สถานี ลง 大世界 Dashijie Exit 5',places:[P('Yuyuan Garden','豫园'),P('Dashijie','大世界')]},
    {t:'~21:20',icon:'🏨',label:'Hotel',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
- {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',theme:'🍂 วันใบไม้เหลืองกับไฟเมือง',tagline:'แปะก๊วย · สุกี้ · ตึกระฟ้ายามค่ำ',cardTitle:'Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',summary:'局门路 แปะก๊วย → New Sukiyaki → 1000 Trees → 巨富长 Julu·Fumin·Changle → พักโรงแรม → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',route:'局门路 Jumen Rd → 第一百货 New Sukiyaki → 天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 陆家嘴 Lujiazui',
+ {id:'5',tab:'DAY 5',date:'Dec 7',emoji:'🌿',theme:'🍂 วันใบไม้เหลืองกับไฟเมือง',tagline:'แปะก๊วย · สุกี้ · ตึกระฟ้ายามค่ำ',choice:{key:'d5night',title:'🔁 คืนนี้เลือกได้ 2 ทาง',shortTitle:'🔁 คืนนี้ 2 ทาง:',a:{name:'Lujiazui ตึกระฟ้ายามค่ำ',short:'Lujiazui',sub:'แผนหลัก · 18:00 นั่ง Line 14 ไป 陆家嘴 ดู skyline กลางคืน · มื้อเย็น 酸菜鱼 ที่ 人民广场 · ถึงโรงแรม ~21:00'},b:{name:'ตลาดกลางคืน 泗泾夜市',short:'ตลาดกลางคืน',sub:'สำรอง ถ้าแม่ไม่อยากไป Lujiazui · ออก 17:30 (Line 8 → Line 9 ~1 ชม.) · กินมื้อเย็นที่ตลาด ร้าน 70+ ของกิน ¥10–20/ชิ้น · ถึงโรงแรม ~21:40 · ⚠️ คืนสุดท้าย เก็บกระเป๋าตอนพักบ่ายก่อนออก',amap:'泗泾夜市'}},cardTitle:'Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',summary:'局门路 แปะก๊วย → New Sukiyaki → 1000 Trees → 巨富长 Julu·Fumin·Changle → พักโรงแรม → 陆家嘴 Lujiazui',title:'Day 5 — Dec 7 · Jumen Ginkgo → New Sukiyaki → 1000 Trees → 巨富长 → Rest → Lujiazui',route:'局门路 Jumen Rd → 第一百货 New Sukiyaki → 天安千树 1000 Trees → 巨富长 Julu·Fumin·Changle → 陆家嘴 Lujiazui',
   slots:[
    {t:'08:30',icon:'🍞',label:'ออกจากโรงแรม (ชิลๆ)',note:'กินเบาๆ ก่อนออก (巴比馒头 Babi Mantou / ร้านแถว 云南南路) · DiDi → จุดลงรถ 局门路 × 五里桥路 ~10–15 นาที',places:[P('Jumen Rd × Wuliqiao Rd','局门路与五里桥路交叉口')]},
    {t:'08:45–09:35',icon:'🍂',label:'Ginkgo Street ⭐',note:'ถนนแปะก๊วย 局门路 Jumen Road · จุดลงรถ 局门路 × 五里桥路 แล้วเดินตามถนน · แสงเช้าสวย ถนนยังโล่ง · ⚠️ ก่อนไปค้น 局门路 银杏 ใน Xiaohongshu ดูว่าใบยังเหลืองไหม · 🔴 (ตัดได้) ใบร่วงหมด/แม่เหนื่อย → เดินเล่น 人民公园 People\'s Park แทน',places:[P('Jumen Road','局门路'),P('Jumen Rd × Wuliqiao Rd','局门路与五里桥路交叉口')]},
@@ -814,12 +828,16 @@ const DAYS=[
    {t:'14:15–16:00',icon:'🛍️',label:'City Walk ⭐ 巨富长 Julu · Fumin · Changle',note:'เส้นทางหลัก: Suzie\'s Garden 富民路38号 → แยก 巨鹿路 Julu Road → LABELHOOD 富民路184号 → SLAB TOWN 富民路210弄 → จบที่ 长乐路 Changle Road · ไม่ต้องเข้าครบทุกร้าน · (กิน New Sukiyaki แล้ว ไม่ต้องแวะ Junfu Canteen) · แตะ note ดูหมุดครบ 8 จุด',places:[P('Suzie\'s Garden','富民路38号'),P('Julu Road','巨鹿路'),P('LABELHOOD','富民路184号'),P('SLAB TOWN','富民路210弄'),P('Changle Road','长乐路')],foldnote:'<b>巨富长 Julu × Fumin × Changle</b> — เดินลงใต้ตาม 富民路 Fumin Road เลขที่เพิ่มขึ้นเรื่อยๆ<br><br>① <b>富民路38号 Suzie\'s Garden</b> — ไวน์บาร์ + เบเกอรี่ · เปิด 11:30<br>② <b>富民路83-3号 MEL BOURNE 猫尔本</b> — บรันช์คาเฟ่ ถ่ายรูปหน้าร้าน · เปิด 10:00–22:00 · ~¥154/คน<br>③ <b>แยก 巨鹿路 Julu Road</b> — เลี้ยวเดินเล่นถ่ายรูปสั้นๆ แล้วกลับมา 富民路 Fumin Road<br>④ <b>富民路160号 旬福食堂 Junfu Canteen</b> — 🍜 ข้าวเที่ยง แกงกะหรี่ซุปฮอกไกโด · ⚠️ คิวยาว รอเกิน 20 นาทีเปลี่ยนร้าน<br>⑤ <b>富民路184号 LABELHOOD 蕾虎</b> — ร้านรวมแบรนด์ดีไซเนอร์จีน 4 ชั้น<br>⑥ <b>富民路 保罗花园 Paul Garden</b> — ANNAKIKI ร้านแฟล็กชิป<br>⑦ <b>富民路210弄 SLAB TOWN 石板城咖啡</b> — คาเฟ่ในวิลล่าเก่า หัวมุม 长乐路 Changle Road · แวะพักขาก่อนเดินต่อ<br>⑧ <b>เลี้ยวเดิน 长乐路 Changle Road</b>'},
    {t:'16:00–16:20',icon:'🚕',label:'Didi',note:'长乐路 Changle Road → Jinjiang Inn',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
    {t:'16:20–17:50',icon:'🏨',label:'Rest',note:'กลับโรงแรม วางถุงช้อป · พักยาวก่อนเที่ยวกลางคืน · (ตัด Hengshan 衡山路 ออกจากแผนหลัก)'},
-   {t:'18:00',icon:'🚇',label:'Metro · Line 14 → 桂桥路 · 2 สถานี',note:'大世界 Dashijie ขึ้น Line 14 ทิศ 桂桥路 Guiqiao Road → 2 สถานี ลง 陆家嘴 Lujiazui · ไม่ต้องเปลี่ยนสาย',places:[P('Dashijie','大世界'),P('Lujiazui','陆家嘴')]},
-   {t:'18:15–19:30',icon:'🌃',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('Lujiazui','陆家嘴')]},
-   {t:'19:30',icon:'🚇',label:'Metro · Line 2',note:'陆家嘴 Lujiazui ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 2 สถานี (南京东路 → 人民广场) ลง 人民广场 People\'s Square · ทางกลับโรงแรมอยู่แล้ว เปลี่ยน Line 8 ที่นี่',places:[P('Lujiazui','陆家嘴'),P('People’s Square','人民广场')]},
-   {t:'19:45–20:40',icon:'🐟',label:'Dinner ⭐ 酸菜鱼',note:'ร้านอาหารจีนหัวมุม ในทางเดินใต้ดินสถานี 人民广场 ใกล้ทางออก 11 (ทางออกไปร้านขนมปังผีเสื้อคิวยาว) · 🐟 酸菜鱼 ต้มปลาผักกาดดอง ~¥30 · 青椒肉丝 หมูผัดพริกหยวก · เมนู ¥12–28 · ร้านไม่มีชื่อในโพสต์ ใช้รูปหา · ร้านในสถานีอาจปิด ~21:00 ไปก่อน 20:00 · (สำรอง: ฟู้ดคอร์ท 正大广场 Super Brand Mall / เดินกินถนนนานจิง) · ⚠️ ปักหมุด AMap / จดชื่อจีนร้านก่อนออก',places:[P('People’s Square Exit 11','人民广场 11号口')]},
-   {t:'20:45',icon:'🚇',label:'Metro · Line 8',note:'人民广场 People\'s Square ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 (หรือเดิน ~15 นาที)',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
-   {t:'~21:00',icon:'🏨',label:'Hotel',note:'เก็บกระเป๋าให้เสร็จคืนนี้ พรุ่งนี้ออก 07:00',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'18:00',icon:'🚇',opt:'A',label:'Metro · Line 14 → 桂桥路 · 2 สถานี',note:'大世界 Dashijie ขึ้น Line 14 ทิศ 桂桥路 Guiqiao Road → 2 สถานี ลง 陆家嘴 Lujiazui · ไม่ต้องเปลี่ยนสาย',places:[P('Dashijie','大世界'),P('Lujiazui','陆家嘴')]},
+   {t:'18:15–19:30',icon:'🌃',opt:'A',label:'Night View',note:'ไฟเปิดครบ · เดิน skywalk วงแหวน ถ่าย skyline · Shanghai Tower / Jin Mao Tower / Oriental Pearl 东方明珠 — ไม่ต้องขึ้นตึก เดินถ่ายรูปพอ',places:[P('Lujiazui','陆家嘴')]},
+   {t:'19:30',icon:'🚇',opt:'A',label:'Metro · Line 2',note:'陆家嘴 Lujiazui ขึ้น Line 2 ทิศ 蟠祥路·国家会计学院 Panxiang Road → 2 สถานี (南京东路 → 人民广场) ลง 人民广场 People\'s Square · ทางกลับโรงแรมอยู่แล้ว เปลี่ยน Line 8 ที่นี่',places:[P('Lujiazui','陆家嘴'),P('People’s Square','人民广场')]},
+   {t:'19:45–20:40',icon:'🐟',opt:'A',label:'Dinner ⭐ 酸菜鱼',note:'ร้านอาหารจีนหัวมุม ในทางเดินใต้ดินสถานี 人民广场 ใกล้ทางออก 11 (ทางออกไปร้านขนมปังผีเสื้อคิวยาว) · 🐟 酸菜鱼 ต้มปลาผักกาดดอง ~¥30 · 青椒肉丝 หมูผัดพริกหยวก · เมนู ¥12–28 · ร้านไม่มีชื่อในโพสต์ ใช้รูปหา · ร้านในสถานีอาจปิด ~21:00 ไปก่อน 20:00 · (สำรอง: ฟู้ดคอร์ท 正大广场 Super Brand Mall / เดินกินถนนนานจิง) · ⚠️ ปักหมุด AMap / จดชื่อจีนร้านก่อนออก',places:[P('People’s Square Exit 11','人民广场 11号口')]},
+   {t:'20:45',icon:'🚇',opt:'A',label:'Metro · Line 8',note:'人民广场 People\'s Square ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 1 สถานี ลง 大世界 Dashijie Exit 5 (หรือเดิน ~15 นาที)',places:[P('People’s Square','人民广场'),P('Dashijie','大世界')]},
+   {t:'~21:00',icon:'🏨',opt:'A',label:'Hotel',note:'เก็บกระเป๋าให้เสร็จคืนนี้ พรุ่งนี้ออก 07:00',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
+   {t:'17:30',icon:'🚇',opt:'B',label:'Metro · Line 8 → 沈杜公路 · Line 9 → 松江南站',note:'大世界 Dashijie ขึ้น Line 8 ทิศ 沈杜公路 Shendu Highway → 2 สถานี ลง 陆家浜路 Lujiabang Road → เปลี่ยน Line 9 ทิศ 松江南站 Songjiang South Railway Station → 14 สถานี ลง 泗泾 Sijing ทางออก 3 → ตลาดห่าง 80 ม. · ~1 ชม. · ⚠️ คืนสุดท้ายก่อนบิน → เก็บกระเป๋าตอนพักบ่าย (16:20–17:50) ให้เสร็จก่อนออก',places:[P('Dashijie','大世界'),P('Lujiabang Road','陆家浜路'),P('Sijing','泗泾')]},
+   {t:'18:30–20:30',icon:'🍢',opt:'B',label:'Dinner ⭐ ตลาดกลางคืน 泗泾夜市',note:'泗泾夜市 Sijing Night Market · F1, 2 Sibao Lu (泗宝路) · เปิดทุกวัน 16:00–23:00 · ร้านอาหาร 70+ ร้าน ใหญ่สุดในเซี่ยงไฮ้ · ของกิน ¥10–20/ชิ้น · ขายแต่ของกิน (ร้านของฝากอยู่ 泗泾古镇 ปิดก่อนค่ำ) · กินมื้อเย็นที่นี่แทน Lujiazui + ร้าน 酸菜鱼',places:[P('Sijing Night Market','泗泾夜市')]},
+   {t:'20:30',icon:'🚇',opt:'B',label:'Metro · Line 9 → 曹路 · Line 8 → 市光路',note:'泗泾 Sijing ขึ้น Line 9 ทิศ 曹路 Caolu → 14 สถานี ลง 陆家浜路 Lujiabang Road → เปลี่ยน Line 8 ทิศ 市光路 Shiguang Road → 2 สถานี ลง 大世界 Dashijie Exit 5 · ~1 ชม.',places:[P('Sijing','泗泾'),P('Lujiabang Road','陆家浜路'),P('Dashijie','大世界')]},
+   {t:'~21:40',icon:'🏨',opt:'B',label:'Hotel',note:'Jinjiang Inn · เก็บของที่เหลือ พรุ่งนี้ออก 07:00',places:[P('Jinjiang Inn','锦江之星 云南南路293号')]},
   ]},
  {id:'6',tab:'DAY 6',date:'Dec 8',emoji:'🛫',theme:'✈️ วันกลับบ้าน See you again',tagline:'เก็บของ · บินกลับพร้อมความทรงจำ',cardTitle:'Check-out → PVG T2 → BKK',summary:'Check-out → PVG T2 · 9C7283',title:'Day 6 — Dec 8 · Check-out → PVG T2 → BKK',route:'大世界 → PVG T2 → BKK',
   slots:[
@@ -893,6 +911,10 @@ const FOOD={
     {name:'五芳斋 Wu Fang Zhai',en:'Wu Fang Zhai',zh:'五芳斋 山西南路',where:'山西南路',note:'粽子 ข้าวต้มมัด · ของว่าง'},
     {name:'德兴馆 De Xing Guan',en:'De Xing Guan',zh:'德兴馆',where:'山西南路 / 福建中路',note:'อาหารเซี่ยงไฮ้ · มื้อเย็นทางเลือก'},
     {name:'德大西菜社 Deda',en:'Deda Western Restaurant',zh:'德大西菜社',where:'山西南路',note:'ร้านตะวันตกเก่าแก่ (1897) · กาแฟ/ของหวาน'}
+  ]},
+  'night':{tab:'ตลาดกลางคืน 🌙',area:'แผนสำรอง Day 5 — ถ้าไม่ไป Lujiazui',hint:'ตลาดกลางคืน ขายแต่ของกิน · เปิดถึง ~23:00 · ดูทางเลือก B ใน Day 5 ช่วงค่ำ',items:[
+    {name:'泗泾夜市 Sijing Night Market',en:'Sijing Night Market',zh:'泗泾夜市',where:'F1, 2 Sibao Lu (泗宝路) · Line 9 สถานี 泗泾 ทางออก 3 (80 ม.)',hours:'ทุกวัน 16:00–23:00',note:'แผนสำรองแทน Lujiazui · ใหญ่สุดในเซี่ยงไฮ้ ร้าน 70+ · ของกิน ¥10–20/ชิ้น · ขายแต่ของกิน (ร้านของฝากอยู่ 泗泾古镇 ปิดก่อนค่ำ) · จากโรงแรม ~1 ชม.',tag:'สำรองอันดับ 1 ⭐'},
+    {name:'上大夜市 Shanghai University Night Market',en:'Shanghai University Night Market',zh:'上海大学夜市',where:'ฝั่งตะวันตกของแยก 聚丰园路 × 惠丰路 · Line 7 สถานี 上海大学 เดิน ~15 นาที',hours:'ทุกวัน ~16:00–23:00',note:'สำรองอันดับ 2 · กุ้งเครย์ฟิช + เบียร์ · ส้มตำไทย เคบับ · ราคานักศึกษา · จากโรงแรม ~1 ชม. 15 นาที',tag:'สำรองอันดับ 2'}
   ]},
   'all':{tab:'ทุกวัน',area:'ร้านเครือ หลายสาขา',hint:'ค้น AMap แล้วเลือก "附近" ใกล้ที่สุด',items:[
     {name:'酸菜鱼 ต้มปลาผักกาดดอง',zh:'酸菜鱼',note:'ปลาต้มผักกาดดองสไตล์เสฉวน (ซุปเปรี้ยวๆ เผ็ดเลือกระดับได้ — สั่ง 不辣 ไม่เผ็ด) · ร้านเครือดัง: 太二酸菜鱼 / 鱼你在一起 · ค้น AMap "酸菜鱼" แล้วเลือก 附近 ใกล้ที่สุด · เหมาะมื้อเย็นที่ยังว่าง'},
@@ -1029,6 +1051,20 @@ function tgTask(e,cid,i){e.stopPropagation();const k=cid+'-'+i;state[k]=!state[k
    Flights ✈️ and the Suzhou trains 🚄 always stay visible; a slot can force either way with move:true / move:false */
 const MOVE_ICONS=new Set(['🚇','🚕','🚶']);
 function isMove(s){return s.move!=null?!!s.move:MOVE_ICONS.has(s.icon);}
+/* a night with two options (Day 5): slots carry opt:'A' | opt:'B'; the pick is remembered on this phone */
+function nightChoice(day){return day&&day.choice&&prefGet('shhChoice-'+day.choice.key,'A')==='B'?'B':'A';}
+function setNightChoice(dayId,v){const day=DAYS.find(d=>d.id===dayId);if(!day||!day.choice)return;prefSet('shhChoice-'+day.choice.key,v==='B'?'B':'A');const y=window.scrollY;renderDays();renderShort();requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'auto'}));}
+function choiceCard(day){
+  const c=day.choice,sel=nightChoice(day),o=sel==='B'?c.b:c.a;
+  const btn=(k,x)=>`<button type="button" class="choice-opt ${sel===k?'on':''}" onclick="setNightChoice('${day.id}','${k}')" aria-pressed="${sel===k}"><b>${k}</b><span>${x.name}</span></button>`;
+  return `<div class="choice-card" id="choice-${day.id}"><div class="choice-title">${c.title}</div><div class="choice-opts">${btn('A',c.a)}${btn('B',c.b)}</div><div class="choice-sub">${o.sub}${o.amap?` <a class="choice-amap" href="https://uri.amap.com/search?keyword=${encodeURIComponent(o.amap)}" target="_blank" rel="noopener">${ic('map')}AMap</a>`:''}</div></div>`;
+}
+function shortChoice(day){
+  const c=day.choice,sel=nightChoice(day);
+  const b=(k,x)=>`<button type="button" class="${sel===k?'on':''}" onclick="setNightChoice('${day.id}','${k}')" aria-pressed="${sel===k}">${k} · ${x.short}</button>`;
+  return `<div class="short-choice"><span>${c.shortTitle}</span>${b('A',c.a)}${b('B',c.b)}</div>`;
+}
+function goChoice(dayId){const el=document.getElementById('choice-'+dayId);if(!el)return;const st=document.querySelector('.status');window.scrollTo({top:Math.max(0,window.scrollY+el.getBoundingClientRect().top-(st?st.offsetHeight:0)-12),behavior:'smooth'});}
 
 /* PLAN */
 function cpChip(p){
@@ -1052,15 +1088,18 @@ function renderDays(){
   document.getElementById('days').innerHTML=DAYS.map(d=>`<button class="dtab ${d.id===activeDay?'on':''}" onclick="setDay('${d.id}')">${d.tab}<small>${d.date}</small></button>`).join('');
   const day=DAYS.find(d=>d.id===activeDay);
   const heroHTML=`<div class="dayhero-wrap"><img class="dayhero" src="assets/day${day.id}-thumb.webp" loading="eager" decoding="async" alt="${day.tab} plan" onclick="zoomImg('assets/day${day.id}.png')" onerror="this.closest('.dayhero-wrap').style.display='none'"><span class="dayhero-cap">${ic('zoom')}แตะดูเต็มจอ</span></div>`;
-  document.getElementById('dayhead').innerHTML=heroHTML+`<h2>${day.tab.replace('DAY','Day')} · ${day.date}</h2>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="rt">${day.cardTitle||day.route||''}</div>${day.tagline?`<div class="day-tagline">${day.tagline}</div>`:''}`;
+  document.getElementById('dayhead').innerHTML=heroHTML+`<h2>${day.tab.replace('DAY','Day')} · ${day.date}</h2>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="rt">${day.cardTitle||day.route||''}</div>${day.tagline?`<div class="day-tagline">${day.tagline}</div>`:''}${day.choice?`<button type="button" class="choice-pill" onclick="goChoice('${day.id}')">🔁 คืนนี้มี 2 ทางเลือก · แตะดู</button>`:''}`;
   const tl=document.getElementById('timeline');
   if(!day.slots.length){tl.innerHTML='<div class="soon">🗺️ ยังไม่มีแผนวันนี้<br>ส่งแพลนมาแล้วเดี๋ยวเติมให้</div>';return;}
+  const _sel=nightChoice(day),_first=day.choice?day.slots.findIndex(x=>x.opt):-1;
   tl.innerHTML=day.slots.map((s,i)=>{
+    const _pre=i===_first?choiceCard(day):'';
+    if(s.opt&&s.opt!==_sel)return _pre;
     const open=openSlots.has(slotKey(day.id,i));
-    if(isMove(s)&&!showMoves&&!open)return `<div class="slot move-thin" id="slot-${i}"><button type="button" class="move-thin-btn" onclick="tgSlot(${i})" aria-expanded="false"><span class="move-icon">${s.icon}</span><span>${moveTimeLabel(s.t)}</span><span class="move-open">▸</span></button></div>`;
+    if(isMove(s)&&!showMoves&&!open)return _pre+`<div class="slot move-thin" id="slot-${i}"><button type="button" class="move-thin-btn" onclick="tgSlot(${i})" aria-expanded="false"><span class="move-icon">${s.icon}</span><span>${moveTimeLabel(s.t)}</span><span class="move-open">▸</span></button></div>`;
     const body=s.metro?metroBody(s.metro):s.train?trainCard(s):s.sz?szBody(s.sz):bodyFor(s);
     const badge=s.hl?'<span class="hl-badge">ห้ามพลาด</span><br>':s.cut?'<span class="cut-badge">ตัดได้ · Plan B</span><br>':'';
-    return `<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''} ${open?'open':''}" id="slot-${i}">
+    return _pre+`<div class="slot ${s.metro||s.train||s.sz?'metro':''} ${s.hl?'hl':''} ${s.cut?'cut':''} ${open?'open':''}" id="slot-${i}">
       <div class="shead" onclick="tgSlot(${i})" aria-expanded="${open}"><span class="stime">${s.t}</span><span class="sicon">${s.icon}</span><span class="slabel">${badge}${lineChips(s.label)}${plInline(s)}</span>${copyBtn(s)}<span class="chev">${ic('chev')}</span></div>
       <div class="sbody">${s.planb?`<div class="planb">🅱️ Plan B: ${s.planb}</div>`:''}${body}</div></div>`;
   }).join('');
@@ -1095,10 +1134,13 @@ function renderShort(){
   }).join('');
   document.getElementById('short-list').innerHTML=DAYS.map(day=>{
     const d=shortThaiDate(day),isToday=today.state==='today'&&today.id===day.id;
+    const _sel=nightChoice(day),_first=day.choice?day.slots.findIndex(x=>x.opt):-1;
     const rows=day.slots.map((s,i)=>{
+      const _pre=i===_first?shortChoice(day):'';
+      if(s.opt&&s.opt!==_sel)return _pre;
       const highlight=String(s.label||'').includes('⭐'),transit=isMove(s);
-      if(transit&&!showMoves)return `<button type="button" class="short-row transit compact" onclick="openShortSlot('${day.id}',${i})"><span class="short-icon">${s.icon}</span><span class="short-label">${moveTimeLabel(s.t)}</span><span class="short-open">${ic('chev')}</span></button>`;
-      return `<button type="button" class="short-row ${highlight?'highlight':''} ${transit?'transit':''}" onclick="openShortSlot('${day.id}',${i})"><span class="short-time">${s.t}</span><span class="short-icon">${s.icon}</span><span class="short-label">${lineChips(s.label)}${shortWhere(s)}</span><span class="short-open">${ic('chev')}</span></button>`;
+      if(transit&&!showMoves)return _pre+`<button type="button" class="short-row transit compact" onclick="openShortSlot('${day.id}',${i})"><span class="short-icon">${s.icon}</span><span class="short-label">${moveTimeLabel(s.t)}</span><span class="short-open">${ic('chev')}</span></button>`;
+      return _pre+`<button type="button" class="short-row ${highlight?'highlight':''} ${transit?'transit':''}" onclick="openShortSlot('${day.id}',${i})"><span class="short-time">${s.t}</span><span class="short-icon">${s.icon}</span><span class="short-label">${lineChips(s.label)}${shortWhere(s)}</span><span class="short-open">${ic('chev')}</span></button>`;
     }).join('');
     return `<article class="card short-day" id="short-day-${day.id}"><header class="short-day-head"><div class="short-day-meta"><span>${day.tab} · ${d.weekday} ${d.date}</span>${isToday?'<span class="short-today">วันนี้</span>':''}</div>${day.theme?`<div class="day-theme">${day.theme}</div>`:''}<div class="short-day-title"><span>${day.cardTitle}</span></div></header>${rows}</article>`;
   }).join('');
