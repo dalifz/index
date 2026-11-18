@@ -643,6 +643,10 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
 @media (prefers-reduced-motion: reduce) { .item-table tbody tr.is-copied td { animation: none; background: rgba(var(--accent-rgb), .12); } }
 .edit-row-button { display: inline-flex; min-height: 30px; align-items: center; gap: 5px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--text-soft); font-size: 10px; font-weight: 600; }
 .edit-row-button:hover { border-color: var(--accent); color: var(--accent); }
+.delete-row-button { display: inline-flex; min-height: 30px; align-items: center; padding: 4px 8px; margin-left: 4px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: #b91c1c; font-size: 10px; font-weight: 600; }
+.delete-row-button:hover { border-color: #b91c1c; background: rgba(185, 28, 28, .06); }
+.delete-row-button:focus-visible { outline: 2px solid #b91c1c; outline-offset: 2px; }
+:root[data-theme="dark"] .delete-row-button { color: #f87171; }
 .edit-row-icon { font-size: 13px; line-height: 1; }
 .table-empty { padding: 48px 20px; color: var(--text-soft); text-align: center; }
 

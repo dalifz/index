@@ -1890,6 +1890,16 @@
         editButton.addEventListener('click', function () { beginItemEdit(item); });
         actionCell.appendChild(editButton);
       }
+      if (window.QAEngine.canDeleteItems && window.QAEngine.canDeleteItems()) {
+        // Dalif only (2026-11-18); the backend checks the account again
+        var deleteButton = node('button', 'delete-row-button');
+        deleteButton.type = 'button';
+        deleteButton.title = 'ลบ ' + textValue(item.name, 'ไอเทมนี้') + ' ออกจากฐานข้อมูล';
+        deleteButton.setAttribute('aria-label', 'ลบ ' + textValue(item.name, 'ไอเทม') + ' ItemIndex ' + textValue(item.index));
+        deleteButton.textContent = 'ลบ';
+        deleteButton.addEventListener('click', function () { deleteLibraryItem(item, deleteButton); });
+        actionCell.appendChild(deleteButton);
+      }
       fragment.appendChild(tr);
     });
     body.appendChild(fragment);
@@ -1898,6 +1908,24 @@
       ? 'พบ ' + formatNumber(items.length) + (items.length === 100 ? '+ รายการ · แสดง 100 รายการแรก' : ' รายการ')
       : 'แสดง 100 รายการแรก';
     updateGameUI();
+  }
+
+  async function deleteLibraryItem(item, button) {
+    var ok = window.confirm('ลบไอเทมนี้ออกจากฐานข้อมูล ' + state.game.toUpperCase() + '?\n\n' +
+      textValue(item.name, '(ไม่มีชื่อ)') + '\nItemKind ' + textValue(item.kind) + ' · ItemIndex ' + textValue(item.index) +
+      ' · ItemOption ' + textValue(item.option) + ' · DurationIndex ' + textValue(item.duration) +
+      '\n\nเอกสารที่ใช้ไอเทมนี้จะถูกฟ้องว่าเป็นไอเทมใหม่ (ย้อนกลับได้จากประวัติใน GitHub)');
+    if (!ok) return;
+    withBusy(button, true, 'กำลังลบ…');
+    try {
+      await window.QAEngine.deleteItem(state.game, item);
+      state.historyEntries = null;
+      toast('ลบ ' + textValue(item.name, 'ไอเทม') + ' ออกจากฐานข้อมูลแล้ว');
+      renderItems();
+    } catch (error) {
+      withBusy(button, false);
+      if (!handleSessionExpired(error)) toast(errorMessage(error, 'ลบไอเทมไม่สำเร็จ'), 'error');
+    }
   }
 
   // Tab-separated = Excel / Google Sheets put each value in its own column on paste.

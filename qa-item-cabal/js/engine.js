@@ -35,6 +35,7 @@
  *        throws Error('not-allowed') (err.email set) when the email is not in the Users sheet
  *   QAEngine.user()                            -> signed-in user or null (null when unlocked by team password)
  *   QAEngine.canEditItems()                    -> true for admin (via backend) or when a GitHub token is used
+ *   await QAEngine.deleteItem(game, item) -> {commit_url, item}   only Dalif (backend checks; QAEngine.canDeleteItems())
  *   await QAEngine.logout()                    ends every session of this user (all devices)
  *   Google sign-in is remembered for 15 days in this browser (localStorage); the data key is
  *   fetched again from the backend (whoami) when the page opens.
@@ -62,7 +63,7 @@
 
   var py = null, initPromise = null;
   var state = { bundles: {}, config: null, manifest: null, pending: { pc: [], mobile: [] },
-                edits: { pc: [], mobile: [] }, auth: {}, session: null, user: null, canSave: false };
+                edits: { pc: [], mobile: [] }, deleted: { pc: [], mobile: [] }, auth: {}, session: null, user: null, canSave: false };
 
   function progress(cb, step, pct) { if (cb) try { cb(step, pct); } catch (e) { /* ignore */ } }
 
@@ -169,7 +170,8 @@
 
   function persistUnsynced() {
     try {
-      localStorage.setItem(UNSYNCED_KEY, JSON.stringify({ at: Date.now(), pending: state.pending, edits: state.edits }));
+      localStorage.setItem(UNSYNCED_KEY, JSON.stringify({ at: Date.now(), pending: state.pending, edits: state.edits,
+                                                         deleted: state.deleted }));
     } catch (e) { /* private window: shown until reload only */ }
   }
 
@@ -189,13 +191,17 @@
       // done once the published data has the saved version
       state.pending[game] = ((saved.pending || {})[game] || []).filter(function (it) { return !have[identity(it)]; });
       state.edits[game] = ((saved.edits || {})[game] || []).filter(function (e) { return !have[identity(e.item)]; });
+      // a delete is done once the data no longer has the row
+      var pend = {};
+      state.pending[game].forEach(function (it) { pend[identity(it)] = 1; });
+      state.deleted[game] = ((saved.deleted || {})[game] || []).filter(function (id) { return have[id] || pend[id]; });
     });
     persistUnsynced();
   }
   function lock() {
     state.bundles = {}; state.config = null;
     state.session = null; state.user = null; state.canSave = false;
-    state.pending = { pc: [], mobile: [] }; state.edits = { pc: [], mobile: [] };
+    state.pending = { pc: [], mobile: [] }; state.edits = { pc: [], mobile: [] }; state.deleted = { pc: [], mobile: [] };
     try {
       sessionStorage.removeItem(SESSION_KEY); localStorage.removeItem(AUTH_KEY); localStorage.removeItem(UNSYNCED_KEY);
     } catch (e) { /* ignore */ }
@@ -257,6 +263,17 @@
     return { value: j.value, already: !!j.already };
   }
 
+  function canDeleteItems() { return !!(state.session && state.user && state.user.can_delete); }
+
+  // Remove one library row (Dalif only — the backend checks again).
+  async function deleteItem(game, item) {
+    if (!canDeleteItems()) throw new Error('ลบไอเทมได้เฉพาะ Dalif (ต้อง Sign in with Google)');
+    var j = await backend('delete_item', { game: game, item: item });
+    state.deleted[game].push(identity(item));
+    persistUnsynced();
+    return { commit_url: j.commit_url, item: j.item };
+  }
+
   async function logout() {
     if (state.session) { try { await backend('logout'); } catch (e) { /* ignore */ } }
     lock();
@@ -274,13 +291,21 @@
     if (GAMES.indexOf(game) < 0) throw new Error('game ต้องเป็น pc หรือ mobile');
     var b = state.bundles[game];
     if (!b) throw new Error('ยังไม่ได้ปลดล็อกข้อมูล');
-    if (!state.pending[game].length && !state.edits[game].length) return b;
-    var items = b.items.map(function (it) {
+    if (!state.pending[game].length && !state.edits[game].length && !state.deleted[game].length) return b;
+    var gone = {};
+    state.deleted[game].forEach(function (id) { gone[id] = (gone[id] || 0) + 1; });
+    var items = b.items.filter(function (it) {
+      var id = identity(it);
+      if (!gone[id]) return true;
+      gone[id] -= 1;                     // a duplicated row: delete one copy only, like the backend
+      return false;
+    }).map(function (it) {
       // edits apply in order, so editing the same item twice shows the latest version
       state.edits[game].forEach(function (e) { if (identity(it) === e.from) it = e.item; });
       return it;
     });
-    return Object.assign({}, b, { items: items.concat(state.pending[game]) });
+    var pend = state.pending[game].filter(function (it) { return state.deleted[game].indexOf(identity(it)) < 0; });
+    return Object.assign({}, b, { items: items.concat(pend) });
   }
 
   function stats(game) {
@@ -521,7 +546,7 @@
     searchItems: searchItems, validateItem: validateItem, addItem: addItem, updateItem: updateItem,
     authConfig: authConfig, loginWithGoogle: loginWithGoogle, logout: logout, user: currentUser,
     canEditItems: canEditItems, canSaveViaBackend: function () { return !!state.canSave; },
-    addNewItems: addNewItems, teamHistory: teamHistory, fixCell: fixCell,
+    addNewItems: addNewItems, teamHistory: teamHistory, fixCell: fixCell, deleteItem: deleteItem, canDeleteItems: canDeleteItems,
     identity: identity, rules: rules,
     manifest: function () { return state.manifest; }
   };
