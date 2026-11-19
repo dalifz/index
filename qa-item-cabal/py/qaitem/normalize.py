@@ -67,6 +67,34 @@ def yes_no(v):
     return None
 
 
+# PC TH and PC SEA share one library; a row tagged "th" / "sea" belongs to that server only
+# (Dalif 2026-11-19: 33562115 / 33558019 is "Community Box [SS1]" on SEA but Spending Boxes on TH).
+SERVERS = ("th", "sea")
+_SEA_TAG = re.compile(r"(?<![a-z0-9])(?:cb)?(?:pc|m)?\s*-?\s*sea(?![a-z0-9])", re.I)
+_TH_TAG = re.compile(r"(?<![a-z0-9])(?:cb)?(?:pc|m)?\s*-?\s*th(?![a-z0-9])", re.I)
+
+
+def server_of(source):
+    """'th' / 'sea' from a document name ("[PCTH] ...", "[CBPC-SEA] ..."), None if it does not say."""
+    s = unicodedata.normalize("NFKC", text(source))
+    sea, th = bool(_SEA_TAG.search(s)), bool(_TH_TAG.search(s))
+    if sea == th:
+        return None
+    return "sea" if sea else "th"
+
+
+def clean_server(v):
+    s = text(v).lower().replace("pc", "").replace("-", "").strip()
+    return s if s in SERVERS else None
+
+
+def for_server(items, server):
+    """Library rows that apply to one server: shared rows + rows tagged for it."""
+    if server not in SERVERS:
+        return list(items)
+    return [i for i in items if clean_server(i.get("server")) in (None, server)]
+
+
 def yn(b):
     return "Yes" if b else "No"
 

@@ -7,7 +7,7 @@ differ in ItemOption / DurationIndex.
 import json
 from collections import defaultdict
 
-from .normalize import full_name_key, name_key, period_key, text, to_int, yes_no
+from .normalize import clean_server, full_name_key, name_key, period_key, text, to_int, yes_no
 
 ITEM_FIELDS = ("kind", "index", "option", "duration", "itemmove",
                "name", "display_name", "period")
@@ -25,6 +25,8 @@ def clean_item(raw):
         "display_name": text(raw.get("display_name")),
         "period": text(raw.get("period")),
     }
+    if clean_server(raw.get("server")):
+        it["server"] = clean_server(raw.get("server"))
     for k in ("note", "added_by", "added_at", "source"):
         if text(raw.get(k)):
             it[k] = text(raw.get(k))

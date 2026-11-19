@@ -10,24 +10,43 @@ from datetime import datetime, timezone
 
 from .checker import RULES, Checker, summarize
 from .db import ItemDB, clean_item
-from .normalize import name_key, period_key, text, to_int, yn
+from .normalize import clean_server, for_server, name_key, period_key, server_of, text, to_int, yn
 from .sheet import parse_workbook
 
 ENGINE_VERSION = "2.0.0"
 
 
 def check_workbook(bundle, workbook):
-    """bundle: item DB bundle (dict or JSON). workbook: {"source", "sheets": [...]}."""
-    db = ItemDB.from_bundle(bundle)
+    """bundle: item DB bundle (dict or JSON). workbook: {"source", "sheets": [...], "server"?}.
+
+    The server (PC TH / PC SEA) comes from workbook["server"] or the document name; rows tagged for
+    the other server are left out. Unknown server -> the whole library, as before.
+    """
+    if isinstance(bundle, str):
+        bundle = json.loads(bundle)
     if isinstance(workbook, str):
         workbook = json.loads(workbook)
+    server = clean_server(workbook.get("server")) or server_of(workbook.get("source", ""))
+    all_items = bundle.get("items", [])
+    db = ItemDB.from_bundle(dict(bundle, items=for_server(all_items, server)))
     rows, notes = parse_workbook(workbook)
     findings = Checker(db).check_rows(rows)
+    if server:
+        # a new item whose numbers the other server already uses for something else -> this server only
+        taken = {(to_int(i.get("kind")), to_int(i.get("index")), to_int(i.get("option")))
+                 for i in all_items if clean_server(i.get("server")) not in (None, server)}
+        taken |= {(to_int(i.get("kind")), to_int(i.get("index")), to_int(i.get("option")))
+                  for i in all_items if clean_server(i.get("server")) is None}
+        for f in findings:
+            ni = f.get("new_item")
+            if ni and (ni.get("kind"), ni.get("index"), ni.get("option")) in taken:
+                ni["server"] = server
     order = {"error": 0, "warn": 1, "info": 2}
     findings.sort(key=lambda f: (f["sheet"], f["row"], order[f["severity"]]))
     return {
         "engine": ENGINE_VERSION,
         "game": db.game,
+        "server": server,
         "source": workbook.get("source", ""),
         "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "db": db.stats(),
@@ -93,6 +112,10 @@ def validate_item(bundle, raw, original=None):
         raw = json.loads(raw)
     if isinstance(original, str):
         original = json.loads(original) if original else None
+    # an item for one server is only compared with shared rows and rows of that server
+    server = clean_server(raw.get("server"))
+    if server:
+        bundle = dict(bundle, items=for_server(bundle.get("items", []), server))
     if original:
         key = item_identity(original)
         new_index = to_int((raw or {}).get("index"))

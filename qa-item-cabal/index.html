@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20261119043319">
+  <link rel="stylesheet" href="css/app.css?v=20261119044656">
 </head>
 <body>
   <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหาหลัก</a>
@@ -389,6 +389,7 @@
                 <label class="span-2 item-field" data-item-field="name"><span>Item Name <em>*</em></span><input name="name" type="text" autocomplete="off" required placeholder="ชื่อไอเทมตามฐานข้อมูล"></label>
                 <label class="span-2 item-field" data-item-field="display_name"><span>Display Name</span><input name="display_name" type="text" autocomplete="off" placeholder="ชื่อที่แสดงในเอกสาร (ถ้ามี)"></label>
                 <label class="span-2 item-field" data-item-field="period"><span>Period</span><input name="period" type="text" autocomplete="off" placeholder="เช่น 7 Days, 1 Day, Permanent, ถาวร"></label>
+                <label class="span-2 item-field" data-item-field="server"><span>ใช้กับเซิร์ฟเวอร์</span><select name="server"><option value="">ทั้ง TH และ SEA (ปกติ)</option><option value="th">TH เท่านั้น</option><option value="sea">SEA เท่านั้น</option></select><small class="field-hint">เลือก TH / SEA เฉพาะไอเทมที่สองเซิร์ฟใช้เลขเดียวกันแต่เป็นของคนละชิ้น</small></label>
               </div>
               <div class="binary-grid">
                 <fieldset class="item-field" data-item-field="itemmove"><legend>Trade (เทรดได้ไหม) <em>*</em></legend><div class="segment-control"><label><input type="radio" name="itemmove" value="Yes" checked><span>Yes</span></label><label><input type="radio" name="itemmove" value="No"><span>No</span></label></div></fieldset>
@@ -466,7 +467,7 @@
   <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="js/engine.js?v=20261119043319"></script>
-  <script src="js/app.js?v=20261119043319"></script>
+  <script src="js/engine.js?v=20261119044656"></script>
+  <script src="js/app.js?v=20261119044656"></script>
 </body>
 </html>

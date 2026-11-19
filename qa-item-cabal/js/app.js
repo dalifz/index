@@ -1133,7 +1133,8 @@
     var pass = errors === 0;
     byId('result-hero').classList.toggle('is-pass', pass);
     byId('verdict-icon').textContent = pass ? '✓' : '!';
-    byId('result-source').textContent = (result.game || state.game).toUpperCase() + ' · ' + (result.source || 'เอกสาร');
+    byId('result-source').textContent = (result.game || state.game).toUpperCase() +
+      (serverLabel(result.server) ? ' ' + serverLabel(result.server) : '') + ' · ' + (result.source || 'เอกสาร');
     byId('results-title').textContent = pass ? 'ส่งต่อได้' : 'พบจุดที่ต้องแก้';
     byId('result-subtitle').textContent = pass
       ? (warnings ? 'ไม่พบข้อผิด แต่มี ' + formatNumber(warnings) + ' จุดน่าสงสัยที่ควรทบทวน' : 'ตรวจครบทุกแถวแล้ว ไม่พบข้อผิดพลาด')
@@ -1828,11 +1829,17 @@
   }
 
   /* ---------------------------------------------------------------- items */
-  var ITEM_FIELDS = ['kind', 'index', 'option', 'duration', 'itemmove', 'name', 'display_name', 'period'];
+  var ITEM_FIELDS = ['kind', 'index', 'option', 'duration', 'itemmove', 'name', 'display_name', 'period', 'server'];
   var ITEM_FIELD_LABELS = {
     kind: 'ItemKind', index: 'ItemIndex', option: 'ItemOption', duration: 'DurationIndex',
-    itemmove: 'Trade', name: 'Item Name', display_name: 'Display Name', period: 'Period'
+    itemmove: 'Trade', name: 'Item Name', display_name: 'Display Name', period: 'Period', server: 'เซิร์ฟเวอร์'
   };
+
+  // PC TH / PC SEA tag of a library row ('' = used by both servers)
+  function serverLabel(server) {
+    var s = String(server || '').toLowerCase();
+    return s === 'th' ? 'TH' : s === 'sea' ? 'SEA' : '';
+  }
 
   function setupItemEvents() {
     byId('item-search').addEventListener('input', debounce(renderItems, 150));
@@ -1860,6 +1867,11 @@
       ['name', 'display_name', 'period'].forEach(function (field) {
         var td = node('td', '', textValue(item[field]));
         td.title = textValue(item[field]);
+        if (field === 'name' && serverLabel(item.server)) {
+          var tag = node('span', 'server-tag', serverLabel(item.server));
+          tag.title = 'ใช้เฉพาะ PC ' + serverLabel(item.server);
+          td.insertBefore(tag, td.firstChild);
+        }
         tr.appendChild(td);
       });
       // double-click anywhere on the row = copy it (Excel-ready); copy icon does the same
@@ -2011,7 +2023,8 @@
       // rows of one item differ by Option / Duration / Trade / Period -> show them (Dalif 2026-11-19)
       copy.appendChild(node('small', '', 'ItemIndex ' + textValue(item.index) + ' · ItemKind ' + textValue(item.kind) +
         ' · Option ' + textValue(item.option) + ' · Duration ' + textValue(item.duration) +
-        ' · Trade ' + booleanText(item.itemmove) + ' · Period ' + textValue(item.period)));
+        ' · Trade ' + booleanText(item.itemmove) + ' · Period ' + textValue(item.period) +
+        (serverLabel(item.server) ? ' · เฉพาะ ' + serverLabel(item.server) : '')));
       button.appendChild(copy);
       button.appendChild(node('span', 'quick-result-action', 'แก้ไข →'));
       button.addEventListener('click', function () { beginItemEdit(item); });
@@ -2133,7 +2146,8 @@
       itemmove: data.get('itemmove') || '',
       name: data.get('name') || '',
       display_name: data.get('display_name') || '',
-      period: data.get('period') || ''
+      period: data.get('period') || '',
+      server: data.get('server') || ''
     };
   }
 

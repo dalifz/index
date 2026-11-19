@@ -668,7 +668,9 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
 .quick-result:hover, .quick-result:focus-visible { background: var(--accent-soft); }
 .quick-result-copy { min-width: 0; }
 .quick-result-copy strong, .quick-result-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.quick-result-copy small { white-space: normal; line-height: 1.5; }   /* the detail line wraps instead of hiding Trade / Period */
+.quick-result-copy small { white-space: normal; line-height: 1.5; }
+.server-tag { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 999px; background: rgba(var(--accent-rgb), .12); color: var(--accent); font-size: 9px; font-weight: 700; letter-spacing: .04em; vertical-align: 1px; }
+.field-hint { display: block; margin-top: 4px; color: var(--text-faint); font-size: 10px; font-weight: 400; }   /* the detail line wraps instead of hiding Trade / Period */
 .quick-result-copy strong { font-size: 11px; }
 .quick-result-copy small { margin-top: 2px; color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; }
 .quick-result-action { flex: none; color: var(--accent); font-size: 10px; font-weight: 700; }
