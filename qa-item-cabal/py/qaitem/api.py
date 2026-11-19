@@ -32,14 +32,16 @@ def check_workbook(bundle, workbook):
     rows, notes = parse_workbook(workbook)
     findings = Checker(db).check_rows(rows)
     if server:
-        # a new item whose numbers the other server already uses for something else -> this server only
-        taken = {(to_int(i.get("kind")), to_int(i.get("index")), to_int(i.get("option")))
-                 for i in all_items if clean_server(i.get("server")) not in (None, server)}
-        taken |= {(to_int(i.get("kind")), to_int(i.get("index")), to_int(i.get("option")))
-                  for i in all_items if clean_server(i.get("server")) is None}
+        # a new item gets this server's tag when its numbers are already used for something else:
+        # same Kind/Index/Option, or a box (same Kind/Index) that already has rows tagged for a server
+        # (Dalif 2026-11-19: SEA "Community Box [SS1]" 33562115/33558019 option 9 next to TH Spending Boxes)
+        k3 = lambda i: (to_int(i.get("kind")), to_int(i.get("index")), to_int(i.get("option")))
+        taken = {k3(i) for i in all_items}
+        split_boxes = {k3(i)[:2] for i in all_items if clean_server(i.get("server"))}
         for f in findings:
             ni = f.get("new_item")
-            if ni and (ni.get("kind"), ni.get("index"), ni.get("option")) in taken:
+            if ni and ((ni.get("kind"), ni.get("index"), ni.get("option")) in taken
+                       or (ni.get("kind"), ni.get("index")) in split_boxes):
                 ni["server"] = server
     order = {"error": 0, "warn": 1, "info": 2}
     findings.sort(key=lambda f: (f["sheet"], f["row"], order[f["severity"]]))

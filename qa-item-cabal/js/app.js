@@ -1510,7 +1510,8 @@
     [
       ['ItemKind', newItem.kind], ['ItemIndex', newItem.index], ['ItemOption', newItem.option],
       ['DurationIndex', newItem.duration], ['Trade', newItem.itemmove]
-    ].forEach(function (entry, index) {
+    ].concat(serverLabel(newItem.server) ? [['เซิร์ฟเวอร์', 'เฉพาะ ' + serverLabel(newItem.server)]] : [])
+     .forEach(function (entry, index) {
       if (index) meta.appendChild(node('span', 'new-item-separator', '·'));
       var part = node('span', 'new-item-meta__part');
       part.appendChild(node('small', '', entry[0]));
