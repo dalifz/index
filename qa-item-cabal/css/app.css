@@ -668,6 +668,7 @@ select { max-width: 100%; padding: 8px 34px 8px 11px; }
 .quick-result:hover, .quick-result:focus-visible { background: var(--accent-soft); }
 .quick-result-copy { min-width: 0; }
 .quick-result-copy strong, .quick-result-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-result-copy small { white-space: normal; line-height: 1.5; }   /* the detail line wraps instead of hiding Trade / Period */
 .quick-result-copy strong { font-size: 11px; }
 .quick-result-copy small { margin-top: 2px; color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; }
 .quick-result-action { flex: none; color: var(--accent); font-size: 10px; font-weight: 700; }

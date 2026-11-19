@@ -2008,7 +2008,10 @@
       button.type = 'button';
       var copy = node('span', 'quick-result-copy');
       copy.appendChild(node('strong', '', textValue(item.name, item.display_name || 'ไม่ระบุชื่อ')));
-      copy.appendChild(node('small', '', 'ItemIndex ' + textValue(item.index) + ' · ItemKind ' + textValue(item.kind)));
+      // rows of one item differ by Option / Duration / Trade / Period -> show them (Dalif 2026-11-19)
+      copy.appendChild(node('small', '', 'ItemIndex ' + textValue(item.index) + ' · ItemKind ' + textValue(item.kind) +
+        ' · Option ' + textValue(item.option) + ' · Duration ' + textValue(item.duration) +
+        ' · Trade ' + booleanText(item.itemmove) + ' · Period ' + textValue(item.period)));
       button.appendChild(copy);
       button.appendChild(node('span', 'quick-result-action', 'แก้ไข →'));
       button.addEventListener('click', function () { beginItemEdit(item); });
