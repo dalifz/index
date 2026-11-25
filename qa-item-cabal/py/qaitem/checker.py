@@ -466,6 +466,18 @@ class Checker:
         if not lib:
             return []
         doc = dict(n, itemmove=move)
+        # the same item can live under two numberings that are both still in use (Dalif 2026-11-25:
+        # "Epaulet of Undead B3F" 33559523/33555427 and 67113068/67108972): when the library has this
+        # name (any quantity, aliases too) on the document's own ItemKind + ItemIndex, the numbers are
+        # a known version, not a mistake; the xN in the name vs ItemOption is checked by QTY_OPTION
+        known_numbers = False
+        if n["kind"] is not None and n["index"] is not None:
+            names = {name_key(name), name_key(dname)} - {""}
+            known_numbers = any(
+                it["kind"] == n["kind"] and names & {name_key(x) for x in
+                                                     [it["name"], it["display_name"]] + it.get("aliases", [])}
+                for it in self.db.by_index.get(n["index"], []))
+        no_qty = qty_in_name(name) is None and qty_in_name(dname) is None
         bead = self.option_is_period(name, dname)
         # Blessing Bead: ItemOption is the ownership period, so Trade must decide the match instead
         fields = ("kind", "index", "duration", "itemmove") if bead else ("kind", "index", "option", "duration")
@@ -477,6 +489,8 @@ class Checker:
         for f in ("index", "kind", "option", "itemmove"):   # duration varies per event (Dalif 2026-11-12)
             if f == "option" and bead:
                 continue                   # ownership period, varies per event like DurationIndex
+            if known_numbers and (f in ("index", "kind") or (f == "option" and no_qty)):
+                continue                   # another numbering of this item that is still in use
             vals = {it[f] for it in lib if it[f] is not None}
             if doc[f] is None or not vals or doc[f] in vals or FIELD_LABELS[f] in done:
                 continue
