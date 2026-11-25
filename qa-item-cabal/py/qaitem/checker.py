@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (display_core, UPGRADE_BITS, chaos_upgrade_in_name, kind_with_upgrade, describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (QTY_SUFFIX, display_core, UPGRADE_BITS, chaos_upgrade_in_name, kind_with_upgrade, describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -250,6 +250,10 @@ class Checker:
             elif name and not name_ok:
                 identity_broken = True
                 real = sorted({c["name"] for c in named if c["name"]})
+                # the "xN" in a library name is that row's quantity (= its ItemOption), not part of the name:
+                # suggest the name with this document's own quantity (Dalif 2026-11-25: Epaulet ... x5 vs option 1)
+                q_doc = qty_in_name(name)
+                real = sorted({QTY_SUFFIX.sub("", x).strip() + (" x%d" % q_doc if q_doc else "") for x in real})
                 hit_kinds = {h["kind"] for h in name_hits}
                 if other_idx and kind is not None and kind in hit_kinds and kind not in kinds:
                     # ItemKind and name agree on another item -> the ItemIndex is the wrong cell
