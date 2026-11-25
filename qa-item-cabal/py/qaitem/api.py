@@ -151,6 +151,11 @@ def validate_item(bundle, raw, original=None):
     for fd in Checker(db).check_row(row):
         if fd["code"] in ("UNKNOWN_ITEM", "NEW_VARIANT"):
             continue
+        if fd["code"] == "LIBRARY_DIFF":
+            # an admin adding a row on purpose: the same item can have a second numbering that is also
+            # used in game (Dalif 2026-11-25: Happy Birthday Ring 5456/1360 and 33559707/33555611)
+            warnings.append(fd["rule"] + ": " + fd["message"] + " — ถ้าเป็นอีกเลขของไอเทมเดิมที่ใช้ได้ทั้งคู่ บันทึกได้เลย")
+            continue
         (errors if fd["severity"] == "error" else warnings).append(fd["rule"] + ": " + fd["message"])
     dup = [c for c in db.by_index.get(it["index"], [])
            if c["kind"] == it["kind"] and c["option"] == it["option"] and c["duration"] == it["duration"]
