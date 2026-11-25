@@ -25,7 +25,8 @@ def display_core(v):
 
 
 # "(ผูกมัด)" = bound; optional in names (Dalif 2026-11-13) -> ignored when comparing names
-BOUND_TAG = re.compile(r"\(\s*ผูกมัด\s*\)")
+# "(TH)" / "(SEA)" server tags in names are optional too (Dalif 2026-11-25: "Blessing Bead - EXP (400%) (TH)(6 ชั่วโมง)")
+BOUND_TAG = re.compile(r"\(\s*(?:ผูกมัด|th|sea|pc\s*-?\s*th|pc\s*-?\s*sea)\s*\)", re.I)
 
 
 def text(v):
