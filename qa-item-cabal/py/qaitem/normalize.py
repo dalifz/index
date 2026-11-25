@@ -11,6 +11,19 @@ GAMES = ("pc", "mobile")
 E_NOTATION = re.compile(r"^\s*[+-]?\d+(\.\d+)?[eE][+-]?\d+\s*$")
 INT_TEXT = re.compile(r"^\s*[+-]?\d+(\.0+)?\s*$")
 QTY_SUFFIX = re.compile(r"\s*[xX×]\s*([\d,]+)\s*$")
+# Display Name cells from the reward template: "◆ No (1) :Superior Odd Circle x20 EA" (Dalif 2026-11-25)
+_DISPLAY_PREFIX = re.compile(r"^\s*[◆◇•●○▪■□►▶\-*·]*\s*(?:no\.?\s*\(?\s*\d+\s*\)?\s*[:：.\-]\s*)?", re.I)
+_DISPLAY_UNIT = re.compile(r"\s+(?:ea|pcs?|ชิ้น)\.?\s*$", re.I)
+
+
+def display_core(v):
+    """Display Name without the template bullet / "No (n) :" prefix and a trailing "EA"."""
+    s = text(v)
+    if not s:
+        return s
+    return _DISPLAY_UNIT.sub("", _DISPLAY_PREFIX.sub("", s, count=1)).strip() or s
+
+
 # "(ผูกมัด)" = bound; optional in names (Dalif 2026-11-13) -> ignored when comparing names
 BOUND_TAG = re.compile(r"\(\s*ผูกมัด\s*\)")
 

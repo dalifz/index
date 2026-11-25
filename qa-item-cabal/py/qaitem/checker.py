@@ -12,7 +12,7 @@ Severity:
 import re
 from collections import Counter
 
-from .normalize import (UPGRADE_BITS, chaos_upgrade_in_name, kind_with_upgrade, describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
+from .normalize import (display_core, UPGRADE_BITS, chaos_upgrade_in_name, kind_with_upgrade, describe_kind, is_no_id, variant_key, has_value, without_value, flag_residual, full_name_key, kind_fields, strip_upgrade, upgrade_in_name, is_e_notation, option_matches_qty, name_key, period_key, qty_in_name, text,
                         to_int, yes_no, yn)
 from .sheet import FIELD_LABELS
 
@@ -193,7 +193,7 @@ class Checker:
 
         kind, idx, opt, dur = n["kind"], n["index"], n["option"], n["duration"]
         name = text(v.get("name"))
-        dname = text(v.get("display_name"))
+        dname = display_core(v.get("display_name"))   # "◆ No (1) :Name x20 EA" -> "Name x20"
         nk = name_key(name)
 
         # 2. identity: ItemIndex <-> name
@@ -433,7 +433,7 @@ class Checker:
 
         # 6. Item Name vs Display Name
         if name and dname and name_key(name) != name_key(dname):
-            f("DISPLAY_NAME", "display_name", dname, name,
+            f("DISPLAY_NAME", "display_name", text(v.get("display_name")), name,
               "Display Name ไม่ตรงกับ Item Name (ไม่นับจำนวน xN)")
 
         # 7. Amount
@@ -508,7 +508,7 @@ def new_item_from_row(r):
         "duration": to_int(v.get("duration")),
         "itemmove": None if yes_no(v.get("itemmove")) is None else yn(yes_no(v.get("itemmove"))),
         "name": text(v.get("name")) or text(v.get("display_name")),
-        "display_name": text(v.get("display_name")) or text(v.get("name")),
+        "display_name": display_core(v.get("display_name")) or text(v.get("name")),
         "period": text(v.get("period")),
         "source": "ตรวจเจอใน %s / แถว %s" % (r["sheet"], r["row"]),
     }
